@@ -1,0 +1,18 @@
+{
+  "0-cloud code 是目前世界上最强的智能体，没有之一。": {
+    "path": "audio/slide-0.mp3",
+    "duration": 7.25
+  },
+  "1-你是不是以为它只是写代码的？但其实它在写作、写 ppt、写文案、画图等多个领域表现都很好。": {
+    "path": "audio/slide-1.mp3",
+    "duration": 11.25
+  },
+  "2-它可以帮你干任何你在电脑上干的任何事。": {
+    "path": "audio/slide-2.mp3",
+    "duration": 4.75
+  },
+  "3-甚至爆火的 minis 背后的核心推力引擎也大概率是它。": {
+    "path": "audio/slide-3.mp3",
+    "duration": 7
+  }
+}

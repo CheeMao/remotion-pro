@@ -1,0 +1,38 @@
+# Dependencies
+node_modules/
+app/node_modules/
+
+# Build outputs
+dist/
+out/
+build/
+
+# Tauri / Rust
+src-tauri/target/
+*.exe
+*.msi
+*.dmg
+*.app
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Logs
+*.log
+npm-debug.log*
+
+# Cache
+audio-cache/*.mp3
+!audio-cache/.gitkeep

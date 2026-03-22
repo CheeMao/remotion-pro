@@ -1,0 +1,49 @@
+{
+  "name": "template-helloworld",
+  "version": "1.0.0",
+  "description": "My Remotion video",
+  "scripts": {
+    "dev": "remotion studio --port 32123 --no-open",
+    "build": "remotion bundle",
+    "upgrade": "remotion upgrade",
+    "lint": "eslint src && tsc",
+    "generate": "npx tsx src/cli/index.ts generate",
+    "generate:audio": "npx tsx src/cli/index.ts audio",
+    "clone-voice": "npx tsx src/cli/index.ts clone-voice",
+    "dev:app": "cd app && npm run dev",
+    "build:app": "cd app && npm run build",
+    "tauri": "tauri",
+    "tauri:dev": "tauri dev",
+    "tauri:build": "tauri build"
+  },
+  "repository": {},
+  "license": "UNLICENSED",
+  "dependencies": {
+    "@remotion/bundler": "^4.0.438",
+    "@remotion/cli": "^4.0.0",
+    "@remotion/google-fonts": "^4.0.438",
+    "@remotion/renderer": "^4.0.438",
+    "@remotion/zod-types": "^4.0.0",
+    "commander": "^14.0.3",
+    "dashscope-sdk-nodejs": "^0.6.0",
+    "music-metadata": "^11.12.3",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "remotion": "^4.0.0",
+    "tsx": "^4.21.0",
+    "ws": "^8.19.0",
+    "zod": "4.3.6"
+  },
+  "devDependencies": {
+    "@remotion/eslint-config-flat": "^4.0.0",
+    "@tauri-apps/api": "^2.10.1",
+    "@tauri-apps/cli": "^2.10.1",
+    "@types/react": "19.2.7",
+    "@types/web": "0.0.166",
+    "@types/ws": "^8.18.1",
+    "eslint": "9.19.0",
+    "prettier": "3.8.1",
+    "typescript": "5.9.3"
+  },
+  "private": true
+}

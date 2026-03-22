@@ -1,0 +1,56 @@
+{
+  "meta": {
+    "title": "Claude Code 介绍",
+    "template": "SlideShow",
+    "voiceId": "cosyvoice-v3.5-plus-bailian-e928a906503344608a5198dba9ed9cb8"
+  },
+  "slides": [
+    {
+      "title": "Claude Code 是什么？",
+      "subtitle": "一款革命性的 AI 编程助手",
+      "points": [
+        "命令行工具，在终端中运行",
+        "理解整个代码库，智能编辑",
+        "自然语言交互，无需记忆命令"
+      ],
+      "narration": "Claude Code 是一款革命性的 AI 编程助手，它在命令行中运行，能够理解你的整个代码库并进行智能编辑。你只需要用自然语言描述需求，就能完成各种开发任务。"
+    },
+    {
+      "title": "核心功能",
+      "subtitle": "强大且易用的开发工具",
+      "points": [
+        "读取、编辑、创建文件",
+        "运行命令和测试",
+        "Git 操作自动化",
+        "智能搜索代码库"
+      ],
+      "narration": "Claude Code 提供了强大的核心功能：可以读取、编辑和创建文件，运行命令和测试，还能自动化 Git 操作。它的智能搜索功能让你快速定位代码。"
+    },
+    {
+      "title": "快速上手",
+      "subtitle": "三分钟开始使用",
+      "points": [
+        "安装: npm install -g claude-code",
+        "运行: claude 启动会话",
+        "提问: 用自然语言描述需求"
+      ],
+      "narration": "快速上手非常简单：首先通过 npm 全局安装，然后运行 claude 命令启动会话，最后用自然语言提问即可开始你的 AI 编程之旅。"
+    },
+    {
+      "title": "实用技巧",
+      "subtitle": "让 Claude Code 更高效",
+      "points": [
+        "CLAUDE.md 配置项目规范",
+        "用 Todo 跟踪任务进度",
+        "结合 Git 进行版本控制"
+      ],
+      "narration": "掌握一些实用技巧可以让 Claude Code 更加高效：使用 CLAUDE.md 文件配置项目规范，利用 Todo 功能跟踪任务进度，结合 Git 进行版本控制。"
+    },
+    {
+      "title": "开始你的 AI 编程之旅",
+      "subtitle": "让 AI 成为你的编程伙伴",
+      "points": [],
+      "narration": "现在就开始你的 AI 编程之旅吧，让 Claude Code 成为你最可靠的编程伙伴！"
+    }
+  ]
+}

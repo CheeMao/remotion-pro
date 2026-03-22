@@ -1,0 +1,125 @@
+{
+  "template": "GlassShow",
+  "slides": [
+    {
+      "id": "slide-0",
+      "title": "Claude Code 国内安装指南",
+      "subtitle": "无痛部署，告别网络限制",
+      "points": [
+        "国内网络环境可用",
+        "省去数小时折腾"
+      ],
+      "narration": "今天这个视频教你无痛安装Claude Code，在国内的网络环境下用上Claude GPT等国外的顶尖模型。",
+      "audioDuration": 6.666666666666667,
+      "durationInFrames": 200,
+      "audioStart": 0,
+      "audioEnd": 6.666666666666667
+    },
+    {
+      "id": "slide-1",
+      "title": "最强 AI 编程工具",
+      "subtitle": "Claude Code 核心能力",
+      "points": [
+        "AI 编程领域标杆",
+        "代码理解与生成"
+      ],
+      "narration": "Claude Code 可以说是现在最强的 AI 编程工具，",
+      "audioDuration": 4.533333333333333,
+      "durationInFrames": 136,
+      "audioStart": 6.666666666666667,
+      "audioEnd": 11.2
+    },
+    {
+      "id": "slide-2",
+      "title": "Skill 加持",
+      "subtitle": "能力边界大幅拓展",
+      "points": [
+        "近期爆火功能",
+        "多场景应用支持"
+      ],
+      "narration": "再加上最近爆火的 Skill 加持，",
+      "audioDuration": 3.7333333333333334,
+      "durationInFrames": 112,
+      "audioStart": 11.2,
+      "audioEnd": 14.933333333333334
+    },
+    {
+      "id": "slide-3",
+      "title": "不止于编程",
+      "subtitle": "全能 AI 助手",
+      "points": [
+        "写作辅助",
+        "学习答疑",
+        "数据分析",
+        "办公提效"
+      ],
+      "narration": "很多人也用它写作、学习、做数据分析、办公等等。",
+      "audioDuration": 4.233333333333333,
+      "durationInFrames": 127,
+      "audioStart": 14.933333333333334,
+      "audioEnd": 19.166666666666668
+    },
+    {
+      "id": "slide-4",
+      "title": "最火热的 AI 助手",
+      "subtitle": "当前市场热度",
+      "points": [
+        "用户增长迅猛",
+        "社区讨论度高"
+      ],
+      "narration": "Claude Code 可以说是现在最火热的 AI 助手之一。",
+      "audioDuration": 4.433333333333334,
+      "durationInFrames": 133,
+      "audioStart": 19.166666666666668,
+      "audioEnd": 23.6
+    },
+    {
+      "id": "slide-5",
+      "title": "安装痛点",
+      "subtitle": "现有教程的局限",
+      "points": [
+        "网络限制阻碍",
+        "配置问题频发"
+      ],
+      "narration": "网上有很多的安装教程，但实际安装时会发现网络限制、安装配置中出现的各种问题让人焦头烂额。",
+      "audioDuration": 5.233333333333333,
+      "durationInFrames": 157,
+      "audioStart": 23.6,
+      "audioEnd": 28.833333333333332
+    },
+    {
+      "id": "slide-6",
+      "title": "实战经验沉淀",
+      "subtitle": "踩坑后的解决方案",
+      "points": [
+        "真实安装经历",
+        "问题逐一攻克"
+      ],
+      "narration": "我结合自身安装过程中遇到的坑，",
+      "audioDuration": 3.566666666666667,
+      "durationInFrames": 107,
+      "audioStart": 28.833333333333332,
+      "audioEnd": 32.4
+    },
+    {
+      "id": "slide-7",
+      "title": "完整使用指南",
+      "subtitle": "即开即用的解决方案",
+      "points": [
+        "国内环境专属优化",
+        "节省数小时时间"
+      ],
+      "narration": "整理了一份 Claude Code 在国内网络环境下的安装使用指南，能帮你省下几个小时的折腾时间。",
+      "audioDuration": 5.666666666666667,
+      "durationInFrames": 170,
+      "audioStart": 32.4,
+      "audioEnd": 38.06666666666667
+    }
+  ],
+  "fps": 30,
+  "width": 1080,
+  "height": 1920,
+  "defaultDurationPerSlide": 150,
+  "soundtrackPath": "audio/narration.mp3",
+  "soundtrackDuration": 38.034285714285716
+}
