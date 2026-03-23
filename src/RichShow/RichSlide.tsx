@@ -175,19 +175,18 @@ const ProgressRing: React.FC<{ percent: number; color: string; label: string; de
 // ===== 主组件 =====
 export const RichSlide: React.FC<{
   type: string;
-  data: Record<string, any>;
+  data?: Record<string, unknown>;
   index: number;
   totalSlides: number;
   durationInFrames: number;
-}> = ({ type, data, index, totalSlides, durationInFrames }) => {
+}> = ({ type, data = {}, index, totalSlides, durationInFrames }) => {
   const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
   const itemCount = Array.isArray(data.items)
-    ? data.items.length
+    ? (data.items as unknown[]).length
     : Array.isArray(data.stats)
-      ? data.stats.length
+      ? (data.stats as unknown[]).length
       : Array.isArray(data.bars)
-        ? data.bars.length
+        ? (data.bars as unknown[]).length
         : 0;
   const timing = getSlideMotionTiming(durationInFrames, itemCount);
 
@@ -217,9 +216,9 @@ export const RichSlide: React.FC<{
                 letterSpacing: "-2px",
               }}
             >
-              {data.title}
+              {String(data.title ?? "")}
             </h1>
-            {data.subtitle && (
+            {typeof data.subtitle === 'string' && (
               <p style={{ fontSize: 42, color: colors.muted, margin: 0 }}>
                 <Typewriter text={data.subtitle} startFrame={20} />
               </p>
@@ -232,10 +231,10 @@ export const RichSlide: React.FC<{
         return (
           <div style={{ width: "92%" }}>
             <h2 style={{ fontSize: 56, fontWeight: 800, color: colors.text, margin: "0 0 50px 0", textAlign: "center" }}>
-              {data.title}
+              {String(data.title ?? "")}
             </h2>
             <div style={{ display: "flex", gap: 24, justifyContent: "center", flexWrap: "wrap" }}>
-              {data.stats.map((stat: any, i: number) => {
+              {Array.isArray(data.stats) && (data.stats as Array<{ value: number; suffix?: string; label: string }>).map((stat, i) => {
                 const gradients = [colors.gradient1, colors.gradient2, colors.gradient3, colors.gradient4];
                 return (
                   <BentoCard
@@ -260,10 +259,10 @@ export const RichSlide: React.FC<{
         return (
           <div style={{ width: "92%" }}>
             <h2 style={{ fontSize: 56, fontWeight: 800, color: colors.text, margin: "0 0 40px 0", textAlign: "center" }}>
-              {data.title}
+              {String(data.title ?? "")}
             </h2>
             <div style={{ display: "flex", gap: 20, flexWrap: "wrap", justifyContent: "center" }}>
-              {data.items.map((item: string, i: number) => {
+              {Array.isArray(data.items) && (data.items as string[]).map((item, i) => {
                 const accents = [colors.accent1, colors.accent2, colors.accent3, colors.accent4];
                 return (
                   <BentoCard
@@ -288,10 +287,10 @@ export const RichSlide: React.FC<{
         return (
           <div style={{ width: "92%" }}>
             <h2 style={{ fontSize: 56, fontWeight: 800, color: colors.text, margin: "0 0 40px 0", textAlign: "center" }}>
-              {data.title}
+              {String(data.title ?? "")}
             </h2>
             <div style={{ display: "flex", gap: 30, justifyContent: "center", flexWrap: "wrap" }}>
-              {data.bars.map((bar: any, i: number) => {
+              {Array.isArray(data.bars) && (data.bars as Array<{ percent: number; label: string }>).map((bar, i) => {
                 const accentColors = [colors.accent1, colors.accent2, colors.accent3, colors.accent4];
                 return (
                   <BentoCard key={i} delay={10 + i * 10} style={{ alignItems: "center", padding: 32 }}>
@@ -318,10 +317,10 @@ export const RichSlide: React.FC<{
           >
             <div style={{ fontSize: 80, color: "rgba(255,255,255,0.3)", marginBottom: 20 }}>"</div>
             <p style={{ fontSize: 40, fontStyle: "italic", color: "#fff", margin: 0, lineHeight: 1.6 }}>
-              {data.quote}
+              {String(data.quote ?? "")}
             </p>
             <p style={{ fontSize: 26, color: "rgba(255,255,255,0.8)", marginTop: 30, textAlign: "right" }}>
-              — {data.author}
+              — {String(data.author ?? "")}
             </p>
           </BentoCard>
         );
@@ -331,15 +330,15 @@ export const RichSlide: React.FC<{
         return (
           <div style={{ width: "92%" }}>
             <h2 style={{ fontSize: 56, fontWeight: 800, color: colors.text, margin: "0 0 50px 0", textAlign: "center" }}>
-              {data.title}
+              {String(data.title ?? "")}
             </h2>
             <div style={{ display: "flex", gap: 30, alignItems: "center", justifyContent: "center" }}>
               <BentoCard
                 delay={5}
                 style={{ background: "rgba(244,63,94,0.15)", border: "2px solid rgba(244,63,94,0.4)", width: 350, alignItems: "center", padding: 40 }}
               >
-                <div style={{ fontSize: 24, color: colors.accent4, marginBottom: 12 }}>{data.left.label}</div>
-                <div style={{ fontSize: 42, fontWeight: 800, color: "#fff" }}>{data.left.value}</div>
+                <div style={{ fontSize: 24, color: colors.accent4, marginBottom: 12 }}>{String((data.left as { label: string })?.label ?? "")}</div>
+                <div style={{ fontSize: 42, fontWeight: 800, color: "#fff" }}>{String((data.left as { value: string })?.value ?? "")}</div>
               </BentoCard>
 
               <div style={{
@@ -361,8 +360,8 @@ export const RichSlide: React.FC<{
                 delay={15}
                 style={{ background: "rgba(34,211,238,0.15)", border: "2px solid rgba(34,211,238,0.4)", width: 350, alignItems: "center", padding: 40 }}
               >
-                <div style={{ fontSize: 24, color: colors.accent3, marginBottom: 12 }}>{data.right.label}</div>
-                <div style={{ fontSize: 42, fontWeight: 800, color: "#fff" }}>{data.right.value}</div>
+                <div style={{ fontSize: 24, color: colors.accent3, marginBottom: 12 }}>{String((data.right as { label: string })?.label ?? "")}</div>
+                <div style={{ fontSize: 42, fontWeight: 800, color: "#fff" }}>{String((data.right as { value: string })?.value ?? "")}</div>
               </BentoCard>
             </div>
           </div>
@@ -373,10 +372,10 @@ export const RichSlide: React.FC<{
         return (
           <div style={{ width: "92%" }}>
             <h2 style={{ fontSize: 56, fontWeight: 800, color: colors.text, margin: "0 0 40px 0", textAlign: "center" }}>
-              {data.title}
+              {String(data.title ?? "")}
             </h2>
             <div style={{ display: "flex", gap: 20, flexWrap: "wrap", justifyContent: "center" }}>
-              {data.items.map((item: any, i: number) => {
+              {Array.isArray(data.items) && (data.items as Array<{ icon?: string; text: string; desc?: string }>).map((item, i) => {
                 const gradients = [colors.gradient1, colors.gradient2, colors.gradient3, colors.gradient4];
                 return (
                   <BentoCard
@@ -398,7 +397,7 @@ export const RichSlide: React.FC<{
         );
 
       // ===== CTA 页 =====
-      case "cta":
+      case "cta": {
         const pulseScale = 1 + Math.sin(frame * 0.08) * 0.02;
 
         return (
@@ -413,12 +412,12 @@ export const RichSlide: React.FC<{
                 textShadow: `0 0 60px ${colors.accent1}40`,
               }}
             >
-              {data.title}
+              {String(data.title ?? "")}
             </h1>
-            {data.subtitle && (
+            {typeof data.subtitle === 'string' && (
               <p style={{ fontSize: 34, color: colors.muted, marginBottom: 50 }}>{data.subtitle}</p>
             )}
-            {data.button && (
+            {typeof data.button === 'string' && (
               <div
                 style={{
                   display: "inline-block",
@@ -432,11 +431,12 @@ export const RichSlide: React.FC<{
                   boxShadow: `0 10px 50px ${colors.accent1}50`,
                 }}
               >
-                {data.button}
+                {String(data.button)}
               </div>
             )}
           </div>
         );
+      }
 
       default:
         return null;

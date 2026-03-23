@@ -3,27 +3,24 @@ import {
   Card,
   Button,
   Input,
-  TextArea,
   List,
   Space,
   Typography,
   Message,
-  Progress,
   Modal,
   Spin,
 } from '@arco-design/web-react';
 import {
   IconPlus,
   IconDelete,
-  IconEdit,
-  IconPlay,
-  IconDownload,
   IconRefresh,
+  IconPlayArrow,
 } from '@arco-design/web-react/icon';
 import { invoke } from '@tauri-apps/api/core';
 import { useProjectStore } from '../stores/project';
 
 const { Title, Text } = Typography;
+const TextArea = Input.TextArea;
 
 interface RemotionPreviewProps {
   onClose: () => void;
@@ -126,7 +123,7 @@ function RemotionPreview({ onClose }: RemotionPreviewProps) {
 }
 
 export default function Editor() {
-  const { project, updateSlide, setSlides, isRendering, progress } = useProjectStore();
+  const { project, updateSlide, setSlides } = useProjectStore();
   const [activeSlide, setActiveSlide] = useState(0);
   const [showPreview, setShowPreview] = useState(false);
 
@@ -212,7 +209,7 @@ export default function Editor() {
         {/* 内嵌预览按钮 */}
         <Button
           type="primary"
-          icon={<IconPlay />}
+          icon={<IconPlayArrow />}
           onClick={() => setShowPreview(true)}
           long
           style={{ marginBottom: 16 }}
@@ -304,7 +301,7 @@ export default function Editor() {
             <Text>旁白（用于 TTS 配音）</Text>
             <TextArea
               value={currentSlide.narration}
-              onChange={(value) => updateSlide(currentSlide.id, { narration: value })}
+              onChange={(value: string) => updateSlide(currentSlide.id, { narration: value })}
               placeholder="输入旁白文本..."
               autoSize={{ minRows: 4, maxRows: 8 }}
               style={{ marginTop: 8 }}

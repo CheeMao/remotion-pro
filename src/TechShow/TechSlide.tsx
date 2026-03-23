@@ -340,19 +340,19 @@ const CyberProgress: React.FC<{
 // ===== 主组件 =====
 export const TechSlide: React.FC<{
   type: string;
-  data: Record<string, any>;
+  data?: Record<string, unknown>;
   index: number;
   totalSlides: number;
   durationInFrames: number;
-}> = ({ type, data, index, totalSlides, durationInFrames }) => {
+}> = ({ type, data = {}, index, totalSlides, durationInFrames }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const itemCount = Array.isArray(data.items)
-    ? data.items.length
+    ? (data.items as unknown[]).length
     : Array.isArray(data.stats)
-      ? data.stats.length
+      ? (data.stats as unknown[]).length
       : Array.isArray(data.bars)
-        ? data.bars.length
+        ? (data.bars as unknown[]).length
         : 0;
   const timing = getSlideMotionTiming(durationInFrames, itemCount);
 
@@ -385,7 +385,7 @@ export const TechSlide: React.FC<{
   const renderContent = () => {
     switch (type) {
       // ===== 标题页 =====
-      case "title":
+      case "title": {
         const titleGlitch = frame % 40 < 3;
         return (
           <div style={{ textAlign: "center" }}>
@@ -408,10 +408,10 @@ export const TechSlide: React.FC<{
                 transform: titleGlitch ? `translateX(${Math.sin(frame)}px)` : "none",
               }}
             >
-              {data.title}
+              {String(data.title ?? "")}
             </h1>
 
-            {data.subtitle && (
+            {typeof data.subtitle === 'string' && (
               <p
                 style={{
                   fontSize: 36,
@@ -451,12 +451,13 @@ export const TechSlide: React.FC<{
             </div>
           </div>
         );
+      }
 
       // ===== 数据页 =====
       case "stats":
         return (
           <div style={{ width: "90%" }}>
-            <TerminalText text={data.title.toUpperCase()} delay={0} frame={frame} />
+            <TerminalText text={String(data.title ?? "").toUpperCase()} delay={0} frame={frame} />
 
             <div
               style={{
@@ -465,7 +466,7 @@ export const TechSlide: React.FC<{
                 marginTop: 60,
               }}
             >
-              {data.stats.map((stat: any, i: number) => {
+              {Array.isArray(data.stats) && (data.stats as Array<{ value: number; suffix?: string; label: string }>).map((stat, i) => {
                 const colorSet = [colors.primary, colors.secondary, colors.accent, colors.warning];
                 return (
                   <CyberCounter
@@ -494,11 +495,11 @@ export const TechSlide: React.FC<{
                 paddingBottom: 20,
                 marginBottom: 30,
               }}>
-                <TerminalText text={data.title.toUpperCase()} delay={0} frame={frame} />
+                <TerminalText text={String(data.title ?? "").toUpperCase()} delay={0} frame={frame} />
               </div>
 
               <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-                {data.items.map((item: any, i: number) => {
+                {Array.isArray(data.items) && (data.items as Array<{ icon?: string; text: string; desc?: string }>).map((item, i) => {
                   const itemProgress = spring({
                     frame: frame - 20 - i * 10,
                     fps,
@@ -553,10 +554,10 @@ export const TechSlide: React.FC<{
       case "progress":
         return (
           <div style={{ width: 700 }}>
-            <TerminalText text={data.title.toUpperCase()} delay={0} frame={frame} />
+            <TerminalText text={String(data.title ?? "").toUpperCase()} delay={0} frame={frame} />
 
             <div style={{ marginTop: 50 }}>
-              {data.bars.map((bar: any, i: number) => {
+              {Array.isArray(data.bars) && (data.bars as Array<{ label: string; percent: number }>).map((bar, i) => {
                 const colorSet = [colors.primary, colors.secondary, colors.accent, colors.warning];
                 return (
                   <CyberProgress
@@ -578,7 +579,7 @@ export const TechSlide: React.FC<{
       case "compare":
         return (
           <div style={{ width: "90%" }}>
-            <TerminalText text={data.title.toUpperCase()} delay={0} frame={frame} />
+            <TerminalText text={String(data.title ?? "").toUpperCase()} delay={0} frame={frame} />
 
             <div
               style={{
@@ -599,10 +600,10 @@ export const TechSlide: React.FC<{
                 }}
               >
                 <div style={{ fontSize: 24, color: colors.accent, marginBottom: 10 }}>
-                  // {data.left.label}
+                  // {String((data.left as { label: string })?.label ?? "")}
                 </div>
                 <div style={{ fontSize: 60, fontWeight: 900, color: colors.text }}>
-                  {data.left.value}
+                  {String((data.left as { value: string })?.value ?? "")}
                 </div>
               </div>
 
@@ -628,10 +629,10 @@ export const TechSlide: React.FC<{
                 }}
               >
                 <div style={{ fontSize: 24, color: colors.secondary, marginBottom: 10 }}>
-                  // {data.right.label}
+                  // {String((data.right as { label: string })?.label ?? "")}
                 </div>
                 <div style={{ fontSize: 60, fontWeight: 900, color: colors.text }}>
-                  {data.right.value}
+                  {String((data.right as { value: string })?.value ?? "")}
                 </div>
               </div>
             </div>
@@ -658,7 +659,7 @@ export const TechSlide: React.FC<{
                 margin: 0,
                 lineHeight: 1.6,
               }}>
-                "{data.quote}"
+                "{String(data.quote ?? "")}"
               </p>
               <div style={{
                 marginTop: 30,
@@ -666,7 +667,7 @@ export const TechSlide: React.FC<{
                 color: colors.secondary,
                 textAlign: "right",
               }}>
-                — {data.author}
+                — {String(data.author ?? "")}
               </div>
               <div style={{
                 marginTop: 20,
@@ -682,7 +683,7 @@ export const TechSlide: React.FC<{
         );
 
       // ===== CTA 页 =====
-      case "cta":
+      case "cta": {
         const pulse = 1 + Math.sin(frame * 0.1) * 0.03;
 
         return (
@@ -699,16 +700,16 @@ export const TechSlide: React.FC<{
                 letterSpacing: "3px",
               }}
             >
-              {data.title}
+              {String(data.title ?? "")}
             </h1>
 
-            {data.subtitle && (
+            {typeof data.subtitle === 'string' && (
               <p style={{ fontSize: 34, color: colors.muted }}>
                 {data.subtitle}
               </p>
             )}
 
-            {data.button && (
+            {typeof data.button === 'string' && (
               <div
                 style={{
                   marginTop: 50,
@@ -729,6 +730,7 @@ export const TechSlide: React.FC<{
             )}
           </div>
         );
+      }
 
       default:
         return null;

@@ -3,17 +3,18 @@ import { useNavigate } from 'react-router-dom';
 import {
   Card,
   Button,
-  TextArea,
+  Input,
   Message,
   Space,
   Typography,
   Select,
 } from '@arco-design/web-react';
 import { IconSend } from '@arco-design/web-react/icon';
-import { useProjectStore, Slide } from '../stores/project';
+import { useProjectStore } from '../stores/project';
 import { generateSlides } from '../services/ai';
 
 const { Title, Text } = Typography;
+const TextArea = Input.TextArea;
 
 const TEMPLATES = [
   { label: '科技风', value: 'SlideShow' },
@@ -45,7 +46,7 @@ export default function Home() {
         id: Date.now().toString(),
         title: '新项目',
         rawText: text,
-        slides: slides.map((slide: Slide, index: number) => ({
+        slides: slides.map((slide, index) => ({
           ...slide,
           id: `slide-${index}`,
         })),

@@ -5,6 +5,7 @@ import {
   getStaticAssetPath,
   useContentJson,
 } from '../hooks/useContentJson';
+import { getTemplateContentPath } from '../project-content';
 
 const defaultSlides = [
   {
@@ -25,10 +26,14 @@ const defaultSlides = [
 ];
 
 const DEFAULT_SLIDE_DURATION = 150;
+const CONTENT_PATH = getTemplateContentPath('NeonShow');
 
 export const NeonShow: React.FC = () => {
   const { fps } = useVideoConfig();
-  const { slides, soundtrackPath } = useContentJson(defaultSlides);
+  const { slides, soundtrackPath } = useContentJson(defaultSlides, {
+    expectedTemplate: 'NeonShow',
+    contentPath: CONTENT_PATH,
+  });
   const soundtrackSrc = getStaticAssetPath(soundtrackPath);
 
   return (

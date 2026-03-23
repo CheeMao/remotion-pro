@@ -6,6 +6,7 @@ import {
   useContentJson,
 } from '../hooks/useContentJson';
 import { TimelineFields } from '../templates/types';
+import { getTemplateContentPath } from '../project-content';
 
 type SlideType =
   | 'title'
@@ -17,13 +18,19 @@ type SlideType =
   | 'list'
   | 'cta';
 
-interface SlideData extends TimelineFields {
+interface RichSlideData extends TimelineFields {
   type: SlideType;
   data: Record<string, unknown>;
   narration?: string;
 }
 
-const defaultSlides: SlideData[] = [
+// 验证是否是 RichShow 格式的 slide
+const isRichSlide = (slide: unknown): slide is RichSlideData => {
+  const s = slide as Partial<RichSlideData>;
+  return typeof s?.type === 'string' && typeof s?.data === 'object';
+};
+
+const defaultSlides: RichSlideData[] = [
   { type: 'title', data: { title: 'Rich story flow', subtitle: 'Scene-based layout' } },
   {
     type: 'list',
@@ -43,10 +50,15 @@ const defaultSlides: SlideData[] = [
 ];
 
 const DEFAULT_SLIDE_DURATION = 150;
+const CONTENT_PATH = getTemplateContentPath('RichShow');
 
 export const RichShow: React.FC = () => {
   const { fps } = useVideoConfig();
-  const { slides, soundtrackPath } = useContentJson(defaultSlides);
+  const { slides, soundtrackPath } = useContentJson<RichSlideData>(defaultSlides, {
+    validateSlide: isRichSlide,
+    expectedTemplate: 'RichShow',
+    contentPath: CONTENT_PATH,
+  });
   const soundtrackSrc = getStaticAssetPath(soundtrackPath);
 
   return (

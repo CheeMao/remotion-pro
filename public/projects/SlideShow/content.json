@@ -1,0 +1,23 @@
+{
+  "meta": {
+    "title": "Path isolation smoke test",
+    "template": "SlideShow",
+    "voice_id": ""
+  },
+  "slides": [
+    {
+      "title": "Template-scoped content",
+      "subtitle": "This file belongs only to SlideShow",
+      "points": ["Independent JSON", "No shared schema collision", "Preview and render stay stable"],
+      "narration": "Template-scoped content preview.",
+      "durationInFrames": 120
+    },
+    {
+      "title": "Template is locked",
+      "subtitle": "Editor can no longer switch template",
+      "points": ["Content path follows template", "Audio path follows template", "Rendering uses the same composition"],
+      "narration": "Locked template prevents incompatible template switches.",
+      "durationInFrames": 120
+    }
+  ]
+}

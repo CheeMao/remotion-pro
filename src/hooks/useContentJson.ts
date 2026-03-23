@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { continueRender, delayRender } from 'remotion';
 import { TimelineFields } from '../templates/types';
+import { toStaticContentPath } from '../project-content';
 
 interface ContentMetaData {
   title?: string;
@@ -26,8 +27,16 @@ export interface LoadedContent<TSlide> {
   soundtrackDuration?: number;
 }
 
+// 检查 slide 是否符合特定模板的格式要求
+type SlideFormatValidator<TSlide> = (slide: unknown) => slide is TSlide;
+
 export function useContentJson<TSlide>(
-  defaultSlides: TSlide[]
+  defaultSlides: TSlide[],
+  options?: {
+    validateSlide?: SlideFormatValidator<TSlide>;
+    expectedTemplate?: string;
+    contentPath?: string;
+  }
 ): LoadedContent<TSlide> {
   const [content, setContent] = useState<LoadedContent<TSlide>>({
     slides: defaultSlides,
@@ -36,22 +45,41 @@ export function useContentJson<TSlide>(
 
   useEffect(() => {
     const staticBase = (window as { remotion_staticBase?: string }).remotion_staticBase || '';
-    const url = `${staticBase}/content/slides.json?t=${Date.now()}`;
+    const requestedPath = options?.contentPath
+      ? toStaticContentPath(options.contentPath)
+      : 'content/slides.json';
+    const url = `${staticBase}/${requestedPath}?t=${Date.now()}`;
 
     fetch(url)
       .then((response) => {
         if (!response.ok) {
-          throw new Error(`Failed to load slides.json: ${response.status}`);
+          throw new Error(`Failed to load content JSON: ${response.status}`);
         }
         return response.json();
       })
       .then((data: ContentJsonResponse<TSlide>) => {
+        let slides: TSlide[];
+        const rawSlides = data.slides;
+
+        // 检查模板是否匹配
+        const templateMatch = !options?.expectedTemplate ||
+          data.meta?.template === options.expectedTemplate;
+
+        // 检查数据格式是否有效
+        const hasValidSlides = Array.isArray(rawSlides) &&
+          rawSlides.length > 0 &&
+          (!options?.validateSlide || rawSlides.every(options.validateSlide));
+
+        if (templateMatch && hasValidSlides) {
+          slides = rawSlides;
+        } else {
+          // 格式不匹配或模板不匹配，使用默认数据
+          slides = defaultSlides;
+        }
+
         setContent({
           meta: data.meta,
-          slides:
-            Array.isArray(data.slides) && data.slides.length > 0
-              ? data.slides
-              : defaultSlides,
+          slides,
           soundtrackPath: data.meta?.soundtrackPath || data.meta?.soundtrack_path,
           soundtrackDuration:
             data.meta?.soundtrackDuration || data.meta?.soundtrack_duration,
@@ -61,7 +89,7 @@ export function useContentJson<TSlide>(
       .catch(() => {
         continueRender(handle);
       });
-  }, [defaultSlides, handle]);
+  }, [defaultSlides, handle, options]);
 
   return content;
 }

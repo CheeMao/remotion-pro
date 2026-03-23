@@ -74,7 +74,10 @@
       "Bash(CARGO=\"$USERPROFILE/.cargo/bin/cargo.exe\" npx tauri dev)",
       "Bash(powershell.exe -Command \"[Environment]::GetEnvironmentVariable\\('PATH', 'User'\\)\")",
       "Bash(powershell.exe -Command '$env:PATH = [Environment]::GetEnvironmentVariable\\(\\\\\"PATH\\\\\", \\\\\"User\\\\\"\\) + \\\\\";\\\\\" + [Environment]::GetEnvironmentVariable\\(\\\\\"PATH\\\\\", \\\\\"Machine\\\\\"\\); cd \\\\\"F:/My Apps/AI-remotion\\\\\"; npm run tauri:dev'、)",
-      "Bash(powershell.exe -ExecutionPolicy Bypass -File \"F:/My Apps/AI-remotion/start-tauri.ps1\")"
+      "Bash(powershell.exe -ExecutionPolicy Bypass -File \"F:/My Apps/AI-remotion/start-tauri.ps1\")",
+      "Bash(powershell.exe -Command '$env:PATH = [Environment]::GetEnvironmentVariable\\(\\\\\"PATH\\\\\", \\\\\"User\\\\\"\\) + \\\\\";\\\\\" + [Environment]::GetEnvironmentVariable\\(\\\\\"PATH\\\\\", \\\\\"Machine\\\\\"\\); cd \\\\\"F:/My Apps/AI-remotion\\\\\"; npm run tauri:build')",
+      "Bash(powershell.exe -ExecutionPolicy Bypass -File \"F:/My Apps/AI-remotion/build-tauri.ps1\")",
+      "Bash(powershell.exe -Command \"Stop-Process -Id 34412 -Force -ErrorAction SilentlyContinue; Stop-Process -Id 33100 -Force -ErrorAction SilentlyContinue; Start-Sleep -Seconds 2\")"
     ]
   }
 }

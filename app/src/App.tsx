@@ -28,6 +28,7 @@ interface Project {
   rawText: string;
   slides: Slide[];
   template: string;
+  contentPath: string;
 }
 
 interface NarrationInfo {
@@ -41,7 +42,7 @@ interface RemotionStartupResult {
   message: string;
 }
 
-const REMOTION_PREVIEW_URL = 'http://localhost:32123/GeneratedVideo';
+const REMOTION_PREVIEW_URL = 'http://localhost:32123';
 
 function normalizeSpeechRate(value: unknown): number {
   const parsed = typeof value === 'number' ? value : Number(value);
@@ -66,6 +67,21 @@ const COMPACT_UI = {
   buttonPadding: '10px 20px',
 };
 
+function getProjectContentPath(template: string): string {
+  return `public/projects/${template}/content.json`;
+}
+
+function normalizeProject(project: Project | null): Project | null {
+  if (!project) {
+    return null;
+  }
+
+  return {
+    ...project,
+    contentPath: project.contentPath || getProjectContentPath(project.template),
+  };
+}
+
 // ========== 持久化存储辅助函数 ==========
 function saveProjectToStorage(project: Project | null) {
   if (project) {
@@ -79,7 +95,7 @@ function loadProjectFromStorage(): Project | null {
   const saved = localStorage.getItem('videomaker-project');
   if (saved) {
     try {
-      return JSON.parse(saved);
+      return normalizeProject(JSON.parse(saved) as Project);
     } catch {
       return null;
     }
@@ -94,8 +110,9 @@ const projectState: { project: Project | null; listeners: Set<() => void> } = {
 };
 
 function setProject(project: Project | null) {
-  projectState.project = project;
-  saveProjectToStorage(project);
+  const normalized = normalizeProject(project);
+  projectState.project = normalized;
+  saveProjectToStorage(normalized);
   projectState.listeners.forEach(fn => fn());
 }
 
@@ -343,7 +360,7 @@ function estimateSlideDurations(
 ): number[] {
   const totalFrames = Math.max(1, Math.ceil(durationSeconds * FPS));
   return allocateEstimatedFrames(
-    slides as Array<Record<string, unknown>>,
+    slides as unknown as Array<Record<string, unknown>>,
     totalFrames
   ).map((frames) => frames / FPS);
 }
@@ -371,7 +388,10 @@ function getPromptForTemplate(template: string, durationSeconds: number): string
   }
 }
 
-async function generateNarration(text: string): Promise<NarrationInfo> {
+async function generateNarration(
+  text: string,
+  contentPath: string
+): Promise<NarrationInfo> {
   const settings = JSON.parse(localStorage.getItem('videomaker-settings') || '{}');
   if (!settings.voiceId || !settings.voiceApiKey) {
     throw new Error('请先在设置中配置音色 ID 和 DashScope API Key');
@@ -383,6 +403,7 @@ async function generateNarration(text: string): Promise<NarrationInfo> {
     voiceId: settings.voiceId,
     apiKey: settings.voiceApiKey,
     speechRate: normalizeSpeechRate(settings.voiceSpeechRate),
+    contentPath,
   });
 
   return JSON.parse(result) as NarrationInfo;
@@ -490,11 +511,19 @@ const TEMPLATES = [
   { label: '磨砂玻璃', value: 'FrostedShow' },
 ];
 
+const USER_TEMPLATES = TEMPLATES.filter((templateOption) => {
+  return templateOption.value !== 'GeneratedVideo';
+});
+
 function Home() {
   const navigate = useNavigate();
   const project = useProject();
   const [text, setText] = React.useState(project?.rawText || '');
-  const [template, setTemplate] = React.useState(project?.template || 'SlideShow');
+  const [template, setTemplate] = React.useState(
+    USER_TEMPLATES.some((item) => item.value === project?.template)
+      ? project!.template
+      : 'SlideShow'
+  );
   const [loading, setLoading] = React.useState(false);
   const [loadingMessage, setLoadingMessage] = React.useState('');
   const [error, setError] = React.useState('');
@@ -509,7 +538,8 @@ function Home() {
 
     try {
       setLoadingMessage('正在生成整段语音...');
-      const narration = await generateNarration(text);
+      const contentPath = getProjectContentPath(template);
+      const narration = await generateNarration(text, contentPath);
 
       setLoadingMessage(
         `正在根据 ${narration.duration.toFixed(1)} 秒旁白规划页面...`
@@ -542,13 +572,15 @@ function Home() {
         template: template,
         voiceId: settings.voiceId || '',
         rawText: text,
-        slides: slidesData
+        slides: slidesData,
+        contentPath,
       });
 
       // 3. 用已经生成好的 narration.mp3 同步页面时间线
       setLoadingMessage('正在同步页面时长...');
       await invoke<string>('sync_timeline', {
         voiceId: settings.voiceId || '',
+        contentPath,
       });
 
       setProject({
@@ -556,6 +588,7 @@ function Home() {
         rawText: text,
         slides,
         template,
+        contentPath,
       });
       navigate('/editor');
     } catch (e: any) {
@@ -600,7 +633,7 @@ function Home() {
               onChange={(e) => setTemplate(e.target.value)}
               style={{ padding: '7px 10px', border: '1px solid #e5e6eb', borderRadius: 4, fontSize: 13 }}
             >
-              {TEMPLATES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
+              {USER_TEMPLATES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
             </select>
           </div>
 
@@ -724,7 +757,8 @@ function Editor() {
         template: project.template,
         voiceId: settings.voiceId || '',
         rawText: project.rawText || '',
-        slides: slidesData
+        slides: slidesData,
+        contentPath: project.contentPath,
       });
       console.log('幻灯片已保存');
     } catch (e) {
@@ -743,12 +777,14 @@ function Editor() {
     try {
       await invoke<string>('sync_timeline', {
         voiceId: settings.voiceId,
+        contentPath: project.contentPath,
       });
     } catch {
       await invoke<string>('generate_audio', {
         voiceId: settings.voiceId,
         apiKey: settings.voiceApiKey,
         speechRate: normalizeSpeechRate(settings.voiceSpeechRate),
+        contentPath: project.contentPath,
       });
     }
   };
@@ -757,7 +793,7 @@ function Editor() {
     console.log('Starting embedded preview...');
     setRemotionStarting(true);
     setShowPreview(true);
-    setPreviewUrl(`${REMOTION_PREVIEW_URL}?t=${Date.now()}`);
+    setPreviewUrl(`${REMOTION_PREVIEW_URL}/GeneratedVideo?t=${Date.now()}`);
 
     try {
       await saveSlides();
@@ -775,7 +811,7 @@ function Editor() {
       });
     } catch (e: any) {
       console.error('Unable to prepare Remotion preview:', e);
-      setPreviewUrl(`${REMOTION_PREVIEW_URL}?t=${Date.now()}`);
+      setPreviewUrl(`${REMOTION_PREVIEW_URL}/GeneratedVideo?t=${Date.now()}`);
     } finally {
       setRemotionStarting(false);
     }
@@ -879,7 +915,8 @@ function Editor() {
 
       setRenderProgress('正在渲染视频...');
       const result = await invoke<string>('render_video', {
-        template: project.template
+        template: project.template,
+        contentPath: project.contentPath,
       });
       setRenderProgress('渲染完成: ' + result);
     } catch (e) {
@@ -955,13 +992,12 @@ function Editor() {
           {/* 模板选择 */}
           <div style={{ marginBottom: COMPACT_UI.sectionGap, padding: 12, background: '#e8f3ff', borderRadius: 8 }}>
             <span style={{ color: '#4e5969' }}>当前模板：</span>
-            <select
-              value={project.template}
-              onChange={(e) => { project.template = e.target.value; forceUpdate(); }}
-              style={{ padding: '5px 10px', border: '1px solid #165dff', borderRadius: 4, fontSize: 13, color: '#165dff', background: '#fff' }}
-            >
-              {TEMPLATES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
-            </select>
+            <span style={{ marginLeft: 8, padding: '5px 10px', border: '1px solid #165dff', borderRadius: 4, fontSize: 13, color: '#165dff', background: '#fff', display: 'inline-block' }}>
+              {project.template}
+            </span>
+            <span style={{ marginLeft: 12, fontSize: 12, color: '#86909c' }}>
+              当前项目已绑定模板，不能切换。
+            </span>
             {isComplexTemplate && (
               <span style={{ marginLeft: 12, fontSize: 12, color: '#86909c' }}>
                 (复杂模板，支持多种幻灯片类型)

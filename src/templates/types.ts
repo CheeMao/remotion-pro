@@ -42,9 +42,56 @@ export interface ContentSlide extends TimelineFields {
   subtitle?: string;
   points?: string[];
   narration?: string;
-  type?: string;
+  type?:
+    | 'default'
+    | 'list'
+    | 'steps'
+    | 'timeline'
+    | 'chart'
+    | 'highlight'
+    | 'compare'
+    | 'stats'
+    | 'quote'
+    | 'hero';
   data?: Record<string, unknown>;
   [key: string]: unknown;
+}
+
+// 知识类元素类型
+export interface HighlightWord {
+  text: string;
+  color?: string;
+  emphasis?: 'bounce' | 'glow' | 'underline' | 'scale';
+}
+
+export interface StepItem {
+  title: string;
+  description?: string;
+  icon?: string;
+}
+
+export interface TimelineItem {
+  year: string;
+  title: string;
+  description?: string;
+}
+
+export interface ChartData {
+  type: 'bar' | 'progress' | 'pie';
+  title?: string;
+  values: Array<{
+    label: string;
+    value: number;
+    color?: string;
+  }>;
+}
+
+// 扩展的知识类幻灯片
+export interface KnowledgeSlide extends ContentSlide {
+  highlights?: HighlightWord[];
+  steps?: StepItem[];
+  timeline?: TimelineItem[];
+  chart?: ChartData;
 }
 
 export interface ContentFile {

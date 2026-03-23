@@ -2,6 +2,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::fs;
 use std::net::{SocketAddr, TcpStream};
+use std::path::{Path, PathBuf};
 use std::process::Command;
 
 #[cfg(target_os = "windows")]
@@ -20,6 +21,10 @@ struct Meta {
     voice_id: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     full_narration: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    soundtrack_path: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    soundtrack_duration: Option<f64>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -37,7 +42,58 @@ struct RemotionStartupResult {
     message: String,
 }
 
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+struct CurrentProjectData {
+    template: String,
+    content_path: String,
+}
+
 const REMOTION_PORT: u16 = 32123;
+
+fn normalize_repo_relative_path(path: &str) -> String {
+    path.replace('\\', "/").trim_start_matches('/').to_string()
+}
+
+fn resolve_project_path(project_dir: &Path, repo_relative_path: &str) -> PathBuf {
+    project_dir.join(normalize_repo_relative_path(repo_relative_path))
+}
+
+fn repo_relative_path(project_dir: &Path, absolute_path: &Path) -> Result<String, String> {
+    absolute_path
+        .strip_prefix(project_dir)
+        .map(|path| path.to_string_lossy().replace('\\', "/"))
+        .map_err(|e| format!("Failed to resolve relative path: {}", e))
+}
+
+fn static_asset_path_from_repo_path(repo_relative_path: &str) -> String {
+    normalize_repo_relative_path(repo_relative_path)
+        .trim_start_matches("public/")
+        .to_string()
+}
+
+fn derive_project_paths(
+    project_dir: &Path,
+    content_path: &str,
+) -> Result<(PathBuf, PathBuf, PathBuf, String, String), String> {
+    let content_file = resolve_project_path(project_dir, content_path);
+    let project_folder = content_file
+        .parent()
+        .map(Path::to_path_buf)
+        .ok_or_else(|| "Failed to resolve project content folder".to_string())?;
+    let audio_file = project_folder.join("audio").join("narration.mp3");
+    let raw_text_file = project_folder.join("raw-narration.txt");
+    let audio_repo_relative = repo_relative_path(project_dir, &audio_file)?;
+    let audio_static_path = static_asset_path_from_repo_path(&audio_repo_relative);
+
+    Ok((
+        content_file,
+        raw_text_file,
+        audio_file,
+        audio_repo_relative,
+        audio_static_path,
+    ))
+}
 
 fn get_project_dir() -> Result<std::path::PathBuf, String> {
     let tauri_dir = std::env::current_dir()
@@ -170,14 +226,28 @@ async fn save_slides(
     voice_id: String,
     raw_text: String,
     slides: Vec<Value>,
+    content_path: String,
 ) -> Result<String, String> {
     let project_dir = get_project_dir()?;
-    let content_dir = project_dir.join("public").join("content");
+    let content_file = resolve_project_path(&project_dir, &content_path);
+    let content_dir = content_file
+        .parent()
+        .map(Path::to_path_buf)
+        .ok_or_else(|| "Failed to resolve content directory.".to_string())?;
 
     if !content_dir.exists() {
         fs::create_dir_all(&content_dir)
             .map_err(|e| format!("Failed to create content directory: {}", e))?;
     }
+
+    let existing_meta = if content_file.exists() {
+        fs::read_to_string(&content_file)
+            .ok()
+            .and_then(|content| serde_json::from_str::<SlidesData>(&content).ok())
+            .map(|data| data.meta)
+    } else {
+        None
+    };
 
     let data = SlidesData {
         meta: Meta {
@@ -189,18 +259,43 @@ async fn save_slides(
             } else {
                 Some(raw_text)
             },
+            soundtrack_path: existing_meta
+                .as_ref()
+                .and_then(|meta| meta.soundtrack_path.clone()),
+            soundtrack_duration: existing_meta
+                .as_ref()
+                .and_then(|meta| meta.soundtrack_duration),
         },
         slides,
     };
 
-    let output_path = content_dir.join("slides.json");
     let json_str = serde_json::to_string_pretty(&data)
         .map_err(|e| format!("Failed to serialize slides: {}", e))?;
 
-    fs::write(&output_path, json_str)
-        .map_err(|e| format!("Failed to write slides.json: {}", e))?;
+    fs::write(&content_file, json_str)
+        .map_err(|e| format!("Failed to write content file: {}", e))?;
 
-    Ok(output_path.to_string_lossy().to_string())
+    let current_project_path = project_dir
+        .join("public")
+        .join("projects")
+        .join("current-project.json");
+    if let Some(parent) = current_project_path.parent() {
+        if !parent.exists() {
+            fs::create_dir_all(parent)
+                .map_err(|e| format!("Failed to create current project directory: {}", e))?;
+        }
+    }
+
+    let current_project = CurrentProjectData {
+        template: data.meta.template.clone(),
+        content_path: normalize_repo_relative_path(&content_path),
+    };
+    let current_project_json = serde_json::to_string_pretty(&current_project)
+        .map_err(|e| format!("Failed to serialize current project: {}", e))?;
+    fs::write(&current_project_path, current_project_json)
+        .map_err(|e| format!("Failed to write current project file: {}", e))?;
+
+    Ok(content_file.to_string_lossy().to_string())
 }
 
 #[tauri::command]
@@ -286,13 +381,29 @@ async fn generate_audio(
     voice_id: String,
     api_key: String,
     speech_rate: Option<f64>,
+    content_path: String,
 ) -> Result<String, String> {
     let project_dir = get_project_dir()?;
-    let content_file = project_dir.join("public").join("content").join("slides.json");
+    let (content_file, _, audio_file, _, _) =
+        derive_project_paths(&project_dir, &content_path)?;
 
     if !content_file.exists() {
-        return Err("slides.json does not exist. Generate slides first.".to_string());
+        return Err("Content JSON does not exist. Generate slides first.".to_string());
     }
+
+    if let Some(parent) = audio_file.parent() {
+        if !parent.exists() {
+            fs::create_dir_all(parent)
+                .map_err(|e| format!("Failed to create audio directory: {}", e))?;
+        }
+    }
+
+    let content_repo_relative = repo_relative_path(&project_dir, &content_file)?;
+    let audio_dir_repo_relative = audio_file
+        .parent()
+        .map(|path| repo_relative_path(&project_dir, path))
+        .transpose()?
+        .unwrap_or_else(|| "public/audio".to_string());
 
     #[cfg(target_os = "windows")]
     let output = {
@@ -303,11 +414,11 @@ async fn generate_audio(
             "tsx",
             "src/cli/index.ts",
             "audio",
-            "public/content/slides.json",
+            &content_repo_relative,
             "-v",
             &voice_id,
             "-o",
-            "public/audio",
+            &audio_dir_repo_relative,
         ]);
 
         if let Some(rate) = speech_rate {
@@ -328,11 +439,11 @@ async fn generate_audio(
             "tsx",
             "src/cli/index.ts",
             "audio",
-            "public/content/slides.json",
+            &content_repo_relative,
             "-v",
             &voice_id,
             "-o",
-            "public/audio",
+            &audio_dir_repo_relative,
         ]);
 
         if let Some(rate) = speech_rate {
@@ -362,28 +473,36 @@ async fn generate_narration(
     voice_id: String,
     api_key: String,
     speech_rate: Option<f64>,
+    content_path: String,
 ) -> Result<String, String> {
     if raw_text.trim().is_empty() {
         return Err("Narration text is empty.".to_string());
     }
 
     let project_dir = get_project_dir()?;
-    let content_dir = project_dir.join("public").join("content");
-    let audio_dir = project_dir.join("public").join("audio");
+    let (content_file, text_file, audio_file, audio_repo_relative, _) =
+        derive_project_paths(&project_dir, &content_path)?;
+    let content_dir = content_file
+        .parent()
+        .map(Path::to_path_buf)
+        .ok_or_else(|| "Failed to resolve content directory.".to_string())?;
 
     if !content_dir.exists() {
         fs::create_dir_all(&content_dir)
             .map_err(|e| format!("Failed to create content directory: {}", e))?;
     }
 
-    if !audio_dir.exists() {
-        fs::create_dir_all(&audio_dir)
-            .map_err(|e| format!("Failed to create audio directory: {}", e))?;
+    if let Some(audio_dir) = audio_file.parent() {
+        if !audio_dir.exists() {
+            fs::create_dir_all(audio_dir)
+                .map_err(|e| format!("Failed to create audio directory: {}", e))?;
+        }
     }
 
-    let text_file = content_dir.join("raw-narration.txt");
     fs::write(&text_file, raw_text)
         .map_err(|e| format!("Failed to write narration text: {}", e))?;
+
+    let text_repo_relative = repo_relative_path(&project_dir, &text_file)?;
 
     #[cfg(target_os = "windows")]
     let output = {
@@ -394,11 +513,11 @@ async fn generate_narration(
             "tsx",
             "src/cli/index.ts",
             "narrate",
-            "public/content/raw-narration.txt",
+            &text_repo_relative,
             "-v",
             &voice_id,
             "-o",
-            "public/audio/narration.mp3",
+            &audio_repo_relative,
             "-k",
             &api_key,
         ]);
@@ -420,11 +539,11 @@ async fn generate_narration(
             "tsx",
             "src/cli/index.ts",
             "narrate",
-            "public/content/raw-narration.txt",
+            &text_repo_relative,
             "-v",
             &voice_id,
             "-o",
-            "public/audio/narration.mp3",
+            &audio_repo_relative,
             "-k",
             &api_key,
         ]);
@@ -454,13 +573,14 @@ async fn generate_narration(
 }
 
 #[tauri::command(rename_all = "camelCase")]
-async fn sync_timeline(voice_id: String) -> Result<String, String> {
+async fn sync_timeline(voice_id: String, content_path: String) -> Result<String, String> {
     let project_dir = get_project_dir()?;
-    let content_file = project_dir.join("public").join("content").join("slides.json");
-    let soundtrack_file = project_dir.join("public").join("audio").join("narration.mp3");
+    let (content_file, _, soundtrack_file, soundtrack_repo_relative, soundtrack_static_path) =
+        derive_project_paths(&project_dir, &content_path)?;
+    let content_repo_relative = repo_relative_path(&project_dir, &content_file)?;
 
     if !content_file.exists() {
-        return Err("slides.json does not exist. Generate slides first.".to_string());
+        return Err("Content JSON does not exist. Generate slides first.".to_string());
     }
 
     if !soundtrack_file.exists() {
@@ -475,11 +595,11 @@ async fn sync_timeline(voice_id: String) -> Result<String, String> {
             "tsx",
             "src/cli/index.ts",
             "timeline",
-            "public/content/slides.json",
+            &content_repo_relative,
             "-s",
-            "public/audio/narration.mp3",
+            &soundtrack_repo_relative,
             "-p",
-            "audio/narration.mp3",
+            &soundtrack_static_path,
             "-v",
             &voice_id,
         ])
@@ -493,11 +613,11 @@ async fn sync_timeline(voice_id: String) -> Result<String, String> {
             "tsx",
             "src/cli/index.ts",
             "timeline",
-            "public/content/slides.json",
+            &content_repo_relative,
             "-s",
-            "public/audio/narration.mp3",
+            &soundtrack_repo_relative,
             "-p",
-            "audio/narration.mp3",
+            &soundtrack_static_path,
             "-v",
             &voice_id,
         ])
@@ -516,10 +636,11 @@ async fn sync_timeline(voice_id: String) -> Result<String, String> {
 }
 
 #[tauri::command]
-async fn render_video(template: String) -> Result<String, String> {
+async fn render_video(template: String, content_path: String) -> Result<String, String> {
     let project_dir = get_project_dir()?;
     let timestamp = chrono::Local::now().format("%Y%m%d_%H%M%S");
     let output_file = format!("out/video_{}.mp4", timestamp);
+    let content_repo_relative = normalize_repo_relative_path(&content_path);
     let out_dir = project_dir.join("out");
 
     if !out_dir.exists() {
@@ -535,7 +656,7 @@ async fn render_video(template: String) -> Result<String, String> {
             "tsx",
             "src/cli/index.ts",
             "render",
-            "public/content/slides.json",
+            &content_repo_relative,
             "-t",
             &template,
             "-o",
@@ -551,7 +672,7 @@ async fn render_video(template: String) -> Result<String, String> {
             "tsx",
             "src/cli/index.ts",
             "render",
-            "public/content/slides.json",
+            &content_repo_relative,
             "-t",
             &template,
             "-o",
