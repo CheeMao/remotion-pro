@@ -4,6 +4,7 @@ import { AIShow } from './AIShow';
 import { FrostedShow } from './FrostedShow';
 import { GlassShow } from './GlassShow';
 import { KnowledgeShow } from './KnowledgeShow';
+import { LiquidBriefShow } from './LiquidBriefShow';
 import { LiquidShow } from './LiquidShow';
 import { LuxeShow } from './LuxeShow';
 import { NeonShow } from './NeonShow';
@@ -62,6 +63,7 @@ const TEMPLATE_MAP = {
   NeonShow,
   LuxeShow,
   LiquidShow,
+  LiquidBriefShow,
   FrostedShow,
   KnowledgeShow,
 };
@@ -282,6 +284,7 @@ export const RemotionRoot: React.FC = () => {
       <Composition id="NeonShow" component={NeonShow} durationInFrames={FALLBACK_COMPOSITION_DURATION} fps={30} width={1080} height={1920} calculateMetadata={getTemplateMetadata('NeonShow')} />
       <Composition id="LuxeShow" component={LuxeShow} durationInFrames={FALLBACK_COMPOSITION_DURATION} fps={30} width={1080} height={1920} calculateMetadata={getTemplateMetadata('LuxeShow')} />
       <Composition id="LiquidShow" component={LiquidShow} durationInFrames={FALLBACK_COMPOSITION_DURATION} fps={30} width={1080} height={1920} calculateMetadata={getTemplateMetadata('LiquidShow')} />
+      <Composition id="LiquidBriefShow" component={LiquidBriefShow} durationInFrames={FALLBACK_COMPOSITION_DURATION} fps={30} width={1080} height={1920} calculateMetadata={getTemplateMetadata('LiquidBriefShow')} />
       <Composition id="FrostedShow" component={FrostedShow} durationInFrames={FALLBACK_COMPOSITION_DURATION} fps={30} width={1080} height={1920} calculateMetadata={getTemplateMetadata('FrostedShow')} />
       <Composition id="KnowledgeShow" component={KnowledgeShow} durationInFrames={FALLBACK_COMPOSITION_DURATION} fps={30} width={1080} height={1920} calculateMetadata={getTemplateMetadata('KnowledgeShow')} />
       <Composition

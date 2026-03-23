@@ -581,23 +581,23 @@ async function syncAudio(project: Project) {
 
 function dockLinkStyle(active: boolean): React.CSSProperties {
   return {
-    width: 56,
-    height: 56,
+    width: active ? 44 : 56,
+    height: active ? 44 : 56,
     display: 'inline-flex',
     alignItems: 'center',
     justifyContent: 'center',
     color: active ? '#2563eb' : '#5f6b82',
     textDecoration: 'none',
-    borderRadius: 20,
+    borderRadius: 16,
     background: active
       ? 'linear-gradient(180deg, rgba(239,244,255,0.98) 0%, rgba(220,231,255,0.96) 100%)'
       : 'transparent',
     border: active ? '1px solid rgba(141,171,255,0.6)' : '1px solid transparent',
     boxShadow: active
-      ? '0 10px 22px rgba(53, 113, 231, 0.16), inset 0 1px 0 rgba(255,255,255,0.95), inset 0 -8px 14px rgba(115, 154, 255, 0.08)'
+      ? '0 6px 16px rgba(53, 113, 231, 0.14), inset 0 1px 0 rgba(255,255,255,0.95), inset 0 -6px 12px rgba(115, 154, 255, 0.08)'
       : 'none',
     transition:
-      'transform 180ms ease, background 180ms ease, color 180ms ease, box-shadow 180ms ease, border-color 180ms ease',
+      'transform 180ms ease, background 180ms ease, color 180ms ease, box-shadow 180ms ease, border-color 180ms ease, width 180ms ease, height 180ms ease',
   };
 }
 
@@ -1587,27 +1587,6 @@ function Layout(props: { children: React.ReactNode }) {
             zIndex: 30,
           }}
         >
-          <div
-            style={{
-              width: 38,
-              height: 38,
-              borderRadius: 14,
-              background: 'linear-gradient(135deg, #1e63ff 0%, #16b6d6 100%)',
-              color: '#fff',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              boxShadow: '0 6px 12px rgba(45, 103, 218, 0.2)',
-            }}
-            aria-hidden="true"
-          >
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: 16, height: 16 }}>
-              <path d="M5 16c0-4.5 2.7-8 7.2-9.6l3.6-.9-.9 3.6C13.3 13.6 9.8 16.3 5.3 16.3H5V16Z" />
-              <path d="M8 18c0-1.7.5-3 1.5-4" />
-              <path d="M14 10 18 6" />
-            </svg>
-          </div>
-
           {NAV_ITEMS.map((item, index) => {
             const active = location.pathname === item.path;
             const isLast = index === NAV_ITEMS.length - 1;

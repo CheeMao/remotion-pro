@@ -1,0 +1,23 @@
+{
+  "meta": {
+    "title": "Liquid Brief Knowledge",
+    "template": "LiquidBriefShow",
+    "voice_id": "",
+    "full_narration": "",
+    "voiceId": "",
+    "fullNarration": ""
+  },
+  "slides": [
+    {
+      "title": "液态玻璃也能做清晰知识页",
+      "subtitle": "柔和不等于松散，层级仍然必须明确",
+      "badge": "LIQUID BRIEF",
+      "items": [
+        { "number": "01", "title": "大标题负责抓注意力", "color": "#ffcce0" },
+        { "number": "02", "title": "结构卡片负责讲清楚", "color": "#a8e6e6" },
+        { "number": "03", "title": "色彩负责分区但不抢信息", "color": "#ffe4cc" }
+      ],
+      "durationInFrames": 180
+    }
+  ]
+}

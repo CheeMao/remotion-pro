@@ -64,9 +64,9 @@ a {
 .dock-nav__link--active::after {
   content: '';
   position: absolute;
-  inset: -3px;
-  border-radius: 16px;
-  background: linear-gradient(180deg, rgba(83, 135, 255, 0.12) 0%, rgba(83, 135, 255, 0.02) 100%);
+  inset: 6px;
+  border-radius: 12px;
+  background: linear-gradient(180deg, rgba(83, 135, 255, 0.10) 0%, rgba(83, 135, 255, 0.02) 100%);
   z-index: -1;
 }
 
