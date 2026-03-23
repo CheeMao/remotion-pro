@@ -7,21 +7,21 @@ import {
 } from "remotion";
 import { getSlideMotionTiming } from "../templates/animationTiming";
 
-// 深色液态玻璃配色
+// macOS 26 液态玻璃配色
 const colors = {
-  bg: "#0a0a12",
+  bg: "#e8e8ed",
   blob1: "#ff6b9d",
   blob2: "#c44dff",
   blob3: "#00d4aa",
   blob4: "#ff9f43",
   blob5: "#5f9eff",
   blob6: "#a855f7",
-  text: "#ffffff",
-  textSecondary: "rgba(255,255,255,0.8)",
-  muted: "rgba(255,255,255,0.6)",
+  text: "#1d1d1f",
+  textSecondary: "#424245",
+  muted: "#6e6e73",
 };
 
-// ===== 大型液态 Blob =====
+// ===== 超大液态 Blob =====
 const MegaBlob: React.FC<{
   frame: number;
   x: number;
@@ -32,13 +32,13 @@ const MegaBlob: React.FC<{
   speedY: number;
   phase: number;
 }> = ({ frame, x, y, size, color, speedX, speedY, phase }) => {
-  const moveX = Math.sin(frame * speedX + phase) * 120 + Math.cos(frame * speedX * 0.7) * 60;
-  const moveY = Math.cos(frame * speedY + phase) * 100 + Math.sin(frame * speedY * 0.6) * 50;
-  const morph1 = 30 + Math.sin(frame * 0.015 + phase) * 30;
-  const morph2 = 70 + Math.cos(frame * 0.012 + phase) * 35;
-  const morph3 = 50 + Math.sin(frame * 0.018 + phase + 1) * 32;
-  const morph4 = 60 + Math.cos(frame * 0.014 + phase + 2) * 28;
-  const scale = 1 + Math.sin(frame * 0.008 + phase) * 0.15;
+  const moveX = Math.sin(frame * speedX + phase) * 100 + Math.cos(frame * speedX * 0.7) * 50;
+  const moveY = Math.cos(frame * speedY + phase) * 80 + Math.sin(frame * speedY * 0.6) * 40;
+  const morph1 = 30 + Math.sin(frame * 0.015 + phase) * 25;
+  const morph2 = 70 + Math.cos(frame * 0.012 + phase) * 30;
+  const morph3 = 50 + Math.sin(frame * 0.018 + phase + 1) * 28;
+  const morph4 = 60 + Math.cos(frame * 0.014 + phase + 2) * 22;
+  const scale = 1 + Math.sin(frame * 0.008 + phase) * 0.12;
 
   return (
     <div
@@ -50,8 +50,8 @@ const MegaBlob: React.FC<{
         height: size,
         background: color,
         borderRadius: `${morph1}% ${morph2}% ${morph3}% ${morph4}%`,
-        filter: "blur(120px)",
-        opacity: 0.7,
+        filter: "blur(100px)",
+        opacity: 0.85,
         transform: `scale(${scale})`,
       }}
     />
@@ -60,7 +60,7 @@ const MegaBlob: React.FC<{
 
 // ===== 渐变背景 =====
 const GradientBackground: React.FC<{ frame: number }> = ({ frame }) => {
-  const shift = Math.sin(frame * 0.005) * 25;
+  const shift = Math.sin(frame * 0.005) * 20;
 
   return (
     <div
@@ -68,71 +68,73 @@ const GradientBackground: React.FC<{ frame: number }> = ({ frame }) => {
         position: "absolute",
         inset: 0,
         background: `
-          radial-gradient(ellipse 100% 80% at ${50 + shift}% 20%, rgba(255,107,157,0.25) 0%, transparent 50%),
-          radial-gradient(ellipse 80% 100% at ${20 + shift * 0.5}% 80%, rgba(196,77,255,0.2) 0%, transparent 45%),
-          radial-gradient(ellipse 120% 90% at ${80 - shift * 0.3}% 60%, rgba(0,212,170,0.15) 0%, transparent 40%),
-          linear-gradient(180deg, #0a0a12 0%, #0f0f1a 50%, #0a0a12 100%)
+          radial-gradient(ellipse 80% 60% at ${50 + shift}% 30%, rgba(255,107,157,0.15) 0%, transparent 60%),
+          radial-gradient(ellipse 70% 80% at ${30 + shift * 0.5}% 70%, rgba(196,77,255,0.12) 0%, transparent 55%),
+          radial-gradient(ellipse 90% 70% at ${70 - shift * 0.3}% 50%, rgba(0,212,170,0.1) 0%, transparent 50%),
+          linear-gradient(180deg, #f0f0f5 0%, #e8e8ed 50%, #e0e0e5 100%)
         `,
       }}
     />
   );
 };
 
-// ===== 毛玻璃卡片 =====
-const GlassCard: React.FC<{
+// ===== 主毛玻璃卡片 =====
+const LiquidGlassCard: React.FC<{
   children: React.ReactNode;
   frame: number;
   delay: number;
-}> = ({ children, frame, delay }) => {
+  width?: number;
+  padding?: string;
+}> = ({ children, frame, delay, width = 920, padding = "70px 55px" }) => {
   const progress = spring({
     frame: frame - delay,
     fps: 30,
     config: { damping: 20, stiffness: 100 },
   });
 
-  const breathe = 1 + Math.sin(frame * 0.02) * 0.01;
+  const breathe = 1 + Math.sin(frame * 0.025) * 0.008;
 
   return (
     <div
       style={{
         position: "relative",
         opacity: progress,
-        transform: `scale(${progress * breathe}) translateY(${(1 - progress) * 30}px)`,
+        transform: `scale(${progress * breathe}) translateY(${(1 - progress) * 20}px)`,
       }}
     >
-      {/* 外发光 */}
       <div
         style={{
           position: "absolute",
-          inset: -4,
-          borderRadius: 50,
-          background: `linear-gradient(135deg, ${colors.blob2}40, ${colors.blob1}40, ${colors.blob3}40)`,
-          filter: "blur(30px)",
-          opacity: 0.6,
+          inset: -2,
+          borderRadius: 46,
+          background: "linear-gradient(135deg, rgba(255,255,255,0.8), rgba(255,255,255,0.2))",
+          filter: "blur(20px)",
+          opacity: 0.5,
         }}
       />
 
-      {/* 主卡片 */}
       <div
         style={{
           position: "relative",
-          padding: "60px 50px",
+          width,
+          padding,
           background: `
             linear-gradient(135deg,
-              rgba(255,255,255,0.12) 0%,
-              rgba(255,255,255,0.05) 50%,
-              rgba(255,255,255,0.08) 100%
+              rgba(255,255,255,0.75) 0%,
+              rgba(255,255,255,0.65) 50%,
+              rgba(255,255,255,0.7) 100%
             )
           `,
-          backdropFilter: "blur(40px)",
-          WebkitBackdropFilter: "blur(40px)",
+          backdropFilter: "blur(80px) saturate(200%)",
+          WebkitBackdropFilter: "blur(80px) saturate(200%)",
           borderRadius: 44,
-          border: "1px solid rgba(255,255,255,0.18)",
+          border: "1px solid rgba(255,255,255,0.8)",
           boxShadow: `
-            0 30px 60px -15px rgba(0,0,0,0.5),
-            0 0 0 1px rgba(255,255,255,0.08),
-            inset 0 1px 1px rgba(255,255,255,0.15),
-            inset 0 -1px 1px rgba(0,0,0,0.1)
+            0 25px 50px -12px rgba(0,0,0,0.08),
+            0 12px 24px -8px rgba(0,0,0,0.04),
+            0 0 0 1px rgba(255,255,255,0.5),
+            inset 0 1px 2px rgba(255,255,255,1),
+            inset 0 -1px 1px rgba(0,0,0,0.03)
           `,
         }}
       >
@@ -142,8 +144,8 @@ const GlassCard: React.FC<{
   );
 };
 
-// ===== 浮动光球 =====
-const FloatingOrb: React.FC<{
+// ===== 浮动装饰球 =====
+const FloatingSphere: React.FC<{
   frame: number;
   x: number;
   y: number;
@@ -157,8 +159,8 @@ const FloatingOrb: React.FC<{
     config: { damping: 15 },
   });
 
-  const floatY = Math.sin(frame * 0.02 + delay) * 15;
-  const floatX = Math.cos(frame * 0.015 + delay * 0.7) * 10;
+  const floatY = Math.sin(frame * 0.025 + delay) * 12;
+  const floatX = Math.cos(frame * 0.018 + delay * 0.7) * 8;
 
   return (
     <div
@@ -170,21 +172,57 @@ const FloatingOrb: React.FC<{
         height: size,
         borderRadius: "50%",
         background: `
-          radial-gradient(circle at 30% 30%,
+          radial-gradient(circle at 35% 35%,
             rgba(255,255,255,0.9) 0%,
-            ${color} 50%,
-            ${color}99 100%
+            ${color} 40%,
+            ${color}cc 100%
           )
         `,
         boxShadow: `
-          0 10px 40px ${color}60,
-          inset 0 -8px 16px rgba(0,0,0,0.2),
-          inset 0 8px 16px rgba(255,255,255,0.9)
+          0 8px 32px ${color}50,
+          inset 0 -6px 12px rgba(0,0,0,0.15),
+          inset 0 6px 12px rgba(255,255,255,0.9)
         `,
         opacity: progress * 0.9,
         transform: `scale(${progress})`,
       }}
     />
+  );
+};
+
+// ===== 玻璃胶囊标签 =====
+const GlassPill: React.FC<{
+  text: string;
+  frame: number;
+  delay: number;
+  color?: string;
+}> = ({ text, frame, delay, color }) => {
+  const progress = spring({
+    frame: frame - delay,
+    fps: 30,
+    config: { damping: 12 },
+  });
+
+  return (
+    <div
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        padding: "10px 20px",
+        background: color ? `${color}25` : "rgba(255,255,255,0.6)",
+        backdropFilter: "blur(20px)",
+        borderRadius: 24,
+        border: `1px solid ${color ? `${color}40` : "rgba(255,255,255,0.8)"}`,
+        boxShadow: `0 4px 12px rgba(0,0,0,0.04), inset 0 1px 1px rgba(255,255,255,0.9)`,
+        fontSize: 18,
+        fontWeight: 600,
+        color: color || colors.textSecondary,
+        opacity: progress,
+        transform: `translateY(${(1 - progress) * 10}px)`,
+      }}
+    >
+      {text}
+    </div>
   );
 };
 
@@ -232,22 +270,22 @@ const ProgressBar: React.FC<{
   const width = interpolate(progress, [0, 1], [0, percent]);
 
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-      <span style={{ fontSize: 24, color: colors.text, width: 110, flexShrink: 0, fontWeight: 500 }}>
+    <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+      <span style={{ fontSize: 22, color: colors.text, width: 100, flexShrink: 0, fontWeight: 500 }}>
         {label}
       </span>
-      <div style={{ flex: 1, height: 12, background: "rgba(255,255,255,0.08)", borderRadius: 6, overflow: "hidden" }}>
+      <div style={{ flex: 1, height: 14, background: "rgba(0,0,0,0.06)", borderRadius: 7, overflow: "hidden" }}>
         <div
           style={{
             width: `${width}%`,
             height: "100%",
             background: `linear-gradient(90deg, ${color}, ${color}cc)`,
-            borderRadius: 6,
-            boxShadow: `0 0 20px ${color}70`,
+            borderRadius: 7,
+            boxShadow: `0 2px 12px ${color}50`,
           }}
         />
       </div>
-      <span style={{ fontSize: 22, color, fontWeight: 600, width: 55, textAlign: "right" }}>
+      <span style={{ fontSize: 20, color, fontWeight: 600, width: 50, textAlign: "right" }}>
         {Math.round(width)}%
       </span>
     </div>
@@ -266,37 +304,37 @@ const StepCard: React.FC<{
     <div
       style={{
         display: "flex",
-        gap: 18,
+        gap: 16,
         opacity: progress,
-        transform: `translateY(${interpolate(progress, [0, 1], [30, 0])}px)`,
+        transform: `translateY(${interpolate(progress, [0, 1], [25, 0])}px)`,
       }}
     >
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
         <div
           style={{
-            width: 50,
-            height: 50,
+            width: 44,
+            height: 44,
             borderRadius: "50%",
             background: `linear-gradient(135deg, ${color}, ${color}cc)`,
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
-            fontSize: 22,
+            fontSize: 20,
             fontWeight: 700,
             color: "white",
-            boxShadow: `0 8px 25px ${color}60`,
+            boxShadow: `0 6px 20px ${color}50`,
           }}
         >
           {index + 1}
         </div>
-        <div style={{ width: 2, flex: 1, background: "rgba(255,255,255,0.1)", marginTop: 8 }} />
+        <div style={{ width: 2, flex: 1, background: "rgba(0,0,0,0.08)", marginTop: 6 }} />
       </div>
-      <div style={{ flex: 1, paddingBottom: 28 }}>
-        <h3 style={{ fontSize: 28, fontWeight: 600, color: colors.text, margin: "0 0 6px 0" }}>
+      <div style={{ flex: 1, paddingBottom: 24 }}>
+        <h3 style={{ fontSize: 26, fontWeight: 600, color: colors.text, margin: "0 0 4px 0" }}>
           {title}
         </h3>
         {description && (
-          <p style={{ fontSize: 22, color: colors.muted, margin: 0 }}>
+          <p style={{ fontSize: 20, color: colors.muted, margin: 0 }}>
             {description}
           </p>
         )}
@@ -319,26 +357,26 @@ const TimelineItem: React.FC<{
       style={{
         display: "flex",
         alignItems: "center",
-        gap: 18,
+        gap: 16,
         flexDirection: isLeft ? "row" : "row-reverse",
         opacity: progress,
-        transform: `translateX(${interpolate(progress, [0, 1], [isLeft ? -40 : 40, 0])}px)`,
+        transform: `translateX(${interpolate(progress, [0, 1], [isLeft ? -30 : 30, 0])}px)`,
       }}
     >
       <div style={{ flex: 1, textAlign: isLeft ? "right" : "left" }}>
-        <div style={{ fontSize: 22, fontWeight: 700, color, marginBottom: 4 }}>{year}</div>
-        <div style={{ fontSize: 26, fontWeight: 600, color: colors.text, marginBottom: 4 }}>{title}</div>
+        <div style={{ fontSize: 20, fontWeight: 700, color, marginBottom: 2 }}>{year}</div>
+        <div style={{ fontSize: 24, fontWeight: 600, color: colors.text, marginBottom: 2 }}>{title}</div>
         {description && (
-          <div style={{ fontSize: 20, color: colors.muted }}>{description}</div>
+          <div style={{ fontSize: 18, color: colors.muted }}>{description}</div>
         )}
       </div>
       <div
         style={{
-          width: 16,
-          height: 16,
+          width: 14,
+          height: 14,
           borderRadius: "50%",
           background: color,
-          boxShadow: `0 0 20px ${color}`,
+          boxShadow: `0 0 16px ${color}`,
           flexShrink: 0,
         }}
       />
@@ -377,20 +415,20 @@ export const LiquidSlide: React.FC<{
   const titleProgress = spring({
     frame: frame - timing.titleStart,
     fps,
-    config: { damping: 15, stiffness: 100 },
+    config: { damping: 18, stiffness: 100 },
   });
 
   const subtitleProgress = spring({
     frame: frame - timing.subtitleStart,
     fps,
-    config: { damping: 15, stiffness: 90 },
+    config: { damping: 18, stiffness: 90 },
   });
 
   const pointProgresses = (points || []).map((_, i) =>
     spring({
       frame: frame - timing.pointsStart - i * timing.pointStagger,
       fps,
-      config: { damping: 12, stiffness: 100 },
+      config: { damping: 14, stiffness: 100 },
     })
   );
 
@@ -408,7 +446,7 @@ export const LiquidSlide: React.FC<{
       case 'stats': {
         const stats = (data?.stats as Array<{ value: number; suffix?: string; label: string; color?: string }>) || [];
         return (
-          <div style={{ display: "flex", gap: 28, justifyContent: "center", flexWrap: "wrap", width: "100%" }}>
+          <div style={{ display: "flex", gap: 24, justifyContent: "center", flexWrap: "wrap", width: "100%" }}>
             {stats.map((stat, i) => {
               const statProgress = spring({
                 frame: frame - 10 - i * 8,
@@ -420,21 +458,22 @@ export const LiquidSlide: React.FC<{
                 <div
                   key={i}
                   style={{
-                    background: "rgba(255,255,255,0.08)",
-                    backdropFilter: "blur(20px)",
-                    borderRadius: 28,
-                    border: "1px solid rgba(255,255,255,0.15)",
-                    padding: "36px 44px",
+                    background: "rgba(255,255,255,0.6)",
+                    backdropFilter: "blur(15px)",
+                    borderRadius: 24,
+                    border: "1px solid rgba(255,255,255,0.8)",
+                    padding: "32px 40px",
                     textAlign: "center",
                     opacity: statProgress,
-                    transform: `translateY(${interpolate(statProgress, [0, 1], [40, 0])}px) scale(${interpolate(statProgress, [0, 1], [0.9, 1])})`,
-                    minWidth: 180,
+                    transform: `translateY(${interpolate(statProgress, [0, 1], [30, 0])}px) scale(${interpolate(statProgress, [0, 1], [0.9, 1])})`,
+                    minWidth: 170,
+                    boxShadow: "0 4px 20px rgba(0,0,0,0.04)",
                   }}
                 >
-                  <div style={{ fontSize: 68, fontWeight: 800, marginBottom: 8 }}>
+                  <div style={{ fontSize: 60, fontWeight: 700, marginBottom: 6 }}>
                     <AnimatedNumber value={stat.value} suffix={stat.suffix} startFrame={15 + i * 8} color={statColor} />
                   </div>
-                  <div style={{ fontSize: 24, color: colors.muted }}>{stat.label}</div>
+                  <div style={{ fontSize: 22, color: colors.muted }}>{stat.label}</div>
                 </div>
               );
             })}
@@ -446,48 +485,48 @@ export const LiquidSlide: React.FC<{
       case 'compare': {
         const compareData = data as { left?: { label: string; value: string; desc?: string }; right?: { label: string; value: string; desc?: string }; vsText?: string };
         const leftProgress = spring({ frame: frame - 12, fps, config: { damping: 12 } });
-        const rightProgress = spring({ frame: frame - 24, fps, config: { damping: 12 } });
+        const rightProgress = spring({ frame: frame - 22, fps, config: { damping: 12 } });
 
         return (
-          <div style={{ display: "flex", gap: 24, alignItems: "center", justifyContent: "center", width: "100%" }}>
+          <div style={{ display: "flex", gap: 20, alignItems: "center", justifyContent: "center", width: "100%" }}>
             <div
               style={{
                 flex: 1,
-                background: "rgba(255,107,157,0.12)",
-                backdropFilter: "blur(20px)",
-                borderRadius: 28,
+                background: "rgba(255,107,157,0.1)",
+                backdropFilter: "blur(15px)",
+                borderRadius: 24,
                 border: "1px solid rgba(255,107,157,0.25)",
-                padding: "40px 36px",
+                padding: "36px 32px",
                 textAlign: "center",
                 opacity: leftProgress,
-                transform: `translateX(${interpolate(leftProgress, [0, 1], [-50, 0])}px)`,
+                transform: `translateX(${interpolate(leftProgress, [0, 1], [-40, 0])}px)`,
               }}
             >
-              <div style={{ fontSize: 20, color: colors.blob1, marginBottom: 12, fontWeight: 600 }}>
+              <div style={{ fontSize: 18, color: colors.blob1, marginBottom: 10, fontWeight: 600 }}>
                 {compareData?.left?.label || "Before"}
               </div>
-              <div style={{ fontSize: 48, fontWeight: 800, color: colors.text, marginBottom: 8 }}>
+              <div style={{ fontSize: 42, fontWeight: 700, color: colors.text, marginBottom: 6 }}>
                 {compareData?.left?.value || "-"}
               </div>
               {compareData?.left?.desc && (
-                <div style={{ fontSize: 20, color: colors.muted }}>{compareData.left.desc}</div>
+                <div style={{ fontSize: 18, color: colors.muted }}>{compareData.left.desc}</div>
               )}
             </div>
 
             <div
               style={{
-                width: 70,
-                height: 70,
+                width: 60,
+                height: 60,
                 borderRadius: "50%",
-                background: "rgba(255,255,255,0.1)",
+                background: "rgba(255,255,255,0.7)",
                 display: "flex",
                 justifyContent: "center",
                 alignItems: "center",
-                fontSize: 24,
-                fontWeight: 800,
+                fontSize: 20,
+                fontWeight: 700,
                 color: colors.text,
                 flexShrink: 0,
-                boxShadow: "0 0 40px rgba(255,255,255,0.1)",
+                boxShadow: "0 4px 20px rgba(0,0,0,0.06)",
               }}
             >
               {compareData?.vsText || "VS"}
@@ -496,24 +535,24 @@ export const LiquidSlide: React.FC<{
             <div
               style={{
                 flex: 1,
-                background: "rgba(0,212,170,0.12)",
-                backdropFilter: "blur(20px)",
-                borderRadius: 28,
+                background: "rgba(0,212,170,0.1)",
+                backdropFilter: "blur(15px)",
+                borderRadius: 24,
                 border: "1px solid rgba(0,212,170,0.25)",
-                padding: "40px 36px",
+                padding: "36px 32px",
                 textAlign: "center",
                 opacity: rightProgress,
-                transform: `translateX(${interpolate(rightProgress, [0, 1], [50, 0])}px)`,
+                transform: `translateX(${interpolate(rightProgress, [0, 1], [40, 0])}px)`,
               }}
             >
-              <div style={{ fontSize: 20, color: colors.blob3, marginBottom: 12, fontWeight: 600 }}>
+              <div style={{ fontSize: 18, color: colors.blob3, marginBottom: 10, fontWeight: 600 }}>
                 {compareData?.right?.label || "After"}
               </div>
-              <div style={{ fontSize: 48, fontWeight: 800, color: colors.text, marginBottom: 8 }}>
+              <div style={{ fontSize: 42, fontWeight: 700, color: colors.text, marginBottom: 6 }}>
                 {compareData?.right?.value || "+"}
               </div>
               {compareData?.right?.desc && (
-                <div style={{ fontSize: 20, color: colors.muted }}>{compareData.right.desc}</div>
+                <div style={{ fontSize: 18, color: colors.muted }}>{compareData.right.desc}</div>
               )}
             </div>
           </div>
@@ -551,7 +590,7 @@ export const LiquidSlide: React.FC<{
       case 'chart': {
         const bars = (data?.bars as Array<{ label: string; value: number; color?: string }>) || [];
         return (
-          <div style={{ display: "flex", flexDirection: "column", gap: 18, width: "100%", maxWidth: 650 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 16, width: "100%", maxWidth: 650 }}>
             {bars.map((bar, i) => {
               const barColor = bar.color || [colors.blob1, colors.blob2, colors.blob3, colors.blob4, colors.blob5][i % 5];
               return (
@@ -572,7 +611,7 @@ export const LiquidSlide: React.FC<{
       case 'list': {
         const items = (data?.items as Array<{ icon?: string; text: string; desc?: string }>) || [];
         return (
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 18, width: "100%", maxWidth: 780 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 16, width: "100%", maxWidth: 750 }}>
             {items.map((item, i) => {
               const itemProgress = spring({
                 frame: frame - 8 - i * 6,
@@ -583,19 +622,20 @@ export const LiquidSlide: React.FC<{
                 <div
                   key={i}
                   style={{
-                    background: "rgba(255,255,255,0.06)",
-                    backdropFilter: "blur(20px)",
-                    borderRadius: 24,
-                    border: "1px solid rgba(255,255,255,0.12)",
-                    padding: "28px 32px",
+                    background: "rgba(255,255,255,0.55)",
+                    backdropFilter: "blur(15px)",
+                    borderRadius: 22,
+                    border: "1px solid rgba(255,255,255,0.8)",
+                    padding: "24px 28px",
                     opacity: itemProgress,
-                    transform: `translateY(${interpolate(itemProgress, [0, 1], [30, 0])}px) scale(${interpolate(itemProgress, [0, 1], [0.95, 1])})`,
+                    transform: `translateY(${interpolate(itemProgress, [0, 1], [25, 0])}px) scale(${interpolate(itemProgress, [0, 1], [0.95, 1])})`,
+                    boxShadow: "0 2px 12px rgba(0,0,0,0.03)",
                   }}
                 >
-                  <div style={{ fontSize: 44, marginBottom: 12 }}>{item.icon || "✓"}</div>
-                  <div style={{ fontSize: 26, fontWeight: 600, color: colors.text, marginBottom: 6 }}>{item.text}</div>
+                  <div style={{ fontSize: 36, marginBottom: 10 }}>{item.icon || "✓"}</div>
+                  <div style={{ fontSize: 24, fontWeight: 600, color: colors.text, marginBottom: 4 }}>{item.text}</div>
                   {item.desc && (
-                    <div style={{ fontSize: 20, color: colors.muted }}>{item.desc}</div>
+                    <div style={{ fontSize: 18, color: colors.muted }}>{item.desc}</div>
                   )}
                 </div>
               );
@@ -608,14 +648,14 @@ export const LiquidSlide: React.FC<{
       case 'timeline': {
         const timeline = (data?.timeline as Array<{ year: string; title: string; description?: string }>) || [];
         return (
-          <div style={{ display: "flex", flexDirection: "column", gap: 22, width: "100%", maxWidth: 720, position: "relative" }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 20, width: "100%", maxWidth: 700, position: "relative" }}>
             <div style={{
               position: "absolute",
               left: "50%",
-              top: 18,
-              bottom: 18,
+              top: 16,
+              bottom: 16,
               width: 2,
-              background: "rgba(255,255,255,0.1)",
+              background: "rgba(0,0,0,0.08)",
               transform: "translateX(-50%)",
             }} />
             {timeline.map((item, i) => {
@@ -645,7 +685,7 @@ export const LiquidSlide: React.FC<{
       case 'highlight': {
         const items = (data?.items as string[]) || [];
         return (
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 16, justifyContent: "center", width: "100%", maxWidth: 780 }}>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 14, justifyContent: "center", width: "100%", maxWidth: 750 }}>
             {items.map((item, i) => {
               const hlProgress = spring({
                 frame: frame - 6 - i * 5,
@@ -657,17 +697,17 @@ export const LiquidSlide: React.FC<{
                 <div
                   key={i}
                   style={{
-                    background: `${hlColor}20`,
-                    backdropFilter: "blur(20px)",
-                    borderRadius: 22,
+                    background: `${hlColor}15`,
+                    backdropFilter: "blur(15px)",
+                    borderRadius: 18,
                     border: `2px solid ${hlColor}50`,
-                    padding: "18px 36px",
+                    padding: "16px 30px",
                     opacity: hlProgress,
                     transform: `scale(${interpolate(hlProgress, [0, 1], [0.8, 1])})`,
-                    boxShadow: `0 8px 32px ${hlColor}30`,
+                    boxShadow: `0 4px 20px ${hlColor}25`,
                   }}
                 >
-                  <span style={{ fontSize: 26, fontWeight: 600, color: colors.text }}>{item}</span>
+                  <span style={{ fontSize: 24, fontWeight: 600, color: colors.text }}>{item}</span>
                 </div>
               );
             })}
@@ -682,21 +722,22 @@ export const LiquidSlide: React.FC<{
         return (
           <div
             style={{
-              background: "rgba(255,255,255,0.06)",
-              backdropFilter: "blur(30px)",
-              borderRadius: 32,
-              border: "1px solid rgba(255,255,255,0.12)",
-              padding: "50px 60px",
-              maxWidth: 780,
+              background: "rgba(255,255,255,0.55)",
+              backdropFilter: "blur(20px)",
+              borderRadius: 28,
+              border: "1px solid rgba(255,255,255,0.8)",
+              padding: "44px 50px",
+              maxWidth: 750,
               opacity: quoteProgress,
-              transform: `translateY(${interpolate(quoteProgress, [0, 1], [40, 0])}px)`,
+              transform: `translateY(${interpolate(quoteProgress, [0, 1], [30, 0])}px)`,
+              boxShadow: "0 4px 24px rgba(0,0,0,0.04)",
             }}
           >
-            <div style={{ fontSize: 80, color: colors.blob2, marginBottom: 8, lineHeight: 1 }}>"</div>
-            <p style={{ fontSize: 34, fontStyle: "italic", color: colors.text, margin: 0, lineHeight: 1.5 }}>
+            <div style={{ fontSize: 70, color: colors.blob2, marginBottom: 8, lineHeight: 1 }}>"</div>
+            <p style={{ fontSize: 32, fontStyle: "italic", color: colors.text, margin: 0, lineHeight: 1.5 }}>
               {quoteData?.quote || title}
             </p>
-            <p style={{ fontSize: 22, color: colors.muted, marginTop: 28, textAlign: "right" }}>
+            <p style={{ fontSize: 20, color: colors.muted, marginTop: 20, textAlign: "right" }}>
               — {quoteData?.author || subtitle}
             </p>
           </div>
@@ -713,15 +754,15 @@ export const LiquidSlide: React.FC<{
               <div
                 style={{
                   display: "inline-block",
-                  padding: "12px 28px",
-                  background: `${colors.blob2}20`,
-                  backdropFilter: "blur(15px)",
-                  borderRadius: 22,
+                  padding: "10px 24px",
+                  background: `${colors.blob2}15`,
+                  backdropFilter: "blur(10px)",
+                  borderRadius: 18,
                   border: `1px solid ${colors.blob2}40`,
-                  fontSize: 20,
+                  fontSize: 18,
                   fontWeight: 600,
                   color: colors.blob2,
-                  marginBottom: 24,
+                  marginBottom: 20,
                   opacity: titleProgress,
                 }}
               >
@@ -730,12 +771,11 @@ export const LiquidSlide: React.FC<{
             )}
             <h1
               style={{
-                fontSize: 80,
-                fontWeight: 800,
+                fontSize: 70,
+                fontWeight: 700,
                 color: colors.text,
                 margin: 0,
-                marginBottom: 24,
-                textShadow: `0 0 80px ${colors.blob2}30`,
+                marginBottom: 20,
                 letterSpacing: "-2px",
                 lineHeight: 1.1,
               }}
@@ -743,7 +783,7 @@ export const LiquidSlide: React.FC<{
               {title}
             </h1>
             {subtitle && (
-              <p style={{ fontSize: 32, color: colors.muted, margin: 0, marginBottom: 48 }}>
+              <p style={{ fontSize: 30, color: colors.muted, margin: 0, marginBottom: 40 }}>
                 {subtitle}
               </p>
             )}
@@ -751,14 +791,14 @@ export const LiquidSlide: React.FC<{
               <div
                 style={{
                   display: "inline-block",
-                  padding: "22px 52px",
+                  padding: "20px 48px",
                   background: `linear-gradient(135deg, ${colors.blob1}, ${colors.blob2})`,
-                  borderRadius: 36,
-                  fontSize: 28,
-                  fontWeight: 700,
+                  borderRadius: 32,
+                  fontSize: 26,
+                  fontWeight: 600,
                   color: "white",
                   transform: `scale(${pulseScale})`,
-                  boxShadow: `0 15px 50px ${colors.blob1}50`,
+                  boxShadow: `0 10px 40px ${colors.blob1}40`,
                 }}
               >
                 {heroData.cta}
@@ -775,7 +815,7 @@ export const LiquidSlide: React.FC<{
             style={{
               display: "flex",
               flexDirection: "column",
-              gap: 16,
+              gap: 14,
               width: "100%",
             }}
           >
@@ -789,36 +829,36 @@ export const LiquidSlide: React.FC<{
                   style={{
                     display: "flex",
                     alignItems: "center",
-                    gap: 20,
-                    padding: "22px 28px",
-                    background: "rgba(255,255,255,0.06)",
-                    backdropFilter: "blur(20px)",
+                    gap: 18,
+                    padding: "20px 24px",
+                    background: "rgba(255,255,255,0.5)",
+                    backdropFilter: "blur(10px)",
                     borderRadius: 22,
-                    border: "1px solid rgba(255,255,255,0.1)",
-                    boxShadow: "0 4px 20px rgba(0,0,0,0.2)",
-                    transform: `translateX(${interpolate(progress, [0, 1], [-40, 0])}px)`,
+                    border: "1px solid rgba(255,255,255,0.7)",
+                    boxShadow: `0 2px 8px rgba(0,0,0,0.03), inset 0 1px 1px rgba(255,255,255,0.8)`,
+                    transform: `translateX(${interpolate(progress, [0, 1], [-30, 0])}px)`,
                     opacity: progress,
                   }}
                 >
                   <div
                     style={{
-                      width: 48,
-                      height: 48,
+                      width: 42,
+                      height: 42,
                       borderRadius: "50%",
                       background: `linear-gradient(135deg, ${pointColor}, ${pointColor}cc)`,
                       display: "flex",
                       justifyContent: "center",
                       alignItems: "center",
-                      fontSize: 20,
+                      fontSize: 18,
                       fontWeight: 600,
                       color: "white",
-                      boxShadow: `0 6px 20px ${pointColor}50`,
+                      boxShadow: `0 4px 14px ${pointColor}40`,
                       flexShrink: 0,
                     }}
                   >
                     {i + 1}
                   </div>
-                  <span style={{ fontSize: 28, color: colors.text, fontWeight: 500 }}>
+                  <span style={{ fontSize: 26, color: colors.text, fontWeight: 500 }}>
                     {point}
                   </span>
                 </div>
@@ -828,6 +868,17 @@ export const LiquidSlide: React.FC<{
         ) : null;
     }
   };
+
+  // 计算卡片尺寸
+  const getCardSize = () => {
+    if (type === 'hero') return { width: 900, padding: "60px 50px" };
+    if (type === 'stats') return { width: 920, padding: "55px 45px" };
+    if (type === 'compare') return { width: 880, padding: "50px 40px" };
+    if (type === 'quote') return { width: 800, padding: "50px 45px" };
+    return { width: 880, padding: "60px 50px" };
+  };
+
+  const cardSize = getCardSize();
 
   return (
     <AbsoluteFill
@@ -841,21 +892,19 @@ export const LiquidSlide: React.FC<{
     >
       <GradientBackground frame={frame} />
 
-      {/* 大型液态 Blobs */}
-      <MegaBlob frame={frame} x={-250} y={-150} size={800} color={colors.blob1} speedX={0.005} speedY={0.004} phase={0} />
-      <MegaBlob frame={frame} x={550} y={-50} size={900} color={colors.blob2} speedX={0.004} speedY={0.005} phase={2} />
-      <MegaBlob frame={frame} x={50} y={500} size={850} color={colors.blob3} speedX={0.006} speedY={0.004} phase={4} />
-      <MegaBlob frame={frame} x={500} y={850} size={750} color={colors.blob4} speedX={0.0045} speedY={0.0055} phase={1} />
-      <MegaBlob frame={frame} x={-200} y={1100} size={700} color={colors.blob5} speedX={0.0055} speedY={0.0045} phase={3} />
-      <MegaBlob frame={frame} x={600} y={1200} size={800} color={colors.blob6} speedX={0.004} speedY={0.006} phase={5} />
+      <MegaBlob frame={frame} x={-200} y={-100} size={700} color={colors.blob1} speedX={0.006} speedY={0.005} phase={0} />
+      <MegaBlob frame={frame} x={600} y={0} size={800} color={colors.blob2} speedX={0.005} speedY={0.006} phase={2} />
+      <MegaBlob frame={frame} x={100} y={600} size={750} color={colors.blob3} speedX={0.007} speedY={0.005} phase={4} />
+      <MegaBlob frame={frame} x={550} y={900} size={650} color={colors.blob4} speedX={0.0055} speedY={0.0065} phase={1} />
+      <MegaBlob frame={frame} x={-150} y={1200} size={600} color={colors.blob5} speedX={0.0065} speedY={0.0055} phase={3} />
+      <MegaBlob frame={frame} x={650} y={1300} size={700} color={colors.blob6} speedX={0.005} speedY={0.007} phase={5} />
 
-      {/* 浮动光球 */}
-      <FloatingOrb frame={frame} x={60} y={250} size={32} color={colors.blob2} delay={8} />
-      <FloatingOrb frame={frame} x={920} y={350} size={26} color={colors.blob3} delay={12} />
-      <FloatingOrb frame={frame} x={80} y={720} size={28} color={colors.blob1} delay={10} />
-      <FloatingOrb frame={frame} x={900} y={820} size={30} color={colors.blob5} delay={15} />
-      <FloatingOrb frame={frame} x={50} y={1280} size={24} color={colors.blob4} delay={18} />
-      <FloatingOrb frame={frame} x={930} y={1380} size={28} color={colors.blob6} delay={6} />
+      <FloatingSphere frame={frame} x={80} y={280} size={28} color={colors.blob2} delay={8} />
+      <FloatingSphere frame={frame} x={920} y={380} size={22} color={colors.blob3} delay={12} />
+      <FloatingSphere frame={frame} x={100} y={750} size={24} color={colors.blob1} delay={10} />
+      <FloatingSphere frame={frame} x={890} y={850} size={26} color={colors.blob5} delay={15} />
+      <FloatingSphere frame={frame} x={70} y={1300} size={20} color={colors.blob4} delay={18} />
+      <FloatingSphere frame={frame} x={940} y={1400} size={24} color={colors.blob6} delay={6} />
 
       <AbsoluteFill
         style={{
@@ -868,32 +917,40 @@ export const LiquidSlide: React.FC<{
           zIndex: 10,
         }}
       >
-        {/* 页码 */}
+        {/* 顶部信息栏 */}
         <div
           style={{
             position: "absolute",
             top: 50,
+            left: 50,
             right: 50,
             display: "flex",
+            justifyContent: "flex-end",
             alignItems: "center",
-            gap: 8,
-            padding: "10px 20px",
-            background: "rgba(255,255,255,0.08)",
-            backdropFilter: "blur(20px)",
-            borderRadius: 22,
-            border: "1px solid rgba(255,255,255,0.15)",
           }}
         >
-          <span style={{ fontSize: 20, fontWeight: 600, color: colors.text }}>{index + 1}</span>
-          <span style={{ fontSize: 20, color: colors.muted }}>/</span>
-          <span style={{ fontSize: 20, color: colors.muted }}>{totalSlides}</span>
-        </div>
-
-        {/* 主卡片 */}
-        <GlassCard frame={frame} delay={8}>
           <div
             style={{
-              width: 880,
+              display: "flex",
+              alignItems: "center",
+              gap: 6,
+              padding: "8px 16px",
+              background: "rgba(255,255,255,0.55)",
+              backdropFilter: "blur(20px)",
+              borderRadius: 18,
+              border: "1px solid rgba(255,255,255,0.75)",
+            }}
+          >
+            <span style={{ fontSize: 18, fontWeight: 600, color: colors.text }}>{index + 1}</span>
+            <span style={{ fontSize: 18, color: colors.muted }}>/</span>
+            <span style={{ fontSize: 18, color: colors.muted }}>{totalSlides}</span>
+          </div>
+        </div>
+
+        {/* 主玻璃卡片 */}
+        <LiquidGlassCard frame={frame} delay={8} width={cardSize.width} padding={cardSize.padding}>
+          <div
+            style={{
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
@@ -906,16 +963,15 @@ export const LiquidSlide: React.FC<{
               <>
                 <h1
                   style={{
-                    fontSize: type === 'stats' || type === 'compare' ? 52 : 60,
-                    fontWeight: 800,
+                    fontSize: type === 'stats' || type === 'compare' ? 48 : 56,
+                    fontWeight: 700,
                     color: colors.text,
                     margin: 0,
-                    marginBottom: 12,
-                    transform: `translateY(${interpolate(titleProgress, [0, 1], [30, 0])}px)`,
+                    marginBottom: 10,
+                    transform: `translateY(${interpolate(titleProgress, [0, 1], [20, 0])}px)`,
                     opacity: titleProgress,
                     letterSpacing: "-1px",
                     textAlign: "center",
-                    textShadow: `0 0 60px ${colors.blob2}30`,
                   }}
                 >
                   {title}
@@ -923,12 +979,12 @@ export const LiquidSlide: React.FC<{
 
                 <div
                   style={{
-                    width: interpolate(titleProgress, [0, 1], [0, 100]),
+                    width: interpolate(titleProgress, [0, 1], [0, 80]),
                     height: 5,
                     borderRadius: 3,
                     background: `linear-gradient(90deg, ${colors.blob1}, ${colors.blob2}, ${colors.blob3}, ${colors.blob4})`,
-                    marginBottom: subtitle ? 14 : 30,
-                    boxShadow: `0 4px 20px ${colors.blob2}50`,
+                    marginBottom: subtitle ? 12 : 28,
+                    boxShadow: `0 2px 10px ${colors.blob2}40`,
                   }}
                 />
 
@@ -938,8 +994,8 @@ export const LiquidSlide: React.FC<{
                       fontSize: 26,
                       color: colors.muted,
                       margin: 0,
-                      marginBottom: 36,
-                      transform: `translateY(${interpolate(subtitleProgress, [0, 1], [20, 0])}px)`,
+                      marginBottom: 32,
+                      transform: `translateY(${interpolate(subtitleProgress, [0, 1], [14, 0])}px)`,
                       opacity: subtitleProgress,
                       fontWeight: 400,
                     }}
@@ -953,7 +1009,7 @@ export const LiquidSlide: React.FC<{
             {/* 内容区域 */}
             {renderContent()}
           </div>
-        </GlassCard>
+        </LiquidGlassCard>
 
         {/* 底部指示器 */}
         <div
@@ -961,20 +1017,20 @@ export const LiquidSlide: React.FC<{
             position: "absolute",
             bottom: 50,
             display: "flex",
-            gap: 10,
+            gap: 8,
           }}
         >
           {[...Array(totalSlides)].map((_, i) => (
             <div
               key={i}
               style={{
-                width: i === index ? 36 : 12,
-                height: 12,
-                borderRadius: 6,
+                width: i === index ? 32 : 10,
+                height: 10,
+                borderRadius: 5,
                 background: i === index
                   ? `linear-gradient(90deg, ${colors.blob1}, ${colors.blob2})`
-                  : "rgba(255,255,255,0.15)",
-                boxShadow: i === index ? `0 4px 16px ${colors.blob1}50` : "none",
+                  : "rgba(0,0,0,0.1)",
+                boxShadow: i === index ? `0 2px 8px ${colors.blob1}40` : "none",
               }}
             />
           ))}

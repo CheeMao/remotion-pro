@@ -49,11 +49,25 @@ a {
   position: relative;
   cursor: pointer;
   outline: none;
+  z-index: 1;
 }
 
 .dock-nav__link:hover,
 .dock-nav__link:focus-visible {
   transform: translateY(-1px) scale(1.03);
+}
+
+.dock-nav__link--active {
+  z-index: 2;
+}
+
+.dock-nav__link--active::after {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: 16px;
+  background: linear-gradient(180deg, rgba(83, 135, 255, 0.12) 0%, rgba(83, 135, 255, 0.02) 100%);
+  z-index: -1;
 }
 
 .dock-nav__link:focus-visible {
@@ -80,6 +94,7 @@ a {
   border: 1px solid rgba(219, 226, 238, 0.95);
   box-shadow: 0 14px 28px rgba(148, 163, 184, 0.18);
   backdrop-filter: blur(14px);
+  z-index: 80;
   transition: opacity 160ms ease, transform 160ms ease;
 }
 

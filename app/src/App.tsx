@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { Link, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import { EmbeddedPreview, PreviewProjectData } from './remotion-preview/EmbeddedPreview';
 
@@ -63,13 +63,23 @@ const STORAGE_KEYS = {
   settings: 'videomaker-settings',
 } as const;
 
+const SPACING = {
+  xs: 8,
+  sm: 12,
+  md: 16,
+  lg: 24,
+  xl: 32,
+  xxl: 40,
+} as const;
+
 const COMPACT_UI = {
-  navWidth: 76,
-  sidePanelWidth: 210,
-  previewWidth: 360,
-  pagePadding: 12,
-  panelPadding: 10,
-  sectionGap: 12,
+  navWidth: 86,
+  shellMaxWidth: 1240,
+  pageMaxWidth: 980,
+  sidePanelWidth: 248,
+  pagePadding: SPACING.lg,
+  panelPadding: SPACING.md,
+  sectionGap: SPACING.md,
 };
 
 type NavItem = {
@@ -571,20 +581,20 @@ async function syncAudio(project: Project) {
 
 function dockLinkStyle(active: boolean): React.CSSProperties {
   return {
-    width: 52,
-    height: 52,
+    width: 56,
+    height: 56,
     display: 'inline-flex',
     alignItems: 'center',
     justifyContent: 'center',
     color: active ? '#2563eb' : '#5f6b82',
     textDecoration: 'none',
-    borderRadius: 18,
+    borderRadius: 20,
     background: active
-      ? 'linear-gradient(180deg, rgba(232,239,255,0.98) 0%, rgba(219,229,255,0.94) 100%)'
+      ? 'linear-gradient(180deg, rgba(239,244,255,0.98) 0%, rgba(220,231,255,0.96) 100%)'
       : 'transparent',
-    border: active ? '1px solid rgba(167,191,255,0.56)' : '1px solid transparent',
+    border: active ? '1px solid rgba(141,171,255,0.6)' : '1px solid transparent',
     boxShadow: active
-      ? '0 10px 24px rgba(74, 117, 214, 0.16), inset 0 1px 0 rgba(255,255,255,0.8)'
+      ? '0 10px 22px rgba(53, 113, 231, 0.16), inset 0 1px 0 rgba(255,255,255,0.95), inset 0 -8px 14px rgba(115, 154, 255, 0.08)'
       : 'none',
     transition:
       'transform 180ms ease, background 180ms ease, color 180ms ease, box-shadow 180ms ease, border-color 180ms ease',
@@ -596,7 +606,7 @@ const SOFT_CARD_STYLE: React.CSSProperties = {
   borderRadius: 24,
   padding: 18,
   border: '1px solid rgba(224, 231, 240, 0.92)',
-  boxShadow: '0 18px 40px rgba(148, 163, 184, 0.14), inset 0 1px 0 rgba(255,255,255,0.92)',
+  boxShadow: '0 18px 36px rgba(148, 163, 184, 0.12), inset 0 1px 0 rgba(255,255,255,0.92)',
   backdropFilter: 'blur(14px)',
   WebkitBackdropFilter: 'blur(14px)',
 };
@@ -604,23 +614,91 @@ const SOFT_CARD_STYLE: React.CSSProperties = {
 const SOFT_INPUT_STYLE: React.CSSProperties = {
   width: '100%',
   boxSizing: 'border-box',
-  padding: 11,
+  padding: '11px 14px',
   borderRadius: 14,
-  border: '1px solid #d9e1ee',
+  border: '1px solid #d7e0ee',
   background: 'rgba(255,255,255,0.96)',
   boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.86)',
-  fontSize: 13,
+  fontSize: 14,
+  color: '#1d2129',
+  lineHeight: 1.4,
 };
 
 const PRIMARY_BUTTON_STYLE: React.CSSProperties = {
-  padding: '10px 18px',
+  padding: '11px 18px',
   borderRadius: 14,
   border: 'none',
   background: 'linear-gradient(135deg, #1f67ff 0%, #3c8cff 100%)',
   color: '#fff',
+  fontSize: 14,
+  fontWeight: 700,
+  boxShadow: '0 8px 18px rgba(53, 113, 231, 0.2)',
+};
+
+const PAGE_FRAME_STYLE: React.CSSProperties = {
+  maxWidth: COMPACT_UI.pageMaxWidth,
+  margin: '0 auto',
+  padding: `${SPACING.lg}px ${SPACING.lg}px ${SPACING.xl}px`,
+  display: 'flex',
+  flexDirection: 'column',
+  gap: SPACING.md,
+};
+
+const PAGE_HEADER_STYLE: React.CSSProperties = {
+  display: 'flex',
+  flexDirection: 'column',
+  gap: 4,
+  maxWidth: 760,
+};
+
+const PANEL_STYLE: React.CSSProperties = {
+  ...SOFT_CARD_STYLE,
+  padding: 18,
+  borderRadius: 24,
+};
+
+const FIELD_GROUP_STYLE: React.CSSProperties = {
+  display: 'flex',
+  flexDirection: 'column',
+  gap: 6,
+};
+
+const FIELD_LABEL_STYLE: React.CSSProperties = {
+  color: '#20293b',
+  fontSize: 14,
+  fontWeight: 700,
+  lineHeight: 1.4,
+};
+
+const SECTION_TITLE_STYLE: React.CSSProperties = {
+  margin: 0,
+  color: '#20293b',
+  fontSize: 17,
+  lineHeight: 1.25,
+  fontWeight: 800,
+};
+
+const SECONDARY_BUTTON_STYLE: React.CSSProperties = {
+  padding: '10px 14px',
+  borderRadius: 14,
+  border: '1px solid #dbe3ef',
+  background: 'rgba(255,255,255,0.96)',
+  color: '#42506a',
   fontSize: 13,
   fontWeight: 700,
-  boxShadow: '0 10px 22px rgba(53, 113, 231, 0.22)',
+  cursor: 'pointer',
+  boxShadow: '0 8px 16px rgba(148, 163, 184, 0.08)',
+};
+
+const QUIET_DANGER_BUTTON_STYLE: React.CSSProperties = {
+  padding: '0 12px',
+  borderRadius: 12,
+  border: '1px solid rgba(245,63,63,0.22)',
+  background: 'rgba(245,63,63,0.05)',
+  color: '#e35252',
+  fontSize: 12,
+  fontWeight: 700,
+  cursor: 'pointer',
 };
 
 function HomePage(props: {
@@ -674,56 +752,72 @@ function HomePage(props: {
   };
 
   return (
-    <div style={{ padding: COMPACT_UI.pagePadding, maxWidth: 920 }}>
-      <h2 style={{ marginTop: 0, marginBottom: 12, color: '#1d2129', fontSize: 24, letterSpacing: '-0.02em' }}>生成项目</h2>
-      <div style={SOFT_CARD_STYLE}>
-        <div style={{ marginBottom: 16 }}>
-          <label style={{ display: 'block', marginBottom: 8, fontWeight: 600, color: '#1d2129' }}>
+    <div style={PAGE_FRAME_STYLE}>
+      <div style={PAGE_HEADER_STYLE}>
+        <h2 style={{ marginTop: 0, marginBottom: 4, color: '#1d2129', fontSize: 18, letterSpacing: '-0.02em' }}>生成项目</h2>
+        <p style={{ margin: 0, color: '#86909c', fontSize: 12, lineHeight: 1.5 }}>粘贴完整口播文案，选择模板后直接生成可编辑项目。</p>
+      </div>
+      <div style={{ ...PANEL_STYLE, width: '100%', display: 'flex', flexDirection: 'column', gap: SPACING.lg }}>
+        <div style={FIELD_GROUP_STYLE}>
+          <label style={FIELD_LABEL_STYLE}>
             口播文案
           </label>
           <textarea
             value={text}
             onChange={(event) => setText(event.target.value)}
-            rows={14}
+            rows={10}
             style={{
               resize: 'vertical',
               ...SOFT_INPUT_STYLE,
-              fontSize: 14,
+              minHeight: 232,
+              padding: '14px 16px',
               lineHeight: 1.6,
-              minHeight: 260,
             }}
           />
         </div>
 
-        <div style={{ display: 'flex', gap: 12, alignItems: 'center', marginBottom: 16 }}>
-          <label style={{ fontWeight: 600, color: '#1d2129' }}>模板</label>
-          <select
-            value={template}
-            onChange={(event) => setTemplate(event.target.value)}
-            style={{ ...SOFT_INPUT_STYLE, width: 220, minWidth: 180, padding: '10px 12px' }}
-          >
-            {TEMPLATE_OPTIONS.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <button
-          onClick={handleGenerate}
-          disabled={loading}
+        <div
           style={{
-            ...PRIMARY_BUTTON_STYLE,
-            background: loading ? '#94b8ff' : '#165dff',
-            cursor: loading ? 'not-allowed' : 'pointer',
+            display: 'grid',
+            gridTemplateColumns: '220px auto',
+            alignItems: 'end',
+            gap: SPACING.md,
+            paddingTop: SPACING.md,
+            borderTop: '1px solid #edf1f7',
           }}
         >
-          {loading ? '生成中...' : '开始生成'}
-        </button>
+          <div style={FIELD_GROUP_STYLE}>
+            <label style={{ fontWeight: 600, color: '#1d2129' }}>模板</label>
+            <select
+              value={template}
+              onChange={(event) => setTemplate(event.target.value)}
+              style={{ ...SOFT_INPUT_STYLE, width: '100%' }}
+            >
+              {TEMPLATE_OPTIONS.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </div>
 
-        {status ? <p style={{ marginBottom: 0, color: '#4e5969' }}>{status}</p> : null}
-        {error ? <p style={{ marginBottom: 0, color: '#f53f3f' }}>{error}</p> : null}
+          <button
+            onClick={handleGenerate}
+            disabled={loading}
+            style={{
+              ...PRIMARY_BUTTON_STYLE,
+              minWidth: 148,
+              justifySelf: 'end',
+              background: loading ? '#94b8ff' : '#165dff',
+              cursor: loading ? 'not-allowed' : 'pointer',
+            }}
+          >
+            {loading ? '生成中...' : '开始生成'}
+          </button>
+        </div>
+
+        {status ? <p style={{ margin: 0, color: '#4e5969', fontSize: 13, lineHeight: 1.6 }}>{status}</p> : null}
+        {error ? <p style={{ margin: 0, color: '#f53f3f', fontSize: 13, lineHeight: 1.6 }}>{error}</p> : null}
       </div>
     </div>
   );
@@ -733,14 +827,13 @@ function EditorPage(props: {
   project: Project | null;
   onProjectChange: (project: Project | null) => void;
 }) {
-  const editorWorkspaceHeight = 'min(760px, calc(100vh - 88px))';
-  const editorMainWidth = 560;
-  const editorSingleWidth = 680;
+  const editorWorkspaceHeight = 'min(680px, calc(100vh - 150px))';
   const navigate = useNavigate();
   const [activeIndex, setActiveIndex] = React.useState(0);
   const [showPreview, setShowPreview] = React.useState(false);
   const [previewData, setPreviewData] = React.useState<PreviewProjectData | null>(null);
   const [previewLoading, setPreviewLoading] = React.useState(false);
+  const [previewError, setPreviewError] = React.useState('');
   const [rendering, setRendering] = React.useState(false);
   const [renderProgress, setRenderProgress] = React.useState('');
 
@@ -828,6 +921,7 @@ function EditorPage(props: {
     setPreviewLoading(true);
     setShowPreview(true);
     setPreviewData(null);
+    setPreviewError('');
 
     try {
       await saveCurrentProject();
@@ -847,11 +941,22 @@ function EditorPage(props: {
           : undefined),
       });
     } catch (cause) {
-      alert(cause instanceof Error ? cause.message : String(cause));
+      const message = cause instanceof Error ? cause.message : String(cause);
+      setPreviewError(message);
+      alert(message);
       setShowPreview(false);
     } finally {
       setPreviewLoading(false);
     }
+  };
+
+  const handlePreviewToggle = () => {
+    if (showPreview) {
+      setShowPreview(false);
+      return;
+    }
+
+    void handlePreview();
   };
 
   const handleRender = async () => {
@@ -882,296 +987,415 @@ function EditorPage(props: {
     : slide.title || `第 ${safeIndex + 1} 页`;
 
   return (
-    <div style={{ display: 'flex', height: editorWorkspaceHeight, gap: 12, padding: COMPACT_UI.pagePadding, width: 'fit-content', maxWidth: '100%', margin: '0 auto' }}>
-      <div style={{ width: COMPACT_UI.sidePanelWidth, background: 'rgba(255,255,255,0.92)', border: '1px solid rgba(224,231,240,0.92)', borderRadius: 22, boxShadow: '0 16px 36px rgba(148,163,184,0.1)', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-        <div style={{ padding: 12, borderBottom: '1px solid #edf1f7', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <span style={{ fontWeight: 600 }}>页面 ({project.slides.length})</span>
-          <button onClick={handleAddSlide} style={{ ...PRIMARY_BUTTON_STYLE, padding: '6px 10px', borderRadius: 12, cursor: 'pointer', boxShadow: '0 8px 18px rgba(53, 113, 231, 0.16)' }}>
-            + 新增
-          </button>
-        </div>
-
-        <div style={{ flex: 1, overflow: 'auto' }}>
-          {project.slides.map((item, index) => {
-            const title = isComplexSlide(item)
-              ? String((item.data.title || item.data.quote || item.type) ?? `第 ${index + 1} 页`)
-              : item.title || `第 ${index + 1} 页`;
-
-            return (
-              <div
-                key={item.id}
-                onClick={() => setActiveIndex(index)}
-                style={{
-                  margin: '4px 6px',
-                  padding: '10px 12px',
-                  cursor: 'pointer',
-                  background: safeIndex === index ? 'linear-gradient(180deg, rgba(232,239,255,0.98) 0%, rgba(219,229,255,0.9) 100%)' : 'transparent',
-                  border: safeIndex === index ? '1px solid rgba(167,191,255,0.56)' : '1px solid transparent',
-                  borderRadius: 14,
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  gap: 8,
-                }}
-              >
-                <span style={{ fontSize: 13, color: '#1d2129' }}>{title}</span>
-                {project.slides.length > 1 ? (
-                  <button
-                    onClick={(event) => {
-                      event.stopPropagation();
-                      handleDeleteSlide(index);
-                    }}
-                    style={{ padding: '2px 6px', borderRadius: 10, border: '1px solid #f53f3f', color: '#f53f3f', background: 'transparent', cursor: 'pointer', fontSize: 12 }}
-                  >
-                    删除
-                  </button>
-                ) : null}
-              </div>
-            );
-          })}
-        </div>
-
-        <div style={{ padding: 12, borderTop: '1px solid #edf1f7' }}>
-          <button
-            onClick={handlePreview}
-            disabled={previewLoading}
-            style={{ ...PRIMARY_BUTTON_STYLE, width: '100%', marginBottom: 8, background: previewLoading ? '#94b8ff' : 'linear-gradient(135deg, #07b36d 0%, #19c37d 100%)', cursor: previewLoading ? 'not-allowed' : 'pointer' }}
+    <div style={{ ...PAGE_FRAME_STYLE, maxWidth: 1140 }}>
+      <div
+        style={{
+          display: 'flex',
+          gap: SPACING.md,
+          alignItems: 'start',
+          width: '100%',
+        }}
+      >
+        <div
+          style={{
+            ...SOFT_CARD_STYLE,
+            padding: 0,
+            borderRadius: 22,
+            minHeight: editorWorkspaceHeight,
+            display: 'flex',
+            flexDirection: 'column',
+            overflow: 'hidden',
+          }}
+        >
+          <div
+            style={{
+              padding: '14px 14px 12px',
+              borderBottom: '1px solid #edf1f7',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+            }}
           >
-            {previewLoading ? '准备中...' : '应用内预览'}
-          </button>
-          <button
-            onClick={handleRender}
-            disabled={rendering}
-            style={{ ...PRIMARY_BUTTON_STYLE, width: '100%', background: rendering ? '#94b8ff' : PRIMARY_BUTTON_STYLE.background, cursor: rendering ? 'not-allowed' : 'pointer' }}
-          >
-            {rendering ? '导出中...' : '导出视频'}
-          </button>
-          {renderProgress ? <p style={{ fontSize: 12, color: '#86909c' }}>{renderProgress}</p> : null}
-        </div>
-      </div>
-
-      <div style={{ width: showPreview ? editorMainWidth : editorSingleWidth, overflow: 'auto', minWidth: 0 }}>
-        <div style={{ ...SOFT_CARD_STYLE, maxWidth: 'none', minHeight: '100%' }}>
-          <div style={{ marginBottom: COMPACT_UI.sectionGap, padding: 12, background: 'linear-gradient(180deg, rgba(232,243,255,0.96) 0%, rgba(224,236,255,0.92) 100%)', borderRadius: 14 }}>
-            <span style={{ color: '#4e5969' }}>当前模板:</span>
-            <span style={{ marginLeft: 8, padding: '4px 10px', borderRadius: 999, background: '#fff', border: '1px solid #165dff', color: '#165dff', fontSize: 12 }}>
-              {project.template}
-            </span>
-            <span style={{ marginLeft: 12, fontSize: 12, color: '#86909c' }}>
-              当前项目已锁定模板，不支持跨模板切换
-            </span>
-          </div>
-
-          <div style={{ marginBottom: 16 }}>
-            <h3 style={{ marginBottom: 6, color: '#1d2129' }}>{panelTitle}</h3>
-            <p style={{ marginTop: 0, color: '#86909c' }}>第 {safeIndex + 1} 页 / 共 {project.slides.length} 页</p>
-          </div>
-
-          {isComplexSlide(slide) ? (
-            <>
-              <div style={{ marginBottom: 16 }}>
-                <label style={{ display: 'block', marginBottom: 8, fontWeight: 600 }}>版式类型</label>
-                <select
-                  value={slide.type}
-                  onChange={(event) => {
-                    const nextType = event.target.value;
-                    updateSlide(safeIndex, (current) => ({
-                      ...(current as ComplexSlide),
-                      type: nextType,
-                    }));
-                  }}
-                  onBlur={() => {
-                    void saveCurrentProject();
-                  }}
-                  style={{ width: '100%', padding: '10px', borderRadius: 8, border: '1px solid #d9dde7' }}
-                >
-                  {['title', 'list', 'compare', 'quote', 'highlight', 'progress', 'stats', 'cta'].map((item) => (
-                    <option key={item} value={item}>
-                      {item}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div style={{ marginBottom: 16 }}>
-                <label style={{ display: 'block', marginBottom: 8, fontWeight: 600 }}>内容 JSON</label>
-                <textarea
-                  value={JSON.stringify(slide.data, null, 2)}
-                  onChange={(event) => {
-                    try {
-                      const parsed = JSON.parse(event.target.value) as Record<string, unknown>;
-                      updateSlide(safeIndex, (current) => ({
-                        ...(current as ComplexSlide),
-                        data: parsed,
-                      }));
-                    } catch {
-                      return;
-                    }
-                  }}
-                  onBlur={() => {
-                    void saveCurrentProject();
-                  }}
-                  rows={14}
-                  style={{ width: '100%', boxSizing: 'border-box', padding: 12, borderRadius: 8, border: '1px solid #d9dde7', fontFamily: 'monospace', fontSize: 13 }}
-                />
-              </div>
-
-              <div style={{ marginBottom: 16 }}>
-                <label style={{ display: 'block', marginBottom: 8, fontWeight: 600 }}>旁白</label>
-                <textarea
-                  value={slide.narration || ''}
-                  onChange={(event) => {
-                    updateSlide(safeIndex, (current) => ({
-                      ...(current as ComplexSlide),
-                      narration: event.target.value,
-                    }));
-                  }}
-                  onBlur={() => {
-                    void saveCurrentProject();
-                  }}
-                  rows={5}
-                  style={{ width: '100%', boxSizing: 'border-box', padding: 12, borderRadius: 8, border: '1px solid #d9dde7', fontSize: 14 }}
-                />
-              </div>
-            </>
-          ) : (
-            <>
-              <div style={{ marginBottom: 16 }}>
-                <label style={{ display: 'block', marginBottom: 8, fontWeight: 600 }}>标题</label>
-                <input
-                  value={slide.title}
-                  onChange={(event) => {
-                    updateSlide(safeIndex, (current) => ({
-                      ...(current as SimpleSlide),
-                      title: event.target.value,
-                    }));
-                  }}
-                  onBlur={() => {
-                    void saveCurrentProject();
-                  }}
-                  style={{ width: '100%', boxSizing: 'border-box', padding: 10, borderRadius: 8, border: '1px solid #d9dde7' }}
-                />
-              </div>
-
-              <div style={{ marginBottom: 16 }}>
-                <label style={{ display: 'block', marginBottom: 8, fontWeight: 600 }}>副标题</label>
-                <input
-                  value={slide.subtitle}
-                  onChange={(event) => {
-                    updateSlide(safeIndex, (current) => ({
-                      ...(current as SimpleSlide),
-                      subtitle: event.target.value,
-                    }));
-                  }}
-                  onBlur={() => {
-                    void saveCurrentProject();
-                  }}
-                  style={{ width: '100%', boxSizing: 'border-box', padding: 10, borderRadius: 8, border: '1px solid #d9dde7' }}
-                />
-              </div>
-
-              <div style={{ marginBottom: 16 }}>
-                <label style={{ display: 'block', marginBottom: 8, fontWeight: 600 }}>要点</label>
-                {slide.points.map((point, pointIndex) => (
-                  <div key={`${slide.id}-${pointIndex}`} style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
-                    <input
-                      value={point}
-                      onChange={(event) => {
-                        const nextPoints = slide.points.map((item, itemIndex) =>
-                          itemIndex === pointIndex ? event.target.value : item
-                        );
-                        updateSlide(safeIndex, (current) => ({
-                          ...(current as SimpleSlide),
-                          points: nextPoints,
-                        }));
-                      }}
-                      onBlur={() => {
-                        void saveCurrentProject();
-                      }}
-                      style={{ flex: 1, padding: 10, borderRadius: 8, border: '1px solid #d9dde7' }}
-                    />
-                    <button
-                      onClick={() => {
-                        const nextPoints = slide.points.filter((_, itemIndex) => itemIndex !== pointIndex);
-                        updateSlide(safeIndex, (current) => ({
-                          ...(current as SimpleSlide),
-                          points: nextPoints,
-                        }));
-                      }}
-                      style={{ padding: '0 12px', borderRadius: 8, border: '1px solid #f53f3f', background: 'transparent', color: '#f53f3f', cursor: 'pointer' }}
-                    >
-                      删除
-                    </button>
-                  </div>
-                ))}
-                <button
-                  onClick={() => {
-                    updateSlide(safeIndex, (current) => ({
-                      ...(current as SimpleSlide),
-                      points: [...(current as SimpleSlide).points, '新要点'],
-                    }));
-                  }}
-                  style={{ padding: '8px 12px', borderRadius: 8, border: 'none', background: '#f2f3f5', color: '#4e5969', cursor: 'pointer' }}
-                >
-                  + 添加要点
-                </button>
-              </div>
-
-              <div style={{ marginBottom: 16 }}>
-                <label style={{ display: 'block', marginBottom: 8, fontWeight: 600 }}>旁白</label>
-                <textarea
-                  value={slide.narration}
-                  onChange={(event) => {
-                    updateSlide(safeIndex, (current) => ({
-                      ...(current as SimpleSlide),
-                      narration: event.target.value,
-                    }));
-                  }}
-                  onBlur={() => {
-                    void saveCurrentProject();
-                  }}
-                  rows={5}
-                  style={{ width: '100%', boxSizing: 'border-box', padding: 12, borderRadius: 8, border: '1px solid #d9dde7', fontSize: 14 }}
-                />
-              </div>
-            </>
-          )}
-        </div>
-      </div>
-
-      {showPreview ? (
-        <div style={{ width: COMPACT_UI.previewWidth, background: 'rgba(255,255,255,0.92)', border: '1px solid rgba(224,231,240,0.92)', borderRadius: 22, boxShadow: '0 16px 36px rgba(148,163,184,0.1)', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-          <div style={{ padding: 10, borderBottom: '1px solid #edf1f7', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontWeight: 600 }}>预览</span>
+            <span style={{ fontWeight: 700, color: '#1d2129' }}>页面 ({project.slides.length})</span>
             <button
-              onClick={() => setShowPreview(false)}
-              style={{ padding: '6px 12px', fontSize: 12, background: '#f3f6fb', color: '#4e5969', border: '1px solid #e1e8f2', borderRadius: 999, cursor: 'pointer' }}
+              onClick={handleAddSlide}
+              style={{ ...PRIMARY_BUTTON_STYLE, padding: '8px 12px', borderRadius: 12, fontSize: 13, cursor: 'pointer' }}
             >
-              关闭
+              + 新增
             </button>
           </div>
 
-          <div style={{ flex: 1, minHeight: 0 }}>
-            {previewLoading || !previewData ? (
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: '#86909c' }}>
-                正在准备预览...
-              </div>
-            ) : (
-              <EmbeddedPreview previewData={previewData} />
-            )}
+          <div style={{ flex: 1, overflow: 'auto', padding: 6 }}>
+            {project.slides.map((item, index) => {
+              const title = isComplexSlide(item)
+                ? String((item.data.title || item.data.quote || item.type) ?? `第 ${index + 1} 页`)
+                : item.title || `第 ${index + 1} 页`;
+
+              return (
+                <div
+                  key={item.id}
+                  onClick={() => setActiveIndex(index)}
+                  style={{
+                    marginBottom: 6,
+                    padding: '10px 12px',
+                    cursor: 'pointer',
+                    background:
+                      safeIndex === index
+                        ? 'linear-gradient(180deg, rgba(232,239,255,0.98) 0%, rgba(219,229,255,0.9) 100%)'
+                        : 'transparent',
+                    border:
+                      safeIndex === index
+                        ? '1px solid rgba(167,191,255,0.56)'
+                        : '1px solid transparent',
+                    borderRadius: 14,
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    gap: SPACING.sm,
+                  }}
+                >
+                  <span style={{ fontSize: 13, color: '#1d2129', lineHeight: 1.4 }}>{title}</span>
+                  {project.slides.length > 1 ? (
+                    <button
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        handleDeleteSlide(index);
+                      }}
+                      style={{ ...QUIET_DANGER_BUTTON_STYLE, padding: '4px 8px', fontSize: 11, flexShrink: 0 }}
+                    >
+                      删除
+                    </button>
+                  ) : null}
+                </div>
+              );
+            })}
           </div>
 
-          <div style={{ padding: 8, borderTop: '1px solid #e5e6eb', fontSize: 12, color: '#86909c', textAlign: 'center' }}>
-            当前模板: {project.template} | 预览在应用内直接播放
+          <div style={{ padding: 14, borderTop: '1px solid #edf1f7' }}>
+            <button
+              onClick={handlePreviewToggle}
+              disabled={previewLoading}
+              style={{
+                ...PRIMARY_BUTTON_STYLE,
+                width: '100%',
+                marginBottom: 8,
+                background: previewLoading ? '#94b8ff' : 'linear-gradient(135deg, #07b36d 0%, #19c37d 100%)',
+                cursor: previewLoading ? 'not-allowed' : 'pointer',
+              }}
+            >
+              {previewLoading ? '准备中...' : showPreview ? '返回编辑' : '应用内预览'}
+            </button>
+            <button
+              onClick={handleRender}
+              disabled={rendering}
+              style={{
+                ...PRIMARY_BUTTON_STYLE,
+                width: '100%',
+                background: rendering ? '#94b8ff' : PRIMARY_BUTTON_STYLE.background,
+                cursor: rendering ? 'not-allowed' : 'pointer',
+              }}
+            >
+              {rendering ? '导出中...' : '导出视频'}
+            </button>
+            {renderProgress ? (
+              <p style={{ margin: '8px 0 0', fontSize: 12, color: '#86909c', lineHeight: 1.5 }}>
+                {renderProgress}
+              </p>
+            ) : null}
           </div>
         </div>
-      ) : null}
+
+        <div
+          style={{
+            flex: 1,
+            minWidth: 0,
+          }}
+        >
+          {showPreview ? (
+            <div
+              style={{
+                ...SOFT_CARD_STYLE,
+                padding: 0,
+                borderRadius: 22,
+                minHeight: editorWorkspaceHeight,
+                display: 'flex',
+                flexDirection: 'column',
+                overflow: 'hidden',
+              }}
+            >
+              <div
+                style={{
+                  padding: '14px 16px',
+                  borderBottom: '1px solid #edf1f7',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                }}
+              >
+                <span style={{ fontWeight: 700, color: '#1d2129' }}>预览</span>
+                <button
+                  onClick={() => setShowPreview(false)}
+                  style={{ ...SECONDARY_BUTTON_STYLE, padding: '8px 12px', borderRadius: 999 }}
+                >
+                  返回编辑
+                </button>
+              </div>
+
+              <div style={{ flex: 1, minWidth: 0, minHeight: 0, display: 'flex' }}>
+                {previewLoading || !previewData ? (
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      width: '100%',
+                      color: '#86909c',
+                    }}
+                  >
+                    {previewError || '正在准备预览...'}
+                  </div>
+                ) : (
+                  <div style={{ flex: 1, minWidth: 0, minHeight: 0 }}>
+                    <EmbeddedPreview previewData={previewData} />
+                  </div>
+                )}
+              </div>
+
+              <div
+                style={{
+                  padding: '10px 14px',
+                  borderTop: '1px solid #e5e6eb',
+                  fontSize: 12,
+                  color: '#86909c',
+                  textAlign: 'center',
+                }}
+              >
+                当前模板: {project.template} | 预览在应用内直接播放
+              </div>
+            </div>
+          ) : (
+            <div
+              style={{
+                ...PANEL_STYLE,
+                minHeight: editorWorkspaceHeight,
+                overflow: 'auto',
+              }}
+            >
+            <div
+              style={{
+                marginBottom: COMPACT_UI.sectionGap,
+                padding: '12px 14px',
+                background: 'linear-gradient(180deg, rgba(232,243,255,0.96) 0%, rgba(224,236,255,0.92) 100%)',
+                borderRadius: 14,
+              }}
+            >
+              <span style={{ color: '#4e5969' }}>当前模板:</span>
+              <span
+                style={{
+                  marginLeft: 8,
+                  padding: '4px 10px',
+                  borderRadius: 999,
+                  background: '#fff',
+                  border: '1px solid #165dff',
+                  color: '#165dff',
+                  fontSize: 12,
+                  fontWeight: 700,
+                }}
+              >
+                {project.template}
+              </span>
+              <span style={{ marginLeft: 10, fontSize: 12, color: '#86909c' }}>
+                当前项目已锁定模板，不支持跨模板切换
+              </span>
+            </div>
+
+            <div style={{ marginBottom: SPACING.md }}>
+              <h3 style={{ ...SECTION_TITLE_STYLE, marginBottom: SPACING.xs }}>{panelTitle}</h3>
+              <p style={{ margin: 0, color: '#86909c', fontSize: 12, lineHeight: 1.5 }}>
+                第 {safeIndex + 1} 页 / 共 {project.slides.length} 页
+              </p>
+            </div>
+
+            {isComplexSlide(slide) ? (
+              <>
+                <div style={FIELD_GROUP_STYLE}>
+                  <label style={{ display: 'block', marginBottom: 8, fontWeight: 600 }}>版式类型</label>
+                  <select
+                    value={slide.type}
+                    onChange={(event) => {
+                      const nextType = event.target.value;
+                      updateSlide(safeIndex, (current) => ({
+                        ...(current as ComplexSlide),
+                        type: nextType,
+                      }));
+                    }}
+                    onBlur={() => {
+                      void saveCurrentProject();
+                    }}
+                    style={SOFT_INPUT_STYLE}
+                  >
+                    {['title', 'list', 'compare', 'quote', 'highlight', 'progress', 'stats', 'cta'].map((item) => (
+                      <option key={item} value={item}>
+                        {item}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div style={{ ...FIELD_GROUP_STYLE, marginTop: SPACING.md }}>
+                  <label style={{ display: 'block', marginBottom: 8, fontWeight: 600 }}>内容 JSON</label>
+                  <textarea
+                    value={JSON.stringify(slide.data, null, 2)}
+                    onChange={(event) => {
+                      try {
+                        const parsed = JSON.parse(event.target.value) as Record<string, unknown>;
+                        updateSlide(safeIndex, (current) => ({
+                          ...(current as ComplexSlide),
+                          data: parsed,
+                        }));
+                      } catch {
+                        return;
+                      }
+                    }}
+                    onBlur={() => {
+                      void saveCurrentProject();
+                    }}
+                    rows={14}
+                    style={{ ...SOFT_INPUT_STYLE, minHeight: 220, fontFamily: 'monospace', fontSize: 12, lineHeight: 1.55 }}
+                  />
+                </div>
+
+                <div style={{ ...FIELD_GROUP_STYLE, marginTop: SPACING.md }}>
+                  <label style={{ display: 'block', marginBottom: 8, fontWeight: 600 }}>旁白</label>
+                  <textarea
+                    value={slide.narration || ''}
+                    onChange={(event) => {
+                      updateSlide(safeIndex, (current) => ({
+                        ...(current as ComplexSlide),
+                        narration: event.target.value,
+                      }));
+                    }}
+                    onBlur={() => {
+                      void saveCurrentProject();
+                    }}
+                    rows={5}
+                    style={{ ...SOFT_INPUT_STYLE, minHeight: 128 }}
+                  />
+                </div>
+              </>
+            ) : (
+              <>
+                <div style={FIELD_GROUP_STYLE}>
+                  <label style={{ display: 'block', marginBottom: 8, fontWeight: 600 }}>标题</label>
+                  <input
+                    value={slide.title}
+                    onChange={(event) => {
+                      updateSlide(safeIndex, (current) => ({
+                        ...(current as SimpleSlide),
+                        title: event.target.value,
+                      }));
+                    }}
+                    onBlur={() => {
+                      void saveCurrentProject();
+                    }}
+                    style={SOFT_INPUT_STYLE}
+                  />
+                </div>
+
+                <div style={{ ...FIELD_GROUP_STYLE, marginTop: SPACING.md }}>
+                  <label style={{ display: 'block', marginBottom: 8, fontWeight: 600 }}>副标题</label>
+                  <input
+                    value={slide.subtitle}
+                    onChange={(event) => {
+                      updateSlide(safeIndex, (current) => ({
+                        ...(current as SimpleSlide),
+                        subtitle: event.target.value,
+                      }));
+                    }}
+                    onBlur={() => {
+                      void saveCurrentProject();
+                    }}
+                    style={SOFT_INPUT_STYLE}
+                  />
+                </div>
+
+                <div style={{ ...FIELD_GROUP_STYLE, marginTop: SPACING.md }}>
+                  <label style={{ display: 'block', marginBottom: 8, fontWeight: 600 }}>要点</label>
+                  {slide.points.map((point, pointIndex) => (
+                    <div key={`${slide.id}-${pointIndex}`} style={{ display: 'flex', gap: SPACING.sm, marginBottom: SPACING.sm }}>
+                      <input
+                        value={point}
+                        onChange={(event) => {
+                          const nextPoints = slide.points.map((item, itemIndex) =>
+                            itemIndex === pointIndex ? event.target.value : item
+                          );
+                          updateSlide(safeIndex, (current) => ({
+                            ...(current as SimpleSlide),
+                            points: nextPoints,
+                          }));
+                        }}
+                        onBlur={() => {
+                          void saveCurrentProject();
+                        }}
+                        style={{ ...SOFT_INPUT_STYLE, flex: 1 }}
+                      />
+                      <button
+                        onClick={() => {
+                          const nextPoints = slide.points.filter((_, itemIndex) => itemIndex !== pointIndex);
+                          updateSlide(safeIndex, (current) => ({
+                            ...(current as SimpleSlide),
+                            points: nextPoints,
+                          }));
+                        }}
+                        style={{ ...QUIET_DANGER_BUTTON_STYLE, padding: '0 14px' }}
+                      >
+                        删除
+                      </button>
+                    </div>
+                  ))}
+                  <button
+                    onClick={() => {
+                      updateSlide(safeIndex, (current) => ({
+                        ...(current as SimpleSlide),
+                        points: [...(current as SimpleSlide).points, '新要点'],
+                      }));
+                    }}
+                    style={{ ...SECONDARY_BUTTON_STYLE, padding: '8px 12px' }}
+                  >
+                    + 添加要点
+                  </button>
+                </div>
+
+                <div style={{ ...FIELD_GROUP_STYLE, marginTop: SPACING.md }}>
+                  <label style={{ display: 'block', marginBottom: 8, fontWeight: 600 }}>旁白</label>
+                  <textarea
+                    value={slide.narration}
+                    onChange={(event) => {
+                      updateSlide(safeIndex, (current) => ({
+                        ...(current as SimpleSlide),
+                        narration: event.target.value,
+                      }));
+                    }}
+                    onBlur={() => {
+                      void saveCurrentProject();
+                    }}
+                    rows={5}
+                    style={{ ...SOFT_INPUT_STYLE, minHeight: 128 }}
+                  />
+                </div>
+              </>
+            )}
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
-
 function SettingsPage() {
   const [settings, setSettings] = React.useState<SettingsData>(loadSettings());
   const [saved, setSaved] = React.useState(false);
+  const [activeTab, setActiveTab] = React.useState<'voice' | 'ai'>('voice');
 
   const updateField = <K extends keyof SettingsData>(key: K, value: SettingsData[K]) => {
     setSettings((current) => ({ ...current, [key]: value }));
@@ -1183,96 +1407,137 @@ function SettingsPage() {
     window.setTimeout(() => setSaved(false), 1800);
   };
 
+  const settingsTabStyle = (active: boolean): React.CSSProperties => ({
+    padding: '10px 18px',
+    borderRadius: 999,
+    border: active ? '1px solid rgba(70, 118, 255, 0.35)' : '1px solid transparent',
+    background: active
+      ? 'linear-gradient(180deg, rgba(233,239,255,0.98) 0%, rgba(220,230,255,0.92) 100%)'
+      : 'transparent',
+    color: active ? '#2563eb' : '#5f6b82',
+    fontSize: 14,
+    fontWeight: 700,
+    cursor: 'pointer',
+  });
+
   return (
-    <div style={{ padding: COMPACT_UI.pagePadding, maxWidth: 760 }}>
-      <h2 style={{ marginTop: 0, marginBottom: 12, color: '#1d2129', fontSize: 24, letterSpacing: '-0.02em' }}>设置</h2>
+    <div style={PAGE_FRAME_STYLE}>
+      <div style={{ width: '100%', maxWidth: 760, margin: '0 auto' }}>
+        <h2 style={{ marginTop: 0, marginBottom: 8, color: '#1d2129', fontSize: 18, letterSpacing: '-0.02em' }}>设置</h2>
 
-      <div style={SOFT_CARD_STYLE}>
-        <h3 style={{ marginTop: 0, color: '#1d2129' }}>配音</h3>
+        <div style={{ ...PANEL_STYLE, display: 'flex', flexDirection: 'column', gap: SPACING.md }}>
+          <div
+            style={{
+              display: 'inline-flex',
+              gap: SPACING.xs,
+              padding: 5,
+              borderRadius: 999,
+              background: 'rgba(243, 247, 252, 0.88)',
+              border: '1px solid rgba(223, 230, 240, 0.92)',
+              alignSelf: 'flex-start',
+            }}
+          >
+            <button type="button" onClick={() => setActiveTab('voice')} style={settingsTabStyle(activeTab === 'voice')}>
+              配音
+            </button>
+            <button type="button" onClick={() => setActiveTab('ai')} style={settingsTabStyle(activeTab === 'ai')}>
+              AI 生成
+            </button>
+          </div>
 
-        <div style={{ marginBottom: 16 }}>
-          <label style={{ display: 'block', marginBottom: 8, fontWeight: 600 }}>API Key</label>
-          <input
-            type="password"
-            value={settings.voiceApiKey}
-            onChange={(event) => updateField('voiceApiKey', event.target.value)}
-            style={SOFT_INPUT_STYLE}
-          />
+          {activeTab === 'voice' ? (
+            <>
+              <h3 style={{ ...SECTION_TITLE_STYLE, marginTop: 0 }}>配音</h3>
+
+              <div style={FIELD_GROUP_STYLE}>
+                <label style={FIELD_LABEL_STYLE}>API Key</label>
+                <input
+                  type="password"
+                  value={settings.voiceApiKey}
+                  onChange={(event) => updateField('voiceApiKey', event.target.value)}
+                  style={SOFT_INPUT_STYLE}
+                />
+              </div>
+
+              <div style={{ ...FIELD_GROUP_STYLE, marginTop: SPACING.md }}>
+                <label style={FIELD_LABEL_STYLE}>模型</label>
+                <input
+                  value={settings.voiceModel}
+                  onChange={(event) => updateField('voiceModel', event.target.value)}
+                  style={SOFT_INPUT_STYLE}
+                />
+              </div>
+
+              <div style={{ ...FIELD_GROUP_STYLE, marginTop: SPACING.md }}>
+                <label style={FIELD_LABEL_STYLE}>语音 ID</label>
+                <input
+                  value={settings.voiceId}
+                  onChange={(event) => updateField('voiceId', event.target.value)}
+                  style={SOFT_INPUT_STYLE}
+                />
+              </div>
+
+              <div style={{ ...FIELD_GROUP_STYLE, marginTop: SPACING.md }}>
+                <label style={FIELD_LABEL_STYLE}>语速</label>
+                <input
+                  type="number"
+                  min={0.5}
+                  max={2}
+                  step={0.1}
+                  value={settings.voiceSpeechRate}
+                  onChange={(event) => updateField('voiceSpeechRate', normalizeSpeechRate(event.target.value))}
+                  style={SOFT_INPUT_STYLE}
+                />
+              </div>
+            </>
+          ) : (
+            <>
+              <h3 style={{ ...SECTION_TITLE_STYLE, marginTop: 0 }}>AI 生成</h3>
+
+              <div style={FIELD_GROUP_STYLE}>
+                <label style={FIELD_LABEL_STYLE}>API Base URL</label>
+                <input
+                  value={settings.aiUrl}
+                  onChange={(event) => updateField('aiUrl', event.target.value)}
+                  style={SOFT_INPUT_STYLE}
+                />
+              </div>
+
+              <div style={{ ...FIELD_GROUP_STYLE, marginTop: SPACING.md }}>
+                <label style={FIELD_LABEL_STYLE}>API Key</label>
+                <input
+                  type="password"
+                  value={settings.aiApiKey}
+                  onChange={(event) => updateField('aiApiKey', event.target.value)}
+                  style={SOFT_INPUT_STYLE}
+                />
+              </div>
+
+              <div style={{ ...FIELD_GROUP_STYLE, marginTop: SPACING.md }}>
+                <label style={FIELD_LABEL_STYLE}>模型名</label>
+                <input
+                  value={settings.aiModel}
+                  onChange={(event) => updateField('aiModel', event.target.value)}
+                  style={SOFT_INPUT_STYLE}
+                />
+              </div>
+            </>
+          )}
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, paddingTop: 4 }}>
+            <button
+              onClick={handleSave}
+              style={{ ...PRIMARY_BUTTON_STYLE, minWidth: 160, cursor: 'pointer' }}
+            >
+              保存设置
+            </button>
+            {saved ? <span style={{ color: '#00b42a', fontSize: 12 }}>已保存</span> : null}
+          </div>
         </div>
-
-        <div style={{ marginBottom: 16 }}>
-          <label style={{ display: 'block', marginBottom: 8, fontWeight: 600 }}>模型</label>
-          <input
-            value={settings.voiceModel}
-            onChange={(event) => updateField('voiceModel', event.target.value)}
-            style={SOFT_INPUT_STYLE}
-          />
-        </div>
-
-        <div style={{ marginBottom: 16 }}>
-          <label style={{ display: 'block', marginBottom: 8, fontWeight: 600 }}>语音 ID</label>
-          <input
-            value={settings.voiceId}
-            onChange={(event) => updateField('voiceId', event.target.value)}
-            style={SOFT_INPUT_STYLE}
-          />
-        </div>
-
-        <div style={{ marginBottom: 24 }}>
-          <label style={{ display: 'block', marginBottom: 8, fontWeight: 600 }}>语速</label>
-          <input
-            type="number"
-            min={0.5}
-            max={2}
-            step={0.1}
-            value={settings.voiceSpeechRate}
-            onChange={(event) => updateField('voiceSpeechRate', normalizeSpeechRate(event.target.value))}
-            style={SOFT_INPUT_STYLE}
-          />
-        </div>
-
-        <h3 style={{ color: '#1d2129' }}>AI 生成</h3>
-
-        <div style={{ marginBottom: 16 }}>
-          <label style={{ display: 'block', marginBottom: 8, fontWeight: 600 }}>API Base URL</label>
-          <input
-            value={settings.aiUrl}
-            onChange={(event) => updateField('aiUrl', event.target.value)}
-            style={SOFT_INPUT_STYLE}
-          />
-        </div>
-
-        <div style={{ marginBottom: 16 }}>
-          <label style={{ display: 'block', marginBottom: 8, fontWeight: 600 }}>API Key</label>
-          <input
-            type="password"
-            value={settings.aiApiKey}
-            onChange={(event) => updateField('aiApiKey', event.target.value)}
-            style={SOFT_INPUT_STYLE}
-          />
-        </div>
-
-        <div style={{ marginBottom: 24 }}>
-          <label style={{ display: 'block', marginBottom: 8, fontWeight: 600 }}>模型名</label>
-          <input
-            value={settings.aiModel}
-            onChange={(event) => updateField('aiModel', event.target.value)}
-            style={SOFT_INPUT_STYLE}
-          />
-        </div>
-
-        <button
-          onClick={handleSave}
-          style={{ ...PRIMARY_BUTTON_STYLE, cursor: 'pointer' }}
-        >
-          保存设置
-        </button>
-        {saved ? <span style={{ marginLeft: 12, color: '#00b42a' }}>已保存</span> : null}
       </div>
     </div>
   );
 }
-
 function Layout(props: { children: React.ReactNode }) {
   const location = useLocation();
 
@@ -1281,8 +1546,8 @@ function Layout(props: { children: React.ReactNode }) {
       style={{
         display: 'flex',
         height: '100vh',
-        padding: '12px 14px 12px 6px',
-        gap: 14,
+        padding: '10px 12px 10px 6px',
+        gap: 12,
         background:
           'radial-gradient(circle at 16% 18%, rgba(214,228,255,0.94) 0%, rgba(214,228,255,0) 32%), radial-gradient(circle at 84% 12%, rgba(222,244,241,0.82) 0%, rgba(222,244,241,0) 26%), linear-gradient(180deg, #f8fbff 0%, #eef4fb 100%)',
       }}
@@ -1299,6 +1564,8 @@ function Layout(props: { children: React.ReactNode }) {
           display: 'flex',
           justifyContent: 'center',
           alignItems: 'center',
+          position: 'relative',
+          zIndex: 30,
         }}
       >
         <nav
@@ -1307,7 +1574,7 @@ function Layout(props: { children: React.ReactNode }) {
           style={{
             width: 60,
             padding: '10px 6px',
-            borderRadius: 30,
+            borderRadius: 24,
             background: 'linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(248,251,255,0.96) 100%)',
             border: '1px solid rgba(223, 230, 240, 0.95)',
             boxShadow:
@@ -1315,7 +1582,9 @@ function Layout(props: { children: React.ReactNode }) {
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            gap: 8,
+            gap: 10,
+            position: 'relative',
+            zIndex: 30,
           }}
         >
           <div
@@ -1328,11 +1597,11 @@ function Layout(props: { children: React.ReactNode }) {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              boxShadow: '0 10px 20px rgba(45, 103, 218, 0.24)',
+              boxShadow: '0 6px 12px rgba(45, 103, 218, 0.2)',
             }}
             aria-hidden="true"
           >
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: 18, height: 18 }}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: 16, height: 16 }}>
               <path d="M5 16c0-4.5 2.7-8 7.2-9.6l3.6-.9-.9 3.6C13.3 13.6 9.8 16.3 5.3 16.3H5V16Z" />
               <path d="M8 18c0-1.7.5-3 1.5-4" />
               <path d="M14 10 18 6" />
@@ -1347,10 +1616,10 @@ function Layout(props: { children: React.ReactNode }) {
               <Link
                 key={item.path}
                 to={item.path}
-                className="dock-nav__link"
+                className={active ? 'dock-nav__link dock-nav__link--active' : 'dock-nav__link'}
                 style={{
                   ...dockLinkStyle(active),
-                  marginTop: isLast ? 8 : 0,
+                  marginTop: isLast ? 12 : 0,
                 }}
                 aria-label={item.label}
                 title={item.label}
@@ -1370,16 +1639,18 @@ function Layout(props: { children: React.ReactNode }) {
           flex: 1,
           minWidth: 0,
           overflow: 'auto',
-          paddingRight: 4,
+          paddingRight: 0,
         }}
       >
         <div
           style={{
-            minHeight: '100%',
+            minHeight: 'calc(100vh - 20px)',
+            maxWidth: COMPACT_UI.shellMaxWidth,
+            margin: '0 auto',
             borderRadius: 28,
             background: 'linear-gradient(180deg, rgba(255,255,255,0.46) 0%, rgba(255,255,255,0.64) 100%)',
             border: '1px solid rgba(255,255,255,0.82)',
-            boxShadow: '0 24px 52px rgba(148, 163, 184, 0.14), inset 0 1px 0 rgba(255,255,255,0.92)',
+            boxShadow: '0 16px 34px rgba(148, 163, 184, 0.1), inset 0 1px 0 rgba(255,255,255,0.92)',
             backdropFilter: 'blur(10px)',
             WebkitBackdropFilter: 'blur(10px)',
             overflow: 'hidden',
@@ -1438,3 +1709,5 @@ export default function App() {
     </ErrorBoundary>
   );
 }
+
+

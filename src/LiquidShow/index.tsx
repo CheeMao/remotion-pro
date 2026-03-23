@@ -121,7 +121,7 @@ export const LiquidShow: React.FC = () => {
   const soundtrackSrc = getStaticAssetPath(soundtrackPath);
 
   return (
-    <AbsoluteFill style={{ background: '#0a0a12' }}>
+    <AbsoluteFill style={{ background: '#e8e8ed' }}>
       {soundtrackSrc ? <Audio src={staticFile(soundtrackSrc)} /> : null}
       {slides.map((slide, index) => {
         const { from, duration } = getSlideTiming(

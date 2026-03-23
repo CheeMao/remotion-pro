@@ -316,16 +316,18 @@ export const EmbeddedPreview: React.FC<{
   const durationInFrames = calculateDuration(previewData.slides);
 
   return (
-    <Player
-      key={`${previewData.template}-${previewData.soundtrackUrl || 'silent'}-${durationInFrames}`}
-      component={PreviewComposition as unknown as React.ComponentType<Record<string, unknown>>}
-      inputProps={previewData}
-      durationInFrames={durationInFrames}
-      compositionWidth={WIDTH}
-      compositionHeight={HEIGHT}
-      fps={FPS}
-      controls
-      style={{ width: '100%', height: '100%' }}
-    />
+    <div style={{ width: '100%', height: '100%', minWidth: 0, minHeight: 0 }}>
+      <Player
+        key={`${previewData.template}-${previewData.soundtrackUrl || 'silent'}-${durationInFrames}`}
+        component={PreviewComposition as unknown as React.ComponentType<Record<string, unknown>>}
+        inputProps={previewData}
+        durationInFrames={durationInFrames}
+        compositionWidth={WIDTH}
+        compositionHeight={HEIGHT}
+        fps={FPS}
+        controls
+        style={{ width: '100%', height: '100%' }}
+      />
+    </div>
   );
 };
