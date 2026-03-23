@@ -1,5 +1,5 @@
 import React from 'react';
-import { Route, Routes, useLocation, useNavigate } from 'react-router-dom';
+import { Link, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import { EmbeddedPreview, PreviewProjectData } from './remotion-preview/EmbeddedPreview';
 
 type SimpleSlide = {
@@ -64,13 +64,77 @@ const STORAGE_KEYS = {
 } as const;
 
 const COMPACT_UI = {
-  navWidth: 180,
-  sidePanelWidth: 240,
-  previewWidth: 440,
-  pagePadding: 16,
-  panelPadding: 12,
-  sectionGap: 16,
+  navWidth: 76,
+  sidePanelWidth: 210,
+  previewWidth: 360,
+  pagePadding: 12,
+  panelPadding: 10,
+  sectionGap: 12,
 };
+
+type NavItem = {
+  path: string;
+  label: string;
+  icon: React.ReactNode;
+};
+
+function DockIcon(props: { children: React.ReactNode }) {
+  return (
+    <span
+      aria-hidden="true"
+      style={{
+        width: 22,
+        height: 22,
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
+    >
+      {props.children}
+    </span>
+  );
+}
+
+const NAV_ITEMS: NavItem[] = [
+  {
+    path: '/',
+    label: '首页',
+    icon: (
+      <DockIcon>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M3 10.5 12 3l9 7.5" />
+          <path d="M5.25 9.75V21h13.5V9.75" />
+          <path d="M9.75 21v-6h4.5v6" />
+        </svg>
+      </DockIcon>
+    ),
+  },
+  {
+    path: '/editor',
+    label: '编辑器',
+    icon: (
+      <DockIcon>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M4 19.25V20h.75L17.8 6.95l-1.75-1.75L3 18.25V19Z" />
+          <path d="m14.95 6.25 1.75 1.75" />
+          <path d="M7 20h10" />
+        </svg>
+      </DockIcon>
+    ),
+  },
+  {
+    path: '/settings',
+    label: '设置',
+    icon: (
+      <DockIcon>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M12 8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7Z" />
+          <path d="M19.4 15a1 1 0 0 0 .2 1.1l.05.05a1.85 1.85 0 0 1 0 2.62 1.85 1.85 0 0 1-2.62 0l-.05-.05a1 1 0 0 0-1.1-.2 1 1 0 0 0-.6.9V20a1.85 1.85 0 0 1-3.7 0v-.07a1 1 0 0 0-.67-.95 1 1 0 0 0-1.03.22l-.05.05a1.85 1.85 0 0 1-2.62 0 1.85 1.85 0 0 1 0-2.62l.05-.05a1 1 0 0 0 .2-1.1 1 1 0 0 0-.9-.6H4a1.85 1.85 0 0 1 0-3.7h.07a1 1 0 0 0 .95-.67 1 1 0 0 0-.22-1.03l-.05-.05a1.85 1.85 0 0 1 0-2.62 1.85 1.85 0 0 1 2.62 0l.05.05a1 1 0 0 0 1.1.2 1 1 0 0 0 .6-.9V4a1.85 1.85 0 0 1 3.7 0v.07a1 1 0 0 0 .67.95 1 1 0 0 0 1.03-.22l.05-.05a1.85 1.85 0 0 1 2.62 0 1.85 1.85 0 0 1 0 2.62l-.05.05a1 1 0 0 0-.2 1.1 1 1 0 0 0 .9.6H20a1.85 1.85 0 0 1 0 3.7h-.07a1 1 0 0 0-.95.67 1 1 0 0 0 .22 1.03l.05.05Z" />
+        </svg>
+      </DockIcon>
+    ),
+  },
+] as const;
 
 const TEMPLATE_OPTIONS = [
   { label: '科技风', value: 'SlideShow' },
@@ -505,18 +569,59 @@ async function syncAudio(project: Project) {
   }
 }
 
-function layoutStyle(active: boolean): React.CSSProperties {
+function dockLinkStyle(active: boolean): React.CSSProperties {
   return {
-    display: 'block',
-    padding: '9px 12px',
-    color: active ? '#165dff' : '#4e5969',
+    width: 52,
+    height: 52,
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    color: active ? '#2563eb' : '#5f6b82',
     textDecoration: 'none',
-    borderRadius: 6,
-    background: active ? '#e8f3ff' : 'transparent',
-    marginBottom: 6,
-    fontSize: 14,
+    borderRadius: 18,
+    background: active
+      ? 'linear-gradient(180deg, rgba(232,239,255,0.98) 0%, rgba(219,229,255,0.94) 100%)'
+      : 'transparent',
+    border: active ? '1px solid rgba(167,191,255,0.56)' : '1px solid transparent',
+    boxShadow: active
+      ? '0 10px 24px rgba(74, 117, 214, 0.16), inset 0 1px 0 rgba(255,255,255,0.8)'
+      : 'none',
+    transition:
+      'transform 180ms ease, background 180ms ease, color 180ms ease, box-shadow 180ms ease, border-color 180ms ease',
   };
 }
+
+const SOFT_CARD_STYLE: React.CSSProperties = {
+  background: 'rgba(255,255,255,0.92)',
+  borderRadius: 24,
+  padding: 18,
+  border: '1px solid rgba(224, 231, 240, 0.92)',
+  boxShadow: '0 18px 40px rgba(148, 163, 184, 0.14), inset 0 1px 0 rgba(255,255,255,0.92)',
+  backdropFilter: 'blur(14px)',
+  WebkitBackdropFilter: 'blur(14px)',
+};
+
+const SOFT_INPUT_STYLE: React.CSSProperties = {
+  width: '100%',
+  boxSizing: 'border-box',
+  padding: 11,
+  borderRadius: 14,
+  border: '1px solid #d9e1ee',
+  background: 'rgba(255,255,255,0.96)',
+  boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.86)',
+  fontSize: 13,
+};
+
+const PRIMARY_BUTTON_STYLE: React.CSSProperties = {
+  padding: '10px 18px',
+  borderRadius: 14,
+  border: 'none',
+  background: 'linear-gradient(135deg, #1f67ff 0%, #3c8cff 100%)',
+  color: '#fff',
+  fontSize: 13,
+  fontWeight: 700,
+  boxShadow: '0 10px 22px rgba(53, 113, 231, 0.22)',
+};
 
 function HomePage(props: {
   project: Project | null;
@@ -570,8 +675,8 @@ function HomePage(props: {
 
   return (
     <div style={{ padding: COMPACT_UI.pagePadding, maxWidth: 920 }}>
-      <h2 style={{ marginTop: 0, marginBottom: 12, color: '#1d2129' }}>生成项目</h2>
-      <div style={{ background: '#fff', borderRadius: 12, padding: 20, boxShadow: '0 6px 20px rgba(15,23,42,0.06)' }}>
+      <h2 style={{ marginTop: 0, marginBottom: 12, color: '#1d2129', fontSize: 24, letterSpacing: '-0.02em' }}>生成项目</h2>
+      <div style={SOFT_CARD_STYLE}>
         <div style={{ marginBottom: 16 }}>
           <label style={{ display: 'block', marginBottom: 8, fontWeight: 600, color: '#1d2129' }}>
             口播文案
@@ -581,14 +686,11 @@ function HomePage(props: {
             onChange={(event) => setText(event.target.value)}
             rows={14}
             style={{
-              width: '100%',
               resize: 'vertical',
-              boxSizing: 'border-box',
-              padding: 12,
-              border: '1px solid #d9dde7',
-              borderRadius: 8,
+              ...SOFT_INPUT_STYLE,
               fontSize: 14,
               lineHeight: 1.6,
+              minHeight: 260,
             }}
           />
         </div>
@@ -598,7 +700,7 @@ function HomePage(props: {
           <select
             value={template}
             onChange={(event) => setTemplate(event.target.value)}
-            style={{ minWidth: 220, padding: '9px 10px', borderRadius: 8, border: '1px solid #d9dde7' }}
+            style={{ ...SOFT_INPUT_STYLE, width: 220, minWidth: 180, padding: '10px 12px' }}
           >
             {TEMPLATE_OPTIONS.map((option) => (
               <option key={option.value} value={option.value}>
@@ -612,14 +714,9 @@ function HomePage(props: {
           onClick={handleGenerate}
           disabled={loading}
           style={{
-            padding: '10px 18px',
-            borderRadius: 8,
-            border: 'none',
+            ...PRIMARY_BUTTON_STYLE,
             background: loading ? '#94b8ff' : '#165dff',
-            color: '#fff',
             cursor: loading ? 'not-allowed' : 'pointer',
-            fontSize: 14,
-            fontWeight: 600,
           }}
         >
           {loading ? '生成中...' : '开始生成'}
@@ -636,6 +733,9 @@ function EditorPage(props: {
   project: Project | null;
   onProjectChange: (project: Project | null) => void;
 }) {
+  const editorWorkspaceHeight = 'min(760px, calc(100vh - 88px))';
+  const editorMainWidth = 560;
+  const editorSingleWidth = 680;
   const navigate = useNavigate();
   const [activeIndex, setActiveIndex] = React.useState(0);
   const [showPreview, setShowPreview] = React.useState(false);
@@ -782,11 +882,11 @@ function EditorPage(props: {
     : slide.title || `第 ${safeIndex + 1} 页`;
 
   return (
-    <div style={{ display: 'flex', height: '100%' }}>
-      <div style={{ width: COMPACT_UI.sidePanelWidth, background: '#fff', borderRight: '1px solid #e5e6eb', display: 'flex', flexDirection: 'column' }}>
-        <div style={{ padding: COMPACT_UI.panelPadding, borderBottom: '1px solid #e5e6eb', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+    <div style={{ display: 'flex', height: editorWorkspaceHeight, gap: 12, padding: COMPACT_UI.pagePadding, width: 'fit-content', maxWidth: '100%', margin: '0 auto' }}>
+      <div style={{ width: COMPACT_UI.sidePanelWidth, background: 'rgba(255,255,255,0.92)', border: '1px solid rgba(224,231,240,0.92)', borderRadius: 22, boxShadow: '0 16px 36px rgba(148,163,184,0.1)', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+        <div style={{ padding: 12, borderBottom: '1px solid #edf1f7', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <span style={{ fontWeight: 600 }}>页面 ({project.slides.length})</span>
-          <button onClick={handleAddSlide} style={{ padding: '4px 8px', border: 'none', borderRadius: 6, background: '#165dff', color: '#fff', cursor: 'pointer' }}>
+          <button onClick={handleAddSlide} style={{ ...PRIMARY_BUTTON_STYLE, padding: '6px 10px', borderRadius: 12, cursor: 'pointer', boxShadow: '0 8px 18px rgba(53, 113, 231, 0.16)' }}>
             + 新增
           </button>
         </div>
@@ -802,10 +902,12 @@ function EditorPage(props: {
                 key={item.id}
                 onClick={() => setActiveIndex(index)}
                 style={{
+                  margin: '4px 6px',
                   padding: '10px 12px',
                   cursor: 'pointer',
-                  background: safeIndex === index ? '#e8f3ff' : 'transparent',
-                  borderLeft: safeIndex === index ? '3px solid #165dff' : '3px solid transparent',
+                  background: safeIndex === index ? 'linear-gradient(180deg, rgba(232,239,255,0.98) 0%, rgba(219,229,255,0.9) 100%)' : 'transparent',
+                  border: safeIndex === index ? '1px solid rgba(167,191,255,0.56)' : '1px solid transparent',
+                  borderRadius: 14,
                   display: 'flex',
                   justifyContent: 'space-between',
                   gap: 8,
@@ -818,7 +920,7 @@ function EditorPage(props: {
                       event.stopPropagation();
                       handleDeleteSlide(index);
                     }}
-                    style={{ padding: '2px 6px', borderRadius: 4, border: '1px solid #f53f3f', color: '#f53f3f', background: 'transparent', cursor: 'pointer' }}
+                    style={{ padding: '2px 6px', borderRadius: 10, border: '1px solid #f53f3f', color: '#f53f3f', background: 'transparent', cursor: 'pointer', fontSize: 12 }}
                   >
                     删除
                   </button>
@@ -828,18 +930,18 @@ function EditorPage(props: {
           })}
         </div>
 
-        <div style={{ padding: COMPACT_UI.panelPadding, borderTop: '1px solid #e5e6eb' }}>
+        <div style={{ padding: 12, borderTop: '1px solid #edf1f7' }}>
           <button
             onClick={handlePreview}
             disabled={previewLoading}
-            style={{ width: '100%', padding: '10px', marginBottom: 8, border: 'none', borderRadius: 8, background: previewLoading ? '#94b8ff' : '#00b42a', color: '#fff', cursor: previewLoading ? 'not-allowed' : 'pointer' }}
+            style={{ ...PRIMARY_BUTTON_STYLE, width: '100%', marginBottom: 8, background: previewLoading ? '#94b8ff' : 'linear-gradient(135deg, #07b36d 0%, #19c37d 100%)', cursor: previewLoading ? 'not-allowed' : 'pointer' }}
           >
             {previewLoading ? '准备中...' : '应用内预览'}
           </button>
           <button
             onClick={handleRender}
             disabled={rendering}
-            style={{ width: '100%', padding: '10px', border: 'none', borderRadius: 8, background: rendering ? '#94b8ff' : '#165dff', color: '#fff', cursor: rendering ? 'not-allowed' : 'pointer' }}
+            style={{ ...PRIMARY_BUTTON_STYLE, width: '100%', background: rendering ? '#94b8ff' : PRIMARY_BUTTON_STYLE.background, cursor: rendering ? 'not-allowed' : 'pointer' }}
           >
             {rendering ? '导出中...' : '导出视频'}
           </button>
@@ -847,11 +949,11 @@ function EditorPage(props: {
         </div>
       </div>
 
-      <div style={{ flex: 1, padding: COMPACT_UI.pagePadding, overflow: 'auto', borderRight: showPreview ? '1px solid #e5e6eb' : 'none' }}>
-        <div style={{ maxWidth: 620 }}>
-          <div style={{ marginBottom: COMPACT_UI.sectionGap, padding: 12, background: '#e8f3ff', borderRadius: 8 }}>
+      <div style={{ width: showPreview ? editorMainWidth : editorSingleWidth, overflow: 'auto', minWidth: 0 }}>
+        <div style={{ ...SOFT_CARD_STYLE, maxWidth: 'none', minHeight: '100%' }}>
+          <div style={{ marginBottom: COMPACT_UI.sectionGap, padding: 12, background: 'linear-gradient(180deg, rgba(232,243,255,0.96) 0%, rgba(224,236,255,0.92) 100%)', borderRadius: 14 }}>
             <span style={{ color: '#4e5969' }}>当前模板:</span>
-            <span style={{ marginLeft: 8, padding: '4px 10px', borderRadius: 6, background: '#fff', border: '1px solid #165dff', color: '#165dff' }}>
+            <span style={{ marginLeft: 8, padding: '4px 10px', borderRadius: 999, background: '#fff', border: '1px solid #165dff', color: '#165dff', fontSize: 12 }}>
               {project.template}
             </span>
             <span style={{ marginLeft: 12, fontSize: 12, color: '#86909c' }}>
@@ -1037,12 +1139,12 @@ function EditorPage(props: {
       </div>
 
       {showPreview ? (
-        <div style={{ width: COMPACT_UI.previewWidth, background: '#fff', display: 'flex', flexDirection: 'column' }}>
-          <div style={{ padding: 10, borderBottom: '1px solid #e5e6eb', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ width: COMPACT_UI.previewWidth, background: 'rgba(255,255,255,0.92)', border: '1px solid rgba(224,231,240,0.92)', borderRadius: 22, boxShadow: '0 16px 36px rgba(148,163,184,0.1)', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+          <div style={{ padding: 10, borderBottom: '1px solid #edf1f7', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span style={{ fontWeight: 600 }}>预览</span>
             <button
               onClick={() => setShowPreview(false)}
-              style={{ padding: '4px 10px', fontSize: 12, background: '#f2f3f5', color: '#4e5969', border: 'none', borderRadius: 6, cursor: 'pointer' }}
+              style={{ padding: '6px 12px', fontSize: 12, background: '#f3f6fb', color: '#4e5969', border: '1px solid #e1e8f2', borderRadius: 999, cursor: 'pointer' }}
             >
               关闭
             </button>
@@ -1083,9 +1185,9 @@ function SettingsPage() {
 
   return (
     <div style={{ padding: COMPACT_UI.pagePadding, maxWidth: 760 }}>
-      <h2 style={{ marginTop: 0, marginBottom: 12, color: '#1d2129' }}>设置</h2>
+      <h2 style={{ marginTop: 0, marginBottom: 12, color: '#1d2129', fontSize: 24, letterSpacing: '-0.02em' }}>设置</h2>
 
-      <div style={{ background: '#fff', borderRadius: 12, padding: 20, boxShadow: '0 6px 20px rgba(15,23,42,0.06)' }}>
+      <div style={SOFT_CARD_STYLE}>
         <h3 style={{ marginTop: 0, color: '#1d2129' }}>配音</h3>
 
         <div style={{ marginBottom: 16 }}>
@@ -1094,7 +1196,7 @@ function SettingsPage() {
             type="password"
             value={settings.voiceApiKey}
             onChange={(event) => updateField('voiceApiKey', event.target.value)}
-            style={{ width: '100%', boxSizing: 'border-box', padding: 10, borderRadius: 8, border: '1px solid #d9dde7' }}
+            style={SOFT_INPUT_STYLE}
           />
         </div>
 
@@ -1103,7 +1205,7 @@ function SettingsPage() {
           <input
             value={settings.voiceModel}
             onChange={(event) => updateField('voiceModel', event.target.value)}
-            style={{ width: '100%', boxSizing: 'border-box', padding: 10, borderRadius: 8, border: '1px solid #d9dde7' }}
+            style={SOFT_INPUT_STYLE}
           />
         </div>
 
@@ -1112,7 +1214,7 @@ function SettingsPage() {
           <input
             value={settings.voiceId}
             onChange={(event) => updateField('voiceId', event.target.value)}
-            style={{ width: '100%', boxSizing: 'border-box', padding: 10, borderRadius: 8, border: '1px solid #d9dde7' }}
+            style={SOFT_INPUT_STYLE}
           />
         </div>
 
@@ -1125,7 +1227,7 @@ function SettingsPage() {
             step={0.1}
             value={settings.voiceSpeechRate}
             onChange={(event) => updateField('voiceSpeechRate', normalizeSpeechRate(event.target.value))}
-            style={{ width: '100%', boxSizing: 'border-box', padding: 10, borderRadius: 8, border: '1px solid #d9dde7' }}
+            style={SOFT_INPUT_STYLE}
           />
         </div>
 
@@ -1136,7 +1238,7 @@ function SettingsPage() {
           <input
             value={settings.aiUrl}
             onChange={(event) => updateField('aiUrl', event.target.value)}
-            style={{ width: '100%', boxSizing: 'border-box', padding: 10, borderRadius: 8, border: '1px solid #d9dde7' }}
+            style={SOFT_INPUT_STYLE}
           />
         </div>
 
@@ -1146,7 +1248,7 @@ function SettingsPage() {
             type="password"
             value={settings.aiApiKey}
             onChange={(event) => updateField('aiApiKey', event.target.value)}
-            style={{ width: '100%', boxSizing: 'border-box', padding: 10, borderRadius: 8, border: '1px solid #d9dde7' }}
+            style={SOFT_INPUT_STYLE}
           />
         </div>
 
@@ -1155,13 +1257,13 @@ function SettingsPage() {
           <input
             value={settings.aiModel}
             onChange={(event) => updateField('aiModel', event.target.value)}
-            style={{ width: '100%', boxSizing: 'border-box', padding: 10, borderRadius: 8, border: '1px solid #d9dde7' }}
+            style={SOFT_INPUT_STYLE}
           />
         </div>
 
         <button
           onClick={handleSave}
-          style={{ padding: '10px 18px', border: 'none', borderRadius: 8, background: '#165dff', color: '#fff', cursor: 'pointer', fontWeight: 600 }}
+          style={{ ...PRIMARY_BUTTON_STYLE, cursor: 'pointer' }}
         >
           保存设置
         </button>
@@ -1175,16 +1277,117 @@ function Layout(props: { children: React.ReactNode }) {
   const location = useLocation();
 
   return (
-    <div style={{ display: 'flex', height: '100vh', background: '#f5f6f8' }}>
-      <nav style={{ width: COMPACT_UI.navWidth, background: '#fff', padding: 12, borderRight: '1px solid #e5e6eb', boxSizing: 'border-box' }}>
-        <div style={{ fontWeight: 700, fontSize: 18, color: '#165dff', marginBottom: 16 }}>
-          AI 视频生成器
+    <div
+      style={{
+        display: 'flex',
+        height: '100vh',
+        padding: '12px 14px 12px 6px',
+        gap: 14,
+        background:
+          'radial-gradient(circle at 16% 18%, rgba(214,228,255,0.94) 0%, rgba(214,228,255,0) 32%), radial-gradient(circle at 84% 12%, rgba(222,244,241,0.82) 0%, rgba(222,244,241,0) 26%), linear-gradient(180deg, #f8fbff 0%, #eef4fb 100%)',
+      }}
+    >
+      <a
+        href="#app-main"
+        className="skip-link"
+      >
+        跳到主内容
+      </a>
+      <div
+        style={{
+          width: COMPACT_UI.navWidth,
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}
+      >
+        <nav
+          aria-label="主导航"
+          className="dock-nav"
+          style={{
+            width: 60,
+            padding: '10px 6px',
+            borderRadius: 30,
+            background: 'linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(248,251,255,0.96) 100%)',
+            border: '1px solid rgba(223, 230, 240, 0.95)',
+            boxShadow:
+              '0 30px 60px rgba(148, 163, 184, 0.24), inset 0 1px 0 rgba(255,255,255,0.92)',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: 8,
+          }}
+        >
+          <div
+            style={{
+              width: 38,
+              height: 38,
+              borderRadius: 14,
+              background: 'linear-gradient(135deg, #1e63ff 0%, #16b6d6 100%)',
+              color: '#fff',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              boxShadow: '0 10px 20px rgba(45, 103, 218, 0.24)',
+            }}
+            aria-hidden="true"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: 18, height: 18 }}>
+              <path d="M5 16c0-4.5 2.7-8 7.2-9.6l3.6-.9-.9 3.6C13.3 13.6 9.8 16.3 5.3 16.3H5V16Z" />
+              <path d="M8 18c0-1.7.5-3 1.5-4" />
+              <path d="M14 10 18 6" />
+            </svg>
+          </div>
+
+          {NAV_ITEMS.map((item, index) => {
+            const active = location.pathname === item.path;
+            const isLast = index === NAV_ITEMS.length - 1;
+
+            return (
+              <Link
+                key={item.path}
+                to={item.path}
+                className="dock-nav__link"
+                style={{
+                  ...dockLinkStyle(active),
+                  marginTop: isLast ? 8 : 0,
+                }}
+                aria-label={item.label}
+                title={item.label}
+              >
+                <span style={{ display: 'inline-flex' }}>{item.icon}</span>
+                <span className="dock-nav__tooltip" role="tooltip">
+                  {item.label}
+                </span>
+              </Link>
+            );
+          })}
+        </nav>
+      </div>
+      <main
+        id="app-main"
+        style={{
+          flex: 1,
+          minWidth: 0,
+          overflow: 'auto',
+          paddingRight: 4,
+        }}
+      >
+        <div
+          style={{
+            minHeight: '100%',
+            borderRadius: 28,
+            background: 'linear-gradient(180deg, rgba(255,255,255,0.46) 0%, rgba(255,255,255,0.64) 100%)',
+            border: '1px solid rgba(255,255,255,0.82)',
+            boxShadow: '0 24px 52px rgba(148, 163, 184, 0.14), inset 0 1px 0 rgba(255,255,255,0.92)',
+            backdropFilter: 'blur(10px)',
+            WebkitBackdropFilter: 'blur(10px)',
+            overflow: 'hidden',
+          }}
+        >
+          {props.children}
         </div>
-        <a href="/" style={layoutStyle(location.pathname === '/')}>首页</a>
-        <a href="/editor" style={layoutStyle(location.pathname === '/editor')}>编辑器</a>
-        <a href="/settings" style={layoutStyle(location.pathname === '/settings')}>设置</a>
-      </nav>
-      <main style={{ flex: 1, overflow: 'auto' }}>{props.children}</main>
+      </main>
     </div>
   );
 }
