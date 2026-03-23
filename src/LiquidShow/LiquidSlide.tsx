@@ -6,28 +6,59 @@ import {
   useVideoConfig,
 } from "remotion";
 import { getSlideMotionTiming } from "../templates/animationTiming";
-import {
-  getKnowledgeLayoutItemCount,
-  resolveKnowledgeLayout,
-} from "../templates/knowledgeLayouts";
-import { ContentSlide } from "../templates/types";
 
 const colors = {
-  bg: "#eef1f6",
-  text: "#1d2738",
-  muted: "#667085",
-  softText: "#7b8797",
-  white: "rgba(255,255,255,0.74)",
-  whiteStrong: "rgba(255,255,255,0.9)",
-  pink: "#ff71b3",
-  purple: "#9d7bff",
-  cyan: "#21d4d0",
-  orange: "#ffbe73",
-  shadow: "rgba(27, 39, 54, 0.12)",
+  bg: "#e8e8ed",
+  blob1: "#ff6b9d",
+  blob2: "#c44dff",
+  blob3: "#00d4aa",
+  blob4: "#ff9f43",
+  blob5: "#5f9eff",
+  blob6: "#a855f7",
+  text: "#1d1d1f",
+  textSecondary: "#424245",
+  muted: "#6e6e73",
 };
 
-const SoftBackground: React.FC<{ frame: number }> = ({ frame }) => {
-  const drift = Math.sin(frame * 0.01) * 4;
+const MegaBlob: React.FC<{
+  frame: number;
+  x: number;
+  y: number;
+  size: number;
+  color: string;
+  speedX: number;
+  speedY: number;
+  phase: number;
+}> = ({ frame, x, y, size, color, speedX, speedY, phase }) => {
+  const moveX = Math.sin(frame * speedX + phase) * 100 + Math.cos(frame * speedX * 0.7) * 50;
+  const moveY = Math.cos(frame * speedY + phase) * 80 + Math.sin(frame * speedY * 0.6) * 40;
+  const morph1 = 30 + Math.sin(frame * 0.015 + phase) * 25;
+  const morph2 = 70 + Math.cos(frame * 0.012 + phase) * 30;
+  const morph3 = 50 + Math.sin(frame * 0.018 + phase + 1) * 28;
+  const morph4 = 60 + Math.cos(frame * 0.014 + phase + 2) * 22;
+  const scale = 1 + Math.sin(frame * 0.008 + phase) * 0.12;
+
+  return (
+    <div
+      style={{
+        position: "absolute",
+        left: x + moveX,
+        top: y + moveY,
+        width: size,
+        height: size,
+        background: color,
+        borderRadius: `${morph1}% ${morph2}% ${morph3}% ${morph4}%`,
+        filter: "blur(100px)",
+        opacity: 0.85,
+        transform: `scale(${scale})`,
+        mixBlendMode: "normal",
+      }}
+    />
+  );
+};
+
+const GradientBackground: React.FC<{ frame: number }> = ({ frame }) => {
+  const shift = Math.sin(frame * 0.005) * 20;
 
   return (
     <div
@@ -35,30 +66,66 @@ const SoftBackground: React.FC<{ frame: number }> = ({ frame }) => {
         position: "absolute",
         inset: 0,
         background: `
-          radial-gradient(circle at ${14 + drift}% ${12 + drift * 0.4}%,
-            rgba(255, 113, 179, 0.38) 0%,
-            rgba(255, 113, 179, 0.16) 22%,
-            transparent 45%),
-          radial-gradient(circle at ${86 - drift}% ${14 + drift * 0.5}%,
-            rgba(157, 123, 255, 0.34) 0%,
-            rgba(157, 123, 255, 0.14) 24%,
-            transparent 46%),
-          radial-gradient(circle at ${38 + drift * 0.5}% ${86 - drift}%,
-            rgba(33, 212, 208, 0.22) 0%,
-            rgba(33, 212, 208, 0.1) 20%,
-            transparent 38%),
-          radial-gradient(circle at ${88 - drift * 0.4}% ${78 + drift * 0.3}%,
-            rgba(255, 190, 115, 0.26) 0%,
-            rgba(255, 190, 115, 0.1) 20%,
-            transparent 38%),
-          linear-gradient(180deg, #f3f5fa 0%, #eef1f6 42%, #e9edf4 100%)
+          radial-gradient(ellipse 80% 60% at ${50 + shift}% 30%, rgba(255,107,157,0.15) 0%, transparent 60%),
+          radial-gradient(ellipse 70% 80% at ${30 + shift * 0.5}% 70%, rgba(196,77,255,0.12) 0%, transparent 55%),
+          radial-gradient(ellipse 90% 70% at ${70 - shift * 0.3}% 50%, rgba(0,212,170,0.1) 0%, transparent 50%),
+          linear-gradient(180deg, #f0f0f5 0%, #e8e8ed 50%, #e0e0e5 100%)
         `,
       }}
     />
   );
 };
 
-const MainCard: React.FC<{
+const GlassRefraction: React.FC<{
+  frame: number;
+  width: number;
+  height: number;
+}> = ({ frame, width, height }) => {
+  const shimmer = Math.sin(frame * 0.04) * 0.3 + 0.7;
+
+  return (
+    <div
+      style={{
+        position: "absolute",
+        width,
+        height,
+        borderRadius: 44,
+        overflow: "hidden",
+      }}
+    >
+      <div
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          height: height * 0.5,
+          background: `linear-gradient(180deg,
+            rgba(255,255,255,${0.4 * shimmer}) 0%,
+            rgba(255,255,255,0.1) 30%,
+            transparent 100%
+          )`,
+          borderRadius: "44px 44px 50% 50%",
+        }}
+      />
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          borderRadius: 44,
+          boxShadow: `
+            inset 0 1px 1px rgba(255,255,255,0.9),
+            inset 0 -1px 1px rgba(0,0,0,0.05),
+            inset 1px 0 1px rgba(255,255,255,0.5),
+            inset -1px 0 1px rgba(255,255,255,0.5)
+          `,
+        }}
+      />
+    </div>
+  );
+};
+
+const LiquidGlassCard: React.FC<{
   children: React.ReactNode;
   frame: number;
   delay: number;
@@ -66,85 +133,139 @@ const MainCard: React.FC<{
   const progress = spring({
     frame: frame - delay,
     fps: 30,
-    config: { damping: 18, stiffness: 90 },
+    config: { damping: 20, stiffness: 100 },
   });
+
+  const breathe = 1 + Math.sin(frame * 0.025) * 0.008;
 
   return (
     <div
       style={{
         position: "relative",
         opacity: progress,
-        transform: `translateY(${interpolate(progress, [0, 1], [30, 0])}px) scale(${interpolate(progress, [0, 1], [0.985, 1])})`,
+        transform: `scale(${progress * breathe}) translateY(${(1 - progress) * 20}px)`,
       }}
     >
       <div
         style={{
           position: "absolute",
-          inset: 0,
-          borderRadius: 34,
-          background: "rgba(255,255,255,0.42)",
-          filter: "blur(18px)",
-          transform: "translateY(18px)",
+          inset: -2,
+          borderRadius: 46,
+          background: "linear-gradient(135deg, rgba(255,255,255,0.8), rgba(255,255,255,0.2))",
+          filter: "blur(20px)",
+          opacity: 0.5,
         }}
       />
+
       <div
         style={{
           position: "relative",
-          width: 910,
-          minHeight: 920,
-          padding: "42px 44px 40px",
-          borderRadius: 34,
-          background:
-            "linear-gradient(135deg, rgba(255,255,255,0.78) 0%, rgba(255,255,255,0.66) 100%)",
-          border: "1px solid rgba(255,255,255,0.82)",
-          backdropFilter: "blur(30px) saturate(135%)",
-          WebkitBackdropFilter: "blur(30px) saturate(135%)",
-          boxShadow: `
-            0 24px 70px rgba(21, 30, 44, 0.08),
-            inset 0 1px 1px rgba(255,255,255,0.9)
+          padding: "80px 60px",
+          background: `
+            linear-gradient(135deg,
+              rgba(255,255,255,0.75) 0%,
+              rgba(255,255,255,0.65) 50%,
+              rgba(255,255,255,0.7) 100%
+            )
           `,
-          overflow: "hidden",
+          backdropFilter: "blur(80px) saturate(200%)",
+          WebkitBackdropFilter: "blur(80px) saturate(200%)",
+          borderRadius: 44,
+          border: "1px solid rgba(255,255,255,0.8)",
+          boxShadow: `
+            0 25px 50px -12px rgba(0,0,0,0.08),
+            0 12px 24px -8px rgba(0,0,0,0.04),
+            0 0 0 1px rgba(255,255,255,0.5),
+            inset 0 1px 2px rgba(255,255,255,1),
+            inset 0 -1px 1px rgba(0,0,0,0.03)
+          `,
         }}
       >
-        <div
-          style={{
-            position: "absolute",
-            inset: 0,
-            background:
-              "linear-gradient(135deg, rgba(255,255,255,0.22), rgba(255,255,255,0.04))",
-            pointerEvents: "none",
-          }}
-        />
+        <GlassRefraction frame={frame} width={920} height={700} />
         {children}
       </div>
     </div>
   );
 };
 
-const Pill: React.FC<{
-  children: React.ReactNode;
-  textColor?: string;
-}> = ({ children, textColor = colors.softText }) => {
+const FloatingSphere: React.FC<{
+  frame: number;
+  x: number;
+  y: number;
+  size: number;
+  color: string;
+  delay: number;
+}> = ({ frame, x, y, size, color, delay }) => {
+  const progress = spring({
+    frame: frame - delay,
+    fps: 30,
+    config: { damping: 15 },
+  });
+
+  const floatY = Math.sin(frame * 0.025 + delay) * 12;
+  const floatX = Math.cos(frame * 0.018 + delay * 0.7) * 8;
+
+  return (
+    <div
+      style={{
+        position: "absolute",
+        left: x + floatX,
+        top: y + floatY,
+        width: size,
+        height: size,
+        borderRadius: "50%",
+        background: `
+          radial-gradient(circle at 35% 35%,
+            rgba(255,255,255,0.9) 0%,
+            ${color} 40%,
+            ${color}cc 100%
+          )
+        `,
+        boxShadow: `
+          0 8px 32px ${color}50,
+          inset 0 -6px 12px rgba(0,0,0,0.15),
+          inset 0 6px 12px rgba(255,255,255,0.9)
+        `,
+        opacity: progress * 0.9,
+        transform: `scale(${progress})`,
+      }}
+    />
+  );
+};
+
+const GlassPill: React.FC<{
+  text: string;
+  frame: number;
+  delay: number;
+}> = ({ text, frame, delay }) => {
+  const progress = spring({
+    frame: frame - delay,
+    fps: 30,
+    config: { damping: 12 },
+  });
+
   return (
     <div
       style={{
         display: "inline-flex",
         alignItems: "center",
-        justifyContent: "center",
-        minHeight: 42,
-        padding: "0 18px",
-        borderRadius: 999,
-        background: "rgba(255,255,255,0.46)",
-        border: "1px solid rgba(255,255,255,0.72)",
-        boxShadow: "inset 0 1px 1px rgba(255,255,255,0.7)",
-        fontSize: 18,
+        padding: "12px 24px",
+        background: "rgba(255,255,255,0.6)",
+        backdropFilter: "blur(20px)",
+        borderRadius: 28,
+        border: "1px solid rgba(255,255,255,0.8)",
+        boxShadow: `
+          0 4px 12px rgba(0,0,0,0.04),
+          inset 0 1px 1px rgba(255,255,255,0.9)
+        `,
+        fontSize: 20,
         fontWeight: 600,
-        letterSpacing: 1.2,
-        textTransform: "uppercase",
-        color: textColor,
+        color: colors.textSecondary,
+        opacity: progress,
+        transform: `translateY(${(1 - progress) * 10}px)`,
       }}
     >
-      {children}
+      {text}
     </div>
   );
 };
@@ -153,51 +274,33 @@ export const LiquidSlide: React.FC<{
   title: string;
   subtitle?: string;
   points?: string[];
-  type?: ContentSlide["type"];
-  data?: Record<string, unknown>;
   index: number;
   totalSlides: number;
   durationInFrames: number;
-}> = ({
-  title,
-  subtitle,
-  points,
-  type,
-  data,
-  index,
-  totalSlides,
-  durationInFrames,
-}) => {
+}> = ({ title, subtitle, points, index, totalSlides, durationInFrames }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
-  const layout = resolveKnowledgeLayout(
-    { title, subtitle, points, type, data },
-    index
-  );
-  const timing = getSlideMotionTiming(
-    durationInFrames,
-    getKnowledgeLayoutItemCount(layout)
-  );
+  const timing = getSlideMotionTiming(durationInFrames, points?.length ?? 0);
 
   const titleProgress = spring({
     frame: frame - timing.titleStart,
     fps,
-    config: { damping: 16, stiffness: 94 },
+    config: { damping: 18, stiffness: 100 },
   });
+
   const subtitleProgress = spring({
     frame: frame - timing.subtitleStart,
     fps,
-    config: { damping: 18, stiffness: 88 },
+    config: { damping: 18, stiffness: 90 },
   });
-  const itemProgresses = new Array(getKnowledgeLayoutItemCount(layout))
-    .fill(null)
-    .map((_, i) =>
-      spring({
-        frame: frame - timing.pointsStart - i * timing.pointStagger,
-        fps,
-        config: { damping: 16, stiffness: 96 },
-      })
-    );
+
+  const pointProgresses = (points || []).map((_, i) =>
+    spring({
+      frame: frame - timing.pointsStart - i * timing.pointStagger,
+      fps,
+      config: { damping: 14, stiffness: 100 },
+    })
+  );
 
   const exitOpacity = interpolate(
     frame,
@@ -205,386 +308,6 @@ export const LiquidSlide: React.FC<{
     [1, 0],
     { extrapolateLeft: "clamp", extrapolateRight: "clamp" }
   );
-
-  const gradientPairs: Array<[string, string]> = [
-    [colors.pink, "#ffb0d4"],
-    [colors.cyan, "#8ce9ea"],
-    [colors.orange, "#ffd4a4"],
-    [colors.purple, "#c9b6ff"],
-    [colors.cyan, "#c7f6f5"],
-    [colors.pink, "#ffd3e8"],
-  ];
-
-  const renderBaseRow = (
-    label: string,
-    text: string,
-    itemIndex: number,
-    compact = false
-  ) => {
-    const progress = itemProgresses[itemIndex] || 0;
-    const [accentA, accentB] = gradientPairs[itemIndex % gradientPairs.length];
-
-    return (
-      <div
-        key={`${label}-${text}-${itemIndex}`}
-        style={{
-          display: "flex",
-          alignItems: compact ? "flex-start" : "center",
-          gap: 18,
-          padding: compact ? "22px 24px" : "20px 28px",
-          background: "rgba(255,255,255,0.72)",
-          border: "1px solid rgba(255,255,255,0.78)",
-          borderRadius: 26,
-          boxShadow: `0 18px 34px ${colors.shadow}`,
-          transform: `translateX(${interpolate(progress, [0, 1], [-30, 0])}px)`,
-          opacity: progress,
-        }}
-      >
-        <div
-          style={{
-            minWidth: 50,
-            height: 50,
-            padding: "0 16px",
-            borderRadius: 999,
-            background: `linear-gradient(135deg, ${accentA}, ${accentB})`,
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            color: colors.text,
-            fontSize: 16,
-            fontWeight: 800,
-            boxShadow: `0 10px 22px ${accentA}35`,
-            flexShrink: 0,
-          }}
-        >
-          {label}
-        </div>
-        <div
-          style={{
-            fontSize: compact ? 26 : 32,
-            fontWeight: 650,
-            lineHeight: 1.32,
-            letterSpacing: "-0.4px",
-            color: colors.text,
-          }}
-        >
-          {text}
-        </div>
-      </div>
-    );
-  };
-
-  const renderList = (grid = false) => {
-    return (
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: grid ? "1fr 1fr" : "1fr",
-          gap: 18,
-          width: "100%",
-        }}
-      >
-        {layout.points.map((point, itemIndex) =>
-          renderBaseRow(String(itemIndex + 1).padStart(2, "0"), point, itemIndex, grid)
-        )}
-      </div>
-    );
-  };
-
-  const renderCompare = () => {
-    if (!layout.compare) {
-      return renderList(false);
-    }
-
-    return (
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "1fr 1fr",
-          gap: 18,
-          width: "100%",
-        }}
-      >
-        {[layout.compare.left, layout.compare.right].map((side, sideIndex) => {
-          const progress = itemProgresses[sideIndex] || 0;
-          const [accentA, accentB] = gradientPairs[sideIndex % gradientPairs.length];
-
-          return (
-            <div
-              key={side.label}
-              style={{
-                padding: "24px 24px 26px",
-                background: colors.whiteStrong,
-                border: "1px solid rgba(255,255,255,0.82)",
-                borderRadius: 28,
-                boxShadow: `0 18px 34px ${colors.shadow}`,
-                transform: `translateY(${interpolate(progress, [0, 1], [24, 0])}px)`,
-                opacity: progress,
-              }}
-            >
-              <div
-                style={{
-                  fontSize: 18,
-                  fontWeight: 700,
-                  letterSpacing: 1.1,
-                  textTransform: "uppercase",
-                  color: colors.softText,
-                }}
-              >
-                {side.label}
-              </div>
-              {side.value ? (
-                <div
-                  style={{
-                    fontSize: 40,
-                    lineHeight: 1,
-                    fontWeight: 800,
-                    color: colors.text,
-                    marginTop: 12,
-                  }}
-                >
-                  {side.value}
-                </div>
-              ) : null}
-              <div
-                style={{
-                  width: 90,
-                  height: 6,
-                  borderRadius: 999,
-                  margin: "16px 0 18px",
-                  background: `linear-gradient(90deg, ${accentA}, ${accentB})`,
-                }}
-              />
-              <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                {side.points.map((item, itemIndex) => (
-                  <div key={`${side.label}-${itemIndex}`} style={{ display: "flex", gap: 12 }}>
-                    <div
-                      style={{
-                        width: 9,
-                        height: 9,
-                        borderRadius: "50%",
-                        background: accentA,
-                        marginTop: 11,
-                        flexShrink: 0,
-                      }}
-                    />
-                    <div
-                      style={{
-                        fontSize: 24,
-                        lineHeight: 1.42,
-                        color: colors.text,
-                      }}
-                    >
-                      {item}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    );
-  };
-
-  const renderTimeline = () => {
-    const items = layout.timeline || [];
-
-    return (
-      <div style={{ display: "flex", flexDirection: "column", gap: 16, width: "100%" }}>
-        {items.map((item, itemIndex) => {
-          const progress = itemProgresses[itemIndex] || 0;
-          const [accentA, accentB] = gradientPairs[itemIndex % gradientPairs.length];
-
-          return (
-            <div
-              key={`${item.label}-${itemIndex}`}
-              style={{
-                display: "grid",
-                gridTemplateColumns: "86px 1fr",
-                gap: 18,
-                alignItems: "center",
-                padding: "18px 22px",
-                background: colors.whiteStrong,
-                border: "1px solid rgba(255,255,255,0.82)",
-                borderRadius: 26,
-                boxShadow: `0 18px 34px ${colors.shadow}`,
-                transform: `translateX(${interpolate(progress, [0, 1], [-24, 0])}px)`,
-                opacity: progress,
-              }}
-            >
-              <div
-                style={{
-                  height: 50,
-                  borderRadius: 999,
-                  background: `linear-gradient(135deg, ${accentA}, ${accentB})`,
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  color: colors.text,
-                  fontSize: 16,
-                  fontWeight: 800,
-                }}
-              >
-                {item.label}
-              </div>
-              <div>
-                <div style={{ fontSize: 28, fontWeight: 700, color: colors.text }}>
-                  {item.title}
-                </div>
-                {item.description ? (
-                  <div
-                    style={{
-                      fontSize: 21,
-                      lineHeight: 1.42,
-                      color: colors.muted,
-                      marginTop: 8,
-                    }}
-                  >
-                    {item.description}
-                  </div>
-                ) : null}
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    );
-  };
-
-  const renderStats = () => {
-    const stats = layout.stats || [];
-
-    return (
-      <div style={{ display: "flex", flexDirection: "column", gap: 18, width: "100%" }}>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16 }}>
-          {stats.slice(0, 3).map((stat, statIndex) => {
-            const progress = itemProgresses[statIndex] || 0;
-            const [accentA, accentB] = gradientPairs[statIndex % gradientPairs.length];
-
-            return (
-              <div
-                key={`${stat.label}-${statIndex}`}
-                style={{
-                  padding: "22px 20px",
-                  background: colors.whiteStrong,
-                  border: "1px solid rgba(255,255,255,0.82)",
-                  borderRadius: 26,
-                  boxShadow: `0 18px 34px ${colors.shadow}`,
-                  transform: `translateY(${interpolate(progress, [0, 1], [22, 0])}px)`,
-                  opacity: progress,
-                }}
-              >
-                <div
-                  style={{
-                    width: 46,
-                    height: 6,
-                    borderRadius: 999,
-                    background: `linear-gradient(90deg, ${accentA}, ${accentB})`,
-                    marginBottom: 16,
-                  }}
-                />
-                <div style={{ fontSize: 46, fontWeight: 800, color: colors.text }}>
-                  {stat.value}
-                </div>
-                <div
-                  style={{
-                    fontSize: 22,
-                    fontWeight: 700,
-                    color: colors.text,
-                    marginTop: 10,
-                  }}
-                >
-                  {stat.label}
-                </div>
-                {stat.note ? (
-                  <div
-                    style={{
-                      fontSize: 18,
-                      lineHeight: 1.42,
-                      color: colors.muted,
-                      marginTop: 10,
-                    }}
-                  >
-                    {stat.note}
-                  </div>
-                ) : null}
-              </div>
-            );
-          })}
-        </div>
-        {layout.points.length > 0 ? (
-          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-            {layout.points.slice(0, 2).map((point, itemIndex) =>
-              renderBaseRow(String(itemIndex + 1).padStart(2, "0"), point, stats.length + itemIndex)
-            )}
-          </div>
-        ) : null}
-      </div>
-    );
-  };
-
-  const renderQuote = () => {
-    const progress = itemProgresses[0] || 0;
-
-    return (
-      <div
-        style={{
-          width: "100%",
-          padding: "28px 30px",
-          background: colors.whiteStrong,
-          border: "1px solid rgba(255,255,255,0.82)",
-          borderRadius: 28,
-          boxShadow: `0 18px 34px ${colors.shadow}`,
-          transform: `translateY(${interpolate(progress, [0, 1], [24, 0])}px)`,
-          opacity: progress,
-        }}
-      >
-        <div
-          style={{
-            fontSize: 46,
-            lineHeight: 1.3,
-            color: colors.text,
-            fontWeight: 750,
-            letterSpacing: "-0.8px",
-          }}
-        >
-          "{layout.quote?.text || layout.title}"
-        </div>
-        {layout.quote?.author ? (
-          <div style={{ fontSize: 22, color: colors.muted, marginTop: 14 }}>
-            {layout.quote.author}
-          </div>
-        ) : null}
-        {layout.points.length > 0 ? (
-          <div style={{ display: "flex", flexDirection: "column", gap: 16, marginTop: 22 }}>
-            {layout.points.map((point, itemIndex) =>
-              renderBaseRow(String(itemIndex + 1).padStart(2, "0"), point, itemIndex + 1)
-            )}
-          </div>
-        ) : null}
-      </div>
-    );
-  };
-
-  const renderBody = () => {
-    switch (layout.mode) {
-      case "compare":
-        return renderCompare();
-      case "timeline":
-        return renderTimeline();
-      case "stats":
-        return renderStats();
-      case "quote":
-        return renderQuote();
-      case "cards":
-        return renderList(true);
-      case "hero":
-      case "list":
-      default:
-        return renderList(false);
-    }
-  };
 
   return (
     <AbsoluteFill
@@ -596,87 +319,215 @@ export const LiquidSlide: React.FC<{
         overflow: "hidden",
       }}
     >
-      <SoftBackground frame={frame} />
+      <GradientBackground frame={frame} />
+
+      <MegaBlob frame={frame} x={-200} y={-100} size={700} color={colors.blob1} speedX={0.006} speedY={0.005} phase={0} />
+      <MegaBlob frame={frame} x={600} y={0} size={800} color={colors.blob2} speedX={0.005} speedY={0.006} phase={2} />
+      <MegaBlob frame={frame} x={100} y={600} size={750} color={colors.blob3} speedX={0.007} speedY={0.005} phase={4} />
+      <MegaBlob frame={frame} x={550} y={900} size={650} color={colors.blob4} speedX={0.0055} speedY={0.0065} phase={1} />
+      <MegaBlob frame={frame} x={-150} y={1200} size={600} color={colors.blob5} speedX={0.0065} speedY={0.0055} phase={3} />
+      <MegaBlob frame={frame} x={650} y={1300} size={700} color={colors.blob6} speedX={0.005} speedY={0.007} phase={5} />
+
+      <FloatingSphere frame={frame} x={80} y={280} size={28} color={colors.blob2} delay={8} />
+      <FloatingSphere frame={frame} x={920} y={380} size={22} color={colors.blob3} delay={12} />
+      <FloatingSphere frame={frame} x={100} y={750} size={24} color={colors.blob1} delay={10} />
+      <FloatingSphere frame={frame} x={890} y={850} size={26} color={colors.blob5} delay={15} />
+      <FloatingSphere frame={frame} x={70} y={1300} size={20} color={colors.blob4} delay={18} />
+      <FloatingSphere frame={frame} x={940} y={1400} size={24} color={colors.blob6} delay={6} />
 
       <AbsoluteFill
         style={{
           opacity: exitOpacity,
           display: "flex",
+          flexDirection: "column",
           justifyContent: "center",
           alignItems: "center",
-          padding: "44px",
+          padding: "50px",
+          zIndex: 10,
         }}
       >
-        <MainCard frame={frame} delay={8}>
+        <div
+          style={{
+            position: "absolute",
+            top: 55,
+            left: 55,
+            right: 55,
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
+          <div style={{ display: "flex", gap: 10 }}>
+            <GlassPill text="Liquid Glass" frame={frame} delay={5} />
+            <GlassPill text="macOS Style" frame={frame} delay={10} />
+          </div>
           <div
             style={{
-              position: "relative",
-              zIndex: 1,
               display: "flex",
-              flexDirection: "column",
-              gap: 28,
+              alignItems: "center",
+              gap: 8,
+              padding: "10px 18px",
+              background: "rgba(255,255,255,0.5)",
+              backdropFilter: "blur(20px)",
+              borderRadius: 20,
+              border: "1px solid rgba(255,255,255,0.7)",
             }}
           >
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-              }}
-            >
-              <Pill>{layout.badge || "Liquid Brief"}</Pill>
-              <Pill textColor={colors.text}>
-                {String(index + 1).padStart(2, "0")} / {String(totalSlides).padStart(2, "0")}
-              </Pill>
-            </div>
+            <span style={{ fontSize: 22, fontWeight: 600, color: colors.text }}>
+              {index + 1}
+            </span>
+            <span style={{ fontSize: 22, color: colors.muted }}>/</span>
+            <span style={{ fontSize: 22, color: colors.muted }}>{totalSlides}</span>
+          </div>
+        </div>
 
-            <div
+        <LiquidGlassCard frame={frame} delay={8}>
+          <div
+            style={{
+              width: 920,
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              position: "relative",
+              zIndex: 2,
+            }}
+          >
+            <h1
               style={{
-                transform: `translateY(${interpolate(titleProgress, [0, 1], [24, 0])}px)`,
+                fontSize: 96,
+                fontWeight: 700,
+                color: colors.text,
+                margin: 0,
+                marginBottom: 16,
+                transform: `translateY(${interpolate(titleProgress, [0, 1], [25, 0])}px)`,
                 opacity: titleProgress,
+                letterSpacing: "-2px",
               }}
             >
-              <div
-                style={{
-                  maxWidth: 760,
-                  fontSize: 84,
-                  fontWeight: 850,
-                  lineHeight: 0.98,
-                  letterSpacing: "-2.8px",
-                  color: colors.text,
-                }}
-              >
-                {layout.title}
-              </div>
-              <div
-                style={{
-                  width: interpolate(titleProgress, [0, 1], [0, 96]),
-                  height: 6,
-                  borderRadius: 999,
-                  marginTop: 22,
-                  background: `linear-gradient(90deg, ${colors.pink}, ${colors.cyan})`,
-                }}
-              />
-            </div>
+              {title}
+            </h1>
 
-            {layout.subtitle ? (
-              <div
+            <div
+              style={{
+                width: interpolate(titleProgress, [0, 1], [0, 100]),
+                height: 6,
+                borderRadius: 3,
+                background: `linear-gradient(90deg, ${colors.blob1}, ${colors.blob2}, ${colors.blob3}, ${colors.blob4}, ${colors.blob5})`,
+                marginBottom: 20,
+                boxShadow: `0 2px 12px ${colors.blob2}40`,
+              }}
+            />
+
+            {subtitle && (
+              <p
                 style={{
-                  maxWidth: 720,
-                  fontSize: 30,
-                  lineHeight: 1.45,
+                  fontSize: 36,
                   color: colors.muted,
+                  margin: 0,
+                  marginBottom: 50,
                   transform: `translateY(${interpolate(subtitleProgress, [0, 1], [18, 0])}px)`,
                   opacity: subtitleProgress,
+                  fontWeight: 400,
+                  letterSpacing: "-0.3px",
                 }}
               >
-                {layout.subtitle}
-              </div>
-            ) : null}
+                {subtitle}
+              </p>
+            )}
 
-            <div style={{ width: "100%" }}>{renderBody()}</div>
+            {points && points.length > 0 && (
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 16,
+                  width: "100%",
+                }}
+              >
+                {points.map((point, i) => {
+                  const progress = pointProgresses[i] || 0;
+                  const accentColors = [colors.blob1, colors.blob2, colors.blob3, colors.blob4, colors.blob5, colors.blob6];
+
+                  return (
+                    <div
+                      key={i}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 20,
+                        padding: "24px 28px",
+                        background: "rgba(255,255,255,0.5)",
+                        backdropFilter: "blur(10px)",
+                        borderRadius: 24,
+                        border: "1px solid rgba(255,255,255,0.7)",
+                        boxShadow: `
+                          0 2px 8px rgba(0,0,0,0.03),
+                          inset 0 1px 1px rgba(255,255,255,0.8)
+                        `,
+                        transform: `translateX(${interpolate(progress, [0, 1], [-35, 0])}px)`,
+                        opacity: progress,
+                      }}
+                    >
+                      <div
+                        style={{
+                          width: 48,
+                          height: 48,
+                          borderRadius: "50%",
+                          background: `linear-gradient(135deg, ${accentColors[i % 6]}, ${accentColors[(i + 1) % 6]})`,
+                          display: "flex",
+                          justifyContent: "center",
+                          alignItems: "center",
+                          color: "white",
+                          fontSize: 22,
+                          fontWeight: 600,
+                          boxShadow: `0 4px 16px ${accentColors[i % 6]}40`,
+                          flexShrink: 0,
+                        }}
+                      >
+                        {i + 1}
+                      </div>
+                      <span
+                        style={{
+                          fontSize: 32,
+                          color: colors.text,
+                          fontWeight: 500,
+                          letterSpacing: "-0.3px",
+                        }}
+                      >
+                        {point}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
-        </MainCard>
+        </LiquidGlassCard>
+
+        <div
+          style={{
+            position: "absolute",
+            bottom: 55,
+            display: "flex",
+            gap: 10,
+          }}
+        >
+          {[...Array(totalSlides)].map((_, i) => (
+            <div
+              key={i}
+              style={{
+                width: i === index ? 36 : 12,
+                height: 12,
+                borderRadius: 6,
+                background:
+                  i === index
+                    ? `linear-gradient(90deg, ${colors.blob1}, ${colors.blob2})`
+                    : "rgba(0,0,0,0.12)",
+                boxShadow: i === index ? `0 2px 8px ${colors.blob1}40` : "none",
+              }}
+            />
+          ))}
+        </div>
       </AbsoluteFill>
     </AbsoluteFill>
   );

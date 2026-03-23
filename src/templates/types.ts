@@ -44,11 +44,11 @@ export interface ContentSlide extends TimelineFields {
   narration?: string;
   type?:
     | 'default'
-    | 'list'
     | 'steps'
     | 'timeline'
     | 'chart'
     | 'highlight'
+    | 'list'
     | 'compare'
     | 'stats'
     | 'quote'

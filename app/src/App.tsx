@@ -508,6 +508,7 @@ const TEMPLATES = [
   { label: '赛博朋克霓虹', value: 'NeonShow' },
   { label: '暗黑奢华', value: 'LuxeShow' },
   { label: '液态玻璃', value: 'LiquidShow' },
+  { label: '液态玻璃-1', value: 'LiquidShow-1' },
   { label: '磨砂玻璃', value: 'FrostedShow' },
 ];
 

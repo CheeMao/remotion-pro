@@ -6,11 +6,6 @@ import {
   useVideoConfig,
 } from "remotion";
 import { getSlideMotionTiming } from "../templates/animationTiming";
-import {
-  getKnowledgeLayoutItemCount,
-  resolveKnowledgeLayout,
-} from "../templates/knowledgeLayouts";
-import { ContentSlide } from "../templates/types";
 
 const colors = {
   bg1: "#667eea",
@@ -208,8 +203,7 @@ const GlassPill: React.FC<{
 const GlassIcon: React.FC<{
   frame: number;
   color: string;
-  label: string;
-}> = ({ frame, color, label }) => {
+}> = ({ frame, color }) => {
   const pulse = 1 + Math.sin(frame * 0.08) * 0.08;
 
   return (
@@ -233,7 +227,9 @@ const GlassIcon: React.FC<{
         transform: `scale(${pulse})`,
       }}
     >
-      {label}
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+      </svg>
     </div>
   );
 };
@@ -242,31 +238,13 @@ export const FrostedSlide: React.FC<{
   title: string;
   subtitle?: string;
   points?: string[];
-  type?: ContentSlide["type"];
-  data?: Record<string, unknown>;
   index: number;
   totalSlides: number;
   durationInFrames: number;
-}> = ({
-  title,
-  subtitle,
-  points,
-  type,
-  data,
-  index,
-  totalSlides,
-  durationInFrames,
-}) => {
+}> = ({ title, subtitle, points, index, totalSlides, durationInFrames }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
-  const layout = resolveKnowledgeLayout(
-    { title, subtitle, points, type, data },
-    index
-  );
-  const timing = getSlideMotionTiming(
-    durationInFrames,
-    getKnowledgeLayoutItemCount(layout)
-  );
+  const timing = getSlideMotionTiming(durationInFrames, points?.length ?? 0);
 
   const titleProgress = spring({
     frame: frame - timing.titleStart,
@@ -280,15 +258,13 @@ export const FrostedSlide: React.FC<{
     config: { damping: 15, stiffness: 90 },
   });
 
-  const pointProgresses = new Array(getKnowledgeLayoutItemCount(layout))
-    .fill(null)
-    .map((_, i) =>
-      spring({
-        frame: frame - timing.pointsStart - i * timing.pointStagger,
-        fps,
-        config: { damping: 12, stiffness: 100 },
-      })
-    );
+  const pointProgresses = (points || []).map((_, i) =>
+    spring({
+      frame: frame - timing.pointsStart - i * timing.pointStagger,
+      fps,
+      config: { damping: 12, stiffness: 100 },
+    })
+  );
 
   const exitOpacity = interpolate(
     frame,
@@ -296,13 +272,6 @@ export const FrostedSlide: React.FC<{
     [1, 0],
     { extrapolateLeft: "clamp", extrapolateRight: "clamp" }
   );
-
-  const accentColors = [
-    colors.accent1,
-    colors.accent2,
-    colors.accent3,
-    colors.accent4,
-  ];
 
   const orbs = [
     { x: 100, y: 200, size: 300, color: colors.accent1, delay: 5, speed: 0.008 },
@@ -312,358 +281,6 @@ export const FrostedSlide: React.FC<{
     { x: 150, y: 1400, size: 260, color: colors.accent1, delay: 25, speed: 0.0075 },
     { x: 750, y: 1500, size: 300, color: colors.accent3, delay: 30, speed: 0.0055 },
   ];
-
-  const renderListRow = (label: string, text: string, itemIndex: number) => {
-    const progress = pointProgresses[itemIndex] || 0;
-    const accent = accentColors[itemIndex % accentColors.length];
-
-    return (
-      <div
-        key={`${label}-${text}-${itemIndex}`}
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: 22,
-          padding: "22px 28px",
-          background: "rgba(255,255,255,0.12)",
-          backdropFilter: "blur(15px)",
-          borderRadius: 24,
-          border: "1px solid rgba(255,255,255,0.2)",
-          boxShadow: `
-            0 4px 15px rgba(0,0,0,0.08),
-            inset 0 1px 1px rgba(255,255,255,0.3)
-          `,
-          transform: `translateX(${interpolate(progress, [0, 1], [-50, 0])}px)`,
-          opacity: progress,
-        }}
-      >
-        <GlassIcon frame={frame} color={accent} label={label} />
-        <span
-          style={{
-            fontSize: 32,
-            color: colors.text,
-            fontWeight: 600,
-            textShadow: "0 1px 8px rgba(0,0,0,0.1)",
-            lineHeight: 1.35,
-          }}
-        >
-          {text}
-        </span>
-      </div>
-    );
-  };
-
-  const renderCompare = () => {
-    if (!layout.compare) {
-      return null;
-    }
-
-    const sides = [layout.compare.left, layout.compare.right];
-
-    return (
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "1fr 1fr",
-          gap: 18,
-          width: "100%",
-        }}
-      >
-        {sides.map((side, sideIndex) => {
-          const progress = pointProgresses[sideIndex] || 0;
-          const accent = accentColors[sideIndex % accentColors.length];
-
-          return (
-            <div
-              key={side.label}
-              style={{
-                padding: "24px 24px 26px",
-                background: "rgba(255,255,255,0.12)",
-                backdropFilter: "blur(15px)",
-                borderRadius: 24,
-                border: "1px solid rgba(255,255,255,0.2)",
-                boxShadow: `
-                  0 4px 15px rgba(0,0,0,0.08),
-                  inset 0 1px 1px rgba(255,255,255,0.3)
-                `,
-                transform: `translateY(${interpolate(progress, [0, 1], [26, 0])}px)`,
-                opacity: progress,
-              }}
-            >
-              <div
-                style={{
-                  fontSize: 20,
-                  color: colors.muted,
-                  textTransform: "uppercase",
-                  letterSpacing: 1.2,
-                  marginBottom: 10,
-                }}
-              >
-                {side.label}
-              </div>
-              {side.value ? (
-                <div
-                  style={{
-                    fontSize: 40,
-                    fontWeight: 800,
-                    color: colors.text,
-                    marginBottom: 12,
-                  }}
-                >
-                  {side.value}
-                </div>
-              ) : null}
-              <div
-                style={{
-                  width: 90,
-                  height: 5,
-                  borderRadius: 3,
-                  background: `linear-gradient(90deg, ${accent}, rgba(255,255,255,0.9))`,
-                  marginBottom: 16,
-                  boxShadow: "0 4px 15px rgba(255,255,255,0.25)",
-                }}
-              />
-              <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                {side.points.map((item, itemIndex) => (
-                  <div
-                    key={`${side.label}-${itemIndex}`}
-                    style={{ display: "flex", gap: 12, alignItems: "flex-start" }}
-                  >
-                    <div
-                      style={{
-                        width: 9,
-                        height: 9,
-                        borderRadius: "50%",
-                        background: accent,
-                        marginTop: 11,
-                        flexShrink: 0,
-                      }}
-                    />
-                    <div
-                      style={{
-                        fontSize: 23,
-                        color: colors.text,
-                        lineHeight: 1.42,
-                      }}
-                    >
-                      {item}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    );
-  };
-
-  const renderTimeline = () => {
-    const items = layout.timeline || [];
-
-    return (
-      <div style={{ display: "flex", flexDirection: "column", gap: 16, width: "100%" }}>
-        {items.map((item, itemIndex) => {
-          const progress = pointProgresses[itemIndex] || 0;
-          const accent = accentColors[itemIndex % accentColors.length];
-
-          return (
-            <div
-              key={`${item.label}-${itemIndex}`}
-              style={{
-                display: "grid",
-                gridTemplateColumns: "90px 1fr",
-                gap: 18,
-                alignItems: "center",
-                padding: "20px 24px",
-                background: "rgba(255,255,255,0.12)",
-                backdropFilter: "blur(15px)",
-                borderRadius: 24,
-                border: "1px solid rgba(255,255,255,0.2)",
-                boxShadow: `
-                  0 4px 15px rgba(0,0,0,0.08),
-                  inset 0 1px 1px rgba(255,255,255,0.3)
-                `,
-                transform: `translateX(${interpolate(progress, [0, 1], [-50, 0])}px)`,
-                opacity: progress,
-              }}
-            >
-              <GlassIcon frame={frame} color={accent} label={item.label} />
-              <div>
-                <div style={{ fontSize: 28, fontWeight: 700, color: colors.text }}>
-                  {item.title}
-                </div>
-                {item.description ? (
-                  <div
-                    style={{
-                      fontSize: 22,
-                      color: colors.muted,
-                      lineHeight: 1.42,
-                      marginTop: 8,
-                    }}
-                  >
-                    {item.description}
-                  </div>
-                ) : null}
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    );
-  };
-
-  const renderStats = () => {
-    const stats = layout.stats || [];
-
-    return (
-      <div style={{ display: "flex", flexDirection: "column", gap: 18, width: "100%" }}>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16 }}>
-          {stats.slice(0, 3).map((stat, statIndex) => {
-            const progress = pointProgresses[statIndex] || 0;
-            const accent = accentColors[statIndex % accentColors.length];
-
-            return (
-              <div
-                key={`${stat.label}-${statIndex}`}
-                style={{
-                  padding: "24px 22px",
-                  background: "rgba(255,255,255,0.12)",
-                  backdropFilter: "blur(15px)",
-                  borderRadius: 24,
-                  border: "1px solid rgba(255,255,255,0.2)",
-                  boxShadow: `
-                    0 4px 15px rgba(0,0,0,0.08),
-                    inset 0 1px 1px rgba(255,255,255,0.3)
-                  `,
-                  transform: `translateY(${interpolate(progress, [0, 1], [24, 0])}px)`,
-                  opacity: progress,
-                }}
-              >
-                <div
-                  style={{
-                    fontSize: 48,
-                    fontWeight: 800,
-                    color: colors.text,
-                    textShadow: `0 2px 12px ${accent}40`,
-                  }}
-                >
-                  {stat.value}
-                </div>
-                <div
-                  style={{
-                    fontSize: 22,
-                    fontWeight: 700,
-                    color: colors.text,
-                    marginTop: 12,
-                  }}
-                >
-                  {stat.label}
-                </div>
-                {stat.note ? (
-                  <div
-                    style={{
-                      fontSize: 18,
-                      lineHeight: 1.42,
-                      color: colors.muted,
-                      marginTop: 10,
-                    }}
-                  >
-                    {stat.note}
-                  </div>
-                ) : null}
-              </div>
-            );
-          })}
-        </div>
-        {layout.points.length > 0 ? (
-          <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
-            {layout.points.slice(0, 2).map((point, itemIndex) =>
-              renderListRow(String(itemIndex + 1), point, stats.length + itemIndex)
-            )}
-          </div>
-        ) : null}
-      </div>
-    );
-  };
-
-  const renderQuote = () => {
-    const progress = pointProgresses[0] || 0;
-
-    return (
-      <div
-        style={{
-          width: "100%",
-          padding: "28px 30px",
-          background: "rgba(255,255,255,0.12)",
-          backdropFilter: "blur(15px)",
-          borderRadius: 26,
-          border: "1px solid rgba(255,255,255,0.22)",
-          boxShadow: `
-            0 4px 15px rgba(0,0,0,0.08),
-            inset 0 1px 1px rgba(255,255,255,0.3)
-          `,
-          transform: `translateY(${interpolate(progress, [0, 1], [24, 0])}px)`,
-          opacity: progress,
-        }}
-      >
-        <div
-          style={{
-            fontSize: 46,
-            lineHeight: 1.3,
-            color: colors.text,
-            fontWeight: 700,
-            textShadow: "0 2px 20px rgba(0,0,0,0.12)",
-          }}
-        >
-          "{layout.quote?.text || layout.title}"
-        </div>
-        {layout.quote?.author ? (
-          <div style={{ fontSize: 22, color: colors.muted, marginTop: 14 }}>
-            {layout.quote.author}
-          </div>
-        ) : null}
-        {layout.points.length > 0 ? (
-          <div style={{ display: "flex", flexDirection: "column", gap: 16, marginTop: 22 }}>
-            {layout.points.map((point, itemIndex) =>
-              renderListRow(String(itemIndex + 1), point, itemIndex + 1)
-            )}
-          </div>
-        ) : null}
-      </div>
-    );
-  };
-
-  const renderBody = () => {
-    switch (layout.mode) {
-      case "compare":
-        return renderCompare();
-      case "timeline":
-        return renderTimeline();
-      case "stats":
-        return renderStats();
-      case "quote":
-        return renderQuote();
-      case "cards":
-        return (
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 18, width: "100%" }}>
-            {layout.points.map((point, itemIndex) =>
-              renderListRow(String(itemIndex + 1), point, itemIndex)
-            )}
-          </div>
-        );
-      case "hero":
-      case "list":
-      default:
-        return (
-          <div style={{ display: "flex", flexDirection: "column", gap: 18, width: "100%" }}>
-            {layout.points.map((point, itemIndex) =>
-              renderListRow(String(itemIndex + 1), point, itemIndex)
-            )}
-          </div>
-        );
-    }
-  };
 
   return (
     <AbsoluteFill
@@ -756,7 +373,7 @@ export const FrostedSlide: React.FC<{
                 letterSpacing: "-2px",
               }}
             >
-              {layout.title}
+              {title}
             </h1>
 
             <div
@@ -770,27 +387,72 @@ export const FrostedSlide: React.FC<{
               }}
             />
 
-            {layout.subtitle && (
+            {subtitle && (
               <p
                 style={{
                   fontSize: 36,
                   color: colors.muted,
                   margin: 0,
-                  marginBottom: 44,
+                  marginBottom: 50,
                   transform: `translateY(${interpolate(subtitleProgress, [0, 1], [20, 0])}px)`,
                   opacity: subtitleProgress,
                   fontWeight: 400,
                   textShadow: "0 1px 10px rgba(0,0,0,0.1)",
-                  maxWidth: 760,
-                  lineHeight: 1.35,
-                  textAlign: "center",
                 }}
               >
-                {layout.subtitle}
+                {subtitle}
               </p>
             )}
 
-            {renderBody()}
+            {points && points.length > 0 && (
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 18,
+                  width: "100%",
+                }}
+              >
+                {points.map((point, i) => {
+                  const progress = pointProgresses[i] || 0;
+                  const accentColors = [colors.accent1, colors.accent2, colors.accent3, colors.accent4];
+
+                  return (
+                    <div
+                      key={i}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 22,
+                        padding: "22px 28px",
+                        background: "rgba(255,255,255,0.12)",
+                        backdropFilter: "blur(15px)",
+                        borderRadius: 24,
+                        border: "1px solid rgba(255,255,255,0.2)",
+                        boxShadow: `
+                          0 4px 15px rgba(0,0,0,0.08),
+                          inset 0 1px 1px rgba(255,255,255,0.3)
+                        `,
+                        transform: `translateX(${interpolate(progress, [0, 1], [-50, 0])}px)`,
+                        opacity: progress,
+                      }}
+                    >
+                      <GlassIcon frame={frame} color={accentColors[i % 4]} />
+                      <span
+                        style={{
+                          fontSize: 32,
+                          color: colors.text,
+                          fontWeight: 600,
+                          textShadow: "0 1px 8px rgba(0,0,0,0.1)",
+                        }}
+                      >
+                        {point}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
         </GlassLayers>
 

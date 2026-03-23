@@ -5,7 +5,6 @@ import {
   getStaticAssetPath,
   useContentJson,
 } from '../hooks/useContentJson';
-import { getTemplateContentPath } from '../project-content';
 
 const defaultSlides = [
   {
@@ -26,18 +25,14 @@ const defaultSlides = [
 ];
 
 const DEFAULT_SLIDE_DURATION = 150;
-const CONTENT_PATH = getTemplateContentPath('LiquidShow');
 
 export const LiquidShow: React.FC = () => {
   const { fps } = useVideoConfig();
-  const { slides, soundtrackPath } = useContentJson(defaultSlides, {
-    expectedTemplate: 'LiquidShow',
-    contentPath: CONTENT_PATH,
-  });
+  const { slides, soundtrackPath } = useContentJson(defaultSlides);
   const soundtrackSrc = getStaticAssetPath(soundtrackPath);
 
   return (
-    <AbsoluteFill style={{ background: '#eef1f6' }}>
+    <AbsoluteFill style={{ background: '#0b1020' }}>
       {soundtrackSrc ? <Audio src={staticFile(soundtrackSrc)} /> : null}
       {slides.map((slide, index) => {
         const { from, duration } = getSlideTiming(
