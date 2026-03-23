@@ -7,12 +7,16 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
+      '@remotion-root': path.resolve(__dirname, '../src'),
     },
   },
   clearScreen: false,
   server: {
     port: 5173,
     strictPort: true,
+    fs: {
+      allow: [path.resolve(__dirname, '..')],
+    },
   },
   envPrefix: ['VITE_', 'TAURI_'],
   build: {

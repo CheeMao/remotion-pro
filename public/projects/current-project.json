@@ -1,4 +1,4 @@
 {
-  "template": "SlideShow",
-  "contentPath": "public/projects/SlideShow/content.json"
+  "template": "GlassShow",
+  "contentPath": "public/projects/GlassShow/content.json"
 }

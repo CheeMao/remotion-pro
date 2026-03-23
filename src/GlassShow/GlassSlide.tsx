@@ -7,25 +7,202 @@ import {
 } from "remotion";
 import { getSlideMotionTiming } from "../templates/animationTiming";
 
-// 单个幻灯片组件 - 毛玻璃风格
+// 配色方案
+const colors = {
+  primary: "#8b5cf6",
+  secondary: "#ec4899",
+  accent: "#06b6d4",
+  warm: "#f97316",
+  success: "#22c55e",
+};
+
+// ===== 动画数字组件 =====
+const AnimatedNumber: React.FC<{
+  value: number;
+  suffix?: string;
+  startFrame: number;
+  color: string;
+}> = ({ value, suffix = "", startFrame, color }) => {
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
+
+  const progress = spring({
+    frame: frame - startFrame,
+    fps,
+    config: { damping: 20, stiffness: 50 },
+  });
+
+  const displayValue = Math.round(interpolate(progress, [0, 1], [0, value]));
+
+  return (
+    <span style={{ fontVariantNumeric: "tabular-nums", color }}>
+      {displayValue.toLocaleString()}{suffix}
+    </span>
+  );
+};
+
+// ===== 进度条组件 =====
+const ProgressBar: React.FC<{
+  percent: number;
+  label: string;
+  color: string;
+  delay: number;
+}> = ({ percent, label, color, delay }) => {
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
+
+  const progress = spring({
+    frame: frame - delay,
+    fps,
+    config: { damping: 15 },
+  });
+
+  const width = interpolate(progress, [0, 1], [0, percent]);
+
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+      <span style={{ fontSize: 26, color: "rgba(255,255,255,0.9)", width: 120, flexShrink: 0 }}>
+        {label}
+      </span>
+      <div style={{ flex: 1, height: 16, background: "rgba(255,255,255,0.1)", borderRadius: 8, overflow: "hidden" }}>
+        <div
+          style={{
+            width: `${width}%`,
+            height: "100%",
+            background: `linear-gradient(90deg, ${color}, ${color}cc)`,
+            borderRadius: 8,
+            boxShadow: `0 0 20px ${color}60`,
+          }}
+        />
+      </div>
+      <span style={{ fontSize: 24, color, fontWeight: 600, width: 60, textAlign: "right" }}>
+        {Math.round(width)}%
+      </span>
+    </div>
+  );
+};
+
+// ===== 步骤组件 =====
+const StepCard: React.FC<{
+  title: string;
+  description?: string;
+  index: number;
+  color: string;
+  progress: number;
+}> = ({ title, description, index, color, progress }) => {
+  return (
+    <div
+      style={{
+        display: "flex",
+        gap: 20,
+        opacity: progress,
+        transform: `translateY(${interpolate(progress, [0, 1], [30, 0])}px)`,
+      }}
+    >
+      {/* 连接线 */}
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+        <div
+          style={{
+            width: 48,
+            height: 48,
+            borderRadius: "50%",
+            background: `linear-gradient(135deg, ${color}, ${color}cc)`,
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            fontSize: 22,
+            fontWeight: 700,
+            color: "white",
+            boxShadow: `0 8px 24px ${color}50`,
+          }}
+        >
+          {index + 1}
+        </div>
+        <div style={{ width: 3, flex: 1, background: "rgba(255,255,255,0.15)", marginTop: 8 }} />
+      </div>
+      {/* 内容 */}
+      <div style={{ flex: 1, paddingBottom: 28 }}>
+        <h3 style={{ fontSize: 32, fontWeight: 600, color: "white", margin: "0 0 8px 0" }}>
+          {title}
+        </h3>
+        {description && (
+          <p style={{ fontSize: 24, color: "rgba(255,255,255,0.7)", margin: 0 }}>
+            {description}
+          </p>
+        )}
+      </div>
+    </div>
+  );
+};
+
+// ===== 时间线组件 =====
+const TimelineItem: React.FC<{
+  year: string;
+  title: string;
+  description?: string;
+  color: string;
+  progress: number;
+  isLeft: boolean;
+}> = ({ year, title, description, color, progress, isLeft }) => {
+  return (
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: 20,
+        flexDirection: isLeft ? "row" : "row-reverse",
+        opacity: progress,
+        transform: `translateX(${interpolate(progress, [0, 1], [isLeft ? -40 : 40, 0])}px)`,
+      }}
+    >
+      <div style={{ flex: 1, textAlign: isLeft ? "right" : "left" }}>
+        <div style={{ fontSize: 24, fontWeight: 700, color, marginBottom: 4 }}>{year}</div>
+        <div style={{ fontSize: 28, fontWeight: 600, color: "white", marginBottom: 4 }}>{title}</div>
+        {description && (
+          <div style={{ fontSize: 22, color: "rgba(255,255,255,0.7)" }}>{description}</div>
+        )}
+      </div>
+      <div
+        style={{
+          width: 16,
+          height: 16,
+          borderRadius: "50%",
+          background: color,
+          boxShadow: `0 0 20px ${color}`,
+          flexShrink: 0,
+        }}
+      />
+      <div style={{ flex: 1 }} />
+    </div>
+  );
+};
+
+// ===== 主组件 =====
 export const GlassSlide: React.FC<{
   title: string;
   subtitle?: string;
   points?: string[];
+  type?: 'default' | 'steps' | 'timeline' | 'chart' | 'highlight' | 'list' | 'compare' | 'stats' | 'quote' | 'hero';
+  data?: Record<string, unknown>;
   index: number;
   totalSlides: number;
   durationInFrames: number;
-}> = ({ title, subtitle, points, index, totalSlides, durationInFrames }) => {
+}> = ({ title, subtitle, points, type = 'default', data, index, totalSlides, durationInFrames }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
-  const timing = getSlideMotionTiming(durationInFrames, points?.length ?? 0);
 
-  const colors = {
-    primary: "#8b5cf6",
-    secondary: "#ec4899",
-    accent: "#06b6d4",
-    warm: "#f97316",
+  // 根据 type 计算动画元素数量
+  const getAnimCount = () => {
+    if (type === 'steps' && Array.isArray(data?.steps)) return (data.steps as unknown[]).length;
+    if (type === 'timeline' && Array.isArray(data?.timeline)) return (data.timeline as unknown[]).length;
+    if (type === 'chart' && Array.isArray(data?.bars)) return (data.bars as unknown[]).length;
+    if (type === 'stats' && Array.isArray(data?.stats)) return (data.stats as unknown[]).length;
+    if (type === 'list' && Array.isArray(data?.items)) return (data.items as unknown[]).length;
+    if (type === 'compare') return 2;
+    return points?.length ?? 0;
   };
+
+  const timing = getSlideMotionTiming(durationInFrames, getAnimCount());
 
   const bgRotate = frame * 0.3;
 
@@ -61,6 +238,447 @@ export const GlassSlide: React.FC<{
     { extrapolateLeft: "clamp", extrapolateRight: "clamp" }
   );
 
+  // ===== 渲染不同类型内容 =====
+  const renderContent = () => {
+    switch (type) {
+      // ===== 统计数据 =====
+      case 'stats': {
+        const stats = (data?.stats as Array<{ value: number; suffix?: string; label: string; color?: string }>) || [];
+        return (
+          <div style={{ display: "flex", gap: 28, justifyContent: "center", flexWrap: "wrap", width: "100%" }}>
+            {stats.map((stat, i) => {
+              const statProgress = spring({
+                frame: frame - 10 - i * 8,
+                fps,
+                config: { damping: 12, stiffness: 100 },
+              });
+              const statColor = stat.color || [colors.primary, colors.accent, colors.secondary, colors.warm, colors.success][i % 5];
+              return (
+                <div
+                  key={i}
+                  style={{
+                    background: "rgba(255,255,255,0.06)",
+                    backdropFilter: "blur(15px)",
+                    borderRadius: 28,
+                    border: "1px solid rgba(255,255,255,0.12)",
+                    padding: "36px 48px",
+                    textAlign: "center",
+                    opacity: statProgress,
+                    transform: `translateY(${interpolate(statProgress, [0, 1], [40, 0])}px) scale(${interpolate(statProgress, [0, 1], [0.9, 1])})`,
+                    minWidth: 200,
+                  }}
+                >
+                  <div style={{ fontSize: 72, fontWeight: 800, marginBottom: 8 }}>
+                    <AnimatedNumber value={stat.value} suffix={stat.suffix} startFrame={15 + i * 8} color={statColor} />
+                  </div>
+                  <div style={{ fontSize: 26, color: "rgba(255,255,255,0.8)" }}>{stat.label}</div>
+                </div>
+              );
+            })}
+          </div>
+        );
+      }
+
+      // ===== 对比 =====
+      case 'compare': {
+        const compareData = data as { left?: { label: string; value: string; desc?: string }; right?: { label: string; value: string; desc?: string }; vsText?: string };
+        const leftProgress = spring({ frame: frame - 12, fps, config: { damping: 12 } });
+        const rightProgress = spring({ frame: frame - 22, fps, config: { damping: 12 } });
+
+        return (
+          <div style={{ display: "flex", gap: 24, alignItems: "center", justifyContent: "center", width: "100%" }}>
+            {/* 左侧 */}
+            <div
+              style={{
+                flex: 1,
+                background: "rgba(244,63,94,0.12)",
+                backdropFilter: "blur(15px)",
+                borderRadius: 28,
+                border: "1px solid rgba(244,63,94,0.25)",
+                padding: "40px 36px",
+                textAlign: "center",
+                opacity: leftProgress,
+                transform: `translateX(${interpolate(leftProgress, [0, 1], [-50, 0])}px)`,
+              }}
+            >
+              <div style={{ fontSize: 22, color: colors.warm, marginBottom: 12, fontWeight: 600 }}>
+                {compareData?.left?.label || "Before"}
+              </div>
+              <div style={{ fontSize: 48, fontWeight: 800, color: "white", marginBottom: 8 }}>
+                {compareData?.left?.value || "-"}
+              </div>
+              {compareData?.left?.desc && (
+                <div style={{ fontSize: 22, color: "rgba(255,255,255,0.7)" }}>{compareData.left.desc}</div>
+              )}
+            </div>
+
+            {/* VS */}
+            <div
+              style={{
+                width: 70,
+                height: 70,
+                borderRadius: "50%",
+                background: "rgba(255,255,255,0.1)",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                fontSize: 24,
+                fontWeight: 800,
+                color: "white",
+                flexShrink: 0,
+                boxShadow: "0 0 30px rgba(255,255,255,0.1)",
+              }}
+            >
+              {compareData?.vsText || "VS"}
+            </div>
+
+            {/* 右侧 */}
+            <div
+              style={{
+                flex: 1,
+                background: "rgba(34,211,238,0.12)",
+                backdropFilter: "blur(15px)",
+                borderRadius: 28,
+                border: "1px solid rgba(34,211,238,0.25)",
+                padding: "40px 36px",
+                textAlign: "center",
+                opacity: rightProgress,
+                transform: `translateX(${interpolate(rightProgress, [0, 1], [50, 0])}px)`,
+              }}
+            >
+              <div style={{ fontSize: 22, color: colors.accent, marginBottom: 12, fontWeight: 600 }}>
+                {compareData?.right?.label || "After"}
+              </div>
+              <div style={{ fontSize: 48, fontWeight: 800, color: "white", marginBottom: 8 }}>
+                {compareData?.right?.value || "+"}
+              </div>
+              {compareData?.right?.desc && (
+                <div style={{ fontSize: 22, color: "rgba(255,255,255,0.7)" }}>{compareData.right.desc}</div>
+              )}
+            </div>
+          </div>
+        );
+      }
+
+      // ===== 步骤 =====
+      case 'steps': {
+        const steps = (data?.steps as Array<{ title: string; description?: string }>) || [];
+        return (
+          <div style={{ display: "flex", flexDirection: "column", gap: 0, width: "100%", maxWidth: 700 }}>
+            {steps.map((step, i) => {
+              const stepProgress = spring({
+                frame: frame - 10 - i * 10,
+                fps,
+                config: { damping: 12, stiffness: 100 },
+              });
+              const stepColor = [colors.primary, colors.accent, colors.secondary, colors.warm, colors.success][i % 5];
+              return (
+                <StepCard
+                  key={i}
+                  title={step.title}
+                  description={step.description}
+                  index={i}
+                  color={stepColor}
+                  progress={stepProgress}
+                />
+              );
+            })}
+          </div>
+        );
+      }
+
+      // ===== 图表 =====
+      case 'chart': {
+        const bars = (data?.bars as Array<{ label: string; value: number; color?: string }>) || [];
+        return (
+          <div style={{ display: "flex", flexDirection: "column", gap: 20, width: "100%", maxWidth: 700 }}>
+            {bars.map((bar, i) => {
+              const barColor = bar.color || [colors.primary, colors.accent, colors.secondary, colors.warm, colors.success][i % 5];
+              return (
+                <ProgressBar
+                  key={i}
+                  percent={bar.value}
+                  label={bar.label}
+                  color={barColor}
+                  delay={10 + i * 8}
+                />
+              );
+            })}
+          </div>
+        );
+      }
+
+      // ===== 列表 =====
+      case 'list': {
+        const items = (data?.items as Array<{ icon?: string; text: string; desc?: string }>) || [];
+        return (
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 20, width: "100%", maxWidth: 800 }}>
+            {items.map((item, i) => {
+              const itemProgress = spring({
+                frame: frame - 10 - i * 6,
+                fps,
+                config: { damping: 12, stiffness: 100 },
+              });
+              return (
+                <div
+                  key={i}
+                  style={{
+                    background: "rgba(255,255,255,0.06)",
+                    backdropFilter: "blur(15px)",
+                    borderRadius: 24,
+                    border: "1px solid rgba(255,255,255,0.1)",
+                    padding: "28px 32px",
+                    opacity: itemProgress,
+                    transform: `translateY(${interpolate(itemProgress, [0, 1], [30, 0])}px) scale(${interpolate(itemProgress, [0, 1], [0.95, 1])})`,
+                  }}
+                >
+                  <div style={{ fontSize: 42, marginBottom: 12 }}>{item.icon || "✓"}</div>
+                  <div style={{ fontSize: 28, fontWeight: 600, color: "white", marginBottom: 6 }}>{item.text}</div>
+                  {item.desc && (
+                    <div style={{ fontSize: 22, color: "rgba(255,255,255,0.7)" }}>{item.desc}</div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        );
+      }
+
+      // ===== 时间线 =====
+      case 'timeline': {
+        const timeline = (data?.timeline as Array<{ year: string; title: string; description?: string }>) || [];
+        return (
+          <div style={{ display: "flex", flexDirection: "column", gap: 24, width: "100%", maxWidth: 750, position: "relative" }}>
+            {/* 中轴线 */}
+            <div style={{
+              position: "absolute",
+              left: "50%",
+              top: 20,
+              bottom: 20,
+              width: 3,
+              background: "rgba(255,255,255,0.15)",
+              transform: "translateX(-50%)",
+            }} />
+            {timeline.map((item, i) => {
+              const tlProgress = spring({
+                frame: frame - 10 - i * 12,
+                fps,
+                config: { damping: 12, stiffness: 100 },
+              });
+              const tlColor = [colors.primary, colors.accent, colors.secondary, colors.warm, colors.success][i % 5];
+              return (
+                <TimelineItem
+                  key={i}
+                  year={item.year}
+                  title={item.title}
+                  description={item.description}
+                  color={tlColor}
+                  progress={tlProgress}
+                  isLeft={i % 2 === 0}
+                />
+              );
+            })}
+          </div>
+        );
+      }
+
+      // ===== 高亮 =====
+      case 'highlight': {
+        const items = (data?.items as string[]) || [];
+        return (
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 16, justifyContent: "center", width: "100%", maxWidth: 800 }}>
+            {items.map((item, i) => {
+              const hlProgress = spring({
+                frame: frame - 8 - i * 6,
+                fps,
+                config: { damping: 12, stiffness: 100 },
+              });
+              const hlColor = [colors.primary, colors.accent, colors.secondary, colors.warm, colors.success][i % 5];
+              return (
+                <div
+                  key={i}
+                  style={{
+                    background: `${hlColor}20`,
+                    backdropFilter: "blur(15px)",
+                    borderRadius: 20,
+                    border: `2px solid ${hlColor}60`,
+                    padding: "20px 36px",
+                    opacity: hlProgress,
+                    transform: `scale(${interpolate(hlProgress, [0, 1], [0.8, 1])})`,
+                    boxShadow: `0 8px 30px ${hlColor}30`,
+                  }}
+                >
+                  <span style={{ fontSize: 28, fontWeight: 600, color: "white" }}>{item}</span>
+                </div>
+              );
+            })}
+          </div>
+        );
+      }
+
+      // ===== 引用 =====
+      case 'quote': {
+        const quoteData = data as { quote?: string; author?: string };
+        const quoteProgress = spring({ frame: frame - 10, fps, config: { damping: 15 } });
+        return (
+          <div
+            style={{
+              background: "rgba(255,255,255,0.06)",
+              backdropFilter: "blur(20px)",
+              borderRadius: 32,
+              border: "1px solid rgba(255,255,255,0.12)",
+              padding: "50px 60px",
+              maxWidth: 800,
+              opacity: quoteProgress,
+              transform: `translateY(${interpolate(quoteProgress, [0, 1], [40, 0])}px)`,
+            }}
+          >
+            <div style={{ fontSize: 80, color: colors.primary, marginBottom: 10, lineHeight: 1 }}>"</div>
+            <p style={{ fontSize: 36, fontStyle: "italic", color: "white", margin: 0, lineHeight: 1.5 }}>
+              {quoteData?.quote || title}
+            </p>
+            <p style={{ fontSize: 24, color: "rgba(255,255,255,0.7)", marginTop: 24, textAlign: "right" }}>
+              — {quoteData?.author || subtitle}
+            </p>
+          </div>
+        );
+      }
+
+      // ===== Hero =====
+      case 'hero': {
+        const heroData = data as { badge?: string; cta?: string };
+        const pulseScale = 1 + Math.sin(frame * 0.08) * 0.02;
+        return (
+          <div style={{ textAlign: "center" }}>
+            {heroData?.badge && (
+              <div
+                style={{
+                  display: "inline-block",
+                  padding: "12px 28px",
+                  background: `${colors.primary}30`,
+                  backdropFilter: "blur(10px)",
+                  borderRadius: 20,
+                  border: `1px solid ${colors.primary}50`,
+                  fontSize: 22,
+                  fontWeight: 600,
+                  color: colors.primary,
+                  marginBottom: 24,
+                  opacity: titleProgress,
+                }}
+              >
+                {heroData.badge}
+              </div>
+            )}
+            <h1
+              style={{
+                fontSize: 80,
+                fontWeight: 900,
+                color: "white",
+                margin: 0,
+                marginBottom: 24,
+                textShadow: `0 0 60px ${colors.primary}40`,
+                letterSpacing: "-2px",
+                lineHeight: 1.1,
+              }}
+            >
+              {title}
+            </h1>
+            {subtitle && (
+              <p style={{ fontSize: 36, color: "rgba(255,255,255,0.8)", margin: 0, marginBottom: 48 }}>
+                {subtitle}
+              </p>
+            )}
+            {heroData?.cta && (
+              <div
+                style={{
+                  display: "inline-block",
+                  padding: "24px 56px",
+                  background: `linear-gradient(135deg, ${colors.primary}, ${colors.secondary})`,
+                  borderRadius: 40,
+                  fontSize: 32,
+                  fontWeight: 700,
+                  color: "white",
+                  transform: `scale(${pulseScale})`,
+                  boxShadow: `0 15px 50px ${colors.primary}50`,
+                }}
+              >
+                {heroData.cta}
+              </div>
+            )}
+          </div>
+        );
+      }
+
+      // ===== Default (默认列表) =====
+      default:
+        return points && points.length > 0 ? (
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: 20,
+              width: "100%",
+              maxWidth: 700,
+            }}
+          >
+            {points.map((point, i) => {
+              const progress = pointProgresses[i] || 0;
+              const pointColor = [colors.primary, colors.accent, colors.secondary, colors.warm][i % 4];
+
+              return (
+                <div
+                  key={i}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 20,
+                    padding: "22px 28px",
+                    background: "rgba(255, 255, 255, 0.05)",
+                    backdropFilter: "blur(10px)",
+                    borderRadius: 18,
+                    border: "1px solid rgba(255, 255, 255, 0.1)",
+                    transform: `translateX(${interpolate(progress, [0, 1], [-40, 0])}px)`,
+                    opacity: progress,
+                  }}
+                >
+                  <div
+                    style={{
+                      width: 44,
+                      height: 44,
+                      borderRadius: 12,
+                      background: `linear-gradient(135deg, ${pointColor}, ${pointColor}cc)`,
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      fontSize: 20,
+                      fontWeight: 700,
+                      color: "white",
+                      boxShadow: `0 6px 18px ${pointColor}40`,
+                      flexShrink: 0,
+                    }}
+                  >
+                    {i + 1}
+                  </div>
+                  <span style={{ fontSize: 26, color: "rgba(255, 255, 255, 0.95)", fontWeight: 500 }}>
+                    {point}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        ) : null;
+    }
+  };
+
+  // 计算卡片高度
+  const getCardHeight = () => {
+    if (type === 'hero') return 750;
+    if (type === 'stats') return 850;
+    if (type === 'compare') return 600;
+    if (type === 'quote') return 650;
+    return 880;
+  };
+
   return (
     <AbsoluteFill
       style={{
@@ -71,6 +689,7 @@ export const GlassSlide: React.FC<{
         overflow: "hidden",
       }}
     >
+      {/* 动态渐变背景 */}
       <div
         style={{
           position: "absolute",
@@ -85,6 +704,7 @@ export const GlassSlide: React.FC<{
         }}
       />
 
+      {/* 装饰圆点 */}
       {[...Array(8)].map((_, i) => {
         const angle = (i / 8) * Math.PI * 2 + frame * 0.01;
         const radius = 350;
@@ -110,6 +730,7 @@ export const GlassSlide: React.FC<{
         );
       })}
 
+      {/* 主内容区 */}
       <AbsoluteFill
         style={{
           opacity: exitOpacity,
@@ -121,11 +742,12 @@ export const GlassSlide: React.FC<{
           zIndex: 10,
         }}
       >
+        {/* 毛玻璃主卡片 */}
         <div
           style={{
             width: "92%",
-            height: 900,
-            padding: "60px 55px",
+            height: getCardHeight(),
+            padding: "55px 50px",
             background: "rgba(255, 255, 255, 0.08)",
             backdropFilter: "blur(20px)",
             borderRadius: 40,
@@ -138,151 +760,105 @@ export const GlassSlide: React.FC<{
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
-            justifyContent: "center",
+            justifyContent: type === 'hero' ? "center" : "flex-start",
+            overflow: "hidden",
           }}
         >
+          {/* 页码标签 */}
           <div
             style={{
               position: "absolute",
-              top: -20,
-              right: 40,
-              padding: "12px 28px",
+              top: 24,
+              right: 32,
+              padding: "10px 24px",
               background: `linear-gradient(135deg, ${colors.primary}, ${colors.secondary})`,
-              borderRadius: 30,
-              fontSize: 22,
+              borderRadius: 24,
+              fontSize: 18,
               fontWeight: 700,
               color: "white",
-              boxShadow: `0 10px 40px ${colors.primary}50`,
+              boxShadow: `0 8px 30px ${colors.primary}50`,
+              zIndex: 10,
             }}
           >
             {index + 1} / {totalSlides}
           </div>
 
-          <h1
-            style={{
-              fontSize: 72,
-              fontWeight: 800,
-              color: "#ffffff",
-              textAlign: "center",
-              margin: 0,
-              marginBottom: 20,
-              transform: `translateY(${titleY}px)`,
-              opacity: titleProgress,
-              filter: `blur(${titleBlur}px)`,
-              textShadow: "0 4px 30px rgba(0,0,0,0.3)",
-              letterSpacing: "-1px",
-            }}
-          >
-            {title}
-          </h1>
+          {/* 标题区域 (非 hero 类型) */}
+          {type !== 'hero' && type !== 'quote' && (
+            <>
+              <h1
+                style={{
+                  fontSize: type === 'stats' || type === 'compare' ? 56 : 64,
+                  fontWeight: 800,
+                  color: "#ffffff",
+                  textAlign: "center",
+                  margin: 0,
+                  marginBottom: 12,
+                  transform: `translateY(${titleY}px)`,
+                  opacity: titleProgress,
+                  filter: `blur(${titleBlur}px)`,
+                  textShadow: "0 4px 30px rgba(0,0,0,0.3)",
+                  letterSpacing: "-1px",
+                  maxWidth: "100%",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                {title}
+              </h1>
 
-          <div
-            style={{
-              width: interpolate(titleProgress, [0, 1], [0, 200]),
-              height: 4,
-              background: `linear-gradient(90deg, ${colors.primary}, ${colors.accent})`,
-              borderRadius: 2,
-              marginBottom: 24,
-            }}
-          />
+              <div
+                style={{
+                  width: interpolate(titleProgress, [0, 1], [0, 180]),
+                  height: 4,
+                  background: `linear-gradient(90deg, ${colors.primary}, ${colors.accent})`,
+                  borderRadius: 2,
+                  marginBottom: subtitle ? 16 : 32,
+                }}
+              />
 
-          {subtitle && (
-            <p
-              style={{
-                fontSize: 32,
-                color: "rgba(255, 255, 255, 0.8)",
-                textAlign: "center",
-                margin: 0,
-                marginBottom: 50,
-                transform: `translateY(${subtitleY}px)`,
-                opacity: subtitleProgress,
-                fontWeight: 400,
-              }}
-            >
-              {subtitle}
-            </p>
+              {subtitle && (
+                <p
+                  style={{
+                    fontSize: 28,
+                    color: "rgba(255, 255, 255, 0.75)",
+                    textAlign: "center",
+                    margin: 0,
+                    marginBottom: 36,
+                    transform: `translateY(${subtitleY}px)`,
+                    opacity: subtitleProgress,
+                    fontWeight: 400,
+                    maxWidth: "100%",
+                  }}
+                >
+                  {subtitle}
+                </p>
+              )}
+            </>
           )}
 
-          {points && points.length > 0 && (
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                gap: 24,
-                width: "100%",
-                maxWidth: 750,
-                marginTop: 10,
-              }}
-            >
-              {points.map((point, i) => {
-                const progress = pointProgresses[i] || 0;
-                const pointColors = [colors.primary, colors.accent, colors.secondary, colors.warm];
-                const pointColor = pointColors[i % pointColors.length];
-
-                return (
-                  <div
-                    key={i}
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 24,
-                      padding: "24px 30px",
-                      background: "rgba(255, 255, 255, 0.05)",
-                      backdropFilter: "blur(10px)",
-                      borderRadius: 20,
-                      border: "1px solid rgba(255, 255, 255, 0.1)",
-                      transform: `translateX(${interpolate(progress, [0, 1], [-50, 0])}px)`,
-                      opacity: progress,
-                    }}
-                  >
-                    <div
-                      style={{
-                        width: 52,
-                        height: 52,
-                        borderRadius: 14,
-                        background: `linear-gradient(135deg, ${pointColor}, ${pointColor}cc)`,
-                        display: "flex",
-                        justifyContent: "center",
-                        alignItems: "center",
-                        fontSize: 24,
-                        fontWeight: 700,
-                        color: "white",
-                        boxShadow: `0 8px 20px ${pointColor}40`,
-                        flexShrink: 0,
-                      }}
-                    >
-                      {i + 1}
-                    </div>
-                    <span
-                      style={{
-                        fontSize: 30,
-                        color: "rgba(255, 255, 255, 0.95)",
-                        fontWeight: 500,
-                      }}
-                    >
-                      {point}
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
-          )}
+          {/* 内容区域 */}
+          <div style={{ flex: 1, display: "flex", alignItems: type === 'timeline' ? "flex-start" : "center", justifyContent: "center", width: "100%", overflow: "hidden", paddingTop: type === 'quote' ? 60 : 0 }}>
+            {renderContent()}
+          </div>
         </div>
 
+        {/* 底部进度条 */}
         <div
           style={{
-            marginTop: 40,
+            marginTop: 36,
             display: "flex",
-            gap: 12,
+            gap: 10,
           }}
         >
           {[...Array(totalSlides)].map((_, i) => (
             <div
               key={i}
               style={{
-                width: i === index ? 40 : 12,
-                height: 12,
-                borderRadius: 6,
+                width: i === index ? 36 : 10,
+                height: 10,
+                borderRadius: 5,
                 background:
                   i === index
                     ? `linear-gradient(90deg, ${colors.primary}, ${colors.accent})`

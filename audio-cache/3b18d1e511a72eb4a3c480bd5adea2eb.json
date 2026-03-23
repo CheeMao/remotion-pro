@@ -1,0 +1,8 @@
+{
+  "text": "今天我们要详细讲解OpenClaw 的从 0 到 1 部署过程，这是一个开源免费的本地 AI 助手，适合小白用户快速上手。\nOpenClaw 就像住进你电脑的私人管家，可以帮你收邮件、做简报、生成图片，甚至远程操控电脑。它支持 Windows 系统，部署简单，只需几个步骤：\n打开命令行，输入指令安装 OpenClaw。\n选择模型提供商，推荐使用智普平台的 GLM 模型，注册后获取免费 API Key。\n配置过程中选择 “Skip for now” 和 “No”，最后全选安装完成。\n启动 OpenClaw，看到界面即表示部署成功。",
+  "voiceId": "cosyvoice-v3.5-plus-bailian-d9e80a08150f4986ae260fde904fe0ae",
+  "speechRate": 1.1,
+  "audioPath": "F:\\My Apps\\AI-remotion\\audio-cache\\3b18d1e511a72eb4a3c480bd5adea2eb.mp3",
+  "duration": 66.75,
+  "createdAt": "2026-03-23T04:03:09.163Z"
+}

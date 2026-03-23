@@ -17,9 +17,10 @@
     "noFallthroughCasesInSwitch": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["src/*"],
+      "@remotion-root/*": ["../src/*"]
     }
   },
-  "include": ["src"],
+  "include": ["src", "../src/**/*.ts", "../src/**/*.tsx"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

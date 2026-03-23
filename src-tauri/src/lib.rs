@@ -4,6 +4,7 @@ use std::fs;
 use std::net::{SocketAddr, TcpStream};
 use std::path::{Path, PathBuf};
 use std::process::Command;
+use base64::Engine;
 
 #[cfg(target_os = "windows")]
 use std::os::windows::process::CommandExt;
@@ -47,6 +48,16 @@ struct RemotionStartupResult {
 struct CurrentProjectData {
     template: String,
     content_path: String,
+}
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+struct PreviewProjectData {
+    template: String,
+    slides: Vec<Value>,
+    soundtrack_file: Option<String>,
+    soundtrack_data_url: Option<String>,
+    soundtrack_duration: Option<f64>,
 }
 
 const REMOTION_PORT: u16 = 32123;
@@ -635,6 +646,46 @@ async fn sync_timeline(voice_id: String, content_path: String) -> Result<String,
     }
 }
 
+#[tauri::command(rename_all = "camelCase")]
+async fn load_preview_project(content_path: String) -> Result<String, String> {
+    let project_dir = get_project_dir()?;
+    let (content_file, _, soundtrack_file, _, _) =
+        derive_project_paths(&project_dir, &content_path)?;
+
+    if !content_file.exists() {
+        return Err("Content JSON does not exist. Save slides first.".to_string());
+    }
+
+    let file_content = fs::read_to_string(&content_file)
+        .map_err(|e| format!("Failed to read content file: {}", e))?;
+    let data: SlidesData = serde_json::from_str(&file_content)
+        .map_err(|e| format!("Failed to parse content file: {}", e))?;
+
+    let preview = PreviewProjectData {
+        template: data.meta.template,
+        slides: data.slides,
+        soundtrack_file: if soundtrack_file.exists() {
+            Some(soundtrack_file.to_string_lossy().to_string())
+        } else {
+            None
+        },
+        soundtrack_data_url: if soundtrack_file.exists() {
+            let bytes = fs::read(&soundtrack_file)
+                .map_err(|e| format!("Failed to read soundtrack file: {}", e))?;
+            Some(format!(
+                "data:audio/mpeg;base64,{}",
+                base64::engine::general_purpose::STANDARD.encode(bytes)
+            ))
+        } else {
+            None
+        },
+        soundtrack_duration: data.meta.soundtrack_duration,
+    };
+
+    serde_json::to_string(&preview)
+        .map_err(|e| format!("Failed to serialize preview project: {}", e))
+}
+
 #[tauri::command]
 async fn render_video(template: String, content_path: String) -> Result<String, String> {
     let project_dir = get_project_dir()?;
@@ -702,6 +753,7 @@ pub fn run() {
             generate_narration,
             generate_audio,
             sync_timeline,
+            load_preview_project,
             render_video,
         ])
         .setup(|app| {

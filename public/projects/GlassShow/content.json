@@ -1,0 +1,118 @@
+{
+  "meta": {
+    "title": "Generated Video",
+    "template": "GlassShow",
+    "voice_id": "cosyvoice-v3.5-plus-bailian-d9e80a08150f4986ae260fde904fe0ae",
+    "full_narration": "今天我们要详细讲解OpenClaw 的从 0 到 1 部署过程，这是一个开源免费的本地 AI 助手，适合小白用户快速上手。\nOpenClaw 就像住进你电脑的私人管家，可以帮你收邮件、做简报、生成图片，甚至远程操控电脑。它支持 Windows 系统，部署简单，只需几个步骤：\n打开命令行，输入指令安装 OpenClaw。\n选择模型提供商，推荐使用智普平台的 GLM 模型，注册后获取免费 API Key。\n配置过程中选择 “Skip for now” 和 “No”，最后全选安装完成。\n启动 OpenClaw，看到界面即表示部署成功。\n",
+    "voiceId": "cosyvoice-v3.5-plus-bailian-d9e80a08150f4986ae260fde904fe0ae",
+    "fullNarration": "今天我们要详细讲解OpenClaw 的从 0 到 1 部署过程，这是一个开源免费的本地 AI 助手，适合小白用户快速上手。\nOpenClaw 就像住进你电脑的私人管家，可以帮你收邮件、做简报、生成图片，甚至远程操控电脑。它支持 Windows 系统，部署简单，只需几个步骤：\n打开命令行，输入指令安装 OpenClaw。\n选择模型提供商，推荐使用智普平台的 GLM 模型，注册后获取免费 API Key。\n配置过程中选择 “Skip for now” 和 “No”，最后全选安装完成。\n启动 OpenClaw，看到界面即表示部署成功。",
+    "soundtrackPath": "projects/GlassShow/audio/narration.mp3",
+    "soundtrackDuration": 40.22857142857143
+  },
+  "slides": [
+    {
+      "narration": "今天我们要详细讲解 OpenClaw 的从 0 到 1 部署过程，这是一个开源免费的本地 AI 助手，适合小白用户快速上手。",
+      "points": [
+        "开源免费的本地 AI 助手",
+        "小白用户快速上手"
+      ],
+      "subtitle": "从 0 到 1 完整教程",
+      "title": "OpenClaw 部署指南",
+      "audioDuration": 6.933333333333334,
+      "durationInFrames": 208,
+      "audioStart": 0,
+      "audioEnd": 6.933333333333334
+    },
+    {
+      "narration": "OpenClaw 就像住进你电脑的私人管家，可以帮你收邮件、做简报、生成图片，甚至远程操控电脑。",
+      "points": [
+        "收邮件、做简报",
+        "生成图片、远程操控电脑"
+      ],
+      "subtitle": "你的私人 AI 管家",
+      "title": "什么是 OpenClaw",
+      "audioDuration": 6.333333333333333,
+      "durationInFrames": 190,
+      "audioStart": 6.933333333333334,
+      "audioEnd": 13.266666666666667
+    },
+    {
+      "narration": "它支持 Windows 系统，部署简单，只需几个步骤：",
+      "points": [
+        "支持 Windows 系统",
+        "部署简单，只需几个步骤"
+      ],
+      "subtitle": "Windows 专属",
+      "title": "系统支持",
+      "audioDuration": 4.766666666666667,
+      "durationInFrames": 143,
+      "audioStart": 13.266666666666667,
+      "audioEnd": 18.033333333333335
+    },
+    {
+      "narration": "打开命令行，输入指令安装 OpenClaw。",
+      "points": [
+        "打开命令行",
+        "输入指令安装 OpenClaw"
+      ],
+      "subtitle": "命令行一键部署",
+      "title": "第一步：安装",
+      "audioDuration": 4.433333333333334,
+      "durationInFrames": 133,
+      "audioStart": 18.033333333333335,
+      "audioEnd": 22.466666666666665
+    },
+    {
+      "narration": "选择模型提供商，推荐使用智普平台的 GLM 模型，注册后获取免费 API Key。",
+      "points": [
+        "推荐智普平台",
+        "注册获取免费 API Key"
+      ],
+      "subtitle": "智普平台 GLM 模型",
+      "title": "第二步：选择模型",
+      "audioDuration": 5.5,
+      "durationInFrames": 165,
+      "audioStart": 22.466666666666665,
+      "audioEnd": 27.966666666666665
+    },
+    {
+      "narration": "配置过程中选择「Skip for now」和「No」，",
+      "points": [
+        "选择「Skip for now」",
+        "选择「No」"
+      ],
+      "subtitle": "快速跳过设置",
+      "title": "第三步：配置选项",
+      "audioDuration": 4.866666666666666,
+      "durationInFrames": 146,
+      "audioStart": 27.966666666666665,
+      "audioEnd": 32.833333333333336
+    },
+    {
+      "narration": "最后全选安装完成。",
+      "points": [
+        "全选安装选项",
+        "等待安装完成"
+      ],
+      "subtitle": "全选确认",
+      "title": "第四步：完成安装",
+      "audioDuration": 3.3333333333333335,
+      "durationInFrames": 100,
+      "audioStart": 32.833333333333336,
+      "audioEnd": 36.166666666666664
+    },
+    {
+      "narration": "启动 OpenClaw，看到界面即表示部署成功。",
+      "points": [
+        "启动程序",
+        "看到界面即表示成功"
+      ],
+      "subtitle": "启动 OpenClaw",
+      "title": "部署成功",
+      "audioDuration": 4.066666666666666,
+      "durationInFrames": 122,
+      "audioStart": 36.166666666666664,
+      "audioEnd": 40.233333333333334
+    }
+  ]
+}

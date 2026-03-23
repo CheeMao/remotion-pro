@@ -1,0 +1,94 @@
+{
+  "meta": {
+    "title": "Generated Video",
+    "template": "LiquidShow",
+    "voice_id": "cosyvoice-v3.5-plus-bailian-d9e80a08150f4986ae260fde904fe0ae",
+    "full_narration": "大家好，今天这期视频只讲一件事：普通人怎么用 Claude Code 把自己需要的工具直接做出来。\n很多人听到 “Code” 这个词，觉得写代码和自己没关系。但其实 Claude Code 除了超强的写代码能力，还能做很多日常任务，比如数据分析、每日资讯爬虫、文件管理，甚至修图、P 视频，它都能帮你搭建流程。因为它不是一个具体的工具，而是一个元工具—— 可以搭建其他工具的工具。",
+    "voiceId": "cosyvoice-v3.5-plus-bailian-d9e80a08150f4986ae260fde904fe0ae",
+    "fullNarration": "大家好，今天这期视频只讲一件事：普通人怎么用 Claude Code 把自己需要的工具直接做出来。\n很多人听到 “Code” 这个词，觉得写代码和自己没关系。但其实 Claude Code 除了超强的写代码能力，还能做很多日常任务，比如数据分析、每日资讯爬虫、文件管理，甚至修图、P 视频，它都能帮你搭建流程。因为它不是一个具体的工具，而是一个元工具—— 可以搭建其他工具的工具。",
+    "soundtrackPath": "projects/LiquidShow/audio/narration.mp3",
+    "soundtrackDuration": 28.186122448979592
+  },
+  "slides": [
+    {
+      "narration": "大家好，今天这期视频只讲一件事：普通人怎么用 Claude Code 把自己需要的工具直接做出来。",
+      "points": [
+        "本期主题：用 Claude Code 自助搭建工具"
+      ],
+      "subtitle": "普通人也能做自己的工具",
+      "title": "Claude Code 实战指南",
+      "audioDuration": 6,
+      "durationInFrames": 180,
+      "audioStart": 0,
+      "audioEnd": 6
+    },
+    {
+      "narration": "很多人听到 \"Code\" 这个词，觉得写代码和自己没关系。",
+      "points": [
+        "听到\"Code\"就觉得和自己无关？",
+        "这是大多数人的第一反应"
+      ],
+      "subtitle": "Code ≠ 程序员专属",
+      "title": "打破认知误区",
+      "audioDuration": 4.833333333333333,
+      "durationInFrames": 145,
+      "audioStart": 6,
+      "audioEnd": 10.833333333333334
+    },
+    {
+      "narration": "但其实 Claude Code 除了超强的写代码能力，还能做很多日常任务，比如数据分析、每日资讯爬虫、文件管理，",
+      "points": [
+        "数据分析",
+        "每日资讯爬虫",
+        "文件管理自动化"
+      ],
+      "subtitle": "Claude Code 的日常超能力",
+      "title": "远不止写代码",
+      "audioDuration": 5.666666666666667,
+      "durationInFrames": 170,
+      "audioStart": 10.833333333333334,
+      "audioEnd": 16.5
+    },
+    {
+      "narration": "甚至修图、P 视频，它都能帮你搭建流程。",
+      "points": [
+        "图像批量处理",
+        "视频剪辑自动化",
+        "搭建完整工作流"
+      ],
+      "subtitle": "从修图到视频处理",
+      "title": "创意工作流",
+      "audioDuration": 3.933333333333333,
+      "durationInFrames": 118,
+      "audioStart": 16.5,
+      "audioEnd": 20.433333333333334
+    },
+    {
+      "narration": "因为它不是一个具体的工具，而是一个元工具——",
+      "points": [
+        "不是具体工具",
+        "而是工具的制造机",
+        "可无限组合扩展"
+      ],
+      "subtitle": "什么是「元工具」？",
+      "title": "核心概念",
+      "audioDuration": 4.066666666666666,
+      "durationInFrames": 122,
+      "audioStart": 20.433333333333334,
+      "audioEnd": 24.5
+    },
+    {
+      "narration": "可以搭建其他工具的工具。",
+      "points": [
+        "可以搭建其他工具的工具",
+        "你的需求 → 专属解决方案"
+      ],
+      "subtitle": "工具的工具",
+      "title": "元工具的定义",
+      "audioDuration": 3.7,
+      "durationInFrames": 111,
+      "audioStart": 24.5,
+      "audioEnd": 28.2
+    }
+  ]
+}

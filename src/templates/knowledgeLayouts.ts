@@ -167,13 +167,15 @@ const toStats = (
           return undefined;
         }
 
-        return {
+        const normalized: KnowledgeStatItem = {
           value: `${value}${suffix}`,
           label,
           note: asString(record.note) || asString(record.description),
         };
+
+        return normalized;
       })
-      .filter((item): item is KnowledgeStatItem => Boolean(item));
+      .filter((item): item is KnowledgeStatItem => item !== undefined);
   }
 
   return points.slice(0, 4).map((point, index) => ({
