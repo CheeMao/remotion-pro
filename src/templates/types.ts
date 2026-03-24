@@ -3,6 +3,7 @@ export interface TimelineFields {
   durationInFrames?: number;
   audioStart?: number;
   audioEnd?: number;
+  audioPath?: string;
 }
 
 export interface AudioSlideData extends TimelineFields {
@@ -42,6 +43,7 @@ export interface ContentSlide extends TimelineFields {
   subtitle?: string;
   points?: string[];
   narration?: string;
+  segmentIds?: string[];
   type?:
     | 'default'
     | 'steps'

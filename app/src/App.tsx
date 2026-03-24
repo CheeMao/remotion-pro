@@ -8,6 +8,9 @@ type SimpleSlide = {
   subtitle: string;
   points: string[];
   narration: string;
+  segmentIds?: string[];
+  audioStart?: number;
+  audioEnd?: number;
   durationInFrames?: number;
   audioDuration?: number;
 };
@@ -16,7 +19,15 @@ type ComplexSlide = {
   id: string;
   type: string;
   data: Record<string, unknown>;
+  title?: string;
+  subtitle?: string;
+  points?: string[];
+  badge?: string;
+  items?: Array<Record<string, unknown>>;
   narration?: string;
+  segmentIds?: string[];
+  audioStart?: number;
+  audioEnd?: number;
   durationInFrames?: number;
   audioDuration?: number;
 };
@@ -41,9 +52,19 @@ type SettingsData = {
   aiModel: string;
 };
 
-type NarrationInfo = {
+type NarrationSegment = {
+  id: string;
+  text: string;
+  start: number;
+  end: number;
+  duration: number;
+  audioPath?: string;
+};
+
+type NarrationTimeline = {
   audioPath: string;
   duration: number;
+  segments: NarrationSegment[];
 };
 
 type PreviewProjectResponse = {
@@ -55,7 +76,6 @@ type PreviewProjectResponse = {
 };
 
 const FPS = 30;
-const MIN_SLIDE_DURATION_FRAMES = 45;
 const MAX_SLIDE_DURATION_SECONDS = 8;
 
 const STORAGE_KEYS = {
@@ -170,29 +190,33 @@ const DEFAULT_SETTINGS: SettingsData = {
   aiModel: 'qwen-plus',
 };
 
-const SIMPLE_PROMPT = `你是短视频分镜策划助手。请根据完整口播文案、真实音频时长和模板风格，输出最终分页结果。
+const COMMON_SEGMENT_RULES = `
+硬性要求：
+1. 你必须根据 segments 做分页，不能自己虚构时间。
+2. 每页必须输出 segmentIds，且 segmentIds 只能来自输入。
+3. 所有 segments 必须按原顺序被完整覆盖一次，不能遗漏，不能重复，不能倒序。
+4. 每页时长由该页 segmentIds 覆盖的真实时间决定，所以不要把过多 segments 塞进一页。
+5. narration 必须与该页 segmentIds 覆盖的原文一致，只能做轻微口语化整理，不能跨页挪内容。
+`;
 
-要求：
-1. 根据总时长和内容密度动态决定总页数。
-2. 单页目标时长 4-6.5 秒，任何页面不要超过 8 秒。
-3. 每页输出 title、subtitle、points、narration。
-4. narration 必须连续覆盖原文，不能跳段、不能重复大段内容。
-5. 页面内容适合知识干货类短视频，表达清晰、重点明确。
+const SIMPLE_PROMPT = `你是短视频分镜策划助手。请根据模板风格和语义片段时间轴，输出最终分页结果。
+${COMMON_SEGMENT_RULES}
+页面要求：
+1. 每页输出 title、subtitle、points、narration、segmentIds。
+2. 页面内容适合知识干货类短视频，表达清晰、重点明确。
 
 输入信息：
 - 模板：{template_name}
 - 音频总时长：{duration_seconds} 秒
 - 建议页数：{target_pages} 页，可在 {min_pages}-{max_pages} 之间调整
-
-文案：
-"""
-{input_text}
-"""
+- 语义片段时间轴：
+{segments_text}
 
 只输出 JSON：
 {
   "slides": [
     {
+      "segmentIds": ["segment-1", "segment-2"],
       "title": "...",
       "subtitle": "...",
       "points": ["...", "..."],
@@ -201,69 +225,136 @@ const SIMPLE_PROMPT = `你是短视频分镜策划助手。请根据完整口播
   ]
 }`;
 
-const RICH_PROMPT = `你是短视频分镜策划助手。请根据完整口播文案、真实音频时长和 RichShow 模板风格，输出多版式分镜。
-
-要求：
+const RICH_PROMPT = `你是短视频分镜策划助手。请根据 RichShow 模板风格和语义片段时间轴，输出多版式分镜。
+${COMMON_SEGMENT_RULES}
+页面要求：
 1. 第一页必须是 title，最后一页必须是 cta。
 2. 中间页面可以使用：list、compare、quote、highlight、progress、stats。
-3. 单页目标时长 4-6.5 秒，任何页面不要超过 8 秒。
-4. narration 必须连续覆盖原文，不能跳段、不能重复大段内容。
-5. 每页版式要和内容类型匹配。
+3. 每页版式要和内容类型匹配。
 
 输入信息：
 - 模板：{template_name}
 - 音频总时长：{duration_seconds} 秒
 - 建议页数：{target_pages} 页，可在 {min_pages}-{max_pages} 之间调整
-
-文案：
-"""
-{input_text}
-"""
+- 语义片段时间轴：
+{segments_text}
 
 只输出 JSON：
 {
   "slides": [
-    { "type": "title", "data": { "title": "...", "subtitle": "..." }, "narration": "..." },
-    { "type": "list", "data": { "title": "...", "items": [{ "icon": "•", "text": "..." }] }, "narration": "..." }
+    {
+      "segmentIds": ["segment-1"],
+      "type": "title",
+      "data": { "title": "...", "subtitle": "..." },
+      "narration": "..."
+    }
   ]
 }`;
 
-const TECH_PROMPT = `你是短视频分镜策划助手。请根据完整口播文案、真实音频时长和 TechShow 模板风格，输出科技信息流分镜。
-
-要求：
+const TECH_PROMPT = `你是短视频分镜策划助手。请根据 TechShow 模板风格和语义片段时间轴，输出科技信息流分镜。
+${COMMON_SEGMENT_RULES}
+页面要求：
 1. 第一页必须是 title，最后一页必须是 cta。
 2. 中间页面可以使用：list、stats、progress、compare、quote。
-3. 单页目标时长 4-6.5 秒，任何页面不要超过 8 秒。
-4. narration 必须连续覆盖原文，不能跳段、不能重复大段内容。
-5. 列表项可使用 "01"、"02"、"03" 这类编号。
+3. 列表项可使用 "01"、"02"、"03" 这类编号。
 
 输入信息：
 - 模板：{template_name}
 - 音频总时长：{duration_seconds} 秒
 - 建议页数：{target_pages} 页，可在 {min_pages}-{max_pages} 之间调整
-
-文案：
-"""
-{input_text}
-"""
+- 语义片段时间轴：
+{segments_text}
 
 只输出 JSON：
 {
   "slides": [
-    { "type": "title", "data": { "title": "...", "subtitle": "..." }, "narration": "..." }
+    {
+      "segmentIds": ["segment-1"],
+      "type": "title",
+      "data": { "title": "...", "subtitle": "..." },
+      "narration": "..."
+    }
   ]
 }`;
 
-function isComplexTemplate(template: string): boolean {
+const GLASS_PROMPT = `你是短视频分镜策划助手。请根据 GlassShow 模板风格和语义片段时间轴，输出多版式玻璃风分镜。
+${COMMON_SEGMENT_RULES}
+页面要求：
+1. 页面类型只能使用：hero、stats、compare、steps、list、chart、timeline、highlight、quote、default。
+2. 每页都要有 title、可选 subtitle、type、narration、segmentIds。
+3. 优先让版式和内容匹配，不要整套都输出成 default。
+
+字段约定：
+- hero: data 可包含 badge、cta
+- stats: data.stats = [{ value, suffix?, label, color? }]
+- compare: data.left / data.right / data.vsText
+- steps: data.steps = [{ title, description? }]
+- list: data.items = [{ icon?, text, desc? }]
+- chart: data.bars = [{ label, value, color? }]
+- timeline: data.timeline = [{ year, title, description? }]
+- highlight: data.items = ["关键词"]
+- quote: data.quote / data.author
+- default: 使用 title / subtitle / points
+
+输入信息：
+- 模板：{template_name}
+- 音频总时长：{duration_seconds} 秒
+- 建议页数：{target_pages} 页，可在 {min_pages}-{max_pages} 之间调整
+- 语义片段时间轴：
+{segments_text}
+
+只输出 JSON：
+{
+  "slides": [
+    {
+      "segmentIds": ["segment-1", "segment-2"],
+      "title": "...",
+      "subtitle": "...",
+      "type": "hero",
+      "data": { "badge": "...", "cta": "..." },
+      "narration": "..."
+    }
+  ]
+}`;
+
+function isStructuredTemplate(template: string): boolean {
+  return template === 'GlassShow' || template === 'RichShow' || template === 'TechShow';
+}
+
+function usesDataOnlyStructuredSlides(template: string): boolean {
   return template === 'RichShow' || template === 'TechShow';
 }
 
+function getTemplateSlideTypes(template: string): string[] {
+  if (template === 'GlassShow') {
+    return ['hero', 'stats', 'compare', 'steps', 'list', 'chart', 'timeline', 'highlight', 'quote', 'default'];
+  }
+
+  return ['title', 'list', 'compare', 'quote', 'highlight', 'progress', 'stats', 'cta'];
+}
+
 function isComplexSlide(slide: Slide): slide is ComplexSlide {
-  return 'type' in slide && 'data' in slide;
+  return 'type' in slide;
+}
+
+function detachSlideNarrationTiming<T extends Slide>(slide: T, narration: string): T {
+  return {
+    ...slide,
+    narration,
+    segmentIds: undefined,
+    audioStart: undefined,
+    audioEnd: undefined,
+    audioDuration: undefined,
+    durationInFrames: undefined,
+  } as T;
 }
 
 function getProjectContentPath(template: string): string {
   return `public/projects/${template}/content.json`;
+}
+
+function getGeneratedProjectContentPath(template: string, projectId: string): string {
+  return `public/projects/generated/${projectId}-${template}/content.json`;
 }
 
 function normalizeSpeechRate(value: unknown): number {
@@ -327,14 +418,14 @@ function saveProject(project: Project | null) {
 }
 
 function getPagePlan(durationSeconds: number, template: string) {
-  const complex = isComplexTemplate(template);
-  const targetSecondsPerPage = complex ? 6.2 : 5.4;
+  const structured = isStructuredTemplate(template);
+  const targetSecondsPerPage = structured ? 6.2 : 5.4;
   const minPages = Math.max(
-    complex ? 5 : 4,
+    structured ? 5 : 4,
     Math.ceil(durationSeconds / 7),
     Math.ceil(durationSeconds / MAX_SLIDE_DURATION_SECONDS)
   );
-  const maxPages = complex ? 20 : 24;
+  const maxPages = structured ? 20 : 24;
   const targetPages = Math.max(
     minPages,
     Math.min(maxPages, Math.ceil(durationSeconds / targetSecondsPerPage))
@@ -347,83 +438,42 @@ function getPagePlan(durationSeconds: number, template: string) {
   };
 }
 
-function getSlideWeight(slide: Record<string, unknown>): number {
-  const parts: string[] = [];
-
-  if (typeof slide.narration === 'string') {
-    parts.push(slide.narration);
-  }
-  if (typeof slide.title === 'string') {
-    parts.push(slide.title);
-  }
-  if (Array.isArray(slide.points)) {
-    parts.push(...slide.points.filter((item): item is string => typeof item === 'string'));
-  }
-  if (slide.data && typeof slide.data === 'object') {
-    parts.push(JSON.stringify(slide.data));
-  }
-
-  return Math.max(1, parts.join(' ').replace(/\s+/g, '').length);
+function formatSegmentsForPrompt(segments: NarrationSegment[]): string {
+  return segments
+    .map((segment) => {
+      return `- ${segment.id} | ${segment.start.toFixed(2)}s - ${segment.end.toFixed(
+        2
+      )}s | ${segment.text}`;
+    })
+    .join('\n');
 }
 
-function allocateEstimatedFrames(
-  slides: Array<Record<string, unknown>>,
-  totalFrames: number
-): number[] {
-  const minTotalFrames = slides.length * MIN_SLIDE_DURATION_FRAMES;
-  const weights = slides.map(getSlideWeight);
-  const weightSum = weights.reduce((sum, weight) => sum + weight, 0) || slides.length;
-
-  const rawFrames =
-    totalFrames <= minTotalFrames
-      ? weights.map((weight) => (weight / weightSum) * totalFrames)
-      : weights.map(
-          (weight) =>
-            MIN_SLIDE_DURATION_FRAMES +
-            (weight / weightSum) * (totalFrames - minTotalFrames)
-        );
-
-  const baseFrames = rawFrames.map((value) =>
-    totalFrames <= minTotalFrames ? Math.max(1, Math.floor(value)) : Math.floor(value)
-  );
-
-  let assignedFrames = baseFrames.reduce((sum, value) => sum + value, 0);
-  const remainders = rawFrames
-    .map((value, index) => ({ index, remainder: value - baseFrames[index] }))
-    .sort((a, b) => b.remainder - a.remainder);
-
-  let cursor = 0;
-  while (assignedFrames < totalFrames && remainders.length > 0) {
-    baseFrames[remainders[cursor % remainders.length].index] += 1;
-    assignedFrames += 1;
-    cursor += 1;
-  }
-
-  return baseFrames;
+function replaceToken(source: string, token: string, value: string): string {
+  return source.split(token).join(value);
 }
 
-function estimateSlideDurations(slides: Slide[], durationSeconds: number): number[] {
-  const totalFrames = Math.max(1, Math.ceil(durationSeconds * FPS));
-  return allocateEstimatedFrames(
-    slides as Array<Record<string, unknown>>,
-    totalFrames
-  ).map((frames) => frames / FPS);
-}
-
-function getPrompt(template: string, durationSeconds: number, strict: boolean): string {
-  const plan = getPagePlan(durationSeconds, template);
-  const basePrompt = isComplexTemplate(template)
-    ? template === 'RichShow'
+function getPrompt(
+  template: string,
+  timeline: NarrationTimeline,
+  strict: boolean
+): string {
+  const plan = getPagePlan(timeline.duration, template);
+  const basePrompt =
+    template === 'RichShow'
       ? RICH_PROMPT
-      : TECH_PROMPT
-    : SIMPLE_PROMPT;
+      : template === 'TechShow'
+        ? TECH_PROMPT
+        : template === 'GlassShow'
+          ? GLASS_PROMPT
+          : SIMPLE_PROMPT;
 
-  const prompt = basePrompt
-    .replaceAll('{template_name}', template)
-    .replaceAll('{duration_seconds}', durationSeconds.toFixed(2))
-    .replaceAll('{target_pages}', String(plan.targetPages))
-    .replaceAll('{min_pages}', String(plan.minPages))
-    .replaceAll('{max_pages}', String(plan.maxPages));
+  let prompt = basePrompt as string;
+  prompt = replaceToken(prompt, '{template_name}', template);
+  prompt = replaceToken(prompt, '{duration_seconds}', timeline.duration.toFixed(2));
+  prompt = replaceToken(prompt, '{target_pages}', String(plan.targetPages));
+  prompt = replaceToken(prompt, '{min_pages}', String(plan.minPages));
+  prompt = replaceToken(prompt, '{max_pages}', String(plan.maxPages));
+  prompt = replaceToken(prompt, '{segments_text}', formatSegmentsForPrompt(timeline.segments));
 
   if (!strict) {
     return prompt;
@@ -442,13 +492,16 @@ async function invokeTauri<T>(command: string, args: Record<string, unknown>): P
   return invoke<T>(command, args);
 }
 
-async function generateNarration(rawText: string, contentPath: string): Promise<NarrationInfo> {
+async function generateStoryboardTimeline(
+  rawText: string,
+  contentPath: string
+): Promise<NarrationTimeline> {
   const settings = loadSettings();
   if (!settings.voiceId || !settings.voiceApiKey) {
     throw new Error('请先在设置中配置语音 ID 和 API Key');
   }
 
-  const result = await invokeTauri<string>('generate_narration', {
+  const result = await invokeTauri<string>('generate_storyboard_timeline', {
     rawText,
     voiceId: settings.voiceId,
     apiKey: settings.voiceApiKey,
@@ -456,25 +509,122 @@ async function generateNarration(rawText: string, contentPath: string): Promise<
     contentPath,
   });
 
-  return JSON.parse(result) as NarrationInfo;
+  return JSON.parse(result) as NarrationTimeline;
+}
+
+function normalizeSegmentIds(
+  value: unknown,
+  availableIds: Set<string>
+): string[] {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value.filter((item): item is string => typeof item === 'string' && availableIds.has(item));
+}
+
+function repairSegmentAssignments(
+  rawSlides: Array<Record<string, unknown>>,
+  segments: NarrationSegment[]
+): string[][] {
+  const ids = segments.map((segment) => segment.id);
+  const available = new Set(ids);
+  let cursor = 0;
+
+  return rawSlides.map((item, index) => {
+    const requested = normalizeSegmentIds(item.segmentIds, available);
+    const expectedStart = ids[cursor];
+    const isContiguous =
+      requested.length > 0 &&
+      requested.every((id, offset) => ids[cursor + offset] === id);
+
+    if (expectedStart && isContiguous) {
+      cursor += requested.length;
+      return requested;
+    }
+
+    const remainingSlides = Math.max(1, rawSlides.length - index);
+    const remainingSegments = Math.max(0, ids.length - cursor);
+    const take = index === rawSlides.length - 1
+      ? remainingSegments
+      : Math.max(1, Math.floor(remainingSegments / remainingSlides));
+    const assigned = ids.slice(cursor, cursor + take);
+    cursor += assigned.length;
+    return assigned;
+  });
+}
+
+function attachTimingToSlides(
+  slides: Slide[],
+  segments: NarrationSegment[]
+): Slide[] {
+  const segmentMap = new Map(segments.map((segment) => [segment.id, segment]));
+
+  return slides.map((slide) => {
+    const ids = (slide.segmentIds || []).filter((id) => segmentMap.has(id));
+    const pageSegments = ids.map((id) => segmentMap.get(id) as NarrationSegment);
+
+    if (pageSegments.length === 0) {
+      return slide;
+    }
+
+    const audioStart = pageSegments[0].start;
+    const audioEnd = pageSegments[pageSegments.length - 1].end;
+    const audioDuration = Math.max(0.01, audioEnd - audioStart);
+    const narration = (slide.narration || '').trim() || pageSegments.map((item) => item.text).join(' ');
+
+    return {
+      ...slide,
+      narration,
+      segmentIds: ids,
+      audioStart,
+      audioEnd,
+      audioDuration,
+      durationInFrames: Math.max(1, Math.round(audioDuration * FPS)),
+    };
+  });
 }
 
 function normalizeSlides(
   rawSlides: Array<Record<string, unknown>>,
-  template: string
+  template: string,
+  segments: NarrationSegment[]
 ): Slide[] {
-  const complex = isComplexTemplate(template);
+  const structured = isStructuredTemplate(template);
+  const dataOnly = usesDataOnlyStructuredSlides(template);
+  const assignments = repairSegmentAssignments(rawSlides, segments);
 
-  return rawSlides.map((item, index) => {
-    if (complex) {
+  const normalized = rawSlides.map((item, index) => {
+    if (structured) {
       return {
         id: `slide-${index}`,
-        type: typeof item.type === 'string' ? item.type : 'title',
+        type: typeof item.type === 'string' ? item.type : dataOnly ? 'title' : 'default',
         data:
           item.data && typeof item.data === 'object'
             ? (item.data as Record<string, unknown>)
             : {},
+        title:
+          !dataOnly && typeof item.title === 'string'
+            ? item.title
+            : undefined,
+        subtitle:
+          !dataOnly && typeof item.subtitle === 'string'
+            ? item.subtitle
+            : undefined,
+        points:
+          !dataOnly && Array.isArray(item.points)
+            ? item.points.filter((point): point is string => typeof point === 'string')
+            : undefined,
+        badge:
+          !dataOnly && typeof item.badge === 'string'
+            ? item.badge
+            : undefined,
+        items:
+          !dataOnly && Array.isArray(item.items)
+            ? item.items.filter((entry): entry is Record<string, unknown> => Boolean(entry) && typeof entry === 'object')
+            : undefined,
         narration: typeof item.narration === 'string' ? item.narration : '',
+        segmentIds: assignments[index],
       };
     }
 
@@ -486,14 +636,17 @@ function normalizeSlides(
         ? item.points.filter((point): point is string => typeof point === 'string')
         : [],
       narration: typeof item.narration === 'string' ? item.narration : '',
+      segmentIds: assignments[index],
     };
   });
+
+  return attachTimingToSlides(normalized, segments);
 }
 
 async function generateSlidesWithAi(
   rawText: string,
   template: string,
-  durationSeconds: number
+  timeline: NarrationTimeline
 ): Promise<Slide[]> {
   const settings = loadSettings();
   if (!settings.aiApiKey) {
@@ -505,7 +658,7 @@ async function generateSlidesWithAi(
       apiUrl: settings.aiUrl,
       apiKey: settings.aiApiKey,
       model: settings.aiModel,
-      prompt: getPrompt(template, durationSeconds, strict).replace('{input_text}', rawText),
+      prompt: getPrompt(template, timeline, strict).replace('{input_text}', rawText),
     });
     const parsed = JSON.parse(result) as { slides?: Array<Record<string, unknown>> };
 
@@ -513,13 +666,22 @@ async function generateSlidesWithAi(
       throw new Error('AI 返回的 JSON 不包含 slides');
     }
 
-    return normalizeSlides(parsed.slides, template);
+    return normalizeSlides(parsed.slides, template, timeline.segments);
   };
 
-  const plan = getPagePlan(durationSeconds, template);
+  const plan = getPagePlan(timeline.duration, template);
   const shouldRetry = (slides: Slide[]) => {
-    const maxDuration = Math.max(...estimateSlideDurations(slides, durationSeconds));
-    return slides.length < plan.targetPages || maxDuration > MAX_SLIDE_DURATION_SECONDS;
+    const durations = slides.map((slide) => slide.audioDuration || 0);
+    const maxDuration = durations.length > 0 ? Math.max(...durations) : 0;
+    const coveredIds = slides.flatMap((slide) => slide.segmentIds || []);
+    const expectedIds = timeline.segments.map((segment) => segment.id);
+
+    return (
+      slides.length < plan.targetPages ||
+      maxDuration > MAX_SLIDE_DURATION_SECONDS ||
+      coveredIds.length !== expectedIds.length ||
+      coveredIds.some((id, index) => id !== expectedIds[index])
+    );
   };
 
   let slides = await requestSlides(false);
@@ -532,13 +694,44 @@ async function generateSlidesWithAi(
 
 async function saveSlidesToProject(project: Project) {
   const settings = loadSettings();
+  const hasCompleteTiming =
+    project.slides.length > 0 &&
+    project.slides.every(
+      (slide) =>
+        typeof slide.audioStart === 'number' &&
+        typeof slide.audioEnd === 'number' &&
+        slide.audioEnd >= slide.audioStart
+    );
   const slides = project.slides.map((slide) => {
     if (isComplexSlide(slide)) {
-      return {
+      const payload: Record<string, unknown> = {
         type: slide.type,
         data: slide.data,
         narration: slide.narration || '',
+        segmentIds: slide.segmentIds || [],
+        audioStart: slide.audioStart,
+        audioEnd: slide.audioEnd,
+        audioDuration: slide.audioDuration,
+        durationInFrames: slide.durationInFrames,
       };
+
+      if (typeof slide.title === 'string') {
+        payload.title = slide.title;
+      }
+      if (typeof slide.subtitle === 'string') {
+        payload.subtitle = slide.subtitle;
+      }
+      if (Array.isArray(slide.points)) {
+        payload.points = slide.points;
+      }
+      if (typeof slide.badge === 'string') {
+        payload.badge = slide.badge;
+      }
+      if (Array.isArray(slide.items)) {
+        payload.items = slide.items;
+      }
+
+      return payload;
     }
 
     return {
@@ -546,6 +739,11 @@ async function saveSlidesToProject(project: Project) {
       subtitle: slide.subtitle,
       points: slide.points,
       narration: slide.narration,
+      segmentIds: slide.segmentIds || [],
+      audioStart: slide.audioStart,
+      audioEnd: slide.audioEnd,
+      audioDuration: slide.audioDuration,
+      durationInFrames: slide.durationInFrames,
     };
   });
 
@@ -555,6 +753,12 @@ async function saveSlidesToProject(project: Project) {
     rawText: project.rawText,
     slides,
     contentPath: project.contentPath,
+    soundtrackPath: hasCompleteTiming
+      ? project.contentPath.replace(/content\.json$/i, 'audio/narration.mp3').replace(/^public\//, '')
+      : undefined,
+    soundtrackDuration: hasCompleteTiming
+      ? project.slides.reduce((max, slide) => Math.max(max, slide.audioEnd || 0), 0)
+      : undefined,
   });
 }
 
@@ -564,19 +768,12 @@ async function syncAudio(project: Project) {
     return;
   }
 
-  try {
-    await invokeTauri<string>('sync_timeline', {
-      voiceId: settings.voiceId,
-      contentPath: project.contentPath,
-    });
-  } catch {
-    await invokeTauri<string>('generate_audio', {
-      voiceId: settings.voiceId,
-      apiKey: settings.voiceApiKey,
-      speechRate: normalizeSpeechRate(settings.voiceSpeechRate),
-      contentPath: project.contentPath,
-    });
-  }
+  await invokeTauri<string>('generate_audio', {
+    voiceId: settings.voiceId,
+    apiKey: settings.voiceApiKey,
+    speechRate: normalizeSpeechRate(settings.voiceSpeechRate),
+    contentPath: project.contentPath,
+  });
 }
 
 function dockLinkStyle(active: boolean): React.CSSProperties {
@@ -722,15 +919,16 @@ function HomePage(props: {
     setError('');
 
     try {
-      const contentPath = getProjectContentPath(template);
-      setStatus('正在生成整段旁白...');
-      const narration = await generateNarration(text, contentPath);
+      const projectId = `${Date.now()}`;
+      const contentPath = getGeneratedProjectContentPath(template, projectId);
+      setStatus('正在生成语义时间轴...');
+      const timeline = await generateStoryboardTimeline(text, contentPath);
 
       setStatus('正在规划最终分页...');
-      const slides = await generateSlidesWithAi(text, template, narration.duration);
+      const slides = await generateSlidesWithAi(text, template, timeline);
 
       const project: Project = {
-        id: `${Date.now()}`,
+        id: projectId,
         rawText: text,
         slides,
         template,
@@ -739,7 +937,6 @@ function HomePage(props: {
 
       setStatus('正在保存项目...');
       await saveSlidesToProject(project);
-      await syncAudio(project);
 
       props.onProjectChange(project);
       navigate('/editor');
@@ -857,7 +1054,7 @@ function EditorPage(props: {
     );
   }
 
-  const complex = isComplexTemplate(project.template);
+  const complex = isStructuredTemplate(project.template);
   const safeIndex = Math.min(activeIndex, Math.max(0, project.slides.length - 1));
   const slide = project.slides[safeIndex];
 
@@ -883,8 +1080,13 @@ function EditorPage(props: {
     const nextSlide: Slide = complex
       ? {
           id: `slide-${Date.now()}`,
-          type: 'title',
-          data: { title: '新页面', subtitle: '' },
+          type: getTemplateSlideTypes(project.template)[0] || 'title',
+          title: '新页面',
+          subtitle: '',
+          points: [],
+          badge: project.template === 'GlassShow' ? 'NEW PAGE' : undefined,
+          items: project.template === 'GlassShow' ? [] : undefined,
+          data: project.template === 'GlassShow' ? {} : { title: '新页面', subtitle: '' },
           narration: '',
         }
       : {
@@ -983,7 +1185,7 @@ function EditorPage(props: {
   };
 
   const panelTitle = isComplexSlide(slide)
-    ? String((slide.data.title || slide.data.quote || slide.type) ?? `第 ${safeIndex + 1} 页`)
+    ? String((slide.title || slide.data.title || slide.data.quote || slide.type) ?? `第 ${safeIndex + 1} 页`)
     : slide.title || `第 ${safeIndex + 1} 页`;
 
   return (
@@ -1028,7 +1230,7 @@ function EditorPage(props: {
           <div style={{ flex: 1, overflow: 'auto', padding: 6 }}>
             {project.slides.map((item, index) => {
               const title = isComplexSlide(item)
-                ? String((item.data.title || item.data.quote || item.type) ?? `第 ${index + 1} 页`)
+                ? String((item.title || item.data.title || item.data.quote || item.type) ?? `第 ${index + 1} 页`)
                 : item.title || `第 ${index + 1} 页`;
 
               return (
@@ -1234,13 +1436,73 @@ function EditorPage(props: {
                     }}
                     style={SOFT_INPUT_STYLE}
                   >
-                    {['title', 'list', 'compare', 'quote', 'highlight', 'progress', 'stats', 'cta'].map((item) => (
+                    {getTemplateSlideTypes(project.template).map((item) => (
                       <option key={item} value={item}>
                         {item}
                       </option>
                     ))}
                   </select>
                 </div>
+
+                {project.template === 'GlassShow' ? (
+                  <>
+                    <div style={{ ...FIELD_GROUP_STYLE, marginTop: SPACING.md }}>
+                      <label style={{ display: 'block', marginBottom: 8, fontWeight: 600 }}>标题</label>
+                      <input
+                        value={slide.title || ''}
+                        onChange={(event) => {
+                          updateSlide(safeIndex, (current) => ({
+                            ...(current as ComplexSlide),
+                            title: event.target.value,
+                          }));
+                        }}
+                        onBlur={() => {
+                          void saveCurrentProject();
+                        }}
+                        style={SOFT_INPUT_STYLE}
+                      />
+                    </div>
+
+                    <div style={{ ...FIELD_GROUP_STYLE, marginTop: SPACING.md }}>
+                      <label style={{ display: 'block', marginBottom: 8, fontWeight: 600 }}>副标题</label>
+                      <input
+                        value={slide.subtitle || ''}
+                        onChange={(event) => {
+                          updateSlide(safeIndex, (current) => ({
+                            ...(current as ComplexSlide),
+                            subtitle: event.target.value,
+                          }));
+                        }}
+                        onBlur={() => {
+                          void saveCurrentProject();
+                        }}
+                        style={SOFT_INPUT_STYLE}
+                      />
+                    </div>
+
+                    <div style={{ ...FIELD_GROUP_STYLE, marginTop: SPACING.md }}>
+                      <label style={{ display: 'block', marginBottom: 8, fontWeight: 600 }}>要点</label>
+                      <textarea
+                        value={(slide.points || []).join('\n')}
+                        onChange={(event) => {
+                          const nextPoints = event.target.value
+                            .split('\n')
+                            .map((line) => line.trim())
+                            .filter(Boolean);
+                          updateSlide(safeIndex, (current) => ({
+                            ...(current as ComplexSlide),
+                            points: nextPoints,
+                          }));
+                        }}
+                        onBlur={() => {
+                          void saveCurrentProject();
+                        }}
+                        rows={5}
+                        style={{ ...SOFT_INPUT_STYLE, minHeight: 128 }}
+                      />
+                    </div>
+                  </>
+                ) : null}
 
                 <div style={{ ...FIELD_GROUP_STYLE, marginTop: SPACING.md }}>
                   <label style={{ display: 'block', marginBottom: 8, fontWeight: 600 }}>内容 JSON</label>
@@ -1270,9 +1532,14 @@ function EditorPage(props: {
                   <textarea
                     value={slide.narration || ''}
                     onChange={(event) => {
+                      const nextNarration = event.target.value;
                       updateSlide(safeIndex, (current) => ({
-                        ...(current as ComplexSlide),
-                        narration: event.target.value,
+                        ...(nextNarration === (current as ComplexSlide).narration
+                          ? (current as ComplexSlide)
+                          : detachSlideNarrationTiming(
+                              current as ComplexSlide,
+                              nextNarration
+                            )),
                       }));
                     }}
                     onBlur={() => {
@@ -1371,9 +1638,14 @@ function EditorPage(props: {
                   <textarea
                     value={slide.narration}
                     onChange={(event) => {
+                      const nextNarration = event.target.value;
                       updateSlide(safeIndex, (current) => ({
-                        ...(current as SimpleSlide),
-                        narration: event.target.value,
+                        ...(nextNarration === (current as SimpleSlide).narration
+                          ? (current as SimpleSlide)
+                          : detachSlideNarrationTiming(
+                              current as SimpleSlide,
+                              nextNarration
+                            )),
                       }));
                     }}
                     onBlur={() => {

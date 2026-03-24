@@ -3,116 +3,248 @@
     "title": "Generated Video",
     "template": "GlassShow",
     "voice_id": "cosyvoice-v3.5-plus-bailian-d9e80a08150f4986ae260fde904fe0ae",
-    "full_narration": "今天我们要详细讲解OpenClaw 的从 0 到 1 部署过程，这是一个开源免费的本地 AI 助手，适合小白用户快速上手。\nOpenClaw 就像住进你电脑的私人管家，可以帮你收邮件、做简报、生成图片，甚至远程操控电脑。它支持 Windows 系统，部署简单，只需几个步骤：\n打开命令行，输入指令安装 OpenClaw。\n选择模型提供商，推荐使用智普平台的 GLM 模型，注册后获取免费 API Key。\n配置过程中选择 “Skip for now” 和 “No”，最后全选安装完成。\n启动 OpenClaw，看到界面即表示部署成功。\n",
+    "full_narration": "Skills装完先别急着用，技能商店上万个 Skills，但真正的底座就这 6 个，排行榜安装量最高的一条命令全装完。\n第一个：agent-browser 浏览器自动化\n让 AI 自己去操控浏览器，点按钮填表单，截图下文件，连动态渲染的页面都能读，相当于给 AI 装了一双手。\n第二个：heavily searchAI 专属联网\n搜索返回结果没广告，结构化输出直接给 AI 消费，网页正文自动提炼关键信息，你的 AI 终于不用靠过期知识回答问题了。\n第三个：self-improving agent 自我进化\n记住你的代码风格和习惯，从每次出错中学习自动修复，跨绘画保持记忆，越用越懂，效率越来越高。\n第四个：find skills 技能发现神器\n像逛应用商店一样搜索 skill，自然语言描述需求就能匹配，排行榜推荐加批量管理升级，回退一站搞定。\n第五个：skill-vendor 安全审查官\n装任何 skill 之前先让它扫一遍，检测恶意代码，拦截权限越界，阻止隐私泄露，出具安全评分报告，相当于给工具链装了个门禁。\n第六个：email-managemen 邮件管家\nAI 帮你读邮件写回复，自动分类整理，常规邮件直接帮你发送，Gmail、Outlook、163、QQ 全都支持。",
     "voiceId": "cosyvoice-v3.5-plus-bailian-d9e80a08150f4986ae260fde904fe0ae",
-    "fullNarration": "今天我们要详细讲解OpenClaw 的从 0 到 1 部署过程，这是一个开源免费的本地 AI 助手，适合小白用户快速上手。\nOpenClaw 就像住进你电脑的私人管家，可以帮你收邮件、做简报、生成图片，甚至远程操控电脑。它支持 Windows 系统，部署简单，只需几个步骤：\n打开命令行，输入指令安装 OpenClaw。\n选择模型提供商，推荐使用智普平台的 GLM 模型，注册后获取免费 API Key。\n配置过程中选择 “Skip for now” 和 “No”，最后全选安装完成。\n启动 OpenClaw，看到界面即表示部署成功。",
+    "fullNarration": "Skills装完先别急着用，技能商店上万个 Skills，但真正的底座就这 6 个，排行榜安装量最高的一条命令全装完。\n第一个：agent-browser 浏览器自动化\n让 AI 自己去操控浏览器，点按钮填表单，截图下文件，连动态渲染的页面都能读，相当于给 AI 装了一双手。\n第二个：heavily searchAI 专属联网\n搜索返回结果没广告，结构化输出直接给 AI 消费，网页正文自动提炼关键信息，你的 AI 终于不用靠过期知识回答问题了。\n第三个：self-improving agent 自我进化\n记住你的代码风格和习惯，从每次出错中学习自动修复，跨绘画保持记忆，越用越懂，效率越来越高。\n第四个：find skills 技能发现神器\n像逛应用商店一样搜索 skill，自然语言描述需求就能匹配，排行榜推荐加批量管理升级，回退一站搞定。\n第五个：skill-vendor 安全审查官\n装任何 skill 之前先让它扫一遍，检测恶意代码，拦截权限越界，阻止隐私泄露，出具安全评分报告，相当于给工具链装了个门禁。\n第六个：email-managemen 邮件管家\nAI 帮你读邮件写回复，自动分类整理，常规邮件直接帮你发送，Gmail、Outlook、163、QQ 全都支持。",
     "soundtrackPath": "projects/GlassShow/audio/narration.mp3",
-    "soundtrackDuration": 40.22857142857143
+    "soundtrackDuration": 89.44326530612246
   },
   "slides": [
     {
-      "narration": "今天我们要详细讲解 OpenClaw 的从 0 到 1 部署过程，这是一个开源免费的本地 AI 助手，适合小白用户快速上手。",
+      "narration": "Skills装完先别急着用，技能商店上万个Skills，但真正的底座就这6个，排行榜安装量最高的一条命令全装完。",
       "points": [
-        "开源免费的本地 AI 助手",
-        "小白用户快速上手"
+        "真正的底座就这6个",
+        "排行榜安装量最高",
+        "一条命令全装完"
       ],
-      "subtitle": "从 0 到 1 完整教程",
-      "title": "OpenClaw 部署指南",
-      "audioDuration": 6.933333333333334,
-      "durationInFrames": 208,
+      "subtitle": "技能商店上万个Skills",
+      "title": "Skills装完先别急着用",
+      "audioDuration": 6.166666666666667,
+      "durationInFrames": 185,
       "audioStart": 0,
-      "audioEnd": 6.933333333333334
+      "audioEnd": 6.166666666666667
     },
     {
-      "narration": "OpenClaw 就像住进你电脑的私人管家，可以帮你收邮件、做简报、生成图片，甚至远程操控电脑。",
+      "narration": "第一个：agent-browser 浏览器自动化，让AI自己去操控浏览器，点按钮填表单，截图下文件，",
       "points": [
-        "收邮件、做简报",
-        "生成图片、远程操控电脑"
+        "让AI自己去操控浏览器",
+        "点按钮、填表单、截图、下文件"
       ],
-      "subtitle": "你的私人 AI 管家",
-      "title": "什么是 OpenClaw",
-      "audioDuration": 6.333333333333333,
-      "durationInFrames": 190,
-      "audioStart": 6.933333333333334,
-      "audioEnd": 13.266666666666667
+      "subtitle": "agent-browser 浏览器自动化",
+      "title": "第一个底座",
+      "audioDuration": 5.466666666666667,
+      "durationInFrames": 164,
+      "audioStart": 6.166666666666667,
+      "audioEnd": 11.633333333333333
     },
     {
-      "narration": "它支持 Windows 系统，部署简单，只需几个步骤：",
+      "narration": "连动态渲染的页面都能读，相当于给AI装了一双手。",
       "points": [
-        "支持 Windows 系统",
-        "部署简单，只需几个步骤"
+        "连动态渲染的页面都能读",
+        "相当于给AI装了一双手"
       ],
-      "subtitle": "Windows 专属",
-      "title": "系统支持",
-      "audioDuration": 4.766666666666667,
-      "durationInFrames": 143,
-      "audioStart": 13.266666666666667,
-      "audioEnd": 18.033333333333335
+      "subtitle": "agent-browser",
+      "title": "浏览器自动化",
+      "audioDuration": 4.1,
+      "durationInFrames": 123,
+      "audioStart": 11.633333333333333,
+      "audioEnd": 15.733333333333333
     },
     {
-      "narration": "打开命令行，输入指令安装 OpenClaw。",
+      "narration": "第二个：heavily search AI专属联网，搜索返回结果没广告，结构化输出直接给AI消费，",
       "points": [
-        "打开命令行",
-        "输入指令安装 OpenClaw"
+        "搜索返回结果没广告",
+        "结构化输出直接给AI消费"
       ],
-      "subtitle": "命令行一键部署",
-      "title": "第一步：安装",
-      "audioDuration": 4.433333333333334,
-      "durationInFrames": 133,
-      "audioStart": 18.033333333333335,
-      "audioEnd": 22.466666666666665
+      "subtitle": "heavily search AI专属联网",
+      "title": "第二个底座",
+      "audioDuration": 5.166666666666667,
+      "durationInFrames": 155,
+      "audioStart": 15.733333333333333,
+      "audioEnd": 20.9
     },
     {
-      "narration": "选择模型提供商，推荐使用智普平台的 GLM 模型，注册后获取免费 API Key。",
+      "narration": "网页正文自动提炼关键信息，你的AI终于不用靠过期知识回答问题了。",
       "points": [
-        "推荐智普平台",
-        "注册获取免费 API Key"
+        "网页正文自动提炼关键信息",
+        "AI终于不用靠过期知识回答问题了"
       ],
-      "subtitle": "智普平台 GLM 模型",
-      "title": "第二步：选择模型",
+      "subtitle": "heavily search",
+      "title": "AI专属联网",
+      "audioDuration": 4.8,
+      "durationInFrames": 144,
+      "audioStart": 20.9,
+      "audioEnd": 25.7
+    },
+    {
+      "narration": "第三个：self-improving agent 自我进化，记住你的代码风格和习惯，从每次出错中学习自动修复，",
+      "points": [
+        "记住你的代码风格和习惯",
+        "从每次出错中学习自动修复"
+      ],
+      "subtitle": "self-improving agent 自我进化",
+      "title": "第三个底座",
+      "audioDuration": 5.566666666666666,
+      "durationInFrames": 167,
+      "audioStart": 25.7,
+      "audioEnd": 31.266666666666666
+    },
+    {
+      "narration": "跨绘画保持记忆，越用越懂，效率越来越高。",
+      "points": [
+        "跨绘画保持记忆",
+        "越用越懂，效率越来越高"
+      ],
+      "subtitle": "self-improving agent",
+      "title": "自我进化",
+      "audioDuration": 3.6,
+      "durationInFrames": 108,
+      "audioStart": 31.266666666666666,
+      "audioEnd": 34.86666666666667
+    },
+    {
+      "narration": "第四个：find skills 技能发现神器，像逛应用商店一样搜索skill，自然语言描述需求就能匹配，",
+      "points": [
+        "像逛应用商店一样搜索skill",
+        "自然语言描述需求就能匹配"
+      ],
+      "subtitle": "find skills 技能发现神器",
+      "title": "第四个底座",
+      "audioDuration": 5.6,
+      "durationInFrames": 168,
+      "audioStart": 34.86666666666667,
+      "audioEnd": 40.46666666666667
+    },
+    {
+      "narration": "排行榜推荐加批量管理升级，回退一站搞定。",
+      "points": [
+        "排行榜推荐加批量管理",
+        "升级、回退一站搞定"
+      ],
+      "subtitle": "find skills",
+      "title": "技能发现神器",
+      "audioDuration": 3.7666666666666666,
+      "durationInFrames": 113,
+      "audioStart": 40.46666666666667,
+      "audioEnd": 44.233333333333334
+    },
+    {
+      "narration": "第五个：skill-vendor 安全审查官，装任何skill之前先让它扫一遍，检测恶意代码，",
+      "points": [
+        "装任何skill之前先让它扫一遍",
+        "检测恶意代码"
+      ],
+      "subtitle": "skill-vendor 安全审查官",
+      "title": "第五个底座",
+      "audioDuration": 5.166666666666667,
+      "durationInFrames": 155,
+      "audioStart": 44.233333333333334,
+      "audioEnd": 49.4
+    },
+    {
+      "narration": "拦截权限越界，阻止隐私泄露，",
+      "points": [
+        "拦截权限越界",
+        "阻止隐私泄露"
+      ],
+      "subtitle": "skill-vendor",
+      "title": "安全审查官",
+      "audioDuration": 3.066666666666667,
+      "durationInFrames": 92,
+      "audioStart": 49.4,
+      "audioEnd": 52.46666666666667
+    },
+    {
+      "narration": "出具安全评分报告，相当于给工具链装了个门禁。",
+      "points": [
+        "出具安全评分报告",
+        "相当于给工具链装了个门禁"
+      ],
+      "subtitle": "skill-vendor",
+      "title": "安全审查官",
+      "audioDuration": 3.8666666666666667,
+      "durationInFrames": 116,
+      "audioStart": 52.46666666666667,
+      "audioEnd": 56.333333333333336
+    },
+    {
+      "narration": "第六个：email-management 邮件管家，AI帮你读邮件写回复，自动分类整理，",
+      "points": [
+        "AI帮你读邮件写回复",
+        "自动分类整理"
+      ],
+      "subtitle": "email-management 邮件管家",
+      "title": "第六个底座",
+      "audioDuration": 4.7,
+      "durationInFrames": 141,
+      "audioStart": 56.333333333333336,
+      "audioEnd": 61.03333333333333
+    },
+    {
+      "narration": "常规邮件直接帮你发送，Gmail、Outlook、163、QQ全都支持。",
+      "points": [
+        "常规邮件直接帮你发送",
+        "Gmail、Outlook、163、QQ全都支持"
+      ],
+      "subtitle": "email-management",
+      "title": "邮件管家",
+      "audioDuration": 5.2,
+      "durationInFrames": 156,
+      "audioStart": 61.03333333333333,
+      "audioEnd": 66.23333333333333
+    },
+    {
+      "narration": "六大底座：agent-browser 浏览器自动化，heavily search",
+      "points": [
+        "① agent-browser 浏览器自动化",
+        "② heavily search AI专属联网"
+      ],
+      "subtitle": "一条命令全装完",
+      "title": "六大底座速览",
+      "audioDuration": 5.733333333333333,
+      "durationInFrames": 172,
+      "audioStart": 66.23333333333333,
+      "audioEnd": 71.96666666666667
+    },
+    {
+      "narration": "AI专属联网，self-improving agent 自我进化，",
+      "points": [
+        "③ self-improving agent 自我进化"
+      ],
+      "subtitle": "一条命令全装完",
+      "title": "六大底座速览",
+      "audioDuration": 4.566666666666666,
+      "durationInFrames": 137,
+      "audioStart": 71.96666666666667,
+      "audioEnd": 76.53333333333333
+    },
+    {
+      "narration": "find skills 技能发现神器，skill-vendor 安全审查官，email-management 邮件管家。",
+      "points": [
+        "④ find skills 技能发现神器",
+        "⑤ skill-vendor 安全审查官",
+        "⑥ email-management 邮件管家"
+      ],
+      "subtitle": "一条命令全装完",
+      "title": "六大底座速览",
+      "audioDuration": 7.433333333333334,
+      "durationInFrames": 223,
+      "audioStart": 76.53333333333333,
+      "audioEnd": 83.96666666666667
+    },
+    {
+      "narration": "这6个底座Skills，排行榜安装量最高，覆盖AI工作核心场景，效率提升立竿见影，建议立即安装。",
+      "points": [
+        "排行榜安装量最高",
+        "覆盖AI工作核心场景",
+        "效率提升立竿见影"
+      ],
+      "subtitle": "这6个底座Skills",
+      "title": "建议立即安装",
       "audioDuration": 5.5,
       "durationInFrames": 165,
-      "audioStart": 22.466666666666665,
-      "audioEnd": 27.966666666666665
-    },
-    {
-      "narration": "配置过程中选择「Skip for now」和「No」，",
-      "points": [
-        "选择「Skip for now」",
-        "选择「No」"
-      ],
-      "subtitle": "快速跳过设置",
-      "title": "第三步：配置选项",
-      "audioDuration": 4.866666666666666,
-      "durationInFrames": 146,
-      "audioStart": 27.966666666666665,
-      "audioEnd": 32.833333333333336
-    },
-    {
-      "narration": "最后全选安装完成。",
-      "points": [
-        "全选安装选项",
-        "等待安装完成"
-      ],
-      "subtitle": "全选确认",
-      "title": "第四步：完成安装",
-      "audioDuration": 3.3333333333333335,
-      "durationInFrames": 100,
-      "audioStart": 32.833333333333336,
-      "audioEnd": 36.166666666666664
-    },
-    {
-      "narration": "启动 OpenClaw，看到界面即表示部署成功。",
-      "points": [
-        "启动程序",
-        "看到界面即表示成功"
-      ],
-      "subtitle": "启动 OpenClaw",
-      "title": "部署成功",
-      "audioDuration": 4.066666666666666,
-      "durationInFrames": 122,
-      "audioStart": 36.166666666666664,
-      "audioEnd": 40.233333333333334
+      "audioStart": 83.96666666666667,
+      "audioEnd": 89.46666666666667
     }
   ]
 }

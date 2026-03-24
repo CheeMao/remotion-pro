@@ -4,6 +4,7 @@ import { contentToVideoConfig, parseContentFile } from './parse-content';
 import {
   generateAudio,
   generateNarrationTrack,
+  generateNarrationTimeline,
   syncTimelineToSoundtrack,
 } from './generate-audio';
 import { renderVideo } from './render-video';
@@ -42,6 +43,14 @@ export interface NarrationOnlyOptions {
   voiceId?: string;
   speechRate?: number;
   outputFile?: string;
+  apiKey?: string;
+}
+
+export interface NarrationTimelineOnlyOptions {
+  textFile: string;
+  voiceId?: string;
+  speechRate?: number;
+  outputDir?: string;
   apiKey?: string;
 }
 
@@ -135,6 +144,31 @@ export async function generateNarrationOnly(
   );
 }
 
+export async function generateNarrationTimelineOnly(
+  options: NarrationTimelineOnlyOptions
+): Promise<void> {
+  const text = readFileSync(options.textFile, 'utf-8');
+  const result = await generateNarrationTimeline({
+    text,
+    voiceId: options.voiceId,
+    speechRate: options.speechRate,
+    outputDir: options.outputDir,
+    apiKey: options.apiKey,
+  });
+
+  console.log(
+    JSON.stringify(
+      {
+        audioPath: result.audioPath.replace(/\\/g, '/'),
+        duration: result.duration,
+        segments: result.segments,
+      },
+      null,
+      2
+    )
+  );
+}
+
 export async function syncTimelineOnly(
   options: TimelineOnlyOptions
 ): Promise<void> {
@@ -217,6 +251,7 @@ export const workflow = {
   generateFromContent,
   generateAudioOnly,
   generateNarrationOnly,
+  generateNarrationTimelineOnly,
   syncTimelineOnly,
   renderOnly,
   cloneVoice,

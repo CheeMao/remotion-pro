@@ -1,9 +1,10 @@
-import { copyFileSync, existsSync, mkdirSync, writeFileSync } from 'fs';
-import { dirname, join } from 'path';
+import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'fs';
+import { execFileSync } from 'child_process';
+import { dirname, join, resolve } from 'path';
 import { parseFile } from 'music-metadata';
-import { parseContentFile } from './parse-content';
 import { createTTSService } from '../tts';
 import { ContentFile, ContentSlide } from '../templates/types';
+import { parseContentFile } from './parse-content';
 
 export interface GenerateAudioOptions {
   contentFile: string;
@@ -40,302 +41,229 @@ export interface SyncTimelineOptions {
   soundtrackPath?: string;
   soundtrackDuration?: number;
   voiceId?: string;
-  fullNarration?: string;
+}
+
+export interface GenerateNarrationTimelineOptions {
+  text: string;
+  voiceId?: string;
+  speechRate?: number;
+  outputDir?: string;
+  apiKey?: string;
+}
+
+export interface NarrationSegment {
+  id: string;
+  text: string;
+  start: number;
+  end: number;
+  duration: number;
+  audioPath: string;
+}
+
+export interface NarrationTimelineResult {
+  audioPath: string;
+  duration: number;
+  voiceId?: string;
+  segments: NarrationSegment[];
 }
 
 const FPS = 30;
 const DEFAULT_SOUNDTRACK_FILE = 'narration.mp3';
-const MIN_SLIDE_DURATION_FRAMES = 45;
-const MAX_SLIDE_DURATION_SECONDS = 8;
-const MAX_SLIDE_DURATION_FRAMES = MAX_SLIDE_DURATION_SECONDS * FPS;
-const MAX_SPLIT_ITERATIONS = 24;
 
 const getContentVoiceId = (content: ContentFile): string | undefined => {
   return content.meta.voiceId || content.meta.voice_id;
 };
 
-const getFullNarration = (content: ContentFile): string => {
-  const fromMeta = content.meta.fullNarration || content.meta.full_narration;
-  if (fromMeta && fromMeta.trim()) {
-    return fromMeta.trim();
+const getNarrationText = (slide: ContentSlide): string => {
+  if (typeof slide.narration === 'string' && slide.narration.trim()) {
+    return slide.narration.trim();
   }
 
-  return content.slides
-    .map((slide) => {
-      if (typeof slide.narration === 'string' && slide.narration.trim()) {
-        return slide.narration.trim();
+  if (typeof slide.title === 'string' && slide.title.trim()) {
+    return slide.title.trim();
+  }
+
+  return '';
+};
+
+const ensureDir = (dir: string) => {
+  if (!existsSync(dir)) {
+    mkdirSync(dir, { recursive: true });
+  }
+};
+
+const clearDir = (dir: string) => {
+  if (existsSync(dir)) {
+    rmSync(dir, { recursive: true, force: true });
+  }
+
+  mkdirSync(dir, { recursive: true });
+};
+
+const toRelativePublicPath = (filePath: string): string => {
+  const normalized = filePath.replace(/\\/g, '/');
+  const publicIndex = normalized.indexOf('/public/');
+  if (publicIndex >= 0) {
+    return normalized.slice(publicIndex + '/public/'.length);
+  }
+
+  return normalized.replace(/^public\//, '');
+};
+
+const getAudioDuration = async (filePath: string): Promise<number> => {
+  const metadata = await parseFile(filePath);
+  const duration = metadata.format.duration;
+  if (!duration) {
+    throw new Error(`Unable to determine audio duration: ${filePath}`);
+  }
+
+  return duration;
+};
+
+const concatenateAudioFiles = (files: string[], outputFile: string): void => {
+  if (files.length === 0) {
+    throw new Error('No audio files to concatenate.');
+  }
+
+  ensureDir(dirname(outputFile));
+
+  const listFile = join(dirname(outputFile), `concat-${Date.now()}.txt`);
+  const fileList = files
+    .map((filePath) => resolve(filePath))
+    .map((filePath) => `file '${filePath.replace(/'/g, "'\\''").replace(/\\/g, '/')}'`)
+    .join('\n');
+
+  writeFileSync(listFile, fileList, 'utf-8');
+
+  try {
+    execFileSync(
+      'ffmpeg',
+      [
+        '-y',
+        '-f',
+        'concat',
+        '-safe',
+        '0',
+        '-i',
+        listFile,
+        '-c',
+        'copy',
+        outputFile,
+      ],
+      {
+        stdio: ['ignore', 'ignore', 'pipe'],
       }
-      if (typeof slide.title === 'string' && slide.title.trim()) {
-        return slide.title.trim();
-      }
-      return '';
-    })
+    );
+  } catch (error) {
+    const stderr =
+      error && typeof error === 'object' && 'stderr' in error
+        ? Buffer.isBuffer(error.stderr)
+          ? error.stderr.toString('utf-8').trim()
+          : typeof error.stderr === 'string'
+            ? error.stderr.trim()
+            : ''
+        : '';
+    throw new Error(
+      error instanceof Error
+        ? `Failed to concatenate audio: ${
+            stderr || error.message
+          }`
+        : 'Failed to concatenate audio.'
+    );
+  } finally {
+    rmSync(listFile, { force: true });
+  }
+};
+
+const splitNarrationIntoSegments = (text: string): string[] => {
+  const normalized = text
+    .replace(/\r\n/g, '\n')
+    .split('\n')
+    .map((line) => line.trim())
     .filter(Boolean)
     .join('\n');
-};
 
-const getSlideWeight = (slide: ContentSlide): number => {
-  const parts: string[] = [];
-
-  if (typeof slide.narration === 'string') {
-    parts.push(slide.narration);
-  }
-  if (typeof slide.title === 'string') {
-    parts.push(slide.title);
-  }
-  if (Array.isArray(slide.points)) {
-    parts.push(
-      ...slide.points.filter((point): point is string => typeof point === 'string')
-    );
-  }
-  if (slide.data && typeof slide.data === 'object') {
-    parts.push(JSON.stringify(slide.data));
-  }
-
-  return Math.max(1, parts.join(' ').replace(/\s+/g, '').length);
-};
-
-const allocateSlideFrames = (
-  slides: ContentSlide[],
-  totalFrames: number
-): number[] => {
-  const minTotalFrames = slides.length * MIN_SLIDE_DURATION_FRAMES;
-  const weights = slides.map(getSlideWeight);
-  const weightSum = weights.reduce((sum, weight) => sum + weight, 0) || slides.length;
-
-  if (totalFrames <= minTotalFrames) {
-    const rawFrames = weights.map((weight) => (weight / weightSum) * totalFrames);
-    const baseFrames = rawFrames.map((value) => Math.max(1, Math.floor(value)));
-    let assignedFrames = baseFrames.reduce((sum, value) => sum + value, 0);
-    const remainders = rawFrames.map((value, index) => ({
-      index,
-      remainder: value - baseFrames[index],
-    }));
-
-    remainders.sort((left, right) => right.remainder - left.remainder);
-    let cursor = 0;
-    while (assignedFrames < totalFrames) {
-      baseFrames[remainders[cursor % remainders.length].index] += 1;
-      assignedFrames += 1;
-      cursor += 1;
-    }
-
-    return baseFrames;
-  }
-
-  const remainingFrames = totalFrames - minTotalFrames;
-  const rawFrames = weights.map(
-    (weight) => MIN_SLIDE_DURATION_FRAMES + (weight / weightSum) * remainingFrames
-  );
-  const baseFrames = rawFrames.map((value) => Math.floor(value));
-  let assignedFrames = baseFrames.reduce((sum, value) => sum + value, 0);
-  const remainders = rawFrames.map((value, index) => ({
-    index,
-    remainder: value - baseFrames[index],
-  }));
-
-  remainders.sort((left, right) => right.remainder - left.remainder);
-  let cursor = 0;
-  while (assignedFrames < totalFrames) {
-    baseFrames[remainders[cursor % remainders.length].index] += 1;
-    assignedFrames += 1;
-    cursor += 1;
-  }
-
-  return baseFrames;
-};
-
-const splitTextBySentences = (text: string): [string, string] | null => {
-  const normalized = text.trim();
   if (!normalized) {
-    return null;
+    return [];
   }
 
-  const sentences = normalized
-    .split(/(?<=[。！？!?；;.])\s*|\n+/)
-    .map((part) => part.trim())
-    .filter(Boolean);
-
-  if (sentences.length >= 2) {
-    const midpoint = Math.ceil(sentences.length / 2);
-    return [
-      sentences.slice(0, midpoint).join(' ').trim(),
-      sentences.slice(midpoint).join(' ').trim(),
-    ];
-  }
-
-  if (normalized.length < 24) {
-    return null;
-  }
-
-  const midpoint = Math.floor(normalized.length / 2);
-  const splitIndex =
-    normalized.slice(midpoint).search(/[，,、；;。！？!? ]/) + midpoint;
-  const safeIndex = splitIndex > midpoint ? splitIndex + 1 : midpoint;
-
-  return [
-    normalized.slice(0, safeIndex).trim(),
-    normalized.slice(safeIndex).trim(),
-  ];
-};
-
-const splitArrayInHalf = <T>(items: T[]): [T[], T[]] => {
-  if (items.length <= 1) {
-    return [items, items];
-  }
-
-  const midpoint = Math.ceil(items.length / 2);
-  return [items.slice(0, midpoint), items.slice(midpoint)];
-};
-
-const splitSlideData = (
-  data: Record<string, unknown> | undefined
-): [Record<string, unknown> | undefined, Record<string, unknown> | undefined] => {
-  if (!data) {
-    return [undefined, undefined];
-  }
-
-  if (Array.isArray(data.items)) {
-    const [left, right] = splitArrayInHalf(data.items);
-    return [
-      { ...data, items: left },
-      { ...data, items: right.length > 0 ? right : left },
-    ];
-  }
-
-  if (Array.isArray(data.stats)) {
-    const [left, right] = splitArrayInHalf(data.stats);
-    return [
-      { ...data, stats: left },
-      { ...data, stats: right.length > 0 ? right : left },
-    ];
-  }
-
-  if (Array.isArray(data.bars)) {
-    const [left, right] = splitArrayInHalf(data.bars);
-    return [
-      { ...data, bars: left },
-      { ...data, bars: right.length > 0 ? right : left },
-    ];
-  }
-
-  return [data, data];
-};
-
-const splitContentSlide = (slide: ContentSlide): ContentSlide[] | null => {
-  const baseNarration =
-    typeof slide.narration === 'string' && slide.narration.trim()
-      ? slide.narration.trim()
-      : typeof slide.title === 'string'
-        ? slide.title.trim()
-        : '';
-
-  const splitNarration = splitTextBySentences(baseNarration);
-  if (!splitNarration) {
-    return null;
-  }
-
-  const [firstNarration, secondNarration] = splitNarration;
-  const firstSlide: ContentSlide = {
-    ...slide,
-    narration: firstNarration,
-  };
-  const secondSlide: ContentSlide = {
-    ...slide,
-    narration: secondNarration,
-  };
-
-  if (Array.isArray(slide.points) && slide.points.length > 0) {
-    const [leftPoints, rightPoints] = splitArrayInHalf(slide.points);
-    firstSlide.points = leftPoints;
-    secondSlide.points = rightPoints.length > 0 ? rightPoints : leftPoints;
-  }
-
-  if (slide.data && typeof slide.data === 'object') {
-    const [leftData, rightData] = splitSlideData(
-      slide.data as Record<string, unknown>
+  const paragraphAware = normalized
+    .split('\n')
+    .flatMap((line) =>
+      line
+        .split(/(?<=[。！？!?；;：:])/)
+        .map((part) => part.trim())
+        .filter(Boolean)
     );
-    firstSlide.data = leftData;
-    secondSlide.data = rightData;
-  }
 
-  return [firstSlide, secondSlide];
+  return paragraphAware.length > 0 ? paragraphAware : [normalized];
 };
 
-const rebalanceSlidesToMaxDuration = (
-  slides: ContentSlide[],
+const getFullNarration = (content: ContentFile): string => {
+  if (typeof content.meta.fullNarration === 'string' && content.meta.fullNarration.trim()) {
+    return content.meta.fullNarration.trim();
+  }
+
+  if (typeof content.meta.full_narration === 'string' && content.meta.full_narration.trim()) {
+    return content.meta.full_narration.trim();
+  }
+
+  return content.slides.map(getNarrationText).filter(Boolean).join('\n');
+};
+
+const getSlideSegmentIds = (slide: ContentSlide): string[] => {
+  const raw = (slide as ContentSlide & { segmentIds?: unknown }).segmentIds;
+  if (!Array.isArray(raw)) {
+    return [];
+  }
+
+  return raw.filter((item): item is string => typeof item === 'string' && item.trim().length > 0);
+};
+
+const resolveSegmentAudioFiles = (slide: ContentSlide, outputDir: string): string[] => {
+  const segmentsDir = join(outputDir, 'segments');
+  const segmentIds = getSlideSegmentIds(slide);
+
+  if (segmentIds.length === 0) {
+    return [];
+  }
+
+  const files = segmentIds.map((segmentId) => {
+    const match = /^segment-(\d+)$/.exec(segmentId.trim());
+    if (!match) {
+      return null;
+    }
+
+    const fileName = `segment-${match[1].padStart(3, '0')}.mp3`;
+    const segmentFile = join(segmentsDir, fileName);
+    return existsSync(segmentFile) ? segmentFile : null;
+  });
+
+  return files.every((filePath): filePath is string => typeof filePath === 'string')
+    ? files
+    : [];
+};
+
+const buildTimedSlidesFromDurations = (
+  content: ContentFile,
+  durations: Array<{ duration: number; audioPath: string }>,
+  voiceId: string | undefined,
+  soundtrackPath: string,
   soundtrackDuration: number
-): ContentSlide[] => {
-  let balancedSlides = [...slides];
-  const totalFrames = Math.max(1, Math.ceil(soundtrackDuration * FPS));
+): ContentFile => {
+  let cursor = 0;
 
-  for (let iteration = 0; iteration < MAX_SPLIT_ITERATIONS; iteration++) {
-    const allocatedFrames = allocateSlideFrames(balancedSlides, totalFrames);
-    const overLimitIndex = allocatedFrames.findIndex(
-      (frames) => frames > MAX_SLIDE_DURATION_FRAMES
-    );
-
-    if (overLimitIndex === -1) {
-      return balancedSlides;
-    }
-
-    const splitSlides = splitContentSlide(balancedSlides[overLimitIndex]);
-    if (!splitSlides) {
-      return balancedSlides;
-    }
-
-    balancedSlides = [
-      ...balancedSlides.slice(0, overLimitIndex),
-      ...splitSlides,
-      ...balancedSlides.slice(overLimitIndex + 1),
-    ];
-  }
-
-  return balancedSlides;
-};
-
-const toRelativeSoundtrackPath = (soundtrackFile: string): string => {
-  const normalized = soundtrackFile.replace(/\\/g, '/');
-  const publicPrefix = 'public/';
-
-  if (normalized.startsWith(publicPrefix)) {
-    return normalized.slice(publicPrefix.length);
-  }
-
-  return normalized;
-};
-
-const buildTimedContent = ({
-  content,
-  soundtrackDuration,
-  voiceId,
-  narration,
-  soundtrackPath,
-}: {
-  content: ContentFile;
-  soundtrackDuration: number;
-  voiceId?: string;
-  narration: string;
-  soundtrackPath: string;
-}): ContentFile => {
-  const balancedSlides = rebalanceSlidesToMaxDuration(
-    content.slides,
-    soundtrackDuration
-  );
-  const totalFrames = Math.max(1, Math.ceil(soundtrackDuration * FPS));
-  const allocatedFrames = allocateSlideFrames(balancedSlides, totalFrames);
-
-  let frameCursor = 0;
-  const slides = balancedSlides.map((slide, index) => {
-    const durationInFrames = allocatedFrames[index];
-    const audioStart = frameCursor / FPS;
-    frameCursor += durationInFrames;
-    const audioEnd = frameCursor / FPS;
+  const slides = content.slides.map((slide, index) => {
+    const duration = durations[index];
+    const audioStart = cursor;
+    cursor += duration.duration;
+    const audioEnd = cursor;
 
     return {
       ...slide,
-      audioDuration: durationInFrames / FPS,
-      durationInFrames,
+      audioPath: duration.audioPath,
+      audioDuration: duration.duration,
+      durationInFrames: Math.max(1, Math.round(duration.duration * FPS)),
       audioStart,
       audioEnd,
     };
@@ -346,7 +274,7 @@ const buildTimedContent = ({
     meta: {
       ...content.meta,
       voiceId: voiceId || getContentVoiceId(content),
-      fullNarration: narration,
+      fullNarration: getFullNarration(content),
       soundtrackPath,
       soundtrackDuration,
     },
@@ -365,14 +293,12 @@ export async function generateNarrationTrack(
     apiKey,
   } = options;
 
-  if (!text.trim()) {
+  const trimmed = text.trim();
+  if (!trimmed) {
     throw new Error('Narration text is empty.');
   }
 
-  const outputDir = dirname(outputFile);
-  if (!existsSync(outputDir)) {
-    mkdirSync(outputDir, { recursive: true });
-  }
+  ensureDir(dirname(outputFile));
 
   const tts = createTTSService({
     apiKey,
@@ -380,16 +306,77 @@ export async function generateNarrationTrack(
     defaultSpeechRate: speechRate,
   });
 
-  const result = await tts.synthesize(text.trim(), voiceId, speechRate);
-  copyFileSync(result.audioPath, outputFile);
+  const result = await tts.synthesize(trimmed, voiceId, speechRate);
+  writeFileSync(outputFile, readFileSync(result.audioPath));
 
-  const metadata = await parseFile(outputFile);
-  const duration = metadata.format.duration || result.duration;
+  const duration = await getAudioDuration(outputFile);
 
   return {
     audioPath: outputFile,
     duration,
     voiceId,
+  };
+}
+
+export async function generateNarrationTimeline(
+  options: GenerateNarrationTimelineOptions
+): Promise<NarrationTimelineResult> {
+  const {
+    text,
+    voiceId,
+    speechRate,
+    outputDir = join('public', 'audio'),
+    apiKey,
+  } = options;
+
+  const segmentsText = splitNarrationIntoSegments(text);
+  if (segmentsText.length === 0) {
+    throw new Error('Narration text is empty.');
+  }
+
+  ensureDir(outputDir);
+  const segmentsDir = join(outputDir, 'segments');
+  clearDir(segmentsDir);
+
+  const tts = createTTSService({
+    apiKey,
+    defaultVoiceId: voiceId,
+    defaultSpeechRate: speechRate,
+  });
+
+  const files: string[] = [];
+  const segments: NarrationSegment[] = [];
+  let cursor = 0;
+
+  for (let index = 0; index < segmentsText.length; index += 1) {
+    const segmentText = segmentsText[index];
+    const result = await tts.synthesize(segmentText, voiceId, speechRate);
+    const outputFile = join(segmentsDir, `segment-${String(index + 1).padStart(3, '0')}.mp3`);
+    writeFileSync(outputFile, readFileSync(result.audioPath));
+    const duration = await getAudioDuration(outputFile);
+    const start = cursor;
+    const end = start + duration;
+    cursor = end;
+    files.push(outputFile);
+    segments.push({
+      id: `segment-${index + 1}`,
+      text: segmentText,
+      start,
+      end,
+      duration,
+      audioPath: toRelativePublicPath(outputFile),
+    });
+  }
+
+  const soundtrackFile = join(outputDir, DEFAULT_SOUNDTRACK_FILE);
+  concatenateAudioFiles(files, soundtrackFile);
+  const duration = await getAudioDuration(soundtrackFile);
+
+  return {
+    audioPath: soundtrackFile,
+    duration,
+    voiceId,
+    segments,
   };
 }
 
@@ -399,34 +386,35 @@ export async function syncTimelineToSoundtrack(
   const {
     contentFile,
     soundtrackFile = join('public', 'audio', DEFAULT_SOUNDTRACK_FILE),
-    soundtrackPath = toRelativeSoundtrackPath(soundtrackFile),
+    soundtrackPath = toRelativePublicPath(soundtrackFile),
     soundtrackDuration,
     voiceId,
-    fullNarration,
   } = options;
 
   const content = parseContentFile(contentFile);
-  const metadata = await parseFile(soundtrackFile);
-  const resolvedDuration =
-    soundtrackDuration || metadata.format.duration || content.meta.soundtrackDuration;
+  const resolvedDuration = soundtrackDuration || (await getAudioDuration(soundtrackFile));
+  const slides = content.slides;
 
-  if (!resolvedDuration) {
-    throw new Error('Unable to determine soundtrack duration.');
+  if (slides.length === 0) {
+    throw new Error('Content has no slides.');
   }
 
-  const narration = fullNarration || getFullNarration(content);
-  const updatedContent = buildTimedContent({
+  const perSlideDuration = resolvedDuration / slides.length;
+  const updated = buildTimedSlidesFromDurations(
     content,
-    soundtrackDuration: resolvedDuration,
+    slides.map(() => ({
+      duration: perSlideDuration,
+      audioPath: soundtrackPath,
+    })),
     voiceId,
-    narration,
     soundtrackPath,
-  });
+    resolvedDuration
+  );
 
-  writeFileSync(contentFile, JSON.stringify(updatedContent, null, 2));
+  writeFileSync(contentFile, JSON.stringify(updated, null, 2));
 
   return {
-    content: updatedContent,
+    content: updated,
     outputDir: dirname(soundtrackFile),
     soundtrackPath,
     soundtrackDuration: resolvedDuration,
@@ -443,25 +431,65 @@ export async function generateAudio(
     outputDir = 'public/audio',
     apiKey,
   } = options;
+
   const content = parseContentFile(contentFile);
-  const narration = getFullNarration(content);
-  const soundtrackOutputPath = join(outputDir, DEFAULT_SOUNDTRACK_FILE);
+  const resolvedVoiceId = voiceId || getContentVoiceId(content);
+  const slidesDir = join(outputDir, 'slides');
+  clearDir(slidesDir);
 
-  console.log(`Generating full narration audio for ${content.slides.length} slides...`);
-  const narrationResult = await generateNarrationTrack({
-    text: narration,
-    voiceId: voiceId || getContentVoiceId(content),
-    speechRate,
-    outputFile: soundtrackOutputPath,
+  const tts = createTTSService({
     apiKey,
+    defaultVoiceId: resolvedVoiceId,
+    defaultSpeechRate: speechRate,
   });
 
-  return syncTimelineToSoundtrack({
-    contentFile,
-    soundtrackFile: narrationResult.audioPath,
-    soundtrackPath: `audio/${DEFAULT_SOUNDTRACK_FILE}`,
-    soundtrackDuration: narrationResult.duration,
-    voiceId: voiceId || getContentVoiceId(content),
-    fullNarration: narration,
-  });
+  const durations: Array<{ duration: number; audioPath: string }> = [];
+  const files: string[] = [];
+
+  for (let index = 0; index < content.slides.length; index += 1) {
+    const slide = content.slides[index];
+    const outputFile = join(slidesDir, `slide-${String(index + 1).padStart(3, '0')}.mp3`);
+    const segmentFiles = resolveSegmentAudioFiles(slide, outputDir);
+
+    if (segmentFiles.length > 0) {
+      concatenateAudioFiles(segmentFiles, outputFile);
+    } else {
+      const text = getNarrationText(slide);
+      if (!text) {
+        throw new Error(`Slide ${index + 1} has no narration text.`);
+      }
+
+      const result = await tts.synthesize(text, resolvedVoiceId, speechRate);
+      writeFileSync(outputFile, readFileSync(result.audioPath));
+    }
+
+    const duration = await getAudioDuration(outputFile);
+    files.push(outputFile);
+    durations.push({
+      duration,
+      audioPath: toRelativePublicPath(outputFile),
+    });
+  }
+
+  const soundtrackFile = join(outputDir, DEFAULT_SOUNDTRACK_FILE);
+  concatenateAudioFiles(files, soundtrackFile);
+  const soundtrackDuration = await getAudioDuration(soundtrackFile);
+  const soundtrackPath = toRelativePublicPath(soundtrackFile);
+
+  const updated = buildTimedSlidesFromDurations(
+    content,
+    durations,
+    resolvedVoiceId,
+    soundtrackPath,
+    soundtrackDuration
+  );
+
+  writeFileSync(contentFile, JSON.stringify(updated, null, 2));
+
+  return {
+    content: updated,
+    outputDir,
+    soundtrackPath,
+    soundtrackDuration,
+  };
 }

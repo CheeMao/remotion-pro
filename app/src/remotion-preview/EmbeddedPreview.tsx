@@ -34,6 +34,9 @@ interface PreviewComplexSlide extends TimelineFields {
   id?: string;
   type?: string;
   data?: Record<string, unknown>;
+  title?: string;
+  subtitle?: string;
+  points?: string[];
 }
 
 export interface PreviewProjectData {
@@ -166,6 +169,53 @@ const RichTimeline: React.FC<{
   );
 };
 
+const GlassTimeline: React.FC<{
+  slides: PreviewComplexSlide[];
+  soundtrackUrl?: string;
+}> = ({ slides, soundtrackUrl }) => {
+  return (
+    <AbsoluteFill style={{ background: '#1e1b4b' }}>
+      {soundtrackUrl ? <Audio src={soundtrackUrl} /> : null}
+      {slides.map((slide, index) => {
+        const { from, duration } = getSlideTiming(
+          slides as Array<Record<string, unknown>>,
+          index,
+          FPS,
+          DEFAULT_SLIDE_DURATION
+        );
+
+        return (
+          <Sequence key={slide.id || index} from={from} durationInFrames={duration}>
+            <GlassSlide
+              title={slide.title || `Slide ${index + 1}`}
+              subtitle={slide.subtitle}
+              points={slide.points}
+              type={
+                slide.type as
+                  | 'default'
+                  | 'steps'
+                  | 'timeline'
+                  | 'chart'
+                  | 'highlight'
+                  | 'list'
+                  | 'compare'
+                  | 'stats'
+                  | 'quote'
+                  | 'hero'
+                  | undefined
+              }
+              data={slide.data}
+              index={index}
+              totalSlides={slides.length}
+              durationInFrames={duration}
+            />
+          </Sequence>
+        );
+      })}
+    </AbsoluteFill>
+  );
+};
+
 const TechTimeline: React.FC<{
   slides: PreviewComplexSlide[];
   soundtrackUrl?: string;
@@ -214,11 +264,9 @@ const PreviewComposition: React.FC<PreviewProjectData> = ({
       );
     case 'GlassShow':
       return (
-        <SimpleTimeline
-          slides={slides as PreviewSimpleSlide[]}
+        <GlassTimeline
+          slides={slides as PreviewComplexSlide[]}
           soundtrackUrl={soundtrackUrl}
-          background="#1e1b4b"
-          SlideComponent={GlassSlide}
         />
       );
     case 'NeuShow':

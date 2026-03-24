@@ -238,6 +238,8 @@ async fn save_slides(
     raw_text: String,
     slides: Vec<Value>,
     content_path: String,
+    soundtrack_path: Option<String>,
+    soundtrack_duration: Option<f64>,
 ) -> Result<String, String> {
     let project_dir = get_project_dir()?;
     let content_file = resolve_project_path(&project_dir, &content_path);
@@ -270,12 +272,16 @@ async fn save_slides(
             } else {
                 Some(raw_text)
             },
-            soundtrack_path: existing_meta
-                .as_ref()
-                .and_then(|meta| meta.soundtrack_path.clone()),
-            soundtrack_duration: existing_meta
-                .as_ref()
-                .and_then(|meta| meta.soundtrack_duration),
+            soundtrack_path: soundtrack_path.or_else(|| {
+                existing_meta
+                    .as_ref()
+                    .and_then(|meta| meta.soundtrack_path.clone())
+            }),
+            soundtrack_duration: soundtrack_duration.or_else(|| {
+                existing_meta
+                    .as_ref()
+                    .and_then(|meta| meta.soundtrack_duration)
+            }),
         },
         slides,
     };
@@ -584,6 +590,110 @@ async fn generate_narration(
 }
 
 #[tauri::command(rename_all = "camelCase")]
+async fn generate_storyboard_timeline(
+    raw_text: String,
+    voice_id: String,
+    api_key: String,
+    speech_rate: Option<f64>,
+    content_path: String,
+) -> Result<String, String> {
+    if raw_text.trim().is_empty() {
+        return Err("Narration text is empty.".to_string());
+    }
+
+    let project_dir = get_project_dir()?;
+    let (content_file, text_file, _audio_file, _audio_repo_relative, _) =
+        derive_project_paths(&project_dir, &content_path)?;
+    let content_dir = content_file
+        .parent()
+        .map(Path::to_path_buf)
+        .ok_or_else(|| "Failed to resolve content directory.".to_string())?;
+
+    if !content_dir.exists() {
+        fs::create_dir_all(&content_dir)
+            .map_err(|e| format!("Failed to create content directory: {}", e))?;
+    }
+
+    let audio_dir = content_dir.join("audio");
+    if !audio_dir.exists() {
+        fs::create_dir_all(&audio_dir)
+            .map_err(|e| format!("Failed to create audio directory: {}", e))?;
+    }
+
+    fs::write(&text_file, raw_text)
+        .map_err(|e| format!("Failed to write narration text: {}", e))?;
+
+    let text_repo_relative = repo_relative_path(&project_dir, &text_file)?;
+    let audio_dir_repo_relative = repo_relative_path(&project_dir, &audio_dir)?;
+
+    #[cfg(target_os = "windows")]
+    let output = {
+        let mut command = Command::new("cmd");
+        command.args([
+            "/C",
+            "npx",
+            "tsx",
+            "src/cli/index.ts",
+            "narrate-timeline",
+            &text_repo_relative,
+            "-v",
+            &voice_id,
+            "-o",
+            &audio_dir_repo_relative,
+            "-k",
+            &api_key,
+        ]);
+
+        if let Some(rate) = speech_rate {
+            command.arg("--speech-rate").arg(rate.to_string());
+        }
+
+        command
+            .current_dir(&project_dir)
+            .output()
+            .map_err(|e| format!("Failed to generate narration timeline: {}", e))?
+    };
+
+    #[cfg(not(target_os = "windows"))]
+    let output = {
+        let mut command = Command::new("npx");
+        command.args([
+            "tsx",
+            "src/cli/index.ts",
+            "narrate-timeline",
+            &text_repo_relative,
+            "-v",
+            &voice_id,
+            "-o",
+            &audio_dir_repo_relative,
+            "-k",
+            &api_key,
+        ]);
+
+        if let Some(rate) = speech_rate {
+            command.arg("--speech-rate").arg(rate.to_string());
+        }
+
+        command
+            .current_dir(&project_dir)
+            .output()
+            .map_err(|e| format!("Failed to generate narration timeline: {}", e))?
+    };
+
+    let stdout = String::from_utf8_lossy(&output.stdout).to_string();
+    let stderr = String::from_utf8_lossy(&output.stderr).to_string();
+
+    if !output.status.success() {
+        return Err(format!(
+            "Narration timeline generation failed:\n{}\n{}",
+            stdout, stderr
+        ));
+    }
+
+    Ok(stdout)
+}
+
+#[tauri::command(rename_all = "camelCase")]
 async fn sync_timeline(voice_id: String, content_path: String) -> Result<String, String> {
     let project_dir = get_project_dir()?;
     let (content_file, _, soundtrack_file, soundtrack_repo_relative, soundtrack_static_path) =
@@ -751,6 +861,7 @@ pub fn run() {
             ensure_remotion_running,
             synthesize_voice,
             generate_narration,
+            generate_storyboard_timeline,
             generate_audio,
             sync_timeline,
             load_preview_project,

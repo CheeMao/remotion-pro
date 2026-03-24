@@ -17,11 +17,12 @@ import {
   DynamicSlideShowProps,
   calculateTotalFrames,
 } from './templates/DynamicSlideShow';
-import { AudioSlideData, ContentFile } from './templates/types';
+import { AudioSlideData, ContentFile, ContentSlide } from './templates/types';
+import { GeneratedTemplateRenderer } from './templates/GeneratedTemplateRenderer';
 import { getTemplateContentPath, toStaticContentPath } from './project-content';
 
 interface LoadedJsonData {
-  slides: AudioSlideData[];
+  slides: ContentSlide[];
   template: string;
   soundtrackPath?: string;
 }
@@ -52,21 +53,6 @@ const defaultSlides: AudioSlideData[] = [
     durationInFrames: DEFAULT_DURATION,
   },
 ];
-
-const TEMPLATE_MAP = {
-  SlideShow,
-  GlassShow,
-  NeuShow,
-  RichShow,
-  TechShow,
-  AIShow,
-  NeonShow,
-  LuxeShow,
-  LiquidShow,
-  LiquidBriefShow,
-  FrostedShow,
-  KnowledgeShow,
-};
 
 const getQueryParam = (name: string): string | undefined => {
   if (typeof window === 'undefined') {
@@ -122,6 +108,21 @@ const toAudioSlides = (content: ContentFile): AudioSlideData[] => {
   }));
 };
 
+const coerceToAudioSlides = (slides: ContentSlide[]): AudioSlideData[] => {
+  return slides.map((slide, index) => ({
+    id: `slide-${index}`,
+    title: slide.title || `Slide ${index + 1}`,
+    subtitle: slide.subtitle,
+    points: slide.points,
+    narration: slide.narration,
+    audioDuration: slide.audioDuration,
+    durationInFrames: slide.durationInFrames,
+    audioStart: slide.audioStart,
+    audioEnd: slide.audioEnd,
+    audioPath: slide.audioPath,
+  }));
+};
+
 const loadSlidesFromJson = async (
   contentPath?: string,
   template?: string
@@ -144,13 +145,13 @@ const loadSlidesFromJson = async (
 
     const data: ContentFile = await response.json();
     return {
-      slides: toAudioSlides(data),
+      slides: data.slides,
       template: data.meta.template || DEFAULT_TEMPLATE,
       soundtrackPath: data.meta.soundtrackPath || data.meta.soundtrack_path,
     };
   } catch {
     return {
-      slides: defaultSlides,
+      slides: defaultSlides as unknown as ContentSlide[],
       template: DEFAULT_TEMPLATE,
     };
   }
@@ -185,7 +186,7 @@ const resolveGeneratedVideoData = async (
 ): Promise<LoadedJsonData> => {
   if (Array.isArray(props.slides) && props.slides.length > 0) {
     return {
-      slides: props.slides,
+      slides: props.slides as unknown as ContentSlide[],
       template: props.template || DEFAULT_TEMPLATE,
       soundtrackPath: props.soundtrackPath,
     };
@@ -230,16 +231,20 @@ const DynamicLoader: React.FC<GeneratedVideoProps> = ({
   if (data.template === 'DynamicSlideShow' || data.template === 'GeneratedVideo') {
     return (
       <DynamicSlideShow
-        slides={data.slides}
+        slides={coerceToAudioSlides(data.slides)}
         defaultSlideDuration={defaultSlideDuration}
         soundtrackPath={data.soundtrackPath}
       />
     );
   }
 
-  const TemplateComponent =
-    TEMPLATE_MAP[data.template as keyof typeof TEMPLATE_MAP] || SlideShow;
-  return <TemplateComponent />;
+  return (
+    <GeneratedTemplateRenderer
+      template={data.template}
+      slides={data.slides as unknown as Array<Record<string, unknown>>}
+      soundtrackPath={data.soundtrackPath}
+    />
+  );
 };
 
 const DynamicSlideShowComposition: React.FC<Record<string, unknown>> = (props) => {

@@ -191,41 +191,6 @@ const FloatingSphere: React.FC<{
 };
 
 // ===== 玻璃胶囊标签 =====
-const GlassPill: React.FC<{
-  text: string;
-  frame: number;
-  delay: number;
-  color?: string;
-}> = ({ text, frame, delay, color }) => {
-  const progress = spring({
-    frame: frame - delay,
-    fps: 30,
-    config: { damping: 12 },
-  });
-
-  return (
-    <div
-      style={{
-        display: "inline-flex",
-        alignItems: "center",
-        padding: "10px 20px",
-        background: color ? `${color}25` : "rgba(255,255,255,0.6)",
-        backdropFilter: "blur(20px)",
-        borderRadius: 24,
-        border: `1px solid ${color ? `${color}40` : "rgba(255,255,255,0.8)"}`,
-        boxShadow: `0 4px 12px rgba(0,0,0,0.04), inset 0 1px 1px rgba(255,255,255,0.9)`,
-        fontSize: 18,
-        fontWeight: 600,
-        color: color || colors.textSecondary,
-        opacity: progress,
-        transform: `translateY(${(1 - progress) * 10}px)`,
-      }}
-    >
-      {text}
-    </div>
-  );
-};
-
 // ===== 动画数字 =====
 const AnimatedNumber: React.FC<{
   value: number;

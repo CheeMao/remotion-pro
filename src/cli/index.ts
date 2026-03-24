@@ -69,6 +69,24 @@ program
   });
 
 program
+  .command('narrate-timeline')
+  .description('Generate narration segments timeline from a text file')
+  .argument('<text-file>', 'Path to narration text file')
+  .option('-v, --voice <voice-id>', 'Voice ID for TTS')
+  .option('-r, --speech-rate <rate>', 'Speech rate for TTS (0.5-2.0)', parseSpeechRate)
+  .option('-o, --output-dir <dir>', 'Output directory for narration timeline assets', 'public/audio')
+  .option('-k, --api-key <key>', 'DashScope API Key (or set DASHSCOPE_API_KEY env)')
+  .action(async (textFile, options) => {
+    await workflow.generateNarrationTimelineOnly({
+      textFile,
+      voiceId: options.voice,
+      speechRate: options.speechRate,
+      outputDir: options.outputDir,
+      apiKey: options.apiKey || process.env.DASHSCOPE_API_KEY,
+    });
+  });
+
+program
   .command('timeline')
   .description('Sync slide timing from an existing narration soundtrack')
   .argument('<content-file>', 'Path to content JSON file')
