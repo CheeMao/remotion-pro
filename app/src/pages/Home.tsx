@@ -190,7 +190,7 @@ export default function Home() {
 
           {isExtracting && (
             <div style={{ textAlign: 'center', padding: '20px 0' }}>
-              <Spin size="large" />
+              <Spin size={40} />
               <Text type="secondary" style={{ marginTop: 8, display: 'block' }}>
                 正在云端转写视频语音，请稍候...
               </Text>
@@ -209,7 +209,7 @@ export default function Home() {
             </Text>
           </div>
 
-          <Tabs defaultActiveKey={originalText ? 'original' : 'edit'}>
+          <Tabs defaultActiveTab={originalText ? 'original' : 'edit'}>
             {originalText && (
               <TabPane key="original" title="原文案（提取）">
                 <Space direction="vertical" size="small" style={{ width: '100%' }}>

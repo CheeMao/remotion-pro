@@ -9,8 +9,6 @@ import {
   Message,
   Modal,
   Spin,
-  Collapse,
-  Tabs,
 } from '@arco-design/web-react';
 import {
   IconPlus,
@@ -272,7 +270,7 @@ export default function Editor() {
         )}
 
         <Card style={{ flex: 1, overflow: 'auto' }}>
-        <Space direction="vertical" size="large" style={{ width: '100%' }}>
+          <Space direction="vertical" size="large" style={{ width: '100%' }}>
           <div>
             <Text>标题</Text>
             <Input
@@ -332,5 +330,6 @@ export default function Editor() {
         </Space>
       </Card>
     </div>
+  </div>
   );
 }
