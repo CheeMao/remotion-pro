@@ -12,6 +12,7 @@ export interface Project {
   id: string;
   title: string;
   rawText: string;
+  originalText?: string; // 原文案（从抖音提取的未修改文案）
   slides: Slide[];
   template: string;
   voiceId: string;

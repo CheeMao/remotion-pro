@@ -5,6 +5,7 @@ use std::net::{SocketAddr, TcpStream};
 use std::path::{Path, PathBuf};
 use std::process::Command;
 use base64::Engine;
+use regex::Regex;
 
 #[cfg(target_os = "windows")]
 use std::os::windows::process::CommandExt;
@@ -58,6 +59,270 @@ struct PreviewProjectData {
     soundtrack_file: Option<String>,
     soundtrack_data_url: Option<String>,
     soundtrack_duration: Option<f64>,
+}
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+struct DouyinParseResult {
+    title: String,
+    video_url: String,
+    video_id: String,
+}
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+struct TranscriptionResult {
+    text: String,
+    duration: f64,
+}
+
+/// 解析抖音分享链接，获取视频信息
+#[tauri::command]
+async fn parse_douyin_url(share_text: String) -> Result<DouyinParseResult, String> {
+    // Step 1: 从文本中提取URL
+    let url_pattern = Regex::new(r"http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+")
+        .map_err(|e| format!("Regex error: {}", e))?;
+
+    let urls: Vec<&str> = url_pattern
+        .find_iter(&share_text)
+        .map(|m| m.as_str())
+        .collect();
+
+    if urls.is_empty() {
+        return Err("未找到有效的分享链接".to_string());
+    }
+
+    let share_url = urls[0];
+
+    // Step 2: 使用iPhone User-Agent获取重定向后的真实URL
+    let headers = reqwest::header::HeaderMap::new();
+    let client = reqwest::Client::builder()
+        .user_agent("Mozilla/5.0 (iPhone; CPU iPhone OS 17_2 like Mac OS X) AppleWebKit/605.1.15")
+        .build()
+        .map_err(|e| format!("Failed to create client: {}", e))?;
+
+    // 短链接会重定向到长链接
+    let response = client
+        .get(share_url)
+        .send()
+        .await
+        .map_err(|e| format!("Failed to fetch share URL: {}", e))?;
+
+    let final_url = response.url().as_str().to_string();
+
+    // Step 3: 从URL中提取视频ID
+    // URL格式: https://www.iesdouyin.com/share/video/VIDEO_ID
+    let video_id = final_url
+        .split('/')
+        .last()
+        .unwrap_or("")
+        .split('?')
+        .next()
+        .unwrap_or("")
+        .to_string();
+
+    if video_id.is_empty() {
+        return Err("无法从URL中提取视频ID".to_string());
+    }
+
+    // Step 4: 构建标准分享页URL
+    let share_page_url = format!("https://www.iesdouyin.com/share/video/{}", video_id);
+
+    // Step 5: 获取页面HTML
+    let html_text = client
+        .get(&share_page_url)
+        .send()
+        .await
+        .map_err(|e| format!("Failed to fetch video page: {}", e))?
+        .text()
+        .await
+        .map_err(|e| format!("Failed to read response: {}", e))?;
+
+    // Step 6: 从HTML中提取视频信息(JSON)
+    // 抖音将视频数据存储在 window._ROUTER_DATA 变量中
+    let pattern = Regex::new(r"window\._ROUTER_DATA\s*=\s*(.*?)</script>")
+        .map_err(|e| format!("Regex error: {}", e))?;
+
+    let match_data = pattern
+        .captures(&html_text)
+        .and_then(|c| c.get(1))
+        .map(|m| m.as_str().trim())
+        .ok_or_else(|| "无法从HTML中解析视频信息".to_string())?;
+
+    let json_data: Value = serde_json::from_str(match_data)
+        .map_err(|e| format!("Failed to parse JSON: {}", e))?;
+
+    // Step 7: 提取视频数据
+    let video_info_res = json_data
+        .get("loaderData")
+        .and_then(|l| {
+            l.get(format!("video_{}/page", video_id))
+                .or_else(|| l.get(format!("note_{}/page", video_id)))
+        })
+        .and_then(|v| v.get("videoInfoRes"))
+        .ok_or_else(|| "无法解析视频或图文信息".to_string())?;
+
+    let item_list = video_info_res
+        .get("item_list")
+        .and_then(|i| i.as_array())
+        .and_then(|arr| arr.first())
+        .ok_or_else(|| "无法获取视频列表".to_string())?;
+
+    // Step 8: 获取无水印视频URL
+    let video_url = item_list
+        .get("video")
+        .and_then(|v| v.get("play_addr"))
+        .and_then(|p| p.get("url_list"))
+        .and_then(|u| u.as_array())
+        .and_then(|arr| arr.first())
+        .and_then(|url| url.as_str())
+        .map(|url| url.replace("playwm", "play"))
+        .ok_or_else(|| "无法获取视频URL".to_string())?;
+
+    // 提取视频描述（标题）
+    let desc = item_list
+        .get("desc")
+        .and_then(|d| d.as_str())
+        .map(|s| s.trim().to_string())
+        .filter(|s| !s.is_empty())
+        .unwrap_or_else(|| format!("douyin_{}", video_id));
+
+    Ok(DouyinParseResult {
+        title: desc,
+        video_url,
+        video_id,
+    })
+}
+
+/// 使用阿里云DashScope转写视频语音
+#[tauri::command]
+async fn transcribe_douyin_video(video_url: String, api_key: String) -> Result<TranscriptionResult, String> {
+    if api_key.is_empty() {
+        return Err("请先配置阿里云DashScope API Key".to_string());
+    }
+
+    // Step 1: 提交异步转写任务
+    let client = reqwest::Client::new();
+    let task_response = client
+        .post("https://dashscope.aliyuncs.com/api/v1/services/audio/asr/transcription")
+        .header("Authorization", format!("Bearer {}", api_key))
+        .header("Content-Type", "application/json")
+        .json(&serde_json::json!({
+            "model": "paraformer-v2",
+            "input": {
+                "file_urls": [video_url]
+            },
+            "parameters": {
+                "language_hints": ["zh-CN"]
+            }
+        }))
+        .send()
+        .await
+        .map_err(|e| format!("Failed to submit transcription task: {}", e))?;
+
+    let task_json: Value = task_response
+        .json()
+        .await
+        .map_err(|e| format!("Failed to parse task response: {}", e))?;
+
+    let task_id = task_json
+        .get("output")
+        .and_then(|o| o.get("task_id"))
+        .and_then(|t| t.as_str())
+        .ok_or_else(|| format!("无法获取task_id: {:?}", task_json))?;
+
+    // Step 2: 轮询等待任务完成
+    let mut attempts = 0;
+    let max_attempts = 60; // 最多等待60秒
+    let mut transcription_url = String::new();
+
+    while attempts < max_attempts {
+        tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;
+
+        let query_response = client
+            .get(format!(
+                "https://dashscope.aliyuncs.com/api/v1/tasks/{}",
+                task_id
+            ))
+            .header("Authorization", format!("Bearer {}", api_key))
+            .send()
+            .await
+            .map_err(|e| format!("Failed to query task: {}", e))?;
+
+        let query_json: Value = query_response
+            .json()
+            .await
+            .map_err(|e| format!("Failed to parse query response: {}", e))?;
+
+        let status = query_json
+            .get("output")
+            .and_then(|o| o.get("task_status"))
+            .and_then(|s| s.as_str())
+            .unwrap_or("UNKNOWN");
+
+        match status {
+            "SUCCEEDED" => {
+                transcription_url = query_json
+                    .get("output")
+                    .and_then(|o| o.get("results"))
+                    .and_then(|r| r.as_array())
+                    .and_then(|arr| arr.first())
+                    .and_then(|item| item.get("transcription_url"))
+                    .and_then(|u| u.as_str())
+                    .map(|s| s.to_string())
+                    .ok_or_else(|| "无法获取转写结果URL".to_string())?;
+                break;
+            }
+            "FAILED" | "CANCELLED" => {
+                return Err(format!("转写任务失败: {:?}", query_json));
+            }
+            _ => {
+                // PENDING or RUNNING, continue waiting
+                attempts += 1;
+            }
+        }
+    }
+
+    if transcription_url.is_empty() {
+        return Err("转写任务超时".to_string());
+    }
+
+    // Step 3: 下载转写结果
+    let result_response = client
+        .get(&transcription_url)
+        .send()
+        .await
+        .map_err(|e| format!("Failed to download transcription: {}", e))?;
+
+    let result_json: Value = result_response
+        .json()
+        .await
+        .map_err(|e| format!("Failed to parse transcription JSON: {}", e))?;
+
+    // Step 4: 提取转写文本
+    let transcripts = result_json
+        .get("transcripts")
+        .and_then(|t| t.as_array())
+        .ok_or_else(|| "转写结果格式错误".to_string())?;
+
+    if transcripts.is_empty() {
+        return Err("转写结果为空".to_string());
+    }
+
+    let text = transcripts
+        .iter()
+        .filter_map(|t| t.get("text").and_then(|txt| txt.as_str()))
+        .collect::<Vec<_>>()
+        .join("\n");
+
+    let duration = transcripts
+        .last()
+        .and_then(|t| t.get("end_time"))
+        .and_then(|e| e.as_f64())
+        .unwrap_or(0.0)
+        / 1000.0; // 毫秒转秒
+
+    Ok(TranscriptionResult { text, duration })
 }
 
 const REMOTION_PORT: u16 = 32123;
@@ -866,6 +1131,8 @@ pub fn run() {
             sync_timeline,
             load_preview_project,
             render_video,
+            parse_douyin_url,
+            transcribe_douyin_video,
         ])
         .setup(|app| {
             if cfg!(debug_assertions) {

@@ -9,6 +9,8 @@ import {
   Message,
   Modal,
   Spin,
+  Collapse,
+  Tabs,
 } from '@arco-design/web-react';
 import {
   IconPlus,
@@ -249,7 +251,27 @@ export default function Editor() {
       </Card>
 
       {/* 右侧：编辑区 */}
-      <Card style={{ flex: 1, overflow: 'auto' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 16 }}>
+        {/* 原文案显示（如果有的话） */}
+        {project.originalText && project.originalText !== project.rawText && (
+          <Card size="small" title="原文案（来自抖音提取）" style={{ flexShrink: 0 }}>
+            <div
+              style={{
+                maxHeight: 100,
+                overflow: 'auto',
+                padding: 8,
+                backgroundColor: '#f5f5f5',
+                borderRadius: 4,
+                fontSize: 13,
+                color: '#666',
+              }}
+            >
+              {project.originalText}
+            </div>
+          </Card>
+        )}
+
+        <Card style={{ flex: 1, overflow: 'auto' }}>
         <Space direction="vertical" size="large" style={{ width: '100%' }}>
           <div>
             <Text>标题</Text>
