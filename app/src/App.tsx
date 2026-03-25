@@ -903,14 +903,82 @@ function HomePage(props: {
   onProjectChange: (project: Project | null) => void;
 }) {
   const navigate = useNavigate();
-  const [text, setText] = React.useState(props.project?.rawText || '');
+  // 文案状态
+  const [originalText, setOriginalText] = React.useState(''); // 原文案（提取的）
+  const [editedText, setEditedText] = React.useState(props.project?.rawText || ''); // 修改后的文案
   const [template, setTemplate] = React.useState(props.project?.template || 'SlideShow');
   const [loading, setLoading] = React.useState(false);
   const [status, setStatus] = React.useState('');
   const [error, setError] = React.useState('');
 
+  // 抖音提取状态
+  const [douyinLink, setDouyinLink] = React.useState('');
+  const [isExtracting, setIsExtracting] = React.useState(false);
+  const [activeTab, setActiveTab] = React.useState<'original' | 'edit'>('edit');
+
+  // 从设置获取 API Key
+  const getApiKey = () => {
+    const saved = localStorage.getItem('videomaker-settings');
+    if (saved) {
+      const settings = JSON.parse(saved);
+      return settings.bailianApiKey || '';
+    }
+    return '';
+  };
+
+  // 从抖音链接提取文案
+  const handleExtractFromDouyin = async () => {
+    if (!douyinLink.trim()) {
+      setError('请输入抖音分享链接');
+      return;
+    }
+
+    const apiKey = getApiKey();
+    if (!apiKey) {
+      setError('请先配置阿里云 DashScope API Key（在设置页面）');
+      return;
+    }
+
+    setIsExtracting(true);
+    setError('');
+    setStatus('正在解析抖音链接...');
+
+    try {
+      // Step 1: 解析分享链接获取视频URL
+      const parseResult = await invokeTauri<{ title: string; videoUrl: string; videoId: string }>('parse_douyin_url', {
+        shareText: douyinLink,
+      });
+
+      setStatus(`已获取视频: ${parseResult.title}，正在转写语音...`);
+
+      // Step 2: 调用语音转写
+      const transcribeResult = await invokeTauri<{ text: string; duration: number }>('transcribe_douyin_video', {
+        videoUrl: parseResult.videoUrl,
+        apiKey: apiKey,
+      });
+
+      // 设置原文案和修改后的文案
+      setOriginalText(transcribeResult.text);
+      setEditedText(transcribeResult.text);
+      setActiveTab('original');
+
+      setStatus(`文案提取成功！视频时长: ${Math.round(transcribeResult.duration)}秒`);
+      setTimeout(() => setStatus(''), 3000);
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : String(cause));
+    } finally {
+      setIsExtracting(false);
+    }
+  };
+
+  // 复制原文案到修改区
+  const handleCopyToEdit = () => {
+    setEditedText(originalText);
+    setActiveTab('edit');
+  };
+
   const handleGenerate = async () => {
-    if (!text.trim()) {
+    if (!editedText.trim()) {
       setError('请输入完整口播文案');
       return;
     }
@@ -922,14 +990,14 @@ function HomePage(props: {
       const projectId = `${Date.now()}`;
       const contentPath = getGeneratedProjectContentPath(template, projectId);
       setStatus('正在生成语义时间轴...');
-      const timeline = await generateStoryboardTimeline(text, contentPath);
+      const timeline = await generateStoryboardTimeline(editedText, contentPath);
 
       setStatus('正在规划最终分页...');
-      const slides = await generateSlidesWithAi(text, template, timeline);
+      const slides = await generateSlidesWithAi(editedText, template, timeline);
 
       const project: Project = {
         id: projectId,
-        rawText: text,
+        rawText: editedText,
         slides,
         template,
         contentPath,
@@ -952,26 +1020,137 @@ function HomePage(props: {
     <div style={PAGE_FRAME_STYLE}>
       <div style={PAGE_HEADER_STYLE}>
         <h2 style={{ marginTop: 0, marginBottom: 4, color: '#1d2129', fontSize: 18, letterSpacing: '-0.02em' }}>生成项目</h2>
-        <p style={{ margin: 0, color: '#86909c', fontSize: 12, lineHeight: 1.5 }}>粘贴完整口播文案，选择模板后直接生成可编辑项目。</p>
+        <p style={{ margin: 0, color: '#86909c', fontSize: 12, lineHeight: 1.5 }}>从抖音链接提取文案，或直接输入文案生成视频。</p>
       </div>
-      <div style={{ ...PANEL_STYLE, width: '100%', display: 'flex', flexDirection: 'column', gap: SPACING.lg }}>
-        <div style={FIELD_GROUP_STYLE}>
-          <label style={FIELD_LABEL_STYLE}>
-            口播文案
-          </label>
-          <textarea
-            value={text}
-            onChange={(event) => setText(event.target.value)}
-            rows={10}
-            style={{
-              resize: 'vertical',
-              ...SOFT_INPUT_STYLE,
-              minHeight: 232,
-              padding: '14px 16px',
-              lineHeight: 1.6,
-            }}
-          />
+
+      {/* 抖音链接提取区域 */}
+      <div style={{ ...PANEL_STYLE, width: '100%', marginBottom: SPACING.lg }}>
+        <div style={{ marginBottom: SPACING.md }}>
+          <h3 style={{ margin: '0 0 8px 0', fontSize: 14, color: '#1d2129' }}>📱 抖音链接提取</h3>
+          <p style={{ margin: 0, fontSize: 12, color: '#86909c' }}>粘贴抖音分享链接，自动提取视频口播文案</p>
         </div>
+        <div style={{ display: 'flex', gap: SPACING.md, alignItems: 'flex-start' }}>
+          <input
+            type="text"
+            placeholder="https://v.douyin.com/xxxxx 或完整分享文本..."
+            value={douyinLink}
+            onChange={(e) => setDouyinLink(e.target.value)}
+            style={{ ...SOFT_INPUT_STYLE, flex: 1 }}
+          />
+          <button
+            onClick={handleExtractFromDouyin}
+            disabled={isExtracting}
+            style={{
+              ...PRIMARY_BUTTON_STYLE,
+              background: isExtracting ? '#94b8ff' : '#165dff',
+              cursor: isExtracting ? 'not-allowed' : 'pointer',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            {isExtracting ? '提取中...' : '提取文案'}
+          </button>
+        </div>
+        {isExtracting && (
+          <div style={{ marginTop: SPACING.md, padding: '12px', background: '#f2f3f5', borderRadius: 6, textAlign: 'center' }}>
+            <span style={{ color: '#4e5969', fontSize: 13 }}>⏳ 正在云端转写视频语音，请稍候...</span>
+          </div>
+        )}
+      </div>
+
+      {/* 文案编辑区域 */}
+      <div style={{ ...PANEL_STYLE, width: '100%', display: 'flex', flexDirection: 'column', gap: SPACING.lg }}>
+        {/* 标签切换 */}
+        <div style={{ display: 'flex', gap: 4, borderBottom: '1px solid #e5e6eb', paddingBottom: 8 }}>
+          {originalText && (
+            <button
+              onClick={() => setActiveTab('original')}
+              style={{
+                padding: '8px 16px',
+                border: 'none',
+                background: activeTab === 'original' ? '#e8f3ff' : 'transparent',
+                color: activeTab === 'original' ? '#165dff' : '#4e5969',
+                borderRadius: 6,
+                cursor: 'pointer',
+                fontSize: 14,
+                fontWeight: activeTab === 'original' ? 600 : 400,
+              }}
+            >
+              原文案（提取）
+            </button>
+          )}
+          <button
+            onClick={() => setActiveTab('edit')}
+            style={{
+              padding: '8px 16px',
+              border: 'none',
+              background: activeTab === 'edit' ? '#e8f3ff' : 'transparent',
+              color: activeTab === 'edit' ? '#165dff' : '#4e5969',
+              borderRadius: 6,
+              cursor: 'pointer',
+              fontSize: 14,
+              fontWeight: activeTab === 'edit' ? 600 : 400,
+            }}
+          >
+            修改后的文案
+          </button>
+        </div>
+
+        {/* 原文案面板 */}
+        {activeTab === 'original' && originalText && (
+          <div style={FIELD_GROUP_STYLE}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <label style={FIELD_LABEL_STYLE}>原文案（从抖音提取）</label>
+              <button
+                onClick={handleCopyToEdit}
+                style={{
+                  padding: '6px 12px',
+                  fontSize: 12,
+                  border: '1px solid #165dff',
+                  background: 'transparent',
+                  color: '#165dff',
+                  borderRadius: 4,
+                  cursor: 'pointer',
+                }}
+              >
+                复制到修改区
+              </button>
+            </div>
+            <div
+              style={{
+                ...SOFT_INPUT_STYLE,
+                minHeight: 200,
+                padding: '14px 16px',
+                lineHeight: 1.6,
+                background: '#f7f8fa',
+                whiteSpace: 'pre-wrap',
+                overflow: 'auto',
+              }}
+            >
+              {originalText}
+            </div>
+          </div>
+        )}
+
+        {/* 修改后的文案面板 */}
+        {activeTab === 'edit' && (
+          <div style={FIELD_GROUP_STYLE}>
+            <label style={FIELD_LABEL_STYLE}>
+              {originalText ? '修改后的文案（将用于生成视频）' : '口播文案'}
+            </label>
+            <textarea
+              value={editedText}
+              onChange={(event) => setEditedText(event.target.value)}
+              rows={10}
+              style={{
+                resize: 'vertical',
+                ...SOFT_INPUT_STYLE,
+                minHeight: 232,
+                padding: '14px 16px',
+                lineHeight: 1.6,
+              }}
+            />
+          </div>
+        )}
 
         <div
           style={{
