@@ -1,206 +1,224 @@
 {
-  "template": "LiquidShow-1",
+  "template": "FrostedShow",
   "slides": [
     {
       "id": "slide-0",
-      "title": "6大核心技能底座",
-      "subtitle": "一条命令全装完",
+      "title": "90%的人用AI都在踩这个坑",
+      "subtitle": "错误示范：直接丢指令",
       "points": [
-        "技能商店上万个Skills",
-        "真正底座就这6个",
-        "排行榜安装量最高"
+        "打开对话框直接说'帮我写个方案'",
+        "结果嫌AI答案太水"
       ],
-      "narration": "Skills装完先别急着用，技能商店上万个Skills，但真正的底座就这6个，排行榜安装量最高的一条命令全装完。",
-      "audioDuration": 9.560816326530611,
-      "durationInFrames": 287,
+      "narration": "很多人用AI还在犯这个错，打开对话框直接丢一句'帮我写个方案'，然后嫌AI给的答案太水。",
+      "audioDuration": 7.81061224489796,
+      "durationInFrames": 234,
       "audioStart": 0,
-      "audioEnd": 9.560816326530611
+      "audioEnd": 7.81061224489796
     },
     {
       "id": "slide-1",
-      "title": "第1个：Agent-Browser",
-      "subtitle": "浏览器自动化",
+      "title": "答案水的真正原因",
+      "subtitle": "AI根本不认识你",
       "points": [
-        "AI操控浏览器",
-        "点按钮填表单",
-        "截图下载文件"
+        "你没让AI认识你",
+        "只能拿到放哪行都通用的标准答案"
       ],
-      "narration": "第一个：agent-browser浏览器自动化",
-      "audioDuration": 3.474285714285714,
-      "durationInFrames": 104,
-      "audioStart": 9.560816326530611,
-      "audioEnd": 13.035102040816327
+      "narration": "问题是你都没让AI认识你，它当然只能给你放哪行都通用的标准答案。",
+      "audioDuration": 6.948571428571428,
+      "durationInFrames": 208,
+      "audioStart": 7.81061224489796,
+      "audioEnd": 14.759183673469387
     },
     {
       "id": "slide-2",
-      "title": "给AI装上一双手",
-      "subtitle": "Agent-Browser核心能力",
+      "title": "第一步：让AI彻底了解你",
+      "subtitle": "复制这段话直接念",
       "points": [
-        "动态渲染页面可读",
-        "自动操控浏览器",
-        "相当于AI的双手"
+        "打开AI工具",
+        "念这段设定话术",
+        "说明你的工作、公司业务"
       ],
-      "narration": "让AI自己去操控浏览器，点按钮填表单，截图下文件，连动态渲染的页面都能读，相当于给AI装了一双手。",
-      "audioDuration": 10.866938775510205,
-      "durationInFrames": 326,
-      "audioStart": 13.035102040816327,
-      "audioEnd": 23.902040816326533
+      "narration": "想让AI真正好用，先做这一步，打开你的AI工具，直接念这段话，'我想让你彻底了解我，我是做什么工作的，我的公司主营什么业务。",
+      "audioDuration": 9.848163265306123,
+      "durationInFrames": 295,
+      "audioStart": 14.759183673469387,
+      "audioEnd": 24.60734693877551
     },
     {
       "id": "slide-3",
-      "title": "第2个：Heavily Search",
-      "subtitle": "AI专属联网搜索",
+      "title": "关键指令：让它主动追问",
+      "subtitle": "直到完全了解为止",
       "points": [
-        "搜索无广告",
-        "结构化输出",
-        "自动提炼关键信息"
+        "让AI问你所有需要的问题",
+        "覆盖业务、客户群体、真实卡点"
       ],
-      "narration": "第二个：heavily search，AI专属联网",
-      "audioDuration": 3.6310204081632653,
-      "durationInFrames": 109,
-      "audioStart": 23.902040816326533,
-      "audioEnd": 27.5330612244898
+      "narration": "现在请你问我所有需要的问题，直到完全了解我的业务、客户群体和真实卡点。",
+      "audioDuration": 6.739591836734694,
+      "durationInFrames": 202,
+      "audioStart": 24.60734693877551,
+      "audioEnd": 31.346938775510203
     },
     {
       "id": "slide-4",
-      "title": "告别过期知识",
-      "subtitle": "Heavily Search优势",
+      "title": "执行要求：认真回答半小时",
+      "subtitle": "别敷衍，这是投资",
       "points": [
-        "网页正文自动提炼",
-        "结果直接给AI消费",
-        "实时联网不依赖旧数据"
+        "接下来半小时",
+        "认真回答AI的每个问题"
       ],
-      "narration": "搜索返回结果没广告，结构化输出直接给AI消费，网页正文自动提炼关键信息，你的AI终于不用靠过期知识回答问题了。",
-      "audioDuration": 9.926530612244898,
-      "durationInFrames": 298,
-      "audioStart": 27.5330612244898,
-      "audioEnd": 37.459591836734695
+      "narration": "接下来半小时，认真回答AI的每个问题。",
+      "audioDuration": 2.873469387755102,
+      "durationInFrames": 86,
+      "audioStart": 31.346938775510203,
+      "audioEnd": 34.220408163265304
     },
     {
       "id": "slide-5",
-      "title": "第3个：Self-Improving Agent",
-      "subtitle": "自我进化能力",
+      "title": "一次投入，长期受益",
+      "subtitle": "说得越清楚，建议越值钱",
       "points": [
-        "记住代码风格",
-        "从错误中学习",
-        "跨绘画保持记忆"
+        "这一步做一次就够了",
+        "你说得越清楚，它越懂你",
+        "给的建议越值钱"
       ],
-      "narration": "第三个：self-improving agent自我进化",
-      "audioDuration": 4.153469387755102,
-      "durationInFrames": 125,
-      "audioStart": 37.459591836734695,
-      "audioEnd": 41.6130612244898
+      "narration": "别嫌烦，这一步做一次就够了。你说得越清楚，它越懂你，给的建议越值钱。",
+      "audioDuration": 6.2693877551020405,
+      "durationInFrames": 188,
+      "audioStart": 34.220408163265304,
+      "audioEnd": 40.48979591836734
     },
     {
       "id": "slide-6",
-      "title": "越用越懂你的AI",
-      "subtitle": "Self-Improving Agent特性",
+      "title": "第二步：设定毒舌人设",
+      "subtitle": "告别捧杀，要听真话",
       "points": [
-        "自动修复错误",
-        "效率越来越高",
-        "个性化习惯记忆"
+        "给它一个'毒舌人设'",
+        "跟它说..."
       ],
-      "narration": "记住你的代码风格和习惯，从每次出错中学习自动修复，跨绘画保持记忆，越用越懂，效率越来越高。",
-      "audioDuration": 9.11673469387755,
-      "durationInFrames": 274,
-      "audioStart": 41.6130612244898,
-      "audioEnd": 50.729795918367344
+      "narration": "然后给它一个'毒舌人设'。跟它说：",
+      "audioDuration": 3.186938775510204,
+      "durationInFrames": 96,
+      "audioStart": 40.48979591836734,
+      "audioEnd": 43.67673469387755
     },
     {
       "id": "slide-7",
-      "title": "第4个：Find Skills",
-      "subtitle": "技能发现神器",
+      "title": "角色指令：做我的陪练",
+      "subtitle": "基于了解，开始实战",
       "points": [
-        "像逛应用商店",
-        "自然语言搜索",
-        "排行榜推荐"
+        "基于你对我的了解",
+        "现在做我的陪练"
       ],
-      "narration": "第四个：find skills技能发现神器",
-      "audioDuration": 3.6310204081632653,
-      "durationInFrames": 109,
-      "audioStart": 50.729795918367344,
-      "audioEnd": 54.36081632653061
+      "narration": "基于你对我的了解，现在做我的陪练。",
+      "audioDuration": 3.813877551020408,
+      "durationInFrames": 114,
+      "audioStart": 43.67673469387755,
+      "audioEnd": 47.49061224489796
     },
     {
       "id": "slide-8",
-      "title": "一站式技能管理",
-      "subtitle": "Find Skills功能",
+      "title": "核心规则：只挑刺，不夸我",
+      "subtitle": "专门找3-5个风险漏洞",
       "points": [
-        "批量管理升级",
-        "回退一站搞定",
-        "智能匹配需求"
+        "不管提什么想法，不要夸我",
+        "专门挑刺",
+        "列出3到5个没想到的风险和漏洞"
       ],
-      "narration": "像逛应用商店一样搜索skill，自然语言描述需求就能匹配，排行榜推荐加批量管理升级，回退一站搞定。",
-      "audioDuration": 9.273469387755101,
-      "durationInFrames": 278,
-      "audioStart": 54.36081632653061,
-      "audioEnd": 63.63428571428571
+      "narration": "不管我提什么想法，不要夸我，专门挑刺，列出3到5个我没想到的风险和漏洞。",
+      "audioDuration": 6.217142857142857,
+      "durationInFrames": 187,
+      "audioStart": 47.49061224489796,
+      "audioEnd": 53.70775510204082
     },
     {
       "id": "slide-9",
-      "title": "第5个：Skill-Vendor",
-      "subtitle": "安全审查官",
+      "title": "这步很关键",
+      "subtitle": "强调重要性",
       "points": [
-        "安装前安全扫描",
-        "检测恶意代码",
-        "拦截权限越界"
+        "这步很关键"
       ],
-      "narration": "第五个：skill-vendor安全审查官",
-      "audioDuration": 3.2653061224489797,
-      "durationInFrames": 98,
-      "audioStart": 63.63428571428571,
-      "audioEnd": 66.89959183673469
+      "narration": "这步很关键。",
+      "audioDuration": 1.8546938775510204,
+      "durationInFrames": 56,
+      "audioStart": 53.70775510204082,
+      "audioEnd": 55.56244897959184
     },
     {
       "id": "slide-10",
-      "title": "工具链安全门禁",
-      "subtitle": "Skill-Vendor防护能力",
+      "title": "毒舌的价值：打破自我感动",
+      "subtitle": "成熟想法的照妖镜",
       "points": [
-        "阻止隐私泄露",
-        "出具安全评分",
-        "全方位安全检测"
+        "自己觉得成熟的想法",
+        "第一时间告诉你哪里会翻车",
+        "哪里在自我感动"
       ],
-      "narration": "装任何skill之前先让它扫一遍，检测恶意代码，拦截权限越界，阻止隐私泄露，出具安全评分报告，相当于给工具链装了个门禁。",
-      "audioDuration": 9.848163265306123,
-      "durationInFrames": 295,
-      "audioStart": 66.89959183673469,
-      "audioEnd": 76.74775510204081
+      "narration": "我们自己觉得成熟的想法，它能第一时间告诉你哪里会翻车，哪里在自我感动。",
+      "audioDuration": 5.564081632653061,
+      "durationInFrames": 167,
+      "audioStart": 55.56244897959184,
+      "audioEnd": 61.126530612244906
     },
     {
       "id": "slide-11",
-      "title": "第6个：Email-Management",
-      "subtitle": "邮件管家",
+      "title": "关键决策的秘密武器",
+      "subtitle": "对手比帮手更有用",
       "points": [
-        "AI读邮件写回复",
-        "自动分类整理",
-        "常规邮件自动发送"
+        "做关键决策时",
+        "这种对手比帮手更有用"
       ],
-      "narration": "第六个：email-management邮件管家",
-      "audioDuration": 3.500408163265306,
-      "durationInFrames": 105,
-      "audioStart": 76.74775510204081,
-      "audioEnd": 80.24816326530612
+      "narration": "做关键决策时，这种对手比帮手更有用。",
+      "audioDuration": 3.239183673469388,
+      "durationInFrames": 97,
+      "audioStart": 61.126530612244906,
+      "audioEnd": 64.36571428571429
     },
     {
       "id": "slide-12",
-      "title": "全平台邮件支持",
-      "subtitle": "Email-Management兼容",
+      "title": "第三步：变成长期资产",
+      "subtitle": "从工具到伙伴",
       "points": [
-        "Gmail、Outlook",
-        "163、QQ邮箱",
-        "主流平台全覆盖"
+        "最后把它变成长期资产"
       ],
-      "narration": "AI帮你读邮件写回复，自动分类整理，常规邮件直接帮你发送，Gmail、Outlook、163、QQ全都支持。",
-      "audioDuration": 10.579591836734695,
-      "durationInFrames": 317,
-      "audioStart": 80.24816326530612,
-      "audioEnd": 90.82775510204081
+      "narration": "最后把它变成长期资产。",
+      "audioDuration": 2.507755102040816,
+      "durationInFrames": 75,
+      "audioStart": 64.36571428571429,
+      "audioEnd": 66.87346938775511
+    },
+    {
+      "id": "slide-13",
+      "title": "固定使用，保持记忆",
+      "subtitle": "别换来换去",
+      "points": [
+        "固定使用一个AI",
+        "这样才会一直有记忆"
+      ],
+      "narration": "固定使用一个AI，这样才会一直有记忆。",
+      "audioDuration": 3.082448979591837,
+      "durationInFrames": 92,
+      "audioStart": 66.87346938775511,
+      "audioEnd": 69.95591836734694
+    },
+    {
+      "id": "slide-14",
+      "title": "下次直接聊，不用从头来",
+      "subtitle": "记忆带来的效率飞跃",
+      "points": [
+        "下次有新想法直接进去聊",
+        "它立刻记得你是谁",
+        "不用从头再来一遍"
+      ],
+      "narration": "下次有新想法直接进去聊，它立刻记得你是谁，不用从头再来一遍。",
+      "audioDuration": 5.12,
+      "durationInFrames": 154,
+      "audioStart": 69.95591836734694,
+      "audioEnd": 75.07591836734694
     }
   ],
   "fps": 30,
   "width": 1080,
   "height": 1920,
   "defaultDurationPerSlide": 150,
-  "soundtrackPath": "projects/generated/1774313376720-LiquidShow-1/audio/narration.mp3",
-  "soundtrackDuration": 90.82775510204081
+  "soundtrackPath": "projects/generated/1774870862555-FrostedShow/audio/narration.mp3",
+  "soundtrackDuration": 75.07591836734694
 }

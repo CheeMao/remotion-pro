@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { continueRender, delayRender } from 'remotion';
 import { TimelineFields } from '../templates/types';
 import { toStaticContentPath } from '../project-content';
+import { parseJsonWithRepair } from '../utils/json-repair';
 
 interface ContentMetaData {
   title?: string;
@@ -55,7 +56,10 @@ export function useContentJson<TSlide>(
         if (!response.ok) {
           throw new Error(`Failed to load content JSON: ${response.status}`);
         }
-        return response.json();
+        return response.text();
+      })
+      .then((rawText) => {
+        return parseJsonWithRepair<ContentJsonResponse<TSlide>>(rawText, url).data;
       })
       .then((data: ContentJsonResponse<TSlide>) => {
         let slides: TSlide[];

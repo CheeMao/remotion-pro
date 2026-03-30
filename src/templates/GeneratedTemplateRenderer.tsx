@@ -12,6 +12,7 @@ import { NeonSlide } from '../NeonShow/NeonSlide';
 import { NeuSlide } from '../NeuShow/NeuSlide';
 import { RichSlide } from '../RichShow/RichSlide';
 import { Slide } from '../SlideShow/Slide';
+import { WideSlide } from '../SlideShowWide/WideSlide';
 import { TechSlide } from '../TechShow/TechSlide';
 import { getSlideTiming, getStaticAssetPath } from '../hooks/useContentJson';
 import type {
@@ -387,6 +388,15 @@ export const GeneratedTemplateRenderer: React.FC<{
         <LiquidBriefTimeline
           slides={slides as unknown as PreviewComplexSlide[]}
           soundtrackPath={soundtrackPath}
+        />
+      );
+    case 'SlideShowWide':
+      return (
+        <SimpleTimeline
+          slides={slides as unknown as PreviewSimpleSlide[]}
+          soundtrackPath={soundtrackPath}
+          background="#050816"
+          SlideComponent={WideSlide}
         />
       );
     case 'SlideShow':

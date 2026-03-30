@@ -70,6 +70,14 @@ export interface NarrationTimelineResult {
 const FPS = 30;
 const DEFAULT_SOUNDTRACK_FILE = 'narration.mp3';
 
+const normalizeNarrationSegment = (text: string): string => {
+  return text.replace(/\s+/g, ' ').trim();
+};
+
+const isSpeakableSegment = (text: string): boolean => {
+  return /[\p{L}\p{N}]/u.test(text);
+};
+
 const getContentVoiceId = (content: ContentFile): string | undefined => {
   return content.meta.voiceId || content.meta.voice_id;
 };
@@ -179,7 +187,7 @@ const splitNarrationIntoSegments = (text: string): string[] => {
   const normalized = text
     .replace(/\r\n/g, '\n')
     .split('\n')
-    .map((line) => line.trim())
+    .map((line) => normalizeNarrationSegment(line))
     .filter(Boolean)
     .join('\n');
 
@@ -192,11 +200,11 @@ const splitNarrationIntoSegments = (text: string): string[] => {
     .flatMap((line) =>
       line
         .split(/(?<=[。！？!?；;：:])/)
-        .map((part) => part.trim())
-        .filter(Boolean)
+        .map((part) => normalizeNarrationSegment(part))
+        .filter((part) => part.length > 0 && isSpeakableSegment(part))
     );
 
-  return paragraphAware.length > 0 ? paragraphAware : [normalized];
+  return paragraphAware.length > 0 ? paragraphAware : isSpeakableSegment(normalized) ? [normalized] : [];
 };
 
 const getFullNarration = (content: ContentFile): string => {
@@ -297,6 +305,9 @@ export async function generateNarrationTrack(
   if (!trimmed) {
     throw new Error('Narration text is empty.');
   }
+  if (!isSpeakableSegment(trimmed)) {
+    throw new Error('Narration text must contain letters or numbers.');
+  }
 
   ensureDir(dirname(outputFile));
 
@@ -349,8 +360,20 @@ export async function generateNarrationTimeline(
   let cursor = 0;
 
   for (let index = 0; index < segmentsText.length; index += 1) {
-    const segmentText = segmentsText[index];
-    const result = await tts.synthesize(segmentText, voiceId, speechRate);
+    const segmentText = normalizeNarrationSegment(segmentsText[index]);
+    if (!segmentText || !isSpeakableSegment(segmentText)) {
+      continue;
+    }
+
+    let result;
+    try {
+      result = await tts.synthesize(segmentText, voiceId, speechRate);
+    } catch (error) {
+      const reason = error instanceof Error ? error.message : String(error);
+      throw new Error(
+        `Narration segment ${index + 1} failed TTS synthesis: ${reason}. Segment text: "${segmentText}"`
+      );
+    }
     const outputFile = join(segmentsDir, `segment-${String(index + 1).padStart(3, '0')}.mp3`);
     writeFileSync(outputFile, readFileSync(result.audioPath));
     const duration = await getAudioDuration(outputFile);
@@ -366,6 +389,10 @@ export async function generateNarrationTimeline(
       duration,
       audioPath: toRelativePublicPath(outputFile),
     });
+  }
+
+  if (files.length === 0) {
+    throw new Error('Narration text did not contain any speakable segments.');
   }
 
   const soundtrackFile = join(outputDir, DEFAULT_SOUNDTRACK_FILE);

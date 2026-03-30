@@ -1,5 +1,7 @@
-import { readFileSync } from 'fs';
+import { readFileSync, writeFileSync } from 'fs';
 import { AudioSlideData, ContentFile, VideoConfig } from '../templates/types';
+import { getTemplateDimensions } from '../templates/templateSpecs';
+import { parseJsonWithRepair } from '../utils/json-repair';
 
 const DEFAULT_FPS = 30;
 const DEFAULT_DURATION_PER_SLIDE = 150;
@@ -22,12 +24,19 @@ const getSlideDurationInFrames = (
 
 export function parseContentFile(filePath: string): ContentFile {
   const content = readFileSync(filePath, 'utf-8');
-  return JSON.parse(content);
+  const parsed = parseJsonWithRepair<ContentFile>(content, filePath);
+
+  if (parsed.repairedContent && parsed.repairedContent !== content) {
+    writeFileSync(filePath, parsed.repairedContent, 'utf-8');
+  }
+
+  return parsed.data;
 }
 
 export function contentToVideoConfig(content: ContentFile): VideoConfig {
   const fps = DEFAULT_FPS;
   const defaultDurationPerSlide = DEFAULT_DURATION_PER_SLIDE;
+  const dimensions = getTemplateDimensions(content.meta.template);
 
   const slides: AudioSlideData[] = content.slides.map((slide, index) => {
     const durationInFrames = getSlideDurationInFrames(
@@ -56,8 +65,8 @@ export function contentToVideoConfig(content: ContentFile): VideoConfig {
     template: content.meta.template,
     slides,
     fps,
-    width: 1080,
-    height: 1920,
+    width: dimensions.width,
+    height: dimensions.height,
     defaultDurationPerSlide,
     soundtrackPath:
       content.meta.soundtrackPath || content.meta.soundtrack_path,

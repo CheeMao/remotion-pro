@@ -11,12 +11,12 @@ import { NeonSlide } from '@remotion-root/NeonShow/NeonSlide';
 import { NeuSlide } from '@remotion-root/NeuShow/NeuSlide';
 import { RichSlide } from '@remotion-root/RichShow/RichSlide';
 import { Slide } from '@remotion-root/SlideShow/Slide';
+import { WideSlide } from '@remotion-root/SlideShowWide/WideSlide';
 import { TechSlide } from '@remotion-root/TechShow/TechSlide';
+import { getTemplateDimensions } from '@remotion-root/templates/templateSpecs';
 
 const FPS = 30;
 const DEFAULT_SLIDE_DURATION = 150;
-const WIDTH = 1080;
-const HEIGHT = 1920;
 
 interface TimelineFields {
   audioDuration?: number;
@@ -262,6 +262,15 @@ const PreviewComposition: React.FC<PreviewProjectData> = ({
           SlideComponent={Slide}
         />
       );
+    case 'SlideShowWide':
+      return (
+        <SimpleTimeline
+          slides={slides as PreviewSimpleSlide[]}
+          soundtrackUrl={soundtrackUrl}
+          background="#050816"
+          SlideComponent={WideSlide}
+        />
+      );
     case 'GlassShow':
       return (
         <GlassTimeline
@@ -362,6 +371,7 @@ export const EmbeddedPreview: React.FC<{
   previewData: PreviewProjectData;
 }> = ({ previewData }) => {
   const durationInFrames = calculateDuration(previewData.slides);
+  const dimensions = getTemplateDimensions(previewData.template);
 
   return (
     <div style={{ width: '100%', height: '100%', minWidth: 0, minHeight: 0 }}>
@@ -370,8 +380,8 @@ export const EmbeddedPreview: React.FC<{
         component={PreviewComposition as unknown as React.ComponentType<Record<string, unknown>>}
         inputProps={previewData}
         durationInFrames={durationInFrames}
-        compositionWidth={WIDTH}
-        compositionHeight={HEIGHT}
+        compositionWidth={dimensions.width}
+        compositionHeight={dimensions.height}
         fps={FPS}
         controls
         style={{ width: '100%', height: '100%' }}

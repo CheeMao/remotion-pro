@@ -111,9 +111,9 @@ const SPACING = {
 
 const COMPACT_UI = {
   navWidth: 86,
-  shellMaxWidth: 1240,
+  shellMaxWidth: 1380,
   pageMaxWidth: 980,
-  sidePanelWidth: 248,
+  sidePanelWidth: 420,
   pagePadding: SPACING.lg,
   panelPadding: SPACING.md,
   sectionGap: SPACING.md,
@@ -185,6 +185,7 @@ const NAV_ITEMS: NavItem[] = [
 
 const TEMPLATE_OPTIONS = [
   { label: '科技风', value: 'SlideShow' },
+  { label: '横屏基础版', value: 'SlideShowWide' },
   { label: '玻璃风', value: 'GlassShow' },
   { label: '新拟态', value: 'NeuShow' },
   { label: '富效果', value: 'RichShow' },
@@ -319,10 +320,31 @@ ${COMMON_SEGMENT_RULES}
 
 const TECH_PROMPT = `你是短视频分镜策划助手。请根据 TechShow 模板风格和语义片段时间轴，输出科技信息流分镜。
 ${COMMON_SEGMENT_RULES}
+导演编排要求：
+{director_brief}
+
 页面要求：
 1. 第一页必须是 title，最后一页必须是 cta。
-2. 中间页面可以使用：list、stats、progress、compare、quote。
-3. 列表项可使用 "01"、"02"、"03" 这类编号。
+2. 中间页面只能使用：list、stats、progress、compare、quote。
+3. 不要让相邻两页使用同一种版式。
+4. 不要整支视频几乎全是 list；list 页只能在必要时使用。
+5. 当页数 >= 6 时，至少使用 4 种不同版式；当页数 >= 8 时，至少使用 5 种不同版式。
+6. 每页版式必须和信息类型匹配：
+- compare：适合前后方案、旧新方法、常见误区 vs 正确做法
+- stats：适合数字、占比、规模、效果
+- progress：适合阶段、能力成熟度、完成度、拆解进程
+- list：适合并列要点，但不要整片都用
+- quote：适合一句关键结论、提醒、收口
+7. 列表项可使用 "01"、"02"、"03" 这类编号。
+
+字段约定：
+- title: data = { title, subtitle? }
+- compare: data = { title, left: { label, value }, right: { label, value } }
+- stats: data = { title, stats: [{ value, suffix?, label }] }
+- progress: data = { title, bars: [{ label, percent }] }
+- list: data = { title, items: [{ icon?, text, desc? }] }
+- quote: data = { quote, author }
+- cta: data = { title, subtitle?, button }
 
 输入信息：
 - 模板：{template_name}
@@ -345,10 +367,17 @@ ${COMMON_SEGMENT_RULES}
 
 const GLASS_PROMPT = `你是短视频分镜策划助手。请根据 GlassShow 模板风格和语义片段时间轴，输出多版式玻璃风分镜。
 ${COMMON_SEGMENT_RULES}
+导演编排要求：
+{director_brief}
+
 页面要求：
 1. 页面类型只能使用：hero、stats、compare、steps、list、chart、timeline、highlight、quote、default。
 2. 每页都要有 title、可选 subtitle、type、narration、segmentIds。
-3. 优先让版式和内容匹配，不要整套都输出成 default。
+3. 优先让版式和内容匹配，不要整套都输出成 default 或 list。
+4. 不要让相邻两页使用同一种版式。
+5. 当页数 >= 6 时，至少使用 4 种不同版式；当页数 >= 8 时，至少使用 5 种不同版式。
+6. hero 只适合开场钩子或阶段总述；quote 适合关键结论；timeline 适合过程；steps 适合拆解；stats / chart 适合数据。
+7. default 只能作为补位页，不能成为主体页型。
 
 字段约定：
 - hero: data 可包含 badge、cta
@@ -396,7 +425,113 @@ function getTemplateSlideTypes(template: string): string[] {
     return ['hero', 'stats', 'compare', 'steps', 'list', 'chart', 'timeline', 'highlight', 'quote', 'default'];
   }
 
+  if (template === 'TechShow') {
+    return ['title', 'list', 'compare', 'quote', 'progress', 'stats', 'cta'];
+  }
+
   return ['title', 'list', 'compare', 'quote', 'highlight', 'progress', 'stats', 'cta'];
+}
+
+const TECH_SHOW_MIDDLE_TYPES = ['compare', 'stats', 'progress', 'list', 'quote'] as const;
+const GLASS_SHOW_TYPES = ['hero', 'stats', 'compare', 'steps', 'list', 'chart', 'timeline', 'highlight', 'quote', 'default'] as const;
+
+function getTechShowTypeTargets(pageCount: number): string[] {
+  if (pageCount <= 2) {
+    return ['title', 'cta'];
+  }
+
+  const middleCount = Math.max(0, pageCount - 2);
+  const preferredOrder = ['compare', 'stats', 'progress', 'list', 'quote'] as const;
+  const preferredQueue = [...preferredOrder];
+  const result: string[] = ['title'];
+  let cursor = 0;
+
+  for (let index = 0; index < middleCount; index += 1) {
+    let nextType = preferredQueue[cursor % preferredQueue.length];
+    if (index > 0 && result[result.length - 1] === nextType) {
+      nextType = preferredQueue[(cursor + 1) % preferredQueue.length];
+      cursor += 1;
+    }
+    result.push(nextType);
+    cursor += 1;
+  }
+
+  result.push('cta');
+  return result;
+}
+
+function getTechShowMinUniqueTypes(pageCount: number): number {
+  if (pageCount >= 8) {
+    return 5;
+  }
+  if (pageCount >= 6) {
+    return 4;
+  }
+  if (pageCount >= 4) {
+    return 3;
+  }
+  return 2;
+}
+
+function getTechShowDirectorBrief(pageCount: number): string {
+  const targets = getTechShowTypeTargets(pageCount);
+  return [
+    `建议页型节奏：${targets.join(' -> ')}`,
+    `至少使用 ${getTechShowMinUniqueTypes(pageCount)} 种不同版式`,
+    '中段必须在 compare / stats / progress / list / quote 之间切换，不要连续重复',
+    '如果信息偏密，优先拆成 compare、stats、progress 这类结构页，而不是全部塞成列表',
+  ].join('\n');
+}
+
+function getGlassShowTypeTargets(pageCount: number): string[] {
+  if (pageCount <= 1) {
+    return ['hero'];
+  }
+
+  if (pageCount === 2) {
+    return ['hero', 'quote'];
+  }
+
+  const middleCount = Math.max(0, pageCount - 2);
+  const preferredOrder = ['stats', 'compare', 'steps', 'list', 'timeline', 'highlight', 'chart'] as const;
+  const result: string[] = ['hero'];
+  let cursor = 0;
+
+  for (let index = 0; index < middleCount; index += 1) {
+    let nextType = preferredOrder[cursor % preferredOrder.length];
+    if (result[result.length - 1] === nextType) {
+      nextType = preferredOrder[(cursor + 1) % preferredOrder.length];
+      cursor += 1;
+    }
+    result.push(nextType);
+    cursor += 1;
+  }
+
+  result.push('quote');
+  return result;
+}
+
+function getGlassShowMinUniqueTypes(pageCount: number): number {
+  if (pageCount >= 8) {
+    return 5;
+  }
+  if (pageCount >= 6) {
+    return 4;
+  }
+  if (pageCount >= 4) {
+    return 3;
+  }
+  return 2;
+}
+
+function getGlassShowDirectorBrief(pageCount: number): string {
+  const targets = getGlassShowTypeTargets(pageCount);
+  return [
+    `建议页型节奏：${targets.join(' -> ')}`,
+    `至少使用 ${getGlassShowMinUniqueTypes(pageCount)} 种不同版式`,
+    '优先用 hero / stats / compare / steps / timeline / chart / quote 形成节奏，不要大量 default',
+    '如果信息适合数字、阶段、对比或过程，请优先映射为对应结构页',
+  ].join('\n');
 }
 
 function isComplexSlide(slide: Slide): slide is ComplexSlide {
@@ -590,6 +725,15 @@ function getPrompt(
   prompt = replaceToken(prompt, '{min_pages}', String(plan.minPages));
   prompt = replaceToken(prompt, '{max_pages}', String(plan.maxPages));
   prompt = replaceToken(prompt, '{segments_text}', formatSegmentsForPrompt(timeline.segments));
+  prompt = replaceToken(
+    prompt,
+    '{director_brief}',
+    template === 'TechShow'
+      ? getTechShowDirectorBrief(plan.targetPages)
+      : template === 'GlassShow'
+        ? getGlassShowDirectorBrief(plan.targetPages)
+        : ''
+  );
 
   if (!strict) {
     return prompt;
@@ -759,6 +903,174 @@ function normalizeSlides(
   return attachTimingToSlides(normalized, segments);
 }
 
+function hasNonEmptyString(value: unknown): value is string {
+  return typeof value === 'string' && value.trim().length > 0;
+}
+
+function hasTechShowRequiredData(slide: Slide): boolean {
+  if (!isComplexSlide(slide)) {
+    return false;
+  }
+
+  const data = slide.data || {};
+
+  switch (slide.type) {
+    case 'title':
+      return hasNonEmptyString(data.title);
+    case 'compare':
+      return (
+        hasNonEmptyString((data.left as { label?: unknown } | undefined)?.label) &&
+        hasNonEmptyString((data.left as { value?: unknown } | undefined)?.value) &&
+        hasNonEmptyString((data.right as { label?: unknown } | undefined)?.label) &&
+        hasNonEmptyString((data.right as { value?: unknown } | undefined)?.value)
+      );
+    case 'stats':
+      return (
+        hasNonEmptyString(data.title) &&
+        Array.isArray(data.stats) &&
+        data.stats.length >= 2
+      );
+    case 'progress':
+      return (
+        hasNonEmptyString(data.title) &&
+        Array.isArray(data.bars) &&
+        data.bars.length >= 2
+      );
+    case 'list':
+      return (
+        hasNonEmptyString(data.title) &&
+        Array.isArray(data.items) &&
+        data.items.length >= 2
+      );
+    case 'quote':
+      return hasNonEmptyString(data.quote);
+    case 'cta':
+      return hasNonEmptyString(data.title) && hasNonEmptyString(data.button);
+    default:
+      return false;
+  }
+}
+
+function shouldRetryTechShowSlides(slides: Slide[]): boolean {
+  const techSlides = slides.filter(isComplexSlide);
+  const types = techSlides.map((slide) => slide.type);
+
+  if (types.length === 0) {
+    return true;
+  }
+
+  if (types[0] !== 'title' || types[types.length - 1] !== 'cta') {
+    return true;
+  }
+
+  const middleTypes = types.slice(1, -1);
+  if (middleTypes.some((type) => !TECH_SHOW_MIDDLE_TYPES.includes(type as (typeof TECH_SHOW_MIDDLE_TYPES)[number]))) {
+    return true;
+  }
+
+  for (let index = 1; index < types.length; index += 1) {
+    if (types[index] === types[index - 1]) {
+      return true;
+    }
+  }
+
+  const uniqueTypeCount = new Set(types).size;
+  if (uniqueTypeCount < getTechShowMinUniqueTypes(types.length)) {
+    return true;
+  }
+
+  const listCount = middleTypes.filter((type) => type === 'list').length;
+  if (listCount > Math.max(1, Math.ceil(middleTypes.length * 0.4))) {
+    return true;
+  }
+
+  if (techSlides.some((slide) => !hasTechShowRequiredData(slide))) {
+    return true;
+  }
+
+  return false;
+}
+
+function hasGlassShowRequiredData(slide: Slide): boolean {
+  if (!isComplexSlide(slide)) {
+    return false;
+  }
+
+  const data = slide.data || {};
+
+  switch (slide.type) {
+    case 'hero':
+      return hasNonEmptyString(slide.title) || hasNonEmptyString(data.badge) || hasNonEmptyString(data.cta);
+    case 'stats':
+      return Array.isArray(data.stats) && data.stats.length >= 2;
+    case 'compare':
+      return (
+        hasNonEmptyString((data.left as { label?: unknown } | undefined)?.label) &&
+        hasNonEmptyString((data.right as { label?: unknown } | undefined)?.label)
+      );
+    case 'steps':
+      return Array.isArray(data.steps) && data.steps.length >= 2;
+    case 'list':
+      return Array.isArray(data.items) && data.items.length >= 2;
+    case 'chart':
+      return Array.isArray(data.bars) && data.bars.length >= 2;
+    case 'timeline':
+      return Array.isArray(data.timeline) && data.timeline.length >= 2;
+    case 'highlight':
+      return Array.isArray(data.items) && data.items.length >= 2;
+    case 'quote':
+      return hasNonEmptyString(data.quote);
+    case 'default':
+      return Array.isArray(slide.points) && slide.points.length >= 2;
+    default:
+      return false;
+  }
+}
+
+function shouldRetryGlassShowSlides(slides: Slide[]): boolean {
+  const glassSlides = slides.filter(isComplexSlide);
+  const types = glassSlides.map((slide) => slide.type);
+
+  if (types.length === 0) {
+    return true;
+  }
+
+  if (types[0] !== 'hero') {
+    return true;
+  }
+
+  for (let index = 1; index < types.length; index += 1) {
+    if (types[index] === types[index - 1]) {
+      return true;
+    }
+  }
+
+  if (types.some((type) => !GLASS_SHOW_TYPES.includes(type as (typeof GLASS_SHOW_TYPES)[number]))) {
+    return true;
+  }
+
+  const uniqueTypeCount = new Set(types).size;
+  if (uniqueTypeCount < getGlassShowMinUniqueTypes(types.length)) {
+    return true;
+  }
+
+  const defaultCount = types.filter((type) => type === 'default').length;
+  if (defaultCount > Math.max(1, Math.floor(types.length / 3))) {
+    return true;
+  }
+
+  const listCount = types.filter((type) => type === 'list').length;
+  if (listCount > Math.max(1, Math.ceil(types.length * 0.35))) {
+    return true;
+  }
+
+  if (glassSlides.some((slide) => !hasGlassShowRequiredData(slide))) {
+    return true;
+  }
+
+  return false;
+}
+
 async function generateSlidesWithAi(
   rawText: string,
   template: string,
@@ -791,12 +1103,16 @@ async function generateSlidesWithAi(
     const maxDuration = durations.length > 0 ? Math.max(...durations) : 0;
     const coveredIds = slides.flatMap((slide) => slide.segmentIds || []);
     const expectedIds = timeline.segments.map((segment) => segment.id);
+    const techShowInvalid = template === 'TechShow' && shouldRetryTechShowSlides(slides);
+    const glassShowInvalid = template === 'GlassShow' && shouldRetryGlassShowSlides(slides);
 
     return (
       slides.length < plan.targetPages ||
       maxDuration > MAX_SLIDE_DURATION_SECONDS ||
       coveredIds.length !== expectedIds.length ||
-      coveredIds.some((id, index) => id !== expectedIds[index])
+      coveredIds.some((id, index) => id !== expectedIds[index]) ||
+      techShowInvalid ||
+      glassShowInvalid
     );
   };
 
@@ -1245,14 +1561,15 @@ function HomePage(props: {
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: '1fr 1fr',
+            gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)',
             gap: 12,
-            alignItems: 'start',
+            alignItems: 'stretch',
           }}
         >
           <div
             style={{
               ...FIELD_GROUP_STYLE,
+              height: '100%',
               marginTop: 0,
               padding: 14,
               borderRadius: 16,
@@ -1282,8 +1599,9 @@ function HomePage(props: {
             <div
               style={{
                 ...SOFT_INPUT_STYLE,
+                flex: 1,
                 minHeight: 208,
-                maxHeight: 208,
+                height: 208,
                 padding: '12px 14px',
                 lineHeight: 1.6,
                 background: '#f7f8fa',
@@ -1298,6 +1616,7 @@ function HomePage(props: {
           <div
             style={{
               ...FIELD_GROUP_STYLE,
+              height: '100%',
               marginTop: 0,
               padding: 14,
               borderRadius: 16,
@@ -1305,7 +1624,7 @@ function HomePage(props: {
               border: '1px solid #e5eaf4',
             }}
           >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: SPACING.md, flexWrap: 'wrap', marginBottom: 10 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: SPACING.md, flexWrap: 'nowrap', marginBottom: 10 }}>
               <label style={FIELD_LABEL_STYLE}>修改后的文案</label>
               <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'nowrap' }}>
                 <select
@@ -1340,12 +1659,13 @@ function HomePage(props: {
               onChange={(event) => setEditedText(event.target.value)}
               rows={8}
               style={{
-                resize: 'vertical',
                 ...SOFT_INPUT_STYLE,
+                flex: 1,
                 minHeight: 208,
-                maxHeight: 208,
+                height: 208,
                 padding: '12px 14px',
                 lineHeight: 1.6,
+                resize: 'none',
               }}
             />
           </div>
@@ -1353,20 +1673,29 @@ function HomePage(props: {
 
         <div
           style={{
-            display: 'grid',
-            gridTemplateColumns: '220px auto',
-            alignItems: 'end',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
             gap: SPACING.md,
+            flexWrap: 'nowrap',
             paddingTop: 8,
             borderTop: '1px solid #edf1f7',
           }}
         >
-          <div style={FIELD_GROUP_STYLE}>
-            <label style={{ fontWeight: 600, color: '#1d2129' }}>模板</label>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 12,
+              minWidth: 0,
+              flex: 1,
+            }}
+          >
+            <label style={{ fontWeight: 600, color: '#1d2129', whiteSpace: 'nowrap', flexShrink: 0 }}>模板</label>
             <select
               value={template}
               onChange={(event) => setTemplate(event.target.value)}
-              style={{ ...SOFT_INPUT_STYLE, width: '100%' }}
+              style={{ ...SOFT_INPUT_STYLE, width: 260, maxWidth: '100%', flexShrink: 0 }}
             >
               {TEMPLATE_OPTIONS.map((option) => (
                 <option key={option.value} value={option.value}>
@@ -1382,7 +1711,7 @@ function HomePage(props: {
             style={{
               ...PRIMARY_BUTTON_STYLE,
               minWidth: 148,
-              justifySelf: 'end',
+              flexShrink: 0,
               background: loading ? '#94b8ff' : '#165dff',
               cursor: loading ? 'not-allowed' : 'pointer',
             }}
@@ -1580,6 +1909,8 @@ function EditorPage(props: {
           style={{
             ...SOFT_CARD_STYLE,
             padding: 0,
+            width: COMPACT_UI.sidePanelWidth,
+            flexShrink: 0,
             borderRadius: 22,
             minHeight: editorWorkspaceHeight,
             display: 'flex',
@@ -1594,15 +1925,48 @@ function EditorPage(props: {
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
+              gap: SPACING.md,
             }}
           >
-            <span style={{ fontWeight: 700, color: '#1d2129' }}>页面 ({project.slides.length})</span>
-            <button
-              onClick={handleAddSlide}
-              style={{ ...PRIMARY_BUTTON_STYLE, padding: '8px 12px', borderRadius: 12, fontSize: 13, cursor: 'pointer' }}
-            >
-              + 新增
-            </button>
+            <span style={{ fontWeight: 700, color: '#1d2129', whiteSpace: 'nowrap' }}>页面 ({project.slides.length})</span>
+            <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexShrink: 0 }}>
+              <button
+                onClick={handleAddSlide}
+                style={{ ...PRIMARY_BUTTON_STYLE, padding: '8px 16px', borderRadius: 12, fontSize: 13, cursor: 'pointer', minWidth: 88 }}
+              >
+                + 新增
+              </button>
+              <button
+                onClick={handlePreviewToggle}
+                disabled={previewLoading}
+                style={{
+                  ...PRIMARY_BUTTON_STYLE,
+                  padding: '8px 12px',
+                  borderRadius: 12,
+                  fontSize: 13,
+                  minWidth: 96,
+                  background: previewLoading ? '#94b8ff' : 'linear-gradient(135deg, #07b36d 0%, #19c37d 100%)',
+                  cursor: previewLoading ? 'not-allowed' : 'pointer',
+                }}
+              >
+                {previewLoading ? '准备中...' : showPreview ? '返回编辑' : '预览'}
+              </button>
+              <button
+                onClick={handleRender}
+                disabled={rendering}
+                style={{
+                  ...PRIMARY_BUTTON_STYLE,
+                  padding: '8px 12px',
+                  borderRadius: 12,
+                  fontSize: 13,
+                  minWidth: 116,
+                  background: rendering ? '#94b8ff' : PRIMARY_BUTTON_STYLE.background,
+                  cursor: rendering ? 'not-allowed' : 'pointer',
+                }}
+              >
+                {rendering ? '生成中...' : '生成视频'}
+              </button>
+            </div>
           </div>
 
           <div style={{ flex: 1, overflow: 'auto', padding: 6 }}>
@@ -1651,38 +2015,6 @@ function EditorPage(props: {
             })}
           </div>
 
-          <div style={{ padding: 14, borderTop: '1px solid #edf1f7' }}>
-            <button
-              onClick={handlePreviewToggle}
-              disabled={previewLoading}
-              style={{
-                ...PRIMARY_BUTTON_STYLE,
-                width: '100%',
-                marginBottom: 8,
-                background: previewLoading ? '#94b8ff' : 'linear-gradient(135deg, #07b36d 0%, #19c37d 100%)',
-                cursor: previewLoading ? 'not-allowed' : 'pointer',
-              }}
-            >
-              {previewLoading ? '准备中...' : showPreview ? '返回编辑' : '应用内预览'}
-            </button>
-            <button
-              onClick={handleRender}
-              disabled={rendering}
-              style={{
-                ...PRIMARY_BUTTON_STYLE,
-                width: '100%',
-                background: rendering ? '#94b8ff' : PRIMARY_BUTTON_STYLE.background,
-                cursor: rendering ? 'not-allowed' : 'pointer',
-              }}
-            >
-              {rendering ? '导出中...' : '导出视频'}
-            </button>
-            {renderProgress ? (
-              <p style={{ margin: '8px 0 0', fontSize: 12, color: '#86909c', lineHeight: 1.5 }}>
-                {renderProgress}
-              </p>
-            ) : null}
-          </div>
         </div>
 
         <div
@@ -1761,34 +2093,6 @@ function EditorPage(props: {
                 overflow: 'auto',
               }}
             >
-            <div
-              style={{
-                marginBottom: COMPACT_UI.sectionGap,
-                padding: '12px 14px',
-                background: 'linear-gradient(180deg, rgba(232,243,255,0.96) 0%, rgba(224,236,255,0.92) 100%)',
-                borderRadius: 14,
-              }}
-            >
-              <span style={{ color: '#4e5969' }}>当前模板:</span>
-              <span
-                style={{
-                  marginLeft: 8,
-                  padding: '4px 10px',
-                  borderRadius: 999,
-                  background: '#fff',
-                  border: '1px solid #165dff',
-                  color: '#165dff',
-                  fontSize: 12,
-                  fontWeight: 700,
-                }}
-              >
-                {project.template}
-              </span>
-              <span style={{ marginLeft: 10, fontSize: 12, color: '#86909c' }}>
-                当前项目已锁定模板，不支持跨模板切换
-              </span>
-            </div>
-
             <div style={{ marginBottom: SPACING.md }}>
               <h3 style={{ ...SECTION_TITLE_STYLE, marginBottom: SPACING.xs }}>{panelTitle}</h3>
               <p style={{ margin: 0, color: '#86909c', fontSize: 12, lineHeight: 1.5 }}>
@@ -2035,6 +2339,11 @@ function EditorPage(props: {
                 </div>
               </>
             )}
+            {renderProgress ? (
+              <p style={{ margin: `${SPACING.md}px 0 0`, fontSize: 12, color: '#86909c', lineHeight: 1.5 }}>
+                {renderProgress}
+              </p>
+            ) : null}
             </div>
           )}
         </div>

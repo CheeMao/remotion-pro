@@ -11,6 +11,7 @@ import { NeonShow } from './NeonShow';
 import { NeuShow } from './NeuShow';
 import { RichShow } from './RichShow';
 import { SlideShow } from './SlideShow';
+import { SlideShowWide } from './SlideShowWide';
 import { TechShow } from './TechShow';
 import {
   DynamicSlideShow,
@@ -19,6 +20,7 @@ import {
 } from './templates/DynamicSlideShow';
 import { AudioSlideData, ContentFile, ContentSlide } from './templates/types';
 import { GeneratedTemplateRenderer } from './templates/GeneratedTemplateRenderer';
+import { getTemplateDimensions } from './templates/templateSpecs';
 import { getTemplateContentPath, toStaticContentPath } from './project-content';
 
 interface LoadedJsonData {
@@ -277,10 +279,25 @@ const getTemplateMetadata = (template: string) => {
   });
 };
 
+const getGeneratedCompositionDimensions = (template?: string) => {
+  return getTemplateDimensions(template);
+};
+
 export const RemotionRoot: React.FC = () => {
+  const slideShowWideDimensions = getTemplateDimensions('SlideShowWide');
+
   return (
     <>
       <Composition id="SlideShow" component={SlideShow} durationInFrames={FALLBACK_COMPOSITION_DURATION} fps={30} width={1080} height={1920} calculateMetadata={getTemplateMetadata('SlideShow')} />
+      <Composition
+        id="SlideShowWide"
+        component={SlideShowWide}
+        durationInFrames={FALLBACK_COMPOSITION_DURATION}
+        fps={30}
+        width={slideShowWideDimensions.width}
+        height={slideShowWideDimensions.height}
+        calculateMetadata={getTemplateMetadata('SlideShowWide')}
+      />
       <Composition id="GlassShow" component={GlassShow} durationInFrames={FALLBACK_COMPOSITION_DURATION} fps={30} width={1080} height={1920} calculateMetadata={getTemplateMetadata('GlassShow')} />
       <Composition id="NeuShow" component={NeuShow} durationInFrames={FALLBACK_COMPOSITION_DURATION} fps={30} width={1080} height={1920} calculateMetadata={getTemplateMetadata('NeuShow')} />
       <Composition id="RichShow" component={RichShow} durationInFrames={FALLBACK_COMPOSITION_DURATION} fps={30} width={1080} height={1920} calculateMetadata={getTemplateMetadata('RichShow')} />
@@ -306,6 +323,7 @@ export const RemotionRoot: React.FC = () => {
           const providedSlides = Array.isArray(typedProps.slides)
             ? typedProps.slides
             : [];
+          const dimensions = getGeneratedCompositionDimensions(typedProps.template);
 
           return {
             durationInFrames:
@@ -315,6 +333,8 @@ export const RemotionRoot: React.FC = () => {
                     typedProps.contentPath,
                     typedProps.template
                   ),
+            width: dimensions.width,
+            height: dimensions.height,
             props: {
               ...typedProps,
               defaultSlideDuration,
