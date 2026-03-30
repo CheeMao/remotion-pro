@@ -10,199 +10,125 @@ import { getSlideMotionTiming } from "../templates/animationTiming";
 
 loadFont();
 
-// AI 科技配色
 const colors = {
-  bg: "#0a0a0f",
-  primary: "#00d9ff",    // 电光蓝
-  secondary: "#a855f7",  // AI紫
-  accent: "#22d3ee",     // 青色
-  success: "#10b981",    // 成功绿
-  warning: "#f59e0b",    // 警告黄
-  text: "#ffffff",
-  muted: "rgba(255,255,255,0.6)",
+  bg: "#07111f",
+  bg2: "#0b1830",
+  panel: "rgba(9, 18, 34, 0.84)",
+  panelSoft: "rgba(14, 28, 50, 0.76)",
+  line: "rgba(84, 181, 255, 0.18)",
+  primary: "#4fd1ff",
+  secondary: "#7c8cff",
+  accent: "#19e6b3",
+  warm: "#ffb86b",
+  text: "#f3f9ff",
+  muted: "rgba(211, 226, 244, 0.68)",
 };
 
-// ===== 神经网络节点 =====
-const NeuralNode: React.FC<{
-  x: number;
-  y: number;
-  delay: number;
-  frame: number;
-  color: string;
-  size?: number;
-}> = ({ x, y, delay, frame, color, size = 8 }) => {
-  const progress = spring({
-    frame: frame - delay,
-    fps: 30,
-    config: { damping: 12 },
-  });
-
-  const pulse = 1 + Math.sin((frame - delay) * 0.1) * 0.3;
-
+const GridGlow: React.FC<{ frame: number }> = ({ frame }) => {
+  const drift = frame * 0.32;
   return (
     <div
       style={{
         position: "absolute",
-        left: x,
-        top: y,
-        width: size,
-        height: size,
-        borderRadius: "50%",
-        background: color,
-        boxShadow: `0 0 ${20 * pulse}px ${color}, 0 0 ${40 * pulse}px ${color}80`,
-        opacity: progress,
-        transform: `scale(${progress * pulse})`,
+        inset: 0,
+        backgroundImage: `
+          linear-gradient(rgba(79,209,255,0.06) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(79,209,255,0.06) 1px, transparent 1px)
+        `,
+        backgroundSize: "64px 64px",
+        backgroundPosition: `${-drift}px ${-drift * 0.7}px`,
       }}
     />
   );
 };
 
-// ===== 神经网络连线 =====
-const NeuralConnection: React.FC<{
-  x1: number;
-  y1: number;
-  x2: number;
-  y2: number;
-  delay: number;
-  frame: number;
-  color: string;
-}> = ({ x1, y1, x2, y2, delay, frame, color }) => {
-  const progress = spring({
-    frame: frame - delay,
-    fps: 30,
-    config: { damping: 15 },
-  });
-
-  const midX = x1 + (x2 - x1) * progress;
-  const midY = y1 + (y2 - y1) * progress;
-
-  return (
-    <svg
-      style={{
-        position: "absolute",
-        left: 0,
-        top: 0,
-        width: "100%",
-        height: "100%",
-        pointerEvents: "none",
-      }}
-    >
-      <line
-        x1={x1}
-        y1={y1}
-        x2={midX}
-        y2={midY}
-        stroke={color}
-        strokeWidth={1.5}
-        strokeDasharray="4 4"
-        opacity={progress * 0.3}
-        style={{
-          filter: `drop-shadow(0 0 4px ${color})`,
-        }}
-      />
-    </svg>
-  );
-};
-
-// ===== 数据流粒子 =====
-const DataFlow: React.FC<{ frame: number }> = ({ frame }) => {
-  const particles = [];
-  for (let i = 0; i < 30; i++) {
-    const startY = -50;
-    const x = 80 + i * 35;
-    const speed = 2 + (i % 3);
-    const y = startY + (frame * speed + i * 80) % 2100;
-    const size = 3 + (i % 2) * 2;
-    const color = i % 3 === 0 ? colors.primary : i % 3 === 1 ? colors.secondary : colors.accent;
-
-    particles.push(
-      <div
-        key={i}
-        style={{
-          position: "absolute",
-          left: x,
-          top: y,
-          width: size,
-          height: size * 6,
-          background: `linear-gradient(180deg, transparent, ${color}, transparent)`,
-          borderRadius: 2,
-          opacity: 0.22,
-        }}
-      />
-    );
-  }
-  return <>{particles}</>;
-};
-
-// ===== AI 核心动画 =====
-const AICore: React.FC<{ frame: number }> = ({ frame }) => {
-  const rotate = frame * 0.5;
-  const pulse = 1 + Math.sin(frame * 0.08) * 0.1;
-
+const LightBeam: React.FC<{ frame: number; top: number; width: number; color: string }> = ({
+  frame,
+  top,
+  width,
+  color,
+}) => {
+  const progress = 0.6 + Math.sin(frame * 0.03 + top * 0.01) * 0.18;
   return (
     <div
       style={{
         position: "absolute",
-        top: 100,
-        right: 80,
-        width: 200,
-        height: 200,
+        top,
+        left: -120,
+        width,
+        height: 2,
+        background: `linear-gradient(90deg, transparent, ${color}, transparent)`,
+        opacity: progress,
+        transform: `translateX(${frame * 1.6}px)`,
+        boxShadow: `0 0 16px ${color}`,
+      }}
+    />
+  );
+};
+
+const OrbitalNode: React.FC<{ frame: number; compact?: boolean }> = ({ frame, compact }) => {
+  const rotate = frame * 0.42;
+  const size = compact ? 132 : 176;
+
+  return (
+    <div
+      style={{
+        position: "relative",
+        width: size,
+        height: size,
         display: "flex",
-        justifyContent: "center",
         alignItems: "center",
+        justifyContent: "center",
       }}
     >
-      {/* 外圈 */}
       <div
         style={{
           position: "absolute",
-          width: 180,
-          height: 180,
+          inset: 0,
           borderRadius: "50%",
-          border: `2px solid ${colors.primary}40`,
-          transform: `rotate(${rotate}deg) scale(${pulse})`,
+          border: `1px solid ${colors.line}`,
+          boxShadow: `0 0 22px ${colors.primary}12`,
+          transform: `rotate(${rotate}deg)`,
         }}
       />
-      {/* 中圈 */}
       <div
         style={{
           position: "absolute",
-          width: 140,
-          height: 140,
+          inset: compact ? 16 : 20,
           borderRadius: "50%",
-          border: `2px solid ${colors.secondary}60`,
-          transform: `rotate(${-rotate * 1.5}deg) scale(${pulse})`,
+          border: `1px solid ${colors.secondary}4d`,
+          transform: `rotate(${-rotate * 1.2}deg)`,
         }}
       />
-      {/* 内圈 */}
       <div
         style={{
           position: "absolute",
-          width: 100,
-          height: 100,
-          borderRadius: "50%",
-          background: `radial-gradient(circle, ${colors.primary}20, ${colors.secondary}20)`,
-          border: `1px solid ${colors.accent}40`,
-          boxShadow: `0 0 40px ${colors.primary}40, inset 0 0 40px ${colors.secondary}20`,
+          width: compact ? 84 : 108,
+          height: compact ? 84 : 108,
+          borderRadius: 28,
+          background: `linear-gradient(145deg, ${colors.primary}, ${colors.secondary})`,
+          boxShadow: `0 20px 48px rgba(79,209,255,0.24), 0 0 28px ${colors.secondary}22`,
         }}
       />
-      {/* 核心 */}
       <div
         style={{
           position: "absolute",
-          width: 40,
-          height: 40,
+          width: compact ? 18 : 20,
+          height: compact ? 18 : 20,
           borderRadius: "50%",
-          background: `linear-gradient(135deg, ${colors.primary}, ${colors.secondary})`,
-          boxShadow: `0 0 30px ${colors.primary}, 0 0 60px ${colors.secondary}`,
-          animation: "pulse 2s ease-in-out infinite",
+          background: colors.accent,
+          top: compact ? 8 : 10,
+          left: "50%",
+          marginLeft: compact ? -9 : -10,
+          boxShadow: `0 0 16px ${colors.accent}`,
         }}
       />
     </div>
   );
 };
 
-// ===== 单个幻灯片组件 =====
+type PointLayout = "list" | "matrix" | "rail";
+
 export const AISlide: React.FC<{
   title: string;
   subtitle?: string;
@@ -214,31 +140,29 @@ export const AISlide: React.FC<{
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const timing = getSlideMotionTiming(durationInFrames, points?.length ?? 0);
+  const variant = index % 3;
+  const hasPoints = Boolean(points && points.length > 0);
 
-  // 标题入场
   const titleProgress = spring({
     frame: frame - timing.titleStart,
     fps,
-    config: { damping: 12, stiffness: 100 },
+    config: { damping: 14, stiffness: 92 },
   });
 
-  // 副标题入场
   const subtitleProgress = spring({
     frame: frame - timing.subtitleStart,
     fps,
-    config: { damping: 14, stiffness: 90 },
+    config: { damping: 15, stiffness: 88 },
   });
 
-  // 要点入场
   const pointProgresses = (points || []).map((_, i) =>
     spring({
       frame: frame - timing.pointsStart - i * timing.pointStagger,
       fps,
-      config: { damping: 10, stiffness: 100 },
+      config: { damping: 13, stiffness: 96 },
     })
   );
 
-  // 淡出
   const exitOpacity = interpolate(
     frame,
     [timing.exitStart, timing.exitEnd],
@@ -246,78 +170,205 @@ export const AISlide: React.FC<{
     { extrapolateLeft: "clamp", extrapolateRight: "clamp" }
   );
 
-  // 神经网络节点数据
-  const nodes = [
-    { x: 60, y: 300, delay: 0, color: colors.primary },
-    { x: 120, y: 450, delay: 5, color: colors.secondary },
-    { x: 80, y: 600, delay: 10, color: colors.accent },
-    { x: 150, y: 750, delay: 15, color: colors.primary },
-    { x: 60, y: 900, delay: 20, color: colors.secondary },
-    { x: 100, y: 1200, delay: 25, color: colors.accent },
-    { x: 140, y: 1400, delay: 30, color: colors.primary },
-    // 右侧
-    { x: 980, y: 200, delay: 35, color: colors.secondary },
-    { x: 1020, y: 400, delay: 40, color: colors.accent },
-    { x: 960, y: 550, delay: 45, color: colors.primary },
-    { x: 1000, y: 700, delay: 50, color: colors.secondary },
-    { x: 940, y: 850, delay: 55, color: colors.accent },
-    { x: 1000, y: 1100, delay: 60, color: colors.primary },
-    { x: 980, y: 1300, delay: 65, color: colors.secondary },
-  ];
+  const renderPoints = (layout: PointLayout) => {
+    if (!hasPoints) {
+      return null;
+    }
+
+    if (layout === "matrix") {
+      return (
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "1fr 1fr",
+            gap: 16,
+            marginTop: 12,
+          }}
+        >
+          {points!.map((point, i) => {
+            const progress = pointProgresses[i] || 0;
+            const color = [colors.primary, colors.secondary, colors.accent, colors.warm][i % 4];
+
+            return (
+              <div
+                key={i}
+                style={{
+                  borderRadius: 26,
+                  padding: "20px 20px 22px",
+                  background: "rgba(12, 26, 48, 0.72)",
+                  border: `1px solid ${color}26`,
+                  boxShadow: `inset 0 1px 0 rgba(255,255,255,0.04), 0 18px 36px rgba(0,0,0,0.16)`,
+                  opacity: progress,
+                  transform: `translateY(${interpolate(progress, [0, 1], [42, 0])}px)`,
+                }}
+              >
+                <div
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    minWidth: 72,
+                    height: 42,
+                    padding: "0 16px",
+                    borderRadius: 999,
+                    background: `${color}16`,
+                    border: `1px solid ${color}28`,
+                    color,
+                    fontSize: 15,
+                    fontWeight: 900,
+                    letterSpacing: "0.12em",
+                    marginBottom: 14,
+                  }}
+                >
+                  MOD {String(i + 1).padStart(2, "0")}
+                </div>
+                <div style={{ fontSize: 26, lineHeight: 1.42, color: colors.text, fontWeight: 520 }}>
+                  {point}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      );
+    }
+
+    if (layout === "rail") {
+      return (
+        <div style={{ display: "grid", gap: 14, marginTop: 8 }}>
+          {points!.map((point, i) => {
+            const progress = pointProgresses[i] || 0;
+            const color = [colors.primary, colors.secondary, colors.accent, colors.warm][i % 4];
+
+            return (
+              <div
+                key={i}
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "106px 1fr 72px",
+                  gap: 16,
+                  alignItems: "center",
+                  borderRadius: 24,
+                  padding: "14px 16px",
+                  background: "rgba(12, 26, 48, 0.74)",
+                  border: `1px solid ${color}22`,
+                  opacity: progress,
+                  transform: `translateX(${interpolate(progress, [0, 1], [52, 0])}px)`,
+                }}
+              >
+                <div
+                  style={{
+                    height: 56,
+                    borderRadius: 18,
+                    background: `${color}14`,
+                    border: `1px solid ${color}28`,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    color,
+                    fontSize: 18,
+                    fontWeight: 900,
+                    letterSpacing: "0.12em",
+                  }}
+                >
+                  {String(i + 1).padStart(2, "0")}
+                </div>
+                <div style={{ fontSize: 28, lineHeight: 1.4, color: colors.text, fontWeight: 520 }}>
+                  {point}
+                </div>
+                <div
+                  style={{
+                    justifySelf: "end",
+                    width: 54,
+                    height: 8,
+                    borderRadius: 999,
+                    background: color,
+                    boxShadow: `0 0 16px ${color}66`,
+                  }}
+                />
+              </div>
+            );
+          })}
+        </div>
+      );
+    }
+
+    return (
+      <div style={{ display: "grid", gap: 16, marginTop: 8 }}>
+        {points!.map((point, i) => {
+          const progress = pointProgresses[i] || 0;
+          const color = [colors.primary, colors.secondary, colors.accent, colors.warm][i % 4];
+
+          return (
+            <div
+              key={i}
+              style={{
+                display: "grid",
+                gridTemplateColumns: "86px 1fr",
+                gap: 18,
+                alignItems: "center",
+                borderRadius: 24,
+                padding: "16px 18px",
+                background: "rgba(12, 26, 48, 0.74)",
+                border: `1px solid ${color}20`,
+                boxShadow: "inset 0 1px 0 rgba(255,255,255,0.04)",
+                opacity: progress,
+                transform: `translateX(${interpolate(progress, [0, 1], [-54, 0])}px)`,
+              }}
+            >
+              <div
+                style={{
+                  width: 86,
+                  height: 62,
+                  borderRadius: 20,
+                  background: `linear-gradient(135deg, ${color}26, ${color}10)`,
+                  border: `1px solid ${color}28`,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  color: color,
+                  fontSize: 20,
+                  fontWeight: 900,
+                }}
+              >
+                {String(i + 1).padStart(2, "0")}
+              </div>
+              <div style={{ fontSize: 28, lineHeight: 1.42, color: colors.text, fontWeight: 520 }}>
+                {point}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    );
+  };
+
+  const titleShift = interpolate(titleProgress, [0, 1], [40, 0]);
+  const subtitleShift = interpolate(subtitleProgress, [0, 1], [20, 0]);
 
   return (
     <AbsoluteFill
       style={{
-        background: colors.bg,
+        background: `linear-gradient(180deg, ${colors.bg} 0%, ${colors.bg2} 100%)`,
         justifyContent: "center",
         alignItems: "center",
         fontFamily: '"Orbitron", "PingFang SC", "Microsoft YaHei", sans-serif',
         overflow: "hidden",
       }}
     >
-      {/* 网格背景 */}
+      <GridGlow frame={frame} />
+      <LightBeam frame={frame} top={240} width={460} color={colors.primary} />
+      <LightBeam frame={frame} top={880} width={520} color={colors.secondary} />
+      <LightBeam frame={frame} top={1450} width={420} color={colors.accent} />
+
       <div
         style={{
           position: "absolute",
           inset: 0,
-          backgroundImage: `
-            linear-gradient(${colors.primary}08 1px, transparent 1px),
-            linear-gradient(90deg, ${colors.primary}08 1px, transparent 1px)
-          `,
-          backgroundSize: "60px 60px",
+          background:
+            "radial-gradient(circle at 16% 18%, rgba(79,209,255,0.16) 0%, transparent 28%), radial-gradient(circle at 84% 18%, rgba(124,140,255,0.14) 0%, transparent 28%), radial-gradient(circle at 50% 78%, rgba(25,230,179,0.10) 0%, transparent 30%)",
         }}
       />
 
-      {/* 数据流 */}
-      <DataFlow frame={frame} />
-
-      {/* 神经网络节点 */}
-      {nodes.map((node, i) => (
-        <NeuralNode
-          key={i}
-          x={node.x}
-          y={node.y}
-          delay={node.delay}
-          frame={frame}
-          color={node.color}
-        />
-      ))}
-
-      {/* 连线 */}
-      {nodes.slice(0, 6).map((node, i) => (
-        <NeuralConnection
-          key={i}
-          x1={node.x}
-          y1={node.y}
-          x2={nodes[i + 1].x}
-          y2={nodes[i + 1].y}
-          delay={node.delay + 5}
-          frame={frame}
-          color={node.color}
-        />
-      ))}
-
-      {/* 主内容区 */}
       <AbsoluteFill
         style={{
           opacity: exitOpacity,
@@ -325,29 +376,24 @@ export const AISlide: React.FC<{
           flexDirection: "column",
           justifyContent: "center",
           alignItems: "center",
-          padding: "50px",
+          padding: "48px",
           zIndex: 10,
         }}
       >
-        {/* 主卡片 */}
         <div
           style={{
             width: "90%",
-            maxWidth: 920,
+            maxWidth: 950,
             minHeight: 1260,
-            padding: "34px 34px 38px",
-            background: `linear-gradient(135deg, rgba(0,217,255,0.08), rgba(168,85,247,0.05))`,
-            backdropFilter: "blur(20px)",
-            borderRadius: 30,
-            border: `1px solid ${colors.primary}30`,
-            boxShadow: `
-              0 0 60px ${colors.primary}15,
-              inset 0 1px 0 rgba(255,255,255,0.1)
-            `,
+            borderRadius: 36,
+            padding: variant === 1 ? "28px 28px 34px" : "30px 30px 34px",
+            background: colors.panel,
+            backdropFilter: "blur(22px)",
+            border: `1px solid ${colors.line}`,
+            boxShadow:
+              "0 34px 90px rgba(0,0,0,0.34), inset 0 1px 0 rgba(255,255,255,0.05), 0 0 40px rgba(79,209,255,0.06)",
             display: "flex",
             flexDirection: "column",
-            alignItems: "stretch",
-            justifyContent: "flex-start",
           }}
         >
           <div
@@ -355,34 +401,34 @@ export const AISlide: React.FC<{
               display: "flex",
               alignItems: "center",
               justifyContent: "space-between",
-              marginBottom: 28,
+              marginBottom: 26,
             }}
           >
-            <div style={{ display: "flex", gap: 20, alignItems: "center" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
               <div
                 style={{
-                  padding: "10px 24px",
-                  background: `linear-gradient(135deg, ${colors.primary}, ${colors.secondary})`,
-                  borderRadius: 20,
-                  fontSize: 18,
-                  fontWeight: 700,
+                  padding: "10px 18px",
+                  borderRadius: 999,
+                  background: "rgba(255,255,255,0.04)",
+                  border: `1px solid ${colors.line}`,
                   color: colors.text,
-                  boxShadow: `0 8px 30px ${colors.primary}50`,
+                  fontSize: 15,
+                  fontWeight: 800,
+                  letterSpacing: "0.16em",
                 }}
               >
-                AI-{String(index + 1).padStart(2, "0")}
+                AI SHOW
               </div>
               <div style={{ display: "flex", gap: 8 }}>
-                {[...Array(3)].map((_, i) => (
+                {[colors.primary, colors.secondary, colors.accent].map((color, i) => (
                   <div
                     key={i}
                     style={{
                       width: 10,
                       height: 10,
                       borderRadius: "50%",
-                      background: [colors.success, colors.warning, colors.secondary][i],
-                      boxShadow: `0 0 10px ${[colors.success, colors.warning, colors.secondary][i]}`,
-                      opacity: 0.8,
+                      background: color,
+                      boxShadow: `0 0 10px ${color}`,
                     }}
                   />
                 ))}
@@ -391,176 +437,201 @@ export const AISlide: React.FC<{
 
             <div
               style={{
-                padding: "10px 24px",
-                background: "rgba(255,255,255,0.1)",
-                backdropFilter: "blur(10px)",
-                borderRadius: 20,
-                border: `1px solid ${colors.primary}30`,
-                fontSize: 18,
-                fontWeight: 600,
+                display: "flex",
+                alignItems: "center",
+                gap: 10,
+                padding: "12px 18px",
+                borderRadius: 18,
+                background: "rgba(255,255,255,0.03)",
+                border: `1px solid ${colors.line}`,
                 color: colors.muted,
+                fontSize: 18,
+                fontWeight: 700,
               }}
             >
-              {index + 1} / {totalSlides}
+              <span style={{ color: colors.primary }}>{String(index + 1).padStart(2, "0")}</span>
+              <span>/</span>
+              <span>{String(totalSlides).padStart(2, "0")}</span>
             </div>
           </div>
 
-          {/* 标题 */}
           <div
             style={{
-              display: "flex",
-              alignItems: "flex-start",
-              justifyContent: "space-between",
-              gap: 24,
-              marginBottom: 20,
+              display: "grid",
+              gridTemplateColumns:
+                variant === 0 ? "1.04fr 220px" : variant === 1 ? "1fr" : "228px 1fr",
+              gap: 22,
+              alignItems: "start",
             }}
           >
-            <div style={{ flex: 1 }}>
-              <h1
+            {variant === 2 ? (
+              <div
                 style={{
-                  fontSize: 68,
-                  fontWeight: 800,
-                  color: colors.text,
-                  textAlign: "left",
-                  margin: 0,
-                  marginBottom: 16,
-                  transform: `translateY(${interpolate(titleProgress, [0, 1], [50, 0])}px)`,
-                  opacity: titleProgress,
-                  textShadow: `0 0 40px ${colors.primary}40`,
-                  letterSpacing: "-0.5px",
-                  lineHeight: 1.06,
-                  maxWidth: 620,
+                  minHeight: 320,
+                  borderRadius: 28,
+                  background: colors.panelSoft,
+                  border: `1px solid ${colors.line}`,
+                  padding: "18px 18px 20px",
+                  display: "grid",
+                  gap: 14,
                 }}
               >
-                {title}
-              </h1>
-            </div>
-            <div style={{ flexShrink: 0 }}>
-              <AICore frame={frame} />
-            </div>
-          </div>
-
-          {/* 装饰线 */}
-          <div
-            style={{
-              width: interpolate(titleProgress, [0, 1], [0, 180]),
-              height: 3,
-              background: `linear-gradient(90deg, ${colors.primary}, ${colors.secondary}, ${colors.accent})`,
-              borderRadius: 2,
-              marginBottom: 20,
-              boxShadow: `0 0 20px ${colors.primary}60`,
-            }}
-          />
-
-          {/* 副标题 */}
-          {subtitle && (
-            <p
-              style={{
-                fontSize: 28,
-                color: colors.muted,
-              textAlign: "left",
-                margin: 0,
-                marginBottom: 50,
-                transform: `translateY(${interpolate(subtitleProgress, [0, 1], [30, 0])}px)`,
-                opacity: subtitleProgress,
-                fontWeight: 400,
-              }}
-            >
-              {subtitle}
-            </p>
-          )}
-
-          {/* 要点列表 */}
-          {points && points.length > 0 && (
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                gap: 20,
-                width: "100%",
-                maxWidth: "100%",
-                marginTop: 18,
-              }}
-            >
-              {points.map((point, i) => {
-                const progress = pointProgresses[i] || 0;
-                const pointColors = [colors.primary, colors.secondary, colors.accent, colors.success];
-                const pointColor = pointColors[i % pointColors.length];
-
-                return (
+                {[
+                  { label: "INPUT", color: colors.primary },
+                  { label: "REASON", color: colors.secondary },
+                  { label: "RESULT", color: colors.accent },
+                ].map((item, i) => (
                   <div
-                    key={i}
+                    key={item.label}
                     style={{
+                      height: i === 1 ? 92 : 60,
+                      borderRadius: 20,
+                      background: `${item.color}10`,
+                      border: `1px solid ${item.color}20`,
                       display: "flex",
                       alignItems: "center",
-                      gap: 20,
-                      padding: "22px 28px",
-                      background: `${pointColor}10`,
-                      borderRadius: 16,
-                      border: `1px solid ${pointColor}30`,
-                      transform: `translateX(${interpolate(progress, [0, 1], [-60, 0])}px)`,
-                      opacity: progress,
+                      justifyContent: "center",
+                      color: item.color,
+                      fontSize: 16,
+                      fontWeight: 900,
+                      letterSpacing: "0.14em",
                     }}
                   >
-                    {/* 图标 */}
+                    {item.label}
+                  </div>
+                ))}
+              </div>
+            ) : null}
+
+            <div>
+              <div
+                style={{
+                  display: variant === 1 ? "flex" : "block",
+                  justifyContent: "space-between",
+                  alignItems: "flex-start",
+                  gap: 24,
+                }}
+              >
+                <div>
+                  <h1
+                    style={{
+                      margin: 0,
+                      fontSize: 72,
+                      lineHeight: 1.03,
+                      fontWeight: 800,
+                      color: colors.text,
+                      letterSpacing: "-0.04em",
+                      maxWidth: variant === 1 ? 560 : 620,
+                      opacity: titleProgress,
+                      transform: `translateY(${titleShift}px)`,
+                    }}
+                  >
+                    {title}
+                  </h1>
+
+                  {variant === 1 ? (
                     <div
                       style={{
-                        width: 48,
-                        height: 48,
-                        borderRadius: 12,
-                        background: `linear-gradient(135deg, ${pointColor}, ${pointColor}cc)`,
+                        marginTop: 20,
                         display: "flex",
-                        justifyContent: "center",
-                        alignItems: "center",
-                        fontSize: 20,
-                        fontWeight: 700,
-                        color: colors.text,
-                        boxShadow: `0 6px 20px ${pointColor}40`,
-                        flexShrink: 0,
+                        gap: 10,
+                        flexWrap: "wrap",
                       }}
                     >
-                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <path d="M12 2L2 7l10 5 10-5-10-5z" />
-                        <path d="M2 17l10 5 10-5" />
-                        <path d="M2 12l10 5 10-5" />
-                      </svg>
+                      {[
+                        { label: "ANALYZE", color: colors.primary },
+                        { label: "STRUCTURE", color: colors.secondary },
+                        { label: "GENERATE", color: colors.accent },
+                      ].map((tag) => (
+                        <div
+                          key={tag.label}
+                          style={{
+                            padding: "12px 16px",
+                            borderRadius: 999,
+                            background: `${tag.color}10`,
+                            border: `1px solid ${tag.color}22`,
+                            color: tag.color,
+                            fontSize: 14,
+                            fontWeight: 800,
+                            letterSpacing: "0.12em",
+                          }}
+                        >
+                          {tag.label}
+                        </div>
+                      ))}
                     </div>
-                    {/* 文字 */}
-                    <span
-                      style={{
-                        fontSize: 28,
-                        color: colors.text,
-                        fontWeight: 500,
-                      }}
-                    >
-                      {point}
-                    </span>
-                  </div>
-                );
-              })}
+                  ) : null}
+                </div>
+
+                {variant === 1 ? <OrbitalNode frame={frame} compact /> : null}
+              </div>
+
+              <div
+                style={{
+                  width: interpolate(titleProgress, [0, 1], [0, 210]),
+                  height: 4,
+                  borderRadius: 999,
+                  marginTop: 22,
+                  background: `linear-gradient(90deg, ${colors.primary}, ${colors.secondary}, ${colors.accent})`,
+                  boxShadow: `0 0 16px ${colors.primary}44`,
+                }}
+              />
+
+              {subtitle ? (
+                <p
+                  style={{
+                    margin: "22px 0 0",
+                    fontSize: 28,
+                    lineHeight: 1.5,
+                    color: colors.muted,
+                    maxWidth: 690,
+                    opacity: subtitleProgress,
+                    transform: `translateY(${subtitleShift}px)`,
+                  }}
+                >
+                  {subtitle}
+                </p>
+              ) : null}
             </div>
-          )}
+
+            {variant === 0 ? (
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "flex-end",
+                }}
+              >
+                <OrbitalNode frame={frame} />
+              </div>
+            ) : null}
+          </div>
+
+          <div
+            style={{
+              marginTop: 28,
+              padding: variant === 1 ? "20px" : "0",
+              borderRadius: variant === 1 ? 28 : 0,
+              background: variant === 1 ? colors.panelSoft : "transparent",
+              border: variant === 1 ? `1px solid ${colors.line}` : "none",
+            }}
+          >
+            {renderPoints(variant === 0 ? "list" : variant === 1 ? "matrix" : "rail")}
+          </div>
         </div>
 
-        {/* 底部进度指示 */}
-        <div
-          style={{
-            marginTop: 35,
-            display: "flex",
-            gap: 10,
-          }}
-        >
+        <div style={{ marginTop: 28, display: "flex", gap: 10 }}>
           {[...Array(totalSlides)].map((_, i) => (
             <div
               key={i}
               style={{
-                width: i === index ? 50 : 10,
-                height: 10,
-                borderRadius: 5,
-                background: i === index
-                  ? `linear-gradient(90deg, ${colors.primary}, ${colors.secondary})`
-                  : `${colors.primary}30`,
-                boxShadow: i === index ? `0 0 20px ${colors.primary}60` : "none",
+                width: i === index ? 54 : 12,
+                height: 12,
+                borderRadius: 999,
+                background:
+                  i === index
+                    ? `linear-gradient(90deg, ${colors.primary}, ${colors.secondary})`
+                    : `${colors.primary}20`,
+                boxShadow: i === index ? `0 0 18px ${colors.primary}36` : "none",
               }}
             />
           ))}

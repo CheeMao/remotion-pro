@@ -1,27 +1,30 @@
-import { Composition, continueRender, delayRender } from 'remotion';
-import { useEffect, useState } from 'react';
-import { AIShow } from './AIShow';
-import { FrostedShow } from './FrostedShow';
-import { GlassShow } from './GlassShow';
-import { KnowledgeShow } from './KnowledgeShow';
-import { LiquidBriefShow } from './LiquidBriefShow';
-import { LiquidShow } from './LiquidShow';
-import { LuxeShow } from './LuxeShow';
-import { NeonShow } from './NeonShow';
-import { NeuShow } from './NeuShow';
-import { RichShow } from './RichShow';
-import { SlideShow } from './SlideShow';
-import { SlideShowWide } from './SlideShowWide';
-import { TechShow } from './TechShow';
+import { Composition, continueRender, delayRender } from "remotion";
+import { useEffect, useState } from "react";
+import { AIShow } from "./AIShow";
+import { FrostedShow } from "./FrostedShow";
+import { GlassShow } from "./GlassShow";
+import { GlassWideShow } from "./GlassWideShow";
+import { KnowledgeShow } from "./KnowledgeShow";
+import { LiquidBriefShow } from "./LiquidBriefShow";
+import { LiquidShow } from "./LiquidShow";
+import { LiquidWideShow } from "./LiquidWideShow";
+import { LuxeShow } from "./LuxeShow";
+import { NeonShow } from "./NeonShow";
+import { NeuShow } from "./NeuShow";
+import { NeuWideShow } from "./NeuWideShow";
+import { RichShow } from "./RichShow";
+import { SlideShow } from "./SlideShow";
+import { SlideShowWide } from "./SlideShowWide";
+import { TechShow } from "./TechShow";
 import {
   DynamicSlideShow,
   DynamicSlideShowProps,
   calculateTotalFrames,
-} from './templates/DynamicSlideShow';
-import { AudioSlideData, ContentFile, ContentSlide } from './templates/types';
-import { GeneratedTemplateRenderer } from './templates/GeneratedTemplateRenderer';
-import { getTemplateDimensions } from './templates/templateSpecs';
-import { getTemplateContentPath, toStaticContentPath } from './project-content';
+} from "./templates/DynamicSlideShow";
+import { AudioSlideData, ContentFile, ContentSlide } from "./templates/types";
+import { GeneratedTemplateRenderer } from "./templates/GeneratedTemplateRenderer";
+import { getTemplateDimensions } from "./templates/templateSpecs";
+import { getTemplateContentPath, toStaticContentPath } from "./project-content";
 
 interface LoadedJsonData {
   slides: ContentSlide[];
@@ -42,22 +45,26 @@ interface GeneratedVideoProps {
   contentPath?: string;
 }
 
-const DEFAULT_TEMPLATE = 'DynamicSlideShow';
+const DEFAULT_TEMPLATE = "DynamicSlideShow";
 const DEFAULT_DURATION = 150;
 const FALLBACK_COMPOSITION_DURATION = 5400;
 
 const defaultSlides: AudioSlideData[] = [
   {
-    id: 'slide-0',
-    title: 'AI video workflow',
-    subtitle: 'Script to final video',
-    points: ['Generate slides', 'Create one narration track', 'Preview and export'],
+    id: "slide-0",
+    title: "AI video workflow",
+    subtitle: "Script to final video",
+    points: [
+      "Generate slides",
+      "Create one narration track",
+      "Preview and export",
+    ],
     durationInFrames: DEFAULT_DURATION,
   },
 ];
 
 const getQueryParam = (name: string): string | undefined => {
-  if (typeof window === 'undefined') {
+  if (typeof window === "undefined") {
     return undefined;
   }
 
@@ -69,32 +76,41 @@ const getTemplateProjectContentPath = (template: string): string => {
   return getTemplateContentPath(template);
 };
 
-const loadCurrentProjectReference = async (): Promise<CurrentProjectReference | null> => {
-  try {
-    const staticBase =
-      (window as { remotion_staticBase?: string }).remotion_staticBase || '';
-    const response = await fetch(`${staticBase}/projects/current-project.json`);
-    if (!response.ok) {
-      throw new Error(`Failed to load current project: ${response.status}`);
+const loadCurrentProjectReference =
+  async (): Promise<CurrentProjectReference | null> => {
+    try {
+      const staticBase =
+        (window as { remotion_staticBase?: string }).remotion_staticBase || "";
+      const response = await fetch(
+        `${staticBase}/projects/current-project.json`,
+      );
+      if (!response.ok) {
+        throw new Error(`Failed to load current project: ${response.status}`);
+      }
+
+      return (await response.json()) as CurrentProjectReference;
+    } catch {
+      return null;
     }
+  };
 
-    return (await response.json()) as CurrentProjectReference;
-  } catch {
-    return null;
-  }
-};
-
-const readCurrentProjectReference = async (): Promise<CurrentProjectReference | null> => {
-  try {
-    const { readFile } = await import('fs/promises');
-    const { join } = await import('path');
-    const filePath = join(process.cwd(), 'public', 'projects', 'current-project.json');
-    const fileContent = await readFile(filePath, 'utf-8');
-    return JSON.parse(fileContent) as CurrentProjectReference;
-  } catch {
-    return null;
-  }
-};
+const readCurrentProjectReference =
+  async (): Promise<CurrentProjectReference | null> => {
+    try {
+      const { readFile } = await import("fs/promises");
+      const { join } = await import("path");
+      const filePath = join(
+        process.cwd(),
+        "public",
+        "projects",
+        "current-project.json",
+      );
+      const fileContent = await readFile(filePath, "utf-8");
+      return JSON.parse(fileContent) as CurrentProjectReference;
+    } catch {
+      return null;
+    }
+  };
 
 const toAudioSlides = (content: ContentFile): AudioSlideData[] => {
   return content.slides.map((slide, index) => ({
@@ -127,18 +143,20 @@ const coerceToAudioSlides = (slides: ContentSlide[]): AudioSlideData[] => {
 
 const loadSlidesFromJson = async (
   contentPath?: string,
-  template?: string
+  template?: string,
 ): Promise<LoadedJsonData> => {
   try {
     const staticBase =
-      (window as { remotion_staticBase?: string }).remotion_staticBase || '';
-    const currentProject = !contentPath ? await loadCurrentProjectReference() : null;
+      (window as { remotion_staticBase?: string }).remotion_staticBase || "";
+    const currentProject = !contentPath
+      ? await loadCurrentProjectReference()
+      : null;
     const requestedContentPath = toStaticContentPath(
       contentPath ||
         currentProject?.contentPath ||
         getTemplateProjectContentPath(
-          currentProject?.template || template || DEFAULT_TEMPLATE
-        )
+          currentProject?.template || template || DEFAULT_TEMPLATE,
+        ),
     );
     const response = await fetch(`${staticBase}/${requestedContentPath}`);
     if (!response.ok) {
@@ -161,21 +179,23 @@ const loadSlidesFromJson = async (
 
 const loadTotalFramesFromJson = async (
   contentPath?: string,
-  template?: string
+  template?: string,
 ): Promise<number> => {
   try {
-    const { readFile } = await import('fs/promises');
-    const { join } = await import('path');
-    const currentProject = !contentPath ? await readCurrentProjectReference() : null;
+    const { readFile } = await import("fs/promises");
+    const { join } = await import("path");
+    const currentProject = !contentPath
+      ? await readCurrentProjectReference()
+      : null;
     const requestedContentPath = toStaticContentPath(
       contentPath ||
         currentProject?.contentPath ||
         getTemplateProjectContentPath(
-          currentProject?.template || template || DEFAULT_TEMPLATE
-        )
+          currentProject?.template || template || DEFAULT_TEMPLATE,
+        ),
     );
-    const filePath = join(process.cwd(), 'public', requestedContentPath);
-    const fileContent = await readFile(filePath, 'utf-8');
+    const filePath = join(process.cwd(), "public", requestedContentPath);
+    const fileContent = await readFile(filePath, "utf-8");
     const data: ContentFile = JSON.parse(fileContent);
     return calculateTotalFrames(toAudioSlides(data), 30, DEFAULT_DURATION);
   } catch {
@@ -184,7 +204,7 @@ const loadTotalFramesFromJson = async (
 };
 
 const resolveGeneratedVideoData = async (
-  props: GeneratedVideoProps
+  props: GeneratedVideoProps,
 ): Promise<LoadedJsonData> => {
   if (Array.isArray(props.slides) && props.slides.length > 0) {
     return {
@@ -194,12 +214,12 @@ const resolveGeneratedVideoData = async (
     };
   }
 
-  const queryTemplate = getQueryParam('template');
-  const queryContentPath = getQueryParam('contentPath');
+  const queryTemplate = getQueryParam("template");
+  const queryContentPath = getQueryParam("contentPath");
 
   return loadSlidesFromJson(
     props.contentPath || queryContentPath,
-    props.template || queryTemplate
+    props.template || queryTemplate,
   );
 };
 
@@ -211,7 +231,7 @@ const DynamicLoader: React.FC<GeneratedVideoProps> = ({
   contentPath,
 }) => {
   const [data, setData] = useState<LoadedJsonData | null>(null);
-  const [handle] = useState(() => delayRender('load video json'));
+  const [handle] = useState(() => delayRender("load video json"));
 
   useEffect(() => {
     resolveGeneratedVideoData({
@@ -224,13 +244,23 @@ const DynamicLoader: React.FC<GeneratedVideoProps> = ({
       setData(loadedData);
       continueRender(handle);
     });
-  }, [contentPath, defaultSlideDuration, handle, slides, soundtrackPath, template]);
+  }, [
+    contentPath,
+    defaultSlideDuration,
+    handle,
+    slides,
+    soundtrackPath,
+    template,
+  ]);
 
   if (!data) {
     return null;
   }
 
-  if (data.template === 'DynamicSlideShow' || data.template === 'GeneratedVideo') {
+  if (
+    data.template === "DynamicSlideShow" ||
+    data.template === "GeneratedVideo"
+  ) {
     return (
       <DynamicSlideShow
         slides={coerceToAudioSlides(data.slides)}
@@ -249,23 +279,29 @@ const DynamicLoader: React.FC<GeneratedVideoProps> = ({
   );
 };
 
-const DynamicSlideShowComposition: React.FC<Record<string, unknown>> = (props) => {
+const DynamicSlideShowComposition: React.FC<Record<string, unknown>> = (
+  props,
+) => {
   return <DynamicSlideShow {...(props as unknown as DynamicSlideShowProps)} />;
 };
 
 const demoSlides: AudioSlideData[] = [
   {
-    id: '1',
-    title: 'Dynamic timeline',
-    subtitle: 'Frames come from narration',
-    points: ['Single soundtrack', 'Auto scene lengths', 'Flexible preview'],
+    id: "1",
+    title: "Dynamic timeline",
+    subtitle: "Frames come from narration",
+    points: ["Single soundtrack", "Auto scene lengths", "Flexible preview"],
     durationInFrames: 150,
   },
   {
-    id: '2',
-    title: 'Export ready',
-    subtitle: 'Use one composition',
-    points: ['Preview GeneratedVideo', 'Render GeneratedVideo', 'Keep template style'],
+    id: "2",
+    title: "Export ready",
+    subtitle: "Use one composition",
+    points: [
+      "Preview GeneratedVideo",
+      "Render GeneratedVideo",
+      "Keep template style",
+    ],
     durationInFrames: 150,
   },
 ];
@@ -274,7 +310,7 @@ const getTemplateMetadata = (template: string) => {
   return async () => ({
     durationInFrames: await loadTotalFramesFromJson(
       getTemplateProjectContentPath(template),
-      template
+      template,
     ),
   });
 };
@@ -284,11 +320,13 @@ const getGeneratedCompositionDimensions = (template?: string) => {
 };
 
 export const RemotionRoot: React.FC = () => {
-  const slideShowWideDimensions = getTemplateDimensions('SlideShowWide');
+  const slideShowWideDimensions = getTemplateDimensions("SlideShowWide");
+  const glassWideDimensions = getTemplateDimensions("GlassWideShow");
+  const liquidWideDimensions = getTemplateDimensions("LiquidWideShow");
+  const neuWideDimensions = getTemplateDimensions("NeuWideShow");
 
   return (
     <>
-      <Composition id="SlideShow" component={SlideShow} durationInFrames={FALLBACK_COMPOSITION_DURATION} fps={30} width={1080} height={1920} calculateMetadata={getTemplateMetadata('SlideShow')} />
       <Composition
         id="SlideShowWide"
         component={SlideShowWide}
@@ -296,19 +334,99 @@ export const RemotionRoot: React.FC = () => {
         fps={30}
         width={slideShowWideDimensions.width}
         height={slideShowWideDimensions.height}
-        calculateMetadata={getTemplateMetadata('SlideShowWide')}
+        calculateMetadata={getTemplateMetadata("SlideShowWide")}
       />
-      <Composition id="GlassShow" component={GlassShow} durationInFrames={FALLBACK_COMPOSITION_DURATION} fps={30} width={1080} height={1920} calculateMetadata={getTemplateMetadata('GlassShow')} />
-      <Composition id="NeuShow" component={NeuShow} durationInFrames={FALLBACK_COMPOSITION_DURATION} fps={30} width={1080} height={1920} calculateMetadata={getTemplateMetadata('NeuShow')} />
-      <Composition id="RichShow" component={RichShow} durationInFrames={FALLBACK_COMPOSITION_DURATION} fps={30} width={1080} height={1920} calculateMetadata={getTemplateMetadata('RichShow')} />
-      <Composition id="TechShow" component={TechShow} durationInFrames={FALLBACK_COMPOSITION_DURATION} fps={30} width={1080} height={1920} calculateMetadata={getTemplateMetadata('TechShow')} />
-      <Composition id="AIShow" component={AIShow} durationInFrames={FALLBACK_COMPOSITION_DURATION} fps={30} width={1080} height={1920} calculateMetadata={getTemplateMetadata('AIShow')} />
-      <Composition id="NeonShow" component={NeonShow} durationInFrames={FALLBACK_COMPOSITION_DURATION} fps={30} width={1080} height={1920} calculateMetadata={getTemplateMetadata('NeonShow')} />
-      <Composition id="LuxeShow" component={LuxeShow} durationInFrames={FALLBACK_COMPOSITION_DURATION} fps={30} width={1080} height={1920} calculateMetadata={getTemplateMetadata('LuxeShow')} />
-      <Composition id="LiquidShow" component={LiquidShow} durationInFrames={FALLBACK_COMPOSITION_DURATION} fps={30} width={1080} height={1920} calculateMetadata={getTemplateMetadata('LiquidShow')} />
-      <Composition id="LiquidBriefShow" component={LiquidBriefShow} durationInFrames={FALLBACK_COMPOSITION_DURATION} fps={30} width={1080} height={1920} calculateMetadata={getTemplateMetadata('LiquidBriefShow')} />
-      <Composition id="FrostedShow" component={FrostedShow} durationInFrames={FALLBACK_COMPOSITION_DURATION} fps={30} width={1080} height={1920} calculateMetadata={getTemplateMetadata('FrostedShow')} />
-      <Composition id="KnowledgeShow" component={KnowledgeShow} durationInFrames={FALLBACK_COMPOSITION_DURATION} fps={30} width={1080} height={1920} calculateMetadata={getTemplateMetadata('KnowledgeShow')} />
+      <Composition
+        id="GlassShow"
+        component={GlassShow}
+        durationInFrames={FALLBACK_COMPOSITION_DURATION}
+        fps={30}
+        width={1080}
+        height={1920}
+        calculateMetadata={getTemplateMetadata("GlassShow")}
+      />
+      <Composition
+        id="GlassWideShow"
+        component={GlassWideShow}
+        durationInFrames={FALLBACK_COMPOSITION_DURATION}
+        fps={30}
+        width={glassWideDimensions.width}
+        height={glassWideDimensions.height}
+        calculateMetadata={getTemplateMetadata("GlassWideShow")}
+      />
+      <Composition
+        id="NeuShow"
+        component={NeuShow}
+        durationInFrames={FALLBACK_COMPOSITION_DURATION}
+        fps={30}
+        width={1080}
+        height={1920}
+        calculateMetadata={getTemplateMetadata("NeuShow")}
+      />
+      <Composition
+        id="NeuWideShow"
+        component={NeuWideShow}
+        durationInFrames={FALLBACK_COMPOSITION_DURATION}
+        fps={30}
+        width={neuWideDimensions.width}
+        height={neuWideDimensions.height}
+        calculateMetadata={getTemplateMetadata("NeuWideShow")}
+      />
+
+      <Composition
+        id="NeonShow"
+        component={NeonShow}
+        durationInFrames={FALLBACK_COMPOSITION_DURATION}
+        fps={30}
+        width={1080}
+        height={1920}
+        calculateMetadata={getTemplateMetadata("NeonShow")}
+      />
+      <Composition
+        id="LiquidShow"
+        component={LiquidShow}
+        durationInFrames={FALLBACK_COMPOSITION_DURATION}
+        fps={30}
+        width={1080}
+        height={1920}
+        calculateMetadata={getTemplateMetadata("LiquidShow")}
+      />
+      <Composition
+        id="LiquidWideShow"
+        component={LiquidWideShow}
+        durationInFrames={FALLBACK_COMPOSITION_DURATION}
+        fps={30}
+        width={liquidWideDimensions.width}
+        height={liquidWideDimensions.height}
+        calculateMetadata={getTemplateMetadata("LiquidWideShow")}
+      />
+      <Composition
+        id="LiquidBriefShow"
+        component={LiquidBriefShow}
+        durationInFrames={FALLBACK_COMPOSITION_DURATION}
+        fps={30}
+        width={1080}
+        height={1920}
+        calculateMetadata={getTemplateMetadata("LiquidBriefShow")}
+      />
+      <Composition
+        id="FrostedShow"
+        component={FrostedShow}
+        durationInFrames={FALLBACK_COMPOSITION_DURATION}
+        fps={30}
+        width={1080}
+        height={1920}
+        calculateMetadata={getTemplateMetadata("FrostedShow")}
+      />
+      <Composition
+        id="KnowledgeShow"
+        component={KnowledgeShow}
+        durationInFrames={FALLBACK_COMPOSITION_DURATION}
+        fps={30}
+        width={1080}
+        height={1920}
+        calculateMetadata={getTemplateMetadata("KnowledgeShow")}
+      />
       <Composition
         id="GeneratedVideo"
         component={DynamicLoader}
@@ -323,7 +441,9 @@ export const RemotionRoot: React.FC = () => {
           const providedSlides = Array.isArray(typedProps.slides)
             ? typedProps.slides
             : [];
-          const dimensions = getGeneratedCompositionDimensions(typedProps.template);
+          const dimensions = getGeneratedCompositionDimensions(
+            typedProps.template,
+          );
 
           return {
             durationInFrames:
@@ -331,7 +451,7 @@ export const RemotionRoot: React.FC = () => {
                 ? calculateTotalFrames(providedSlides, 30, defaultSlideDuration)
                 : await loadTotalFramesFromJson(
                     typedProps.contentPath,
-                    typedProps.template
+                    typedProps.template,
                   ),
             width: dimensions.width,
             height: dimensions.height,
@@ -339,34 +459,6 @@ export const RemotionRoot: React.FC = () => {
               ...typedProps,
               defaultSlideDuration,
             },
-          };
-        }}
-      />
-      <Composition
-        id="DynamicSlideShow"
-        component={DynamicSlideShowComposition}
-        durationInFrames={calculateTotalFrames(demoSlides, 30, DEFAULT_DURATION)}
-        fps={30}
-        width={1080}
-        height={1920}
-        defaultProps={{
-          slides: demoSlides,
-          defaultSlideDuration: DEFAULT_DURATION,
-        }}
-        calculateMetadata={({ props }) => {
-          const typedProps = props as {
-            slides: AudioSlideData[];
-            defaultSlideDuration: number;
-            soundtrackPath?: string;
-          };
-
-          return {
-            durationInFrames: calculateTotalFrames(
-              typedProps.slides,
-              30,
-              typedProps.defaultSlideDuration
-            ),
-            props: typedProps,
           };
         }}
       />

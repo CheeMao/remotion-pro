@@ -14,6 +14,16 @@ const defaultSlides = [
     points: ['Open with context', 'Highlight key points', 'Close with action'],
   },
   {
+    title: 'System Panel',
+    subtitle: 'Let the layout feel computational',
+    points: ['Clear modules', 'Strong labels', 'Controlled glow'],
+  },
+  {
+    title: 'Signal Priority',
+    subtitle: 'The eye should know where to look first',
+    points: ['Big title first', 'Metric block second', 'Detail rows last'],
+  },
+  {
     title: 'Single narration',
     subtitle: 'Keep the tone continuous',
     points: ['No audio stitching', 'Consistent voice', 'Unified pacing'],
@@ -22,6 +32,11 @@ const defaultSlides = [
     title: 'Timeline driven',
     subtitle: 'Slides adapt to duration',
     points: ['Auto frame sizing', 'Smoother flow', 'Cleaner preview'],
+  },
+  {
+    title: 'Delivery Layer',
+    subtitle: 'A stronger ending improves the whole cut',
+    points: ['Summarize the idea', 'Keep one CTA', 'Finish with confidence'],
   },
 ];
 

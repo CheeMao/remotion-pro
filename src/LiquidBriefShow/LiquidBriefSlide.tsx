@@ -20,21 +20,64 @@ interface Props{
 }
 
 const c={
-  ink:'#1d2637', muted:'#69798b', pink:'#ff8ec8', aqua:'#7ce6ec',
-  apricot:'#ffc892', lavender:'#b6a7ff', shell:'rgba(255,255,255,0.8)',
+  ink:'#1d2637',
+  muted:'#69798b',
+  soft:'#8a97a6',
+  pink:'#ff8ec8',
+  aqua:'#7ce6ec',
+  apricot:'#ffc892',
+  lavender:'#b6a7ff',
+  line:'rgba(124,138,160,0.18)',
 };
 
-const pill=(color:string)=>`linear-gradient(135deg, ${color} 0%, rgba(255,255,255,0.62) 100%)`;
+const pill=(color:string)=>`linear-gradient(135deg, ${color} 0%, rgba(255,255,255,0.68) 100%)`;
 const rise=(p:number,y=20)=>`translateY(${interpolate(p,[0,1],[y,0])}px)`;
+const glassBase={
+  background:'linear-gradient(180deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.72) 100%)',
+  border:'1px solid rgba(255,255,255,0.82)',
+  boxShadow:'0 24px 48px rgba(146, 154, 172, 0.14), 0 6px 14px rgba(255,255,255,0.28) inset',
+  backdropFilter:'blur(22px)',
+  WebkitBackdropFilter:'blur(22px)',
+} as const;
+
 const tagStyle=(color:string)=>({
-  display:'inline-flex', padding:'10px 16px', borderRadius:999,
-  background:`${color}24`, border:`1px solid ${color}55`,
+  display:'inline-flex',
+  alignItems:'center',
+  gap:8,
+  padding:'9px 15px',
+  borderRadius:999,
+  background:`${color}22`,
+  border:`1px solid ${color}52`,
   boxShadow:'0 4px 14px rgba(255,255,255,0.24) inset',
-  fontSize:16, fontWeight:800, color:c.ink, letterSpacing:'-0.01em',
+  fontSize:15,
+  fontWeight:800,
+  color:c.ink,
+  letterSpacing:'0.02em',
 } as const);
 
+const MetricOrb:React.FC<{color:string}>=({color})=>(
+  <div
+    style={{
+      width:34,
+      height:34,
+      borderRadius:'50%',
+      background:`radial-gradient(circle at 34% 30%, rgba(255,255,255,0.95) 0%, ${color} 42%, ${color}c4 100%)`,
+      boxShadow:`0 12px 22px ${color}4a`,
+      flexShrink:0,
+    }}
+  />
+);
+
 export const LiquidBriefSlide:React.FC<Props>=({
-  title, subtitle, badge='LIQUID BRIEF', items=[], type='cover', data, index, totalSlides, durationInFrames,
+  title,
+  subtitle,
+  badge='LIQUID BRIEF',
+  items=[],
+  type='cover',
+  data,
+  index,
+  totalSlides,
+  durationInFrames,
 })=>{
   const frame=useCurrentFrame();
   const {fps}=useVideoConfig();
@@ -56,159 +99,344 @@ export const LiquidBriefSlide:React.FC<Props>=({
   const titleLine=type==='cover'?1.05:1.08;
 
   const numPill=(number:string,color:string)=>(
-    <div style={{width:58,height:40,borderRadius:999,background:pill(color),display:'flex',alignItems:'center',justifyContent:'center',boxShadow:`0 10px 24px ${color}45`}}>
+    <div
+      style={{
+        width:58,
+        height:40,
+        borderRadius:999,
+        background:pill(color),
+        display:'flex',
+        alignItems:'center',
+        justifyContent:'center',
+        boxShadow:`0 10px 24px ${color}45`,
+      }}
+    >
       <span style={{fontSize:18,fontWeight:800,color:c.ink}}>{number}</span>
     </div>
   );
 
-  const boxStyle={
+  const panelShell=(color:string)=>({
+    ...glassBase,
     borderRadius:28,
-    background:'linear-gradient(180deg, rgba(255,255,255,0.88) 0%, rgba(255,255,255,0.72) 100%)',
-    border:'1px solid rgba(255,255,255,0.74)',
-    boxShadow:'0 14px 28px rgba(196, 200, 210, 0.14), 0 4px 10px rgba(255,255,255,0.24) inset',
-  } as const;
+    position:'relative' as const,
+    overflow:'hidden' as const,
+    background:`linear-gradient(180deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.7) 100%), linear-gradient(135deg, ${color}10 0%, transparent 40%)`,
+  });
 
   const render=()=>{
     if(type==='cover'){
-      return <div style={{display:'flex',flexDirection:'column',gap:18}}>
-        {items.map((item,i)=>{
-          const p=spring({frame:frame-t.pointsStart-i*t.pointStagger,fps,config:{damping:16,stiffness:110}});
-          const color=item.color||[c.pink,c.aqua,c.apricot][i%3];
-          return <div key={`${item.number}-${i}`} style={{...boxStyle,minHeight:154,padding:'24px 28px 26px',opacity:p,transform:`${rise(p,22)} scale(${interpolate(p,[0,1],[0.986,1])})`}}>
-            {numPill(item.number,color)}
-            <div style={{marginTop:24,fontSize:30,fontWeight:800,lineHeight:1.28,color:c.ink,letterSpacing:'-0.03em'}}>{item.title}</div>
-          </div>;
-        })}
-      </div>;
+      return (
+        <div style={{display:'grid',gridTemplateColumns:'1.3fr 1fr',gap:18}}>
+          {items.map((item,i)=>{
+            const p=spring({frame:frame-t.pointsStart-i*t.pointStagger,fps,config:{damping:16,stiffness:110}});
+            const color=item.color||[c.pink,c.aqua,c.apricot][i%3];
+
+            return (
+              <div
+                key={`${item.number}-${i}`}
+                style={{
+                  ...panelShell(color),
+                  minHeight:i===0?176:154,
+                  padding:'24px 28px 26px',
+                  gridColumn:i===0?'1 / 2':'auto',
+                  opacity:p,
+                  transform:`${rise(p,22)} scale(${interpolate(p,[0,1],[0.986,1])})`,
+                }}
+              >
+                <div
+                  style={{
+                    position:'absolute',
+                    inset:0,
+                    background:`radial-gradient(circle at 88% 18%, ${color}2c 0%, transparent 32%), radial-gradient(circle at 12% 100%, rgba(255,255,255,0.76) 0%, transparent 36%)`,
+                    pointerEvents:'none',
+                  }}
+                />
+                <div style={{position:'relative',zIndex:1}}>
+                  {numPill(item.number,color)}
+                  <div style={{marginTop:24,fontSize:i===0?34:30,fontWeight:800,lineHeight:1.22,color:c.ink,letterSpacing:'-0.035em',maxWidth:i===0?380:undefined}}>
+                    {item.title}
+                  </div>
+                  <div style={{marginTop:20,width:i===0?96:72,height:4,borderRadius:999,background:`linear-gradient(90deg, ${color} 0%, rgba(255,255,255,0.95) 100%)`,boxShadow:`0 0 18px ${color}55`}} />
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      );
     }
 
     if(type==='cards'){
       const cards=(data?.cards as Array<{eyebrow?:string;title:string;body:string;color?:string}>)||[];
-      return <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:18}}>
-        {cards.map((card,i)=>{
-          const p=spring({frame:frame-t.pointsStart-i*t.pointStagger,fps,config:{damping:16,stiffness:100}});
-          const color=card.color||[c.pink,c.aqua,c.lavender,c.apricot][i%4];
-          return <div key={`${card.title}-${i}`} style={{...boxStyle,minHeight:232,padding:'24px 24px 28px',opacity:p,transform:`${rise(p,18)} scale(${interpolate(p,[0,1],[0.984,1])})`}}>
-            <div style={tagStyle(color)}>{card.eyebrow||`0${i+1}`}</div>
-            <div style={{marginTop:18,fontSize:28,fontWeight:800,lineHeight:1.2,color:c.ink,letterSpacing:'-0.03em'}}>{card.title}</div>
-            <div style={{marginTop:12,fontSize:22,lineHeight:1.55,color:c.muted,fontWeight:500}}>{card.body}</div>
-          </div>;
-        })}
-      </div>;
+      return (
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:18}}>
+          {cards.map((card,i)=>{
+            const p=spring({frame:frame-t.pointsStart-i*t.pointStagger,fps,config:{damping:16,stiffness:100}});
+            const color=card.color||[c.pink,c.aqua,c.lavender,c.apricot][i%4];
+
+            return (
+              <div
+                key={`${card.title}-${i}`}
+                style={{
+                  ...panelShell(color),
+                  minHeight:248,
+                  padding:'24px 24px 24px',
+                  opacity:p,
+                  transform:`${rise(p,18)} scale(${interpolate(p,[0,1],[0.984,1])})`,
+                }}
+              >
+                <div style={{position:'absolute',top:-22,right:-16,width:118,height:118,borderRadius:'50%',background:`radial-gradient(circle, ${color}40 0%, ${color}08 52%, transparent 74%)`,filter:'blur(4px)'}} />
+                <div style={{position:'absolute',left:0,right:0,bottom:0,height:5,background:`linear-gradient(90deg, ${color} 0%, rgba(255,255,255,0.85) 100%)`}} />
+                <div style={{position:'relative',zIndex:1,display:'flex',flexDirection:'column',height:'100%'}}>
+                  <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',gap:12}}>
+                    <div style={tagStyle(color)}>{card.eyebrow||`0${i+1}`}</div>
+                    <div style={{fontSize:14,fontWeight:800,color:c.soft,letterSpacing:'0.16em'}}>CARD {String(i+1).padStart(2,'0')}</div>
+                  </div>
+                  <div style={{marginTop:22,fontSize:30,fontWeight:800,lineHeight:1.16,color:c.ink,letterSpacing:'-0.04em',maxWidth:290}}>
+                    {card.title}
+                  </div>
+                  <div style={{marginTop:14,fontSize:21,lineHeight:1.58,color:c.muted,fontWeight:500}}>
+                    {card.body}
+                  </div>
+                  <div style={{marginTop:'auto',paddingTop:22,display:'flex',alignItems:'center',gap:12}}>
+                    <MetricOrb color={color} />
+                    <div style={{fontSize:16,fontWeight:700,color:c.ink}}>每张卡片只负责一种信息动作</div>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      );
     }
 
     if(type==='steps'){
       const steps=(data?.steps as Array<{title:string;description:string;color?:string}>)||[];
-      return <div style={{position:'relative',display:'flex',flexDirection:'column',gap:18}}>
-        <div style={{position:'absolute',left:27,top:62,bottom:62,width:2,background:'linear-gradient(180deg, rgba(255,142,200,0.45) 0%, rgba(124,230,236,0.42) 52%, rgba(255,200,146,0.42) 100%)'}} />
-        {steps.map((step,i)=>{
-          const p=spring({frame:frame-t.pointsStart-i*t.pointStagger,fps,config:{damping:15,stiffness:100}});
-          const color=step.color||[c.pink,c.aqua,c.apricot][i%3];
-          return <div key={`${step.title}-${i}`} style={{display:'flex',gap:18,opacity:p,transform:rise(p,18)}}>
-            <div style={{width:56,paddingTop:16,display:'flex',justifyContent:'center',position:'relative',zIndex:1,flexShrink:0}}>
-              {numPill(String(i+1).padStart(2,'0'),color)}
-            </div>
-            <div style={{...boxStyle,flex:1,padding:'22px 24px 24px'}}>
-              <div style={{fontSize:28,fontWeight:800,color:c.ink,letterSpacing:'-0.03em'}}>{step.title}</div>
-              <div style={{marginTop:10,fontSize:22,lineHeight:1.55,color:c.muted,fontWeight:500}}>{step.description}</div>
-            </div>
-          </div>;
-        })}
-      </div>;
+      return (
+        <div style={{position:'relative',display:'flex',flexDirection:'column',gap:18}}>
+          <div style={{position:'absolute',left:27,top:62,bottom:62,width:2,background:'linear-gradient(180deg, rgba(255,142,200,0.45) 0%, rgba(124,230,236,0.42) 52%, rgba(255,200,146,0.42) 100%)'}} />
+          {steps.map((step,i)=>{
+            const p=spring({frame:frame-t.pointsStart-i*t.pointStagger,fps,config:{damping:15,stiffness:100}});
+            const color=step.color||[c.pink,c.aqua,c.apricot][i%3];
+
+            return (
+              <div key={`${step.title}-${i}`} style={{display:'flex',gap:18,opacity:p,transform:rise(p,18)}}>
+                <div style={{width:56,paddingTop:16,display:'flex',justifyContent:'center',position:'relative',zIndex:1,flexShrink:0}}>
+                  {numPill(String(i+1).padStart(2,'0'),color)}
+                </div>
+                <div style={{...panelShell(color),flex:1,padding:'22px 24px 24px'}}>
+                  <div style={{fontSize:28,fontWeight:800,color:c.ink,letterSpacing:'-0.03em'}}>{step.title}</div>
+                  <div style={{marginTop:10,fontSize:22,lineHeight:1.55,color:c.muted,fontWeight:500}}>{step.description}</div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      );
     }
 
     if(type==='compare'){
       const compare=data as {left?:{label:string;title:string;points:string[]};right?:{label:string;title:string;points:string[]};centerLabel?:string};
-      const panel=(side:{label:string;title:string;points:string[]}|undefined,color:string,p:number,d:number)=>{
-        if(!side)return null;
-        return <div style={{...boxStyle,flex:1,padding:'24px 24px 28px',opacity:p,transform:`translateX(${interpolate(p,[0,1],[d,0])}px)`}}>
-          <div style={tagStyle(color)}>{side.label}</div>
-          <div style={{marginTop:18,fontSize:28,fontWeight:800,lineHeight:1.2,color:c.ink,letterSpacing:'-0.03em'}}>{side.title}</div>
-          <div style={{marginTop:18,display:'flex',flexDirection:'column',gap:12}}>
-            {side.points.map((point,i)=><div key={`${point}-${i}`} style={{display:'flex',alignItems:'center',gap:12}}>
-              <div style={{width:12,height:12,borderRadius:999,background:color,boxShadow:`0 0 16px ${color}80`}} />
-              <span style={{fontSize:22,lineHeight:1.45,color:c.muted,fontWeight:600}}>{point}</span>
-            </div>)}
-          </div>
-        </div>;
-      };
       const left=spring({frame:frame-t.pointsStart,fps,config:{damping:15,stiffness:100}});
       const right=spring({frame:frame-t.pointsStart-10,fps,config:{damping:15,stiffness:100}});
-      return <div style={{display:'flex',alignItems:'center',gap:18}}>
-        {panel(compare.left,c.pink,left,-28)}
-        <div style={{...boxStyle,width:80,height:80,display:'flex',alignItems:'center',justifyContent:'center',fontSize:22,fontWeight:900,color:c.ink,letterSpacing:'-0.03em'}}>{compare.centerLabel||'VS'}</div>
-        {panel(compare.right,c.aqua,right,28)}
-      </div>;
+      const center=spring({frame:frame-t.pointsStart-4,fps,config:{damping:16,stiffness:100}});
+
+      const panel=(side:{label:string;title:string;points:string[]}|undefined,color:string,p:number,d:number)=>{
+        if(!side)return null;
+
+        return (
+          <div
+            style={{
+              ...panelShell(color),
+              minHeight:274,
+              padding:'26px 24px 28px',
+              opacity:p,
+              transform:`translateX(${interpolate(p,[0,1],[d,0])}px) rotate(${interpolate(p,[0,1],[d<0?-2:2,d<0?-0.8:0.8])}deg)`,
+            }}
+          >
+            <div style={{position:'absolute',inset:0,background:`radial-gradient(circle at ${d<0?'18% 16%':'82% 16%'}, rgba(255,255,255,0.82) 0%, transparent 34%), radial-gradient(circle at ${d<0?'88% 90%':'12% 90%'}, ${color}22 0%, transparent 40%)`,pointerEvents:'none'}} />
+            <div style={{position:'relative',zIndex:1}}>
+              <div style={tagStyle(color)}>{side.label}</div>
+              <div style={{marginTop:18,fontSize:30,fontWeight:800,lineHeight:1.18,color:c.ink,letterSpacing:'-0.04em'}}>{side.title}</div>
+              <div style={{marginTop:18,display:'flex',flexDirection:'column',gap:12}}>
+                {side.points.map((point,i)=>(
+                  <div key={`${point}-${i}`} style={{display:'flex',alignItems:'center',gap:12}}>
+                    <div style={{width:12,height:12,borderRadius:999,background:color,boxShadow:`0 0 16px ${color}80`}} />
+                    <span style={{fontSize:22,lineHeight:1.45,color:c.muted,fontWeight:600}}>{point}</span>
+                  </div>
+                ))}
+              </div>
+              <div style={{marginTop:22,paddingTop:16,borderTop:`1px solid ${color}22`,fontSize:13,fontWeight:700,letterSpacing:'0.14em',color:c.soft,textTransform:'uppercase'}}>
+                {d<0?'Soft but blurry':'Structured and clear'}
+              </div>
+            </div>
+          </div>
+        );
+      };
+
+      return (
+        <div style={{display:'grid',gridTemplateColumns:'1fr auto 1fr',alignItems:'stretch',gap:18,position:'relative'}}>
+          <div style={{position:'absolute',left:'50%',top:'50%',width:168,height:2,borderRadius:999,background:'linear-gradient(90deg, rgba(255,142,200,0.35) 0%, rgba(255,255,255,0.9) 52%, rgba(124,230,236,0.35) 100%)',transform:`translate(-50%, -50%) scaleX(${interpolate(center,[0,1],[0.45,1])})`,opacity:center,boxShadow:'0 0 18px rgba(255,255,255,0.45)'}} />
+          {panel(compare.left,c.pink,left,-28)}
+          <div
+            style={{
+              ...glassBase,
+              width:92,
+              height:92,
+              alignSelf:'center',
+              borderRadius:'50% 50% 42% 42%',
+              display:'flex',
+              flexDirection:'column',
+              alignItems:'center',
+              justifyContent:'center',
+              opacity:center,
+              transform:`scale(${interpolate(center,[0,1],[0.72,1])})`,
+            }}
+          >
+            <div style={{fontSize:12,fontWeight:700,letterSpacing:'0.18em',color:c.soft,marginBottom:4}}>MODE</div>
+            <div style={{fontSize:22,fontWeight:900,color:c.ink,letterSpacing:'-0.03em'}}>{compare.centerLabel||'VS'}</div>
+          </div>
+          {panel(compare.right,c.aqua,right,28)}
+        </div>
+      );
     }
 
     if(type==='stats'){
       const stats=(data?.stats as Array<{value:string;label:string;note:string;color?:string}>)||[];
       const insights=(data?.insights as string[])||[];
-      return <div style={{display:'flex',flexDirection:'column',gap:20}}>
-        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:18}}>
-          {stats.map((stat,i)=>{
-            const p=spring({frame:frame-t.pointsStart-i*t.pointStagger,fps,config:{damping:15,stiffness:100}});
-            const color=stat.color||[c.pink,c.aqua,c.apricot][i%3];
-            return <div key={`${stat.label}-${i}`} style={{...boxStyle,padding:'24px 24px 26px',opacity:p,transform:rise(p,16)}}>
-              <div style={tagStyle(color)}>{stat.label}</div>
-              <div style={{marginTop:22,fontSize:52,fontWeight:900,lineHeight:1,letterSpacing:'-0.05em',color:c.ink}}>{stat.value}</div>
-              <div style={{marginTop:12,fontSize:20,lineHeight:1.5,color:c.muted,fontWeight:600}}>{stat.note}</div>
-            </div>;
-          })}
-        </div>
-        <div style={{...boxStyle,padding:'24px 24px 26px'}}>
-          <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:18}}>
-            <div style={tagStyle(c.lavender)}>读图结论</div>
-            <div style={{fontSize:22,color:c.muted,fontWeight:600}}>数字需要有解释，不能只堆数值</div>
+
+      return (
+        <div style={{display:'flex',flexDirection:'column',gap:20}}>
+          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:18}}>
+            {stats.map((stat,i)=>{
+              const p=spring({frame:frame-t.pointsStart-i*t.pointStagger,fps,config:{damping:15,stiffness:100}});
+              const color=stat.color||[c.pink,c.aqua,c.apricot][i%3];
+
+              return (
+                <div key={`${stat.label}-${i}`} style={{...panelShell(color),padding:'22px 22px 24px',opacity:p,transform:rise(p,16)}}>
+                  <div style={{position:'absolute',inset:0,background:`radial-gradient(circle at 84% 16%, ${color}26 0%, transparent 34%), linear-gradient(180deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0) 100%)`,pointerEvents:'none'}} />
+                  <div style={{position:'relative',zIndex:1}}>
+                    <div style={tagStyle(color)}>{stat.label}</div>
+                    <div style={{marginTop:20,fontSize:56,fontWeight:900,lineHeight:0.95,letterSpacing:'-0.06em',color:c.ink}}>{stat.value}</div>
+                    <div style={{marginTop:10,width:70,height:4,borderRadius:999,background:`linear-gradient(90deg, ${color} 0%, rgba(255,255,255,0.92) 100%)`}} />
+                    <div style={{marginTop:14,fontSize:20,lineHeight:1.5,color:c.muted,fontWeight:600}}>{stat.note}</div>
+                  </div>
+                </div>
+              );
+            })}
           </div>
-          <div style={{display:'flex',flexDirection:'column',gap:12}}>
-            {insights.map((text,i)=><div key={`${text}-${i}`} style={{fontSize:22,lineHeight:1.5,color:c.ink,fontWeight:700}}>{text}</div>)}
+          <div style={{...glassBase,borderRadius:30,padding:'24px 24px 26px',display:'grid',gridTemplateColumns:'220px 1fr',gap:24,alignItems:'start'}}>
+            <div style={{paddingTop:12}}>
+              <div style={tagStyle(c.lavender)}>读图结论</div>
+              <div style={{marginTop:18,fontSize:24,lineHeight:1.45,color:c.ink,fontWeight:800,letterSpacing:'-0.03em'}}>数字要有解释，不能只堆数值</div>
+              <div style={{marginTop:12,fontSize:18,lineHeight:1.6,color:c.muted,fontWeight:600}}>让数字成为锚点，让说明文字负责翻译含义。</div>
+            </div>
+            <div style={{display:'grid',gap:12}}>
+              {insights.map((text,i)=>{
+                const color=[c.pink,c.aqua,c.apricot][i%3];
+                return (
+                  <div key={`${text}-${i}`} style={{display:'flex',alignItems:'flex-start',gap:14,padding:'14px 16px',borderRadius:22,background:'rgba(255,255,255,0.52)',border:'1px solid rgba(255,255,255,0.74)'}}>
+                    <div style={{width:12,height:12,borderRadius:'50%',background:color,boxShadow:`0 0 16px ${color}80`,marginTop:10,flexShrink:0}} />
+                    <div style={{fontSize:22,lineHeight:1.5,color:c.ink,fontWeight:700}}>{text}</div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </div>
-      </div>;
+      );
     }
 
     const quote=data as {quote?:string;author?:string;tags?:string[]};
     const tags=quote?.tags||[];
-    return <div style={{display:'flex',flexDirection:'column',gap:24}}>
-      <div style={{...boxStyle,borderRadius:32,padding:'34px 34px 32px',boxShadow:'0 18px 36px rgba(196, 200, 210, 0.16), 0 4px 10px rgba(255,255,255,0.24) inset'}}>
-        <div style={{fontSize:84,lineHeight:0.82,color:c.lavender,fontWeight:800}}>“</div>
-        <div style={{marginTop:8,fontSize:36,lineHeight:1.42,color:c.ink,fontWeight:800,letterSpacing:'-0.03em'}}>{quote?.quote||title}</div>
-        <div style={{marginTop:20,fontSize:22,color:c.muted,fontWeight:600}}>{quote?.author||subtitle}</div>
-      </div>
-      <div style={{display:'flex',flexWrap:'wrap',gap:14}}>
-        {tags.map((tag,i)=>{
-          const p=spring({frame:frame-t.pointsStart-i*4,fps,config:{damping:18,stiffness:110}});
-          const color=[c.pink,c.aqua,c.apricot,c.lavender][i%4];
-          return <div key={`${tag}-${i}`} style={{opacity:p,transform:`scale(${interpolate(p,[0,1],[0.84,1])})`}}><div style={tagStyle(color)}>{tag}</div></div>;
-        })}
-      </div>
-    </div>;
-  };
 
-  return <AbsoluteFill style={{background:'linear-gradient(180deg, #efebee 0%, #ebe7e8 34%, #e7e5e5 100%)',justifyContent:'center',alignItems:'center',overflow:'hidden',fontFamily:"'SF Pro Display', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif"}}>
-    <div style={{position:'absolute',inset:0,background:`
-      radial-gradient(58% 34% at ${18+shift*0.05}% 10%, rgba(250,158,196,0.74) 0%, rgba(250,158,196,0.22) 42%, transparent 80%),
-      radial-gradient(52% 32% at ${84-shift*0.06}% 10%, rgba(171,145,244,0.82) 0%, rgba(171,145,244,0.22) 45%, transparent 78%),
-      radial-gradient(48% 30% at ${22+shift*0.04}% 58%, rgba(142,236,239,0.62) 0%, rgba(142,236,239,0.16) 42%, transparent 76%),
-      radial-gradient(42% 28% at ${78-shift*0.03}% 74%, rgba(255,203,120,0.64) 0%, rgba(255,203,120,0.16) 44%, transparent 74%),
-      radial-gradient(44% 28% at ${82-shift*0.03}% 92%, rgba(175,232,255,0.56) 0%, rgba(175,232,255,0.12) 42%, transparent 74%)
-    `}} />
-    <div style={{position:'absolute',inset:0,backdropFilter:'blur(18px)',WebkitBackdropFilter:'blur(18px)'}} />
-    <AbsoluteFill style={{opacity:exit,alignItems:'center',justifyContent:'center',padding:'42px 44px 56px'}}>
-      <div style={{position:'relative',width:922,marginTop:type==='cover'?54:34,borderRadius:34,padding:'44px 44px 40px',background:'linear-gradient(180deg, rgba(255,255,255,0.72) 0%, rgba(255,255,255,0.82) 100%)',border:'1.5px solid rgba(255,255,255,0.78)',boxShadow:'0 32px 80px rgba(141,141,160,0.18), 0 10px 24px rgba(255,255,255,0.24) inset',backdropFilter:'blur(24px)',WebkitBackdropFilter:'blur(24px)',transform:`translateY(${interpolate(enter,[0,1],[28,0])}px) scale(${interpolate(enter,[0,1],[0.978,1])})`,opacity:enter,overflow:'hidden'}}>
-        <div style={{position:'absolute',inset:0,background:'radial-gradient(42% 34% at 22% 72%, rgba(162,240,243,0.28) 0%, transparent 68%), radial-gradient(34% 28% at 80% 88%, rgba(255,214,140,0.24) 0%, transparent 68%), linear-gradient(180deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 100%)',pointerEvents:'none'}} />
-        <div style={{position:'relative',zIndex:1}}>
-          <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:28,opacity:head,transform:rise(head,10)}}>
-            <div style={{padding:'13px 18px',borderRadius:999,background:'rgba(255,255,255,0.56)',boxShadow:'0 6px 18px rgba(255,255,255,0.3) inset'}}><span style={{fontSize:16,fontWeight:700,letterSpacing:'0.11em',color:'#6d7788'}}>{badge}</span></div>
-            <div style={{padding:'13px 18px',borderRadius:999,background:'rgba(255,255,255,0.52)',minWidth:96,textAlign:'center',boxShadow:'0 6px 18px rgba(255,255,255,0.28) inset'}}><span style={{fontSize:18,fontWeight:800,color:'#273243',letterSpacing:'0.02em'}}>{String(index+1).padStart(2,'0')} / {String(totalSlides).padStart(2,'0')}</span></div>
+    return (
+      <div style={{display:'grid',gridTemplateColumns:'1.25fr 0.75fr',gap:20,alignItems:'stretch'}}>
+        <div style={{...glassBase,borderRadius:32,padding:'34px 34px 32px',position:'relative',overflow:'hidden'}}>
+          <div style={{position:'absolute',top:-36,right:-20,width:180,height:180,borderRadius:'50%',background:'radial-gradient(circle, rgba(182,167,255,0.32) 0%, rgba(182,167,255,0.06) 48%, transparent 72%)'}} />
+          <div style={{position:'relative',zIndex:1}}>
+            <div style={{fontSize:84,lineHeight:0.82,color:c.lavender,fontWeight:800}}>“</div>
+            <div style={{marginTop:8,fontSize:38,lineHeight:1.38,color:c.ink,fontWeight:800,letterSpacing:'-0.035em'}}>{quote?.quote||title}</div>
+            <div style={{marginTop:22,paddingTop:18,borderTop:'1px solid rgba(182,167,255,0.18)',fontSize:22,color:c.muted,fontWeight:700}}>{quote?.author||subtitle}</div>
           </div>
-          <h1 style={{margin:0,maxWidth:type==='cover'?780:790,fontSize:titleSize,lineHeight:titleLine,letterSpacing:type==='cover'?'-0.058em':'-0.05em',fontWeight:900,color:c.ink,whiteSpace:'pre-line',opacity:titleIn,transform:rise(titleIn,22)}}>{title}</h1>
-          <div style={{width:interpolate(lineIn,[0,1],[0,type==='cover'?160:150]),height:6,borderRadius:999,marginTop:22,background:'linear-gradient(90deg, #ff64bf 0%, #7de5ef 52%, #19c4b7 100%)'}} />
-          {subtitle?<p style={{margin:type==='cover'?'26px 0 34px':'24px 0 30px',maxWidth:780,fontSize:28,lineHeight:1.48,color:c.muted,fontWeight:500,opacity:subIn,transform:rise(subIn,14)}}>{subtitle}</p>:null}
-          {render()}
+        </div>
+        <div style={{...glassBase,borderRadius:28,padding:'22px 20px',display:'flex',flexDirection:'column'}}>
+          <div style={{fontSize:15,fontWeight:800,letterSpacing:'0.16em',color:c.soft,marginBottom:16}}>KEY TAGS</div>
+          <div style={{display:'flex',flexWrap:'wrap',gap:14}}>
+            {tags.map((tag,i)=>{
+              const p=spring({frame:frame-t.pointsStart-i*4,fps,config:{damping:18,stiffness:110}});
+              const color=[c.pink,c.aqua,c.apricot,c.lavender][i%4];
+              return <div key={`${tag}-${i}`} style={{opacity:p,transform:`scale(${interpolate(p,[0,1],[0.84,1])})`}}><div style={tagStyle(color)}>{tag}</div></div>;
+            })}
+          </div>
+          <div style={{marginTop:'auto',paddingTop:18,borderTop:`1px solid ${c.line}`,fontSize:18,lineHeight:1.55,color:c.muted,fontWeight:600}}>
+            结尾页负责把前面的内容压成一句能记住的话，再用标签做第二次强化。
+          </div>
         </div>
       </div>
+    );
+  };
+
+  return (
+    <AbsoluteFill
+      style={{
+        background:'linear-gradient(180deg, #efebee 0%, #ebe7e8 34%, #e7e5e5 100%)',
+        justifyContent:'center',
+        alignItems:'center',
+        overflow:'hidden',
+        fontFamily:"'SF Pro Display', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif",
+      }}
+    >
+      <div
+        style={{
+          position:'absolute',
+          inset:0,
+          background:`
+            radial-gradient(58% 34% at ${18+shift*0.05}% 10%, rgba(250,158,196,0.74) 0%, rgba(250,158,196,0.22) 42%, transparent 80%),
+            radial-gradient(52% 32% at ${84-shift*0.06}% 10%, rgba(171,145,244,0.82) 0%, rgba(171,145,244,0.22) 45%, transparent 78%),
+            radial-gradient(48% 30% at ${22+shift*0.04}% 58%, rgba(142,236,239,0.62) 0%, rgba(142,236,239,0.16) 42%, transparent 76%),
+            radial-gradient(42% 28% at ${78-shift*0.03}% 74%, rgba(255,203,120,0.64) 0%, rgba(255,203,120,0.16) 44%, transparent 74%),
+            radial-gradient(44% 28% at ${82-shift*0.03}% 92%, rgba(175,232,255,0.56) 0%, rgba(175,232,255,0.12) 42%, transparent 74%)
+          `,
+        }}
+      />
+      <div style={{position:'absolute',inset:0,backdropFilter:'blur(18px)',WebkitBackdropFilter:'blur(18px)'}} />
+      <AbsoluteFill style={{opacity:exit,alignItems:'center',justifyContent:'center',padding:'42px 44px 56px'}}>
+        <div
+          style={{
+            ...glassBase,
+            position:'relative',
+            width:922,
+            marginTop:type==='cover'?54:34,
+            borderRadius:34,
+            padding:'44px 44px 40px',
+            transform:`translateY(${interpolate(enter,[0,1],[28,0])}px) scale(${interpolate(enter,[0,1],[0.978,1])})`,
+            opacity:enter,
+            overflow:'hidden',
+          }}
+        >
+          <div style={{position:'absolute',inset:0,background:'radial-gradient(42% 34% at 22% 72%, rgba(162,240,243,0.28) 0%, transparent 68%), radial-gradient(34% 28% at 80% 88%, rgba(255,214,140,0.24) 0%, transparent 68%), linear-gradient(180deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 100%)',pointerEvents:'none'}} />
+          <div style={{position:'relative',zIndex:1}}>
+            <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:28,opacity:head,transform:rise(head,10)}}>
+              <div style={{padding:'13px 18px',borderRadius:999,background:'rgba(255,255,255,0.56)',boxShadow:'0 6px 18px rgba(255,255,255,0.3) inset'}}>
+                <span style={{fontSize:16,fontWeight:700,letterSpacing:'0.11em',color:'#6d7788'}}>{badge}</span>
+              </div>
+              <div style={{padding:'13px 18px',borderRadius:999,background:'rgba(255,255,255,0.52)',minWidth:96,textAlign:'center',boxShadow:'0 6px 18px rgba(255,255,255,0.28) inset'}}>
+                <span style={{fontSize:18,fontWeight:800,color:'#273243',letterSpacing:'0.02em'}}>{String(index+1).padStart(2,'0')} / {String(totalSlides).padStart(2,'0')}</span>
+              </div>
+            </div>
+            <h1 style={{margin:0,maxWidth:type==='cover'?780:790,fontSize:titleSize,lineHeight:titleLine,letterSpacing:type==='cover'?'-0.058em':'-0.05em',fontWeight:900,color:c.ink,whiteSpace:'pre-line',opacity:titleIn,transform:rise(titleIn,22)}}>
+              {title}
+            </h1>
+            <div style={{width:interpolate(lineIn,[0,1],[0,type==='cover'?160:150]),height:6,borderRadius:999,marginTop:22,background:'linear-gradient(90deg, #ff64bf 0%, #7de5ef 52%, #19c4b7 100%)'}} />
+            {subtitle?(
+              <p style={{margin:type==='cover'?'26px 0 34px':'24px 0 30px',maxWidth:780,fontSize:28,lineHeight:1.48,color:c.muted,fontWeight:500,opacity:subIn,transform:rise(subIn,14)}}>
+                {subtitle}
+              </p>
+            ):null}
+            {render()}
+          </div>
+        </div>
+      </AbsoluteFill>
     </AbsoluteFill>
-  </AbsoluteFill>;
+  );
 };

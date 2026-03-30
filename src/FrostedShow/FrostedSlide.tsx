@@ -15,27 +15,21 @@ const colors = {
   accent2: "#00f2fe",
   accent3: "#fa709a",
   accent4: "#fee140",
-  glass: "rgba(255, 255, 255, 0.18)",
-  glassBorder: "rgba(255, 255, 255, 0.3)",
   text: "#ffffff",
-  muted: "rgba(255, 255, 255, 0.75)",
+  muted: "rgba(255, 255, 255, 0.78)",
 };
 
 const GradientBg: React.FC<{ frame: number }> = ({ frame }) => {
-  const shift = frame * 0.15;
-
+  const drift = frame * 0.16;
   return (
     <div
       style={{
         position: "absolute",
         inset: 0,
         background: `
-          radial-gradient(circle at ${30 + Math.sin(shift * 0.01) * 20}% ${20 + Math.cos(shift * 0.01) * 15}%,
-            rgba(240, 147, 251, 0.4) 0%, transparent 50%),
-          radial-gradient(circle at ${70 + Math.cos(shift * 0.012) * 20}% ${80 + Math.sin(shift * 0.01) * 15}%,
-            rgba(79, 172, 254, 0.4) 0%, transparent 50%),
-          radial-gradient(circle at ${50 + Math.sin(shift * 0.008) * 25}% ${50 + Math.cos(shift * 0.008) * 25}%,
-            rgba(250, 112, 154, 0.3) 0%, transparent 50%),
+          radial-gradient(circle at ${30 + Math.sin(drift * 0.01) * 18}% ${18 + Math.cos(drift * 0.01) * 14}%, rgba(240,147,251,0.42) 0%, transparent 48%),
+          radial-gradient(circle at ${72 + Math.cos(drift * 0.012) * 20}% ${78 + Math.sin(drift * 0.01) * 15}%, rgba(79,172,254,0.42) 0%, transparent 48%),
+          radial-gradient(circle at ${52 + Math.sin(drift * 0.008) * 22}% ${46 + Math.cos(drift * 0.008) * 20}%, rgba(250,112,154,0.28) 0%, transparent 44%),
           linear-gradient(135deg, ${colors.bg1} 0%, ${colors.bg2} 50%, ${colors.bg3} 100%)
         `,
       }}
@@ -43,196 +37,86 @@ const GradientBg: React.FC<{ frame: number }> = ({ frame }) => {
   );
 };
 
-const LightOrb: React.FC<{
-  frame: number;
-  x: number;
-  y: number;
-  size: number;
-  color: string;
-  delay: number;
-  speed: number;
-}> = ({ frame, x, y, size, color, delay, speed }) => {
+const Orb: React.FC<{ frame: number; x: number; y: number; size: number; color: string; delay: number }> = ({
+  frame,
+  x,
+  y,
+  size,
+  color,
+  delay,
+}) => {
   const progress = spring({
     frame: frame - delay,
     fps: 30,
     config: { damping: 15 },
   });
 
-  const floatX = Math.sin(frame * speed + delay) * 60;
-  const floatY = Math.cos(frame * speed * 0.8 + delay) * 40;
-  const scale = 1 + Math.sin(frame * speed * 1.2 + delay) * 0.15;
-
   return (
     <div
       style={{
         position: "absolute",
-        left: x + floatX,
-        top: y + floatY,
+        left: x + Math.sin(frame * 0.01 + delay) * 50,
+        top: y + Math.cos(frame * 0.012 + delay) * 34,
         width: size,
         height: size,
         borderRadius: "50%",
         background: `radial-gradient(circle at 30% 30%, rgba(255,255,255,0.8), ${color})`,
-        filter: "blur(40px)",
-        opacity: progress * 0.6,
-        transform: `scale(${scale})`,
+        filter: "blur(44px)",
+        opacity: progress * 0.52,
       }}
     />
   );
 };
 
-const GlassLayers: React.FC<{
-  children: React.ReactNode;
-  frame: number;
-  delay: number;
-}> = ({ children, frame, delay }) => {
+const GlassCard: React.FC<{ children: React.ReactNode; frame: number; delay: number }> = ({
+  children,
+  frame,
+  delay,
+}) => {
   const progress = spring({
     frame: frame - delay,
     fps: 30,
-    config: { damping: 18, stiffness: 80 },
+    config: { damping: 18, stiffness: 84 },
   });
-
-  const breathe = 1 + Math.sin(frame * 0.02) * 0.005;
 
   return (
     <div
       style={{
         position: "relative",
         opacity: progress,
-        transform: `scale(${progress * breathe}) translateY(${(1 - progress) * 30}px)`,
+        transform: `scale(${0.97 + progress * 0.03}) translateY(${(1 - progress) * 28}px)`,
       }}
     >
       <div
         style={{
           position: "absolute",
-          inset: -30,
-          borderRadius: 60,
-          background: `linear-gradient(135deg, ${colors.accent1}40, ${colors.accent3}40)`,
-          filter: "blur(60px)",
-          opacity: 0.5,
+          inset: -24,
+          borderRadius: 54,
+          background: "linear-gradient(135deg, rgba(255,255,255,0.18), rgba(255,255,255,0.04))",
+          filter: "blur(36px)",
         }}
       />
-
-      <div
-        style={{
-          position: "absolute",
-          inset: -8,
-          borderRadius: 52,
-          background: "rgba(255,255,255,0.08)",
-          backdropFilter: "blur(20px)",
-          border: "1px solid rgba(255,255,255,0.15)",
-        }}
-      />
-
       <div
         style={{
           position: "relative",
-          padding: "75px 60px",
-          background: `
-            linear-gradient(135deg,
-              rgba(255,255,255,0.25) 0%,
-              rgba(255,255,255,0.1) 50%,
-              rgba(255,255,255,0.2) 100%
-            )
-          `,
-          backdropFilter: "blur(60px)",
-          WebkitBackdropFilter: "blur(60px)",
-          borderRadius: 44,
-          border: "1px solid rgba(255,255,255,0.35)",
-          boxShadow: `
-            0 30px 60px -15px rgba(0,0,0,0.2),
-            0 0 0 1px rgba(255,255,255,0.1),
-            inset 0 1px 1px rgba(255,255,255,0.5),
-            inset 0 -1px 1px rgba(0,0,0,0.05)
-          `,
+          borderRadius: 42,
+          padding: "42px 40px 38px",
+          background:
+            "linear-gradient(135deg, rgba(255,255,255,0.26) 0%, rgba(255,255,255,0.12) 48%, rgba(255,255,255,0.22) 100%)",
+          backdropFilter: "blur(52px)",
+          WebkitBackdropFilter: "blur(52px)",
+          border: "1px solid rgba(255,255,255,0.34)",
+          boxShadow:
+            "0 30px 60px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.44), inset 0 -1px 0 rgba(255,255,255,0.1)",
         }}
       >
-        <div
-          style={{
-            position: "absolute",
-            top: 0,
-            left: 20,
-            right: 20,
-            height: 1,
-            background:
-              "linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent)",
-          }}
-        />
-
         {children}
       </div>
     </div>
   );
 };
 
-const GlassPill: React.FC<{
-  text: string;
-  frame: number;
-  delay: number;
-  color?: string;
-}> = ({ text, frame, delay, color }) => {
-  const progress = spring({
-    frame: frame - delay,
-    fps: 30,
-    config: { damping: 12 },
-  });
-
-  return (
-    <div
-      style={{
-        display: "inline-flex",
-        alignItems: "center",
-        gap: 8,
-        padding: "12px 24px",
-        background: color ? `${color}30` : "rgba(255,255,255,0.15)",
-        backdropFilter: "blur(20px)",
-        borderRadius: 25,
-        border: `1px solid ${color ? `${color}50` : "rgba(255,255,255,0.25)"}`,
-        boxShadow: "inset 0 1px 1px rgba(255,255,255,0.3)",
-        fontSize: 20,
-        fontWeight: 600,
-        color: colors.text,
-        opacity: progress,
-        transform: `translateY(${(1 - progress) * 15}px)`,
-      }}
-    >
-      {text}
-    </div>
-  );
-};
-
-const GlassIcon: React.FC<{
-  frame: number;
-  color: string;
-}> = ({ frame, color }) => {
-  const pulse = 1 + Math.sin(frame * 0.08) * 0.08;
-
-  return (
-    <div
-      style={{
-        width: 56,
-        height: 56,
-        borderRadius: 18,
-        background: `linear-gradient(135deg, ${color}, ${color}cc)`,
-        boxShadow: `
-          0 8px 25px ${color}50,
-          inset 0 2px 4px rgba(255,255,255,0.4),
-          inset 0 -2px 4px rgba(0,0,0,0.1)
-        `,
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        color: "white",
-        fontSize: 24,
-        fontWeight: 700,
-        transform: `scale(${pulse})`,
-      }}
-    >
-      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-      </svg>
-    </div>
-  );
-};
+type PointLayout = "stack" | "grid" | "rows";
 
 export const FrostedSlide: React.FC<{
   title: string;
@@ -245,6 +129,8 @@ export const FrostedSlide: React.FC<{
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const timing = getSlideMotionTiming(durationInFrames, points?.length ?? 0);
+  const variant = index % 3;
+  const hasPoints = Boolean(points && points.length > 0);
 
   const titleProgress = spring({
     frame: frame - timing.titleStart,
@@ -273,14 +159,170 @@ export const FrostedSlide: React.FC<{
     { extrapolateLeft: "clamp", extrapolateRight: "clamp" }
   );
 
-  const orbs = [
-    { x: 100, y: 200, size: 300, color: colors.accent1, delay: 5, speed: 0.008 },
-    { x: 700, y: 100, size: 350, color: colors.accent3, delay: 10, speed: 0.006 },
-    { x: 50, y: 900, size: 280, color: colors.accent2, delay: 15, speed: 0.007 },
-    { x: 800, y: 800, size: 320, color: colors.accent4, delay: 20, speed: 0.0065 },
-    { x: 150, y: 1400, size: 260, color: colors.accent1, delay: 25, speed: 0.0075 },
-    { x: 750, y: 1500, size: 300, color: colors.accent3, delay: 30, speed: 0.0055 },
+  const orbList = [
+    { x: 80, y: 180, size: 320, color: colors.accent1, delay: 4 },
+    { x: 720, y: 110, size: 360, color: colors.accent3, delay: 10 },
+    { x: 40, y: 930, size: 280, color: colors.accent2, delay: 16 },
+    { x: 780, y: 860, size: 320, color: colors.accent4, delay: 22 },
   ];
+
+  const pointPalette = [colors.accent1, colors.accent2, colors.accent3, colors.accent4];
+
+  const renderPoints = (layout: PointLayout) => {
+    if (!hasPoints) {
+      return null;
+    }
+
+    if (layout === "grid") {
+      return (
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+          {points!.map((point, i) => {
+            const progress = pointProgresses[i] || 0;
+            const pointColor = pointPalette[i % pointPalette.length];
+            return (
+              <div
+                key={i}
+                style={{
+                  padding: "20px 22px",
+                  borderRadius: 24,
+                  background: "rgba(255,255,255,0.14)",
+                  backdropFilter: "blur(18px)",
+                  border: "1px solid rgba(255,255,255,0.22)",
+                  boxShadow: "inset 0 1px 0 rgba(255,255,255,0.28)",
+                  opacity: progress,
+                  transform: `translateY(${interpolate(progress, [0, 1], [36, 0])}px)`,
+                }}
+              >
+                <div
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    minWidth: 68,
+                    height: 44,
+                    padding: "0 14px",
+                    borderRadius: 16,
+                    background: `linear-gradient(135deg, ${pointColor}, ${pointColor}cc)`,
+                    boxShadow: `0 12px 24px ${pointColor}36`,
+                    color: colors.text,
+                    fontSize: 16,
+                    fontWeight: 800,
+                    marginBottom: 14,
+                  }}
+                >
+                  {String(i + 1).padStart(2, "0")}
+                </div>
+                <div style={{ fontSize: 28, lineHeight: 1.42, color: colors.text, fontWeight: 620 }}>
+                  {point}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      );
+    }
+
+    if (layout === "rows") {
+      return (
+        <div style={{ display: "grid", gap: 14 }}>
+          {points!.map((point, i) => {
+            const progress = pointProgresses[i] || 0;
+            const pointColor = pointPalette[i % pointPalette.length];
+            return (
+              <div
+                key={i}
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "92px 1fr 84px",
+                  gap: 16,
+                  alignItems: "center",
+                  padding: "16px 18px",
+                  borderRadius: 24,
+                  background: "rgba(255,255,255,0.14)",
+                  backdropFilter: "blur(18px)",
+                  border: "1px solid rgba(255,255,255,0.22)",
+                  boxShadow: "inset 0 1px 0 rgba(255,255,255,0.28)",
+                  opacity: progress,
+                  transform: `translateX(${interpolate(progress, [0, 1], [48, 0])}px)`,
+                }}
+              >
+                <div
+                  style={{
+                    height: 58,
+                    borderRadius: 18,
+                    background: `linear-gradient(135deg, ${pointColor}, ${pointColor}cc)`,
+                    boxShadow: `0 12px 24px ${pointColor}36`,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    color: colors.text,
+                    fontSize: 20,
+                    fontWeight: 800,
+                  }}
+                >
+                  {String(i + 1).padStart(2, "0")}
+                </div>
+                <div style={{ fontSize: 29, lineHeight: 1.42, color: colors.text, fontWeight: 620 }}>
+                  {point}
+                </div>
+                <div
+                  style={{
+                    justifySelf: "end",
+                    width: 60,
+                    height: 10,
+                    borderRadius: 999,
+                    background: `linear-gradient(90deg, ${pointColor}, ${pointColor}80)`,
+                    boxShadow: `0 8px 18px ${pointColor}36`,
+                  }}
+                />
+              </div>
+            );
+          })}
+        </div>
+      );
+    }
+
+    return (
+      <div style={{ display: "grid", gap: 16 }}>
+        {points!.map((point, i) => {
+          const progress = pointProgresses[i] || 0;
+          const pointColor = pointPalette[i % pointPalette.length];
+          return (
+            <div
+              key={i}
+              style={{
+                display: "grid",
+                gridTemplateColumns: "72px 1fr",
+                gap: 18,
+                alignItems: "center",
+                padding: "20px 22px",
+                borderRadius: 24,
+                background: "rgba(255,255,255,0.14)",
+                backdropFilter: "blur(18px)",
+                border: "1px solid rgba(255,255,255,0.22)",
+                boxShadow: "inset 0 1px 0 rgba(255,255,255,0.28)",
+                opacity: progress,
+                transform: `translateX(${interpolate(progress, [0, 1], [-48, 0])}px)`,
+              }}
+            >
+              <div
+                style={{
+                  width: 72,
+                  height: 58,
+                  borderRadius: 18,
+                  background: `linear-gradient(135deg, ${pointColor}, ${pointColor}cc)`,
+                  boxShadow: `0 12px 24px ${pointColor}36`,
+                }}
+              />
+              <div style={{ fontSize: 31, lineHeight: 1.42, color: colors.text, fontWeight: 620 }}>
+                {point}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    );
+  };
 
   return (
     <AbsoluteFill
@@ -293,18 +335,8 @@ export const FrostedSlide: React.FC<{
       }}
     >
       <GradientBg frame={frame} />
-
-      {orbs.map((orb, i) => (
-        <LightOrb
-          key={i}
-          frame={frame}
-          x={orb.x}
-          y={orb.y}
-          size={orb.size}
-          color={orb.color}
-          delay={orb.delay}
-          speed={orb.speed}
-        />
+      {orbList.map((orb, i) => (
+        <Orb key={i} frame={frame} {...orb} />
       ))}
 
       <AbsoluteFill
@@ -321,7 +353,7 @@ export const FrostedSlide: React.FC<{
         <div
           style={{
             position: "absolute",
-            top: 50,
+            top: 48,
             left: 50,
             right: 50,
             display: "flex",
@@ -329,153 +361,194 @@ export const FrostedSlide: React.FC<{
             alignItems: "center",
           }}
         >
-          <div style={{ display: "flex", gap: 12 }}>
-            <GlassPill text="Frosted Glass" frame={frame} delay={5} />
-            <GlassPill text="Blur Effect" frame={frame} delay={10} color={colors.accent2} />
+          <div
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 10,
+              padding: "12px 20px",
+              borderRadius: 999,
+              background: "rgba(255,255,255,0.14)",
+              backdropFilter: "blur(22px)",
+              border: "1px solid rgba(255,255,255,0.28)",
+              color: colors.text,
+              fontSize: 16,
+              fontWeight: 700,
+              letterSpacing: "0.14em",
+            }}
+          >
+            FROSTED
           </div>
           <div
             style={{
               display: "flex",
               alignItems: "center",
-              gap: 12,
-              padding: "12px 24px",
-              background: "rgba(255,255,255,0.12)",
-              backdropFilter: "blur(20px)",
-              borderRadius: 25,
-              border: "1px solid rgba(255,255,255,0.2)",
+              gap: 10,
+              padding: "12px 18px",
+              borderRadius: 999,
+              background: "rgba(255,255,255,0.14)",
+              backdropFilter: "blur(22px)",
+              border: "1px solid rgba(255,255,255,0.28)",
+              color: colors.text,
+              fontSize: 22,
+              fontWeight: 800,
             }}
           >
-            <span style={{ fontSize: 26, fontWeight: 700, color: colors.text }}>{index + 1}</span>
-            <span style={{ fontSize: 26, color: colors.muted }}>|</span>
-            <span style={{ fontSize: 26, color: colors.muted }}>{totalSlides}</span>
+            <span>{String(index + 1).padStart(2, "0")}</span>
+            <span style={{ color: colors.muted }}>/</span>
+            <span style={{ color: colors.muted }}>{String(totalSlides).padStart(2, "0")}</span>
           </div>
         </div>
 
-        <GlassLayers frame={frame} delay={8}>
-          <div
-            style={{
-              width: 880,
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-            }}
-          >
-            <h1
-              style={{
-                fontSize: 90,
-                fontWeight: 800,
-                color: colors.text,
-                margin: 0,
-                marginBottom: 14,
-                transform: `translateY(${interpolate(titleProgress, [0, 1], [30, 0])}px)`,
-                opacity: titleProgress,
-                textShadow: "0 2px 20px rgba(0,0,0,0.15)",
-                letterSpacing: "-2px",
-              }}
-            >
-              {title}
-            </h1>
-
+        <GlassCard frame={frame} delay={8}>
+          <div style={{ width: 880, display: "flex", flexDirection: "column" }}>
             <div
               style={{
-                width: interpolate(titleProgress, [0, 1], [0, 120]),
-                height: 5,
-                borderRadius: 3,
-                background: `linear-gradient(90deg, ${colors.accent1}, ${colors.accent2}, ${colors.accent3}, ${colors.accent4})`,
-                marginBottom: 20,
-                boxShadow: "0 4px 15px rgba(255,255,255,0.3)",
+                display: "grid",
+                gridTemplateColumns: variant === 2 ? "210px 1fr 118px" : "1fr 118px",
+                justifyContent: "space-between",
+                alignItems: "flex-start",
+                gap: 24,
               }}
-            />
+            >
+              {variant === 2 ? (
+                <div
+                  style={{
+                    borderRadius: 28,
+                    background: "rgba(255,255,255,0.12)",
+                    border: "1px solid rgba(255,255,255,0.22)",
+                    boxShadow: "inset 0 1px 0 rgba(255,255,255,0.28)",
+                    padding: "18px 16px",
+                    display: "grid",
+                    gap: 12,
+                  }}
+                >
+                  {["MIST", "LAYER", "LIGHT"].map((label, i) => (
+                    <div
+                      key={label}
+                      style={{
+                        height: i === 1 ? 66 : 48,
+                        borderRadius: 18,
+                        background: "rgba(255,255,255,0.14)",
+                        border: "1px solid rgba(255,255,255,0.22)",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        color: [colors.accent1, colors.accent2, colors.accent3][i],
+                        fontSize: 16,
+                        fontWeight: 800,
+                        letterSpacing: "0.12em",
+                      }}
+                    >
+                      {label}
+                    </div>
+                  ))}
+                </div>
+              ) : null}
 
-            {subtitle && (
+              <div>
+                <h1
+                  style={{
+                    margin: 0,
+                    fontSize: 88,
+                    lineHeight: 1.02,
+                    fontWeight: 820,
+                    color: colors.text,
+                    opacity: titleProgress,
+                    transform: `translateY(${interpolate(titleProgress, [0, 1], [34, 0])}px)`,
+                    letterSpacing: "-0.05em",
+                    textShadow: "0 2px 18px rgba(0,0,0,0.14)",
+                    maxWidth: 620,
+                  }}
+                >
+                  {title}
+                </h1>
+
+                {variant === 1 ? (
+                  <div
+                    style={{
+                      marginTop: 18,
+                      display: "flex",
+                      gap: 12,
+                      flexWrap: "wrap",
+                    }}
+                  >
+                    {[colors.accent1, colors.accent2, colors.accent3].map((color, i) => (
+                      <div
+                        key={i}
+                        style={{
+                          padding: "12px 18px",
+                          borderRadius: 999,
+                          background: "rgba(255,255,255,0.14)",
+                          border: "1px solid rgba(255,255,255,0.24)",
+                          color,
+                          fontSize: 15,
+                          fontWeight: 800,
+                          letterSpacing: "0.12em",
+                        }}
+                      >
+                        {i === 0 ? "AIR" : i === 1 ? "SOFT" : "GLOW"}
+                      </div>
+                    ))}
+                  </div>
+                ) : null}
+
+                <div
+                  style={{
+                    width: interpolate(titleProgress, [0, 1], [0, 150]),
+                    height: 5,
+                    borderRadius: 999,
+                    marginTop: 20,
+                    background: `linear-gradient(90deg, ${colors.accent1}, ${colors.accent2}, ${colors.accent3})`,
+                    boxShadow: "0 6px 16px rgba(255,255,255,0.22)",
+                  }}
+                />
+              </div>
+              <div
+                style={{
+                  width: 118,
+                  height: 118,
+                  borderRadius: 32,
+                  background: "rgba(255,255,255,0.16)",
+                  border: "1px solid rgba(255,255,255,0.34)",
+                  boxShadow: "inset 0 1px 0 rgba(255,255,255,0.46), 0 12px 26px rgba(0,0,0,0.12)",
+                }}
+              />
+            </div>
+
+            {subtitle ? (
               <p
                 style={{
-                  fontSize: 36,
+                  margin: "24px 0 34px",
+                  fontSize: 34,
+                  lineHeight: 1.5,
                   color: colors.muted,
-                  margin: 0,
-                  marginBottom: 50,
-                  transform: `translateY(${interpolate(subtitleProgress, [0, 1], [20, 0])}px)`,
+                  maxWidth: 700,
                   opacity: subtitleProgress,
-                  fontWeight: 400,
-                  textShadow: "0 1px 10px rgba(0,0,0,0.1)",
+                  transform: `translateY(${interpolate(subtitleProgress, [0, 1], [18, 0])}px)`,
                 }}
               >
                 {subtitle}
               </p>
-            )}
+            ) : null}
 
-            {points && points.length > 0 && (
-              <div
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: 18,
-                  width: "100%",
-                }}
-              >
-                {points.map((point, i) => {
-                  const progress = pointProgresses[i] || 0;
-                  const accentColors = [colors.accent1, colors.accent2, colors.accent3, colors.accent4];
-
-                  return (
-                    <div
-                      key={i}
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 22,
-                        padding: "22px 28px",
-                        background: "rgba(255,255,255,0.12)",
-                        backdropFilter: "blur(15px)",
-                        borderRadius: 24,
-                        border: "1px solid rgba(255,255,255,0.2)",
-                        boxShadow: `
-                          0 4px 15px rgba(0,0,0,0.08),
-                          inset 0 1px 1px rgba(255,255,255,0.3)
-                        `,
-                        transform: `translateX(${interpolate(progress, [0, 1], [-50, 0])}px)`,
-                        opacity: progress,
-                      }}
-                    >
-                      <GlassIcon frame={frame} color={accentColors[i % 4]} />
-                      <span
-                        style={{
-                          fontSize: 32,
-                          color: colors.text,
-                          fontWeight: 600,
-                          textShadow: "0 1px 8px rgba(0,0,0,0.1)",
-                        }}
-                      >
-                        {point}
-                      </span>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
+            {renderPoints(variant === 1 ? "grid" : variant === 2 ? "rows" : "stack")}
           </div>
-        </GlassLayers>
+        </GlassCard>
 
-        <div
-          style={{
-            position: "absolute",
-            bottom: 50,
-            display: "flex",
-            gap: 10,
-          }}
-        >
+        <div style={{ position: "absolute", bottom: 48, display: "flex", gap: 10 }}>
           {[...Array(totalSlides)].map((_, i) => (
             <div
               key={i}
               style={{
-                width: i === index ? 40 : 12,
+                width: i === index ? 44 : 12,
                 height: 12,
-                borderRadius: 6,
+                borderRadius: 999,
                 background:
                   i === index
                     ? `linear-gradient(90deg, ${colors.accent1}, ${colors.accent2})`
-                    : "rgba(255,255,255,0.25)",
-                boxShadow: i === index ? "0 4px 15px rgba(255,255,255,0.3)" : "none",
+                    : "rgba(255,255,255,0.24)",
+                boxShadow: i === index ? "0 6px 18px rgba(255,255,255,0.22)" : "none",
               }}
             />
           ))}

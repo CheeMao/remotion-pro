@@ -11,7 +11,7 @@ import { getTemplateContentPath } from '../project-content';
 const defaultSlides: KnowledgeSlideType[] = [
   {
     title: '重点强调',
-    subtitle: '突出核心关键词',
+    subtitle: '先把关键概念推到前台',
     highlights: [
       { text: '人工智能', color: '#3b82f6', emphasis: 'glow' },
       { text: '机器学习', color: '#8b5cf6', emphasis: 'bounce' },
@@ -21,26 +21,26 @@ const defaultSlides: KnowledgeSlideType[] = [
   },
   {
     title: '步骤流程',
-    subtitle: '清晰展示操作步骤',
+    subtitle: '把复杂动作拆成可理解的顺序',
     steps: [
-      { title: '数据收集', description: '获取训练所需的原始数据' },
-      { title: '数据预处理', description: '清洗、标准化数据格式' },
-      { title: '模型训练', description: '使用算法训练模型参数' },
-      { title: '模型评估', description: '验证模型的准确性' },
+      { title: '数据收集', description: '先拿到训练所需的原始数据' },
+      { title: '数据预处理', description: '清洗并统一输入格式' },
+      { title: '模型训练', description: '让算法在样本上学习参数' },
+      { title: '模型评估', description: '验证结果是否达到预期' },
     ],
   },
   {
     title: '发展历程',
-    subtitle: '时间线展示历史事件',
+    subtitle: '时间线最适合承载阶段变化',
     timeline: [
-      { year: '1956', title: 'AI诞生', description: '达特茅斯会议提出人工智能概念' },
-      { year: '2012', title: '深度学习突破', description: 'AlexNet在ImageNet取得突破' },
-      { year: '2022', title: '大模型时代', description: 'ChatGPT引发全球关注' },
+      { year: '1956', title: 'AI 诞生', description: '达特茅斯会议提出人工智能概念' },
+      { year: '2012', title: '深度学习突破', description: 'AlexNet 在图像任务上大幅领先' },
+      { year: '2022', title: '大模型时代', description: 'ChatGPT 让生成式 AI 进入大众视野' },
     ],
   },
   {
     title: '数据统计',
-    subtitle: '直观展示数据比例',
+    subtitle: '用进度图快速表达比例关系',
     chart: {
       type: 'progress',
       values: [
@@ -48,6 +48,29 @@ const defaultSlides: KnowledgeSlideType[] = [
         { label: 'JavaScript', value: 72, color: '#f59e0b' },
         { label: 'Go', value: 58, color: '#06b6d4' },
         { label: 'Rust', value: 45, color: '#ef4444' },
+      ],
+    },
+  },
+  {
+    title: '知识拆解',
+    subtitle: '普通信息页也需要强结构',
+    points: [
+      '一页只讲一个重点',
+      '先给结论，再给解释',
+      '卡片之间要有明确层级',
+      '颜色只负责辅助，不负责抢戏',
+    ],
+  },
+  {
+    title: '能力对比',
+    subtitle: '柱状图适合做横向比较',
+    chart: {
+      type: 'bar',
+      values: [
+        { label: '理解力', value: 92, color: '#3b82f6' },
+        { label: '生成力', value: 88, color: '#8b5cf6' },
+        { label: '执行力', value: 81, color: '#06b6d4' },
+        { label: '稳定性', value: 76, color: '#10b981' },
       ],
     },
   },

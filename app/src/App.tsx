@@ -412,8 +412,55 @@ ${COMMON_SEGMENT_RULES}
   ]
 }`;
 
+const LIQUID_PROMPT = `你是短视频分镜策划助手。请根据 LiquidShow 模板风格和语义片段时间轴，输出多版式液态玻璃分镜。
+${COMMON_SEGMENT_RULES}
+导演编排要求：
+{director_brief}
+
+页面要求：
+1. 页面类型只能使用：hero、stats、compare、steps、list、chart、timeline、highlight、quote、default。
+2. 每页都要有 title、可选 subtitle、type、narration、segmentIds。
+3. 优先让版式和内容匹配，不要整套都输出成 default 或 list。
+4. 不要让相邻两页使用同一种版式。
+5. 当页数 >= 6 时，至少使用 4 种不同版式；当页数 >= 8 时，至少使用 5 种不同版式。
+6. hero 只适合开场钩子或阶段总述；quote 适合关键结论；timeline 适合过程；steps 适合拆解；stats / chart 适合数据。
+7. default 只能作为补位页，不能成为主体页型。
+
+字段约定：
+- hero: data 可包含 badge、cta
+- stats: data.stats = [{ value, suffix?, label, color? }]
+- compare: data.left / data.right / data.vsText
+- steps: data.steps = [{ title, description? }]
+- list: data.items = [{ icon?, text, desc? }]
+- chart: data.bars = [{ label, value, color? }]
+- timeline: data.timeline = [{ year, title, description? }]
+- highlight: data.items = ["关键词"]
+- quote: data.quote / data.author
+- default: 使用 title / subtitle / points
+
+输入信息：
+- 模板：{template_name}
+- 音频总时长：{duration_seconds} 秒
+- 建议页数：{target_pages} 页，可在 {min_pages}-{max_pages} 之间调整
+- 语义片段时间轴：
+{segments_text}
+
+只输出 JSON：
+{
+  "slides": [
+    {
+      "segmentIds": ["segment-1", "segment-2"],
+      "title": "...",
+      "subtitle": "...",
+      "type": "hero",
+      "data": { "badge": "...", "cta": "..." },
+      "narration": "..."
+    }
+  ]
+}`;
+
 function isStructuredTemplate(template: string): boolean {
-  return template === 'GlassShow' || template === 'RichShow' || template === 'TechShow';
+  return template === 'GlassShow' || template === 'LiquidShow' || template === 'RichShow' || template === 'TechShow';
 }
 
 function usesDataOnlyStructuredSlides(template: string): boolean {
@@ -421,7 +468,7 @@ function usesDataOnlyStructuredSlides(template: string): boolean {
 }
 
 function getTemplateSlideTypes(template: string): string[] {
-  if (template === 'GlassShow') {
+  if (template === 'GlassShow' || template === 'LiquidShow') {
     return ['hero', 'stats', 'compare', 'steps', 'list', 'chart', 'timeline', 'highlight', 'quote', 'default'];
   }
 
@@ -434,6 +481,7 @@ function getTemplateSlideTypes(template: string): string[] {
 
 const TECH_SHOW_MIDDLE_TYPES = ['compare', 'stats', 'progress', 'list', 'quote'] as const;
 const GLASS_SHOW_TYPES = ['hero', 'stats', 'compare', 'steps', 'list', 'chart', 'timeline', 'highlight', 'quote', 'default'] as const;
+const LIQUID_SHOW_TYPES = ['hero', 'stats', 'compare', 'steps', 'list', 'chart', 'timeline', 'highlight', 'quote', 'default'] as const;
 
 function getTechShowTypeTargets(pageCount: number): string[] {
   if (pageCount <= 2) {
@@ -530,6 +578,57 @@ function getGlassShowDirectorBrief(pageCount: number): string {
     `建议页型节奏：${targets.join(' -> ')}`,
     `至少使用 ${getGlassShowMinUniqueTypes(pageCount)} 种不同版式`,
     '优先用 hero / stats / compare / steps / timeline / chart / quote 形成节奏，不要大量 default',
+    '如果信息适合数字、阶段、对比或过程，请优先映射为对应结构页',
+  ].join('\n');
+}
+
+function getLiquidShowTypeTargets(pageCount: number): string[] {
+  if (pageCount <= 1) {
+    return ['hero'];
+  }
+
+  if (pageCount === 2) {
+    return ['hero', 'quote'];
+  }
+
+  const middleCount = Math.max(0, pageCount - 2);
+  const preferredOrder = ['stats', 'compare', 'steps', 'chart', 'timeline', 'list', 'highlight'] as const;
+  const result: string[] = ['hero'];
+  let cursor = 0;
+
+  for (let index = 0; index < middleCount; index += 1) {
+    let nextType = preferredOrder[cursor % preferredOrder.length];
+    if (result[result.length - 1] === nextType) {
+      nextType = preferredOrder[(cursor + 1) % preferredOrder.length];
+      cursor += 1;
+    }
+    result.push(nextType);
+    cursor += 1;
+  }
+
+  result.push('quote');
+  return result;
+}
+
+function getLiquidShowMinUniqueTypes(pageCount: number): number {
+  if (pageCount >= 8) {
+    return 5;
+  }
+  if (pageCount >= 6) {
+    return 4;
+  }
+  if (pageCount >= 4) {
+    return 3;
+  }
+  return 2;
+}
+
+function getLiquidShowDirectorBrief(pageCount: number): string {
+  const targets = getLiquidShowTypeTargets(pageCount);
+  return [
+    `建议页型节奏：${targets.join(' -> ')}`,
+    `至少使用 ${getLiquidShowMinUniqueTypes(pageCount)} 种不同版式`,
+    '优先用 hero / stats / compare / steps / chart / timeline / quote 形成节奏，不要大量 default 或 list',
     '如果信息适合数字、阶段、对比或过程，请优先映射为对应结构页',
   ].join('\n');
 }
@@ -716,6 +815,8 @@ function getPrompt(
         ? TECH_PROMPT
         : template === 'GlassShow'
           ? GLASS_PROMPT
+          : template === 'LiquidShow'
+            ? LIQUID_PROMPT
           : SIMPLE_PROMPT;
 
   let prompt = basePrompt as string;
@@ -732,6 +833,8 @@ function getPrompt(
       ? getTechShowDirectorBrief(plan.targetPages)
       : template === 'GlassShow'
         ? getGlassShowDirectorBrief(plan.targetPages)
+        : template === 'LiquidShow'
+          ? getLiquidShowDirectorBrief(plan.targetPages)
         : ''
   );
 
@@ -1071,6 +1174,84 @@ function shouldRetryGlassShowSlides(slides: Slide[]): boolean {
   return false;
 }
 
+function hasLiquidShowRequiredData(slide: Slide): boolean {
+  if (!isComplexSlide(slide)) {
+    return false;
+  }
+
+  const data = slide.data || {};
+
+  switch (slide.type) {
+    case 'hero':
+      return hasNonEmptyString(slide.title) || hasNonEmptyString(data.badge) || hasNonEmptyString(data.cta);
+    case 'stats':
+      return Array.isArray(data.stats) && data.stats.length >= 2;
+    case 'compare':
+      return (
+        hasNonEmptyString((data.left as { label?: unknown } | undefined)?.label) &&
+        hasNonEmptyString((data.left as { value?: unknown } | undefined)?.value) &&
+        hasNonEmptyString((data.right as { label?: unknown } | undefined)?.label) &&
+        hasNonEmptyString((data.right as { value?: unknown } | undefined)?.value)
+      );
+    case 'steps':
+      return Array.isArray(data.steps) && data.steps.length >= 2;
+    case 'list':
+      return Array.isArray(data.items) && data.items.length >= 3;
+    case 'chart':
+      return Array.isArray(data.bars) && data.bars.length >= 2;
+    case 'timeline':
+      return Array.isArray(data.timeline) && data.timeline.length >= 2;
+    case 'highlight':
+      return Array.isArray(data.items) && data.items.length >= 3;
+    case 'quote':
+      return hasNonEmptyString(data.quote);
+    case 'default':
+      return hasNonEmptyString(slide.title) && Array.isArray(slide.points) && slide.points.length > 0;
+    default:
+      return false;
+  }
+}
+
+function shouldRetryLiquidShowSlides(slides: Slide[]): boolean {
+  const liquidSlides = slides.filter(isComplexSlide);
+  const types = liquidSlides.map((slide) => slide.type);
+
+  if (types.length === 0) {
+    return true;
+  }
+
+  if (types[0] !== 'hero') {
+    return true;
+  }
+
+  for (let index = 1; index < types.length; index += 1) {
+    if (types[index] === types[index - 1]) {
+      return true;
+    }
+  }
+
+  if (types.some((type) => !LIQUID_SHOW_TYPES.includes(type as (typeof LIQUID_SHOW_TYPES)[number]))) {
+    return true;
+  }
+
+  const uniqueTypeCount = new Set(types).size;
+  if (uniqueTypeCount < getLiquidShowMinUniqueTypes(types.length)) {
+    return true;
+  }
+
+  const defaultCount = types.filter((type) => type === 'default').length;
+  const listCount = types.filter((type) => type === 'list').length;
+  if (defaultCount > Math.max(1, Math.floor(types.length / 4)) || listCount > Math.ceil(types.length / 3)) {
+    return true;
+  }
+
+  if (liquidSlides.some((slide) => !hasLiquidShowRequiredData(slide))) {
+    return true;
+  }
+
+  return false;
+}
+
 async function generateSlidesWithAi(
   rawText: string,
   template: string,
@@ -1105,6 +1286,7 @@ async function generateSlidesWithAi(
     const expectedIds = timeline.segments.map((segment) => segment.id);
     const techShowInvalid = template === 'TechShow' && shouldRetryTechShowSlides(slides);
     const glassShowInvalid = template === 'GlassShow' && shouldRetryGlassShowSlides(slides);
+    const liquidShowInvalid = template === 'LiquidShow' && shouldRetryLiquidShowSlides(slides);
 
     return (
       slides.length < plan.targetPages ||
@@ -1112,7 +1294,8 @@ async function generateSlidesWithAi(
       coveredIds.length !== expectedIds.length ||
       coveredIds.some((id, index) => id !== expectedIds[index]) ||
       techShowInvalid ||
-      glassShowInvalid
+      glassShowInvalid ||
+      liquidShowInvalid
     );
   };
 
@@ -1784,6 +1967,7 @@ function EditorPage(props: {
   };
 
   const handleAddSlide = () => {
+    const usesGlassStyleData = project.template === 'GlassShow' || project.template === 'LiquidShow';
     const nextSlide: Slide = complex
       ? {
           id: `slide-${Date.now()}`,
@@ -1791,9 +1975,9 @@ function EditorPage(props: {
           title: '新页面',
           subtitle: '',
           points: [],
-          badge: project.template === 'GlassShow' ? 'NEW PAGE' : undefined,
-          items: project.template === 'GlassShow' ? [] : undefined,
-          data: project.template === 'GlassShow' ? {} : { title: '新页面', subtitle: '' },
+          badge: usesGlassStyleData ? 'NEW PAGE' : undefined,
+          items: usesGlassStyleData ? [] : undefined,
+          data: usesGlassStyleData ? {} : { title: '新页面', subtitle: '' },
           narration: '',
         }
       : {
@@ -2126,7 +2310,7 @@ function EditorPage(props: {
                   </select>
                 </div>
 
-                {project.template === 'GlassShow' ? (
+                {project.template === 'GlassShow' || project.template === 'LiquidShow' ? (
                   <>
                     <div style={{ ...FIELD_GROUP_STYLE, marginTop: SPACING.md }}>
                       <label style={{ display: 'block', marginBottom: 8, fontWeight: 600 }}>标题</label>

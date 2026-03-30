@@ -13,7 +13,12 @@ export const LANDSCAPE_DIMENSIONS: TemplateDimensions = {
   height: 1080,
 };
 
-const LANDSCAPE_TEMPLATES = new Set(['SlideShowWide']);
+const LANDSCAPE_TEMPLATES = new Set([
+  'SlideShowWide',
+  'GlassWideShow',
+  'LiquidWideShow',
+  'NeuWideShow',
+]);
 
 export const isLandscapeTemplate = (template?: string): boolean => {
   return !!template && LANDSCAPE_TEMPLATES.has(template);

@@ -451,74 +451,234 @@ export const LiquidSlide: React.FC<{
         const compareData = data as { left?: { label: string; value: string; desc?: string }; right?: { label: string; value: string; desc?: string }; vsText?: string };
         const leftProgress = spring({ frame: frame - 12, fps, config: { damping: 12 } });
         const rightProgress = spring({ frame: frame - 22, fps, config: { damping: 12 } });
+        const coreProgress = spring({ frame: frame - 18, fps, config: { damping: 14, stiffness: 90 } });
 
         return (
-          <div style={{ display: "flex", gap: 20, alignItems: "center", justifyContent: "center", width: "100%" }}>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1fr auto 1fr",
+              gap: 18,
+              alignItems: "stretch",
+              justifyContent: "center",
+              width: "100%",
+              maxWidth: 760,
+              position: "relative",
+            }}
+          >
+            <div
+              style={{
+                position: "absolute",
+                left: "50%",
+                top: "50%",
+                width: 160,
+                height: 2,
+                borderRadius: 999,
+                background: "linear-gradient(90deg, rgba(255,107,157,0.28) 0%, rgba(255,255,255,0.92) 48%, rgba(0,212,170,0.28) 100%)",
+                transform: `translate(-50%, -50%) scaleX(${interpolate(coreProgress, [0, 1], [0.4, 1])})`,
+                opacity: interpolate(coreProgress, [0, 1], [0, 1]),
+                boxShadow: "0 0 20px rgba(255,255,255,0.5)",
+              }}
+            />
             <div
               style={{
                 flex: 1,
-                background: "rgba(255,107,157,0.1)",
-                backdropFilter: "blur(15px)",
-                borderRadius: 24,
-                border: "1px solid rgba(255,107,157,0.25)",
-                padding: "36px 32px",
-                textAlign: "center",
+                position: "relative",
+                overflow: "hidden",
+                background: "linear-gradient(155deg, rgba(255,255,255,0.74) 0%, rgba(255,255,255,0.42) 54%, rgba(255,107,157,0.18) 100%)",
+                backdropFilter: "blur(24px) saturate(180%)",
+                WebkitBackdropFilter: "blur(24px) saturate(180%)",
+                borderRadius: 30,
+                border: "1px solid rgba(255,255,255,0.82)",
+                padding: "28px 24px 30px",
+                minHeight: 204,
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "space-between",
+                textAlign: "left",
                 opacity: leftProgress,
-                transform: `translateX(${interpolate(leftProgress, [0, 1], [-40, 0])}px)`,
+                transform: `translateX(${interpolate(leftProgress, [0, 1], [-48, 0])}px) rotate(${interpolate(leftProgress, [0, 1], [-3, -1])}deg)`,
+                boxShadow: `
+                  0 24px 44px rgba(255,107,157,0.16),
+                  0 8px 18px rgba(255,255,255,0.32),
+                  inset 0 1px 0 rgba(255,255,255,0.95),
+                  inset 0 -1px 0 rgba(255,107,157,0.12)
+                `,
               }}
             >
-              <div style={{ fontSize: 18, color: colors.blob1, marginBottom: 10, fontWeight: 600 }}>
-                {compareData?.left?.label || "Before"}
+              <div
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  background: "radial-gradient(circle at 20% 18%, rgba(255,255,255,0.88) 0%, rgba(255,255,255,0) 38%), radial-gradient(circle at 86% 100%, rgba(255,107,157,0.18) 0%, rgba(255,107,157,0) 48%)",
+                  pointerEvents: "none",
+                }}
+              />
+              <div style={{ position: "relative", zIndex: 1 }}>
+                <div
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 8,
+                    padding: "8px 14px",
+                    borderRadius: 999,
+                    background: "rgba(255,255,255,0.62)",
+                    border: "1px solid rgba(255,255,255,0.9)",
+                    boxShadow: "inset 0 1px 0 rgba(255,255,255,0.96)",
+                    marginBottom: 22,
+                  }}
+                >
+                  <span style={{ width: 10, height: 10, borderRadius: "50%", background: colors.blob1, boxShadow: `0 0 14px ${colors.blob1}80` }} />
+                  <span style={{ fontSize: 15, color: colors.blob1, fontWeight: 700, letterSpacing: "0.02em" }}>
+                    {compareData?.left?.label || "Before"}
+                  </span>
+                </div>
+                <div style={{ fontSize: 48, fontWeight: 700, color: colors.text, marginBottom: 10, letterSpacing: "-0.04em" }}>
+                  {compareData?.left?.value || "-"}
+                </div>
+                {compareData?.left?.desc && (
+                  <div style={{ fontSize: 18, color: colors.textSecondary, lineHeight: 1.5, maxWidth: 220 }}>
+                    {compareData.left.desc}
+                  </div>
+                )}
               </div>
-              <div style={{ fontSize: 42, fontWeight: 700, color: colors.text, marginBottom: 6 }}>
-                {compareData?.left?.value || "-"}
+              <div
+                style={{
+                  position: "relative",
+                  zIndex: 1,
+                  marginTop: 24,
+                  paddingTop: 18,
+                  borderTop: "1px solid rgba(255,107,157,0.14)",
+                  fontSize: 13,
+                  fontWeight: 600,
+                  color: "rgba(255,107,157,0.8)",
+                  letterSpacing: "0.12em",
+                  textTransform: "uppercase",
+                }}
+              >
+                Old Rhythm
               </div>
-              {compareData?.left?.desc && (
-                <div style={{ fontSize: 18, color: colors.muted }}>{compareData.left.desc}</div>
-              )}
             </div>
 
             <div
               style={{
-                width: 60,
-                height: 60,
-                borderRadius: "50%",
-                background: "rgba(255,255,255,0.7)",
+                width: 94,
+                minWidth: 94,
+                alignSelf: "center",
+                height: 94,
+                borderRadius: "50% 50% 44% 44%",
+                background: "linear-gradient(180deg, rgba(255,255,255,0.94) 0%, rgba(255,255,255,0.72) 100%)",
+                backdropFilter: "blur(20px)",
+                WebkitBackdropFilter: "blur(20px)",
                 display: "flex",
+                flexDirection: "column",
                 justifyContent: "center",
                 alignItems: "center",
-                fontSize: 20,
+                fontSize: 22,
                 fontWeight: 700,
                 color: colors.text,
                 flexShrink: 0,
-                boxShadow: "0 4px 20px rgba(0,0,0,0.06)",
+                transform: `scale(${interpolate(coreProgress, [0, 1], [0.7, 1])})`,
+                opacity: coreProgress,
+                border: "1px solid rgba(255,255,255,0.95)",
+                boxShadow: `
+                  0 18px 34px rgba(145, 87, 255, 0.16),
+                  inset 0 1px 0 rgba(255,255,255,0.96),
+                  inset 0 -10px 20px rgba(145, 87, 255, 0.08)
+                `,
               }}
             >
-              {compareData?.vsText || "VS"}
+              <div
+                style={{
+                  fontSize: 12,
+                  letterSpacing: "0.18em",
+                  color: colors.muted,
+                  marginBottom: 4,
+                }}
+              >
+                FLOW
+              </div>
+              <div>{compareData?.vsText || "VS"}</div>
             </div>
 
             <div
               style={{
                 flex: 1,
-                background: "rgba(0,212,170,0.1)",
-                backdropFilter: "blur(15px)",
-                borderRadius: 24,
-                border: "1px solid rgba(0,212,170,0.25)",
-                padding: "36px 32px",
-                textAlign: "center",
+                position: "relative",
+                overflow: "hidden",
+                background: "linear-gradient(205deg, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.46) 52%, rgba(0,212,170,0.18) 100%)",
+                backdropFilter: "blur(24px) saturate(180%)",
+                WebkitBackdropFilter: "blur(24px) saturate(180%)",
+                borderRadius: 30,
+                border: "1px solid rgba(255,255,255,0.82)",
+                padding: "28px 24px 30px",
+                minHeight: 204,
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "space-between",
+                textAlign: "left",
                 opacity: rightProgress,
-                transform: `translateX(${interpolate(rightProgress, [0, 1], [40, 0])}px)`,
+                transform: `translateX(${interpolate(rightProgress, [0, 1], [48, 0])}px) rotate(${interpolate(rightProgress, [0, 1], [3, 1])}deg)`,
+                boxShadow: `
+                  0 24px 44px rgba(0,212,170,0.16),
+                  0 8px 18px rgba(255,255,255,0.32),
+                  inset 0 1px 0 rgba(255,255,255,0.95),
+                  inset 0 -1px 0 rgba(0,212,170,0.12)
+                `,
               }}
             >
-              <div style={{ fontSize: 18, color: colors.blob3, marginBottom: 10, fontWeight: 600 }}>
-                {compareData?.right?.label || "After"}
+              <div
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  background: "radial-gradient(circle at 82% 16%, rgba(255,255,255,0.92) 0%, rgba(255,255,255,0) 34%), radial-gradient(circle at 18% 100%, rgba(0,212,170,0.18) 0%, rgba(0,212,170,0) 48%)",
+                  pointerEvents: "none",
+                }}
+              />
+              <div style={{ position: "relative", zIndex: 1 }}>
+                <div
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 8,
+                    padding: "8px 14px",
+                    borderRadius: 999,
+                    background: "rgba(255,255,255,0.66)",
+                    border: "1px solid rgba(255,255,255,0.92)",
+                    boxShadow: "inset 0 1px 0 rgba(255,255,255,0.98)",
+                    marginBottom: 22,
+                  }}
+                >
+                  <span style={{ width: 10, height: 10, borderRadius: "50%", background: colors.blob3, boxShadow: `0 0 14px ${colors.blob3}80` }} />
+                  <span style={{ fontSize: 15, color: colors.blob3, fontWeight: 700, letterSpacing: "0.02em" }}>
+                    {compareData?.right?.label || "After"}
+                  </span>
+                </div>
+                <div style={{ fontSize: 48, fontWeight: 700, color: colors.text, marginBottom: 10, letterSpacing: "-0.04em" }}>
+                  {compareData?.right?.value || "+"}
+                </div>
+                {compareData?.right?.desc && (
+                  <div style={{ fontSize: 18, color: colors.textSecondary, lineHeight: 1.5, maxWidth: 220 }}>
+                    {compareData.right.desc}
+                  </div>
+                )}
               </div>
-              <div style={{ fontSize: 42, fontWeight: 700, color: colors.text, marginBottom: 6 }}>
-                {compareData?.right?.value || "+"}
+              <div
+                style={{
+                  position: "relative",
+                  zIndex: 1,
+                  marginTop: 24,
+                  paddingTop: 18,
+                  borderTop: "1px solid rgba(0,212,170,0.16)",
+                  fontSize: 13,
+                  fontWeight: 600,
+                  color: "rgba(0,212,170,0.88)",
+                  letterSpacing: "0.12em",
+                  textTransform: "uppercase",
+                }}
+              >
+                New Focus
               </div>
-              {compareData?.right?.desc && (
-                <div style={{ fontSize: 18, color: colors.muted }}>{compareData.right.desc}</div>
-              )}
             </div>
           </div>
         );

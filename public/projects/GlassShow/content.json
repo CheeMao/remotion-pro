@@ -1,250 +1,116 @@
 {
   "meta": {
-    "title": "Generated Video",
+    "title": "GlassShow Demo",
     "template": "GlassShow",
-    "voice_id": "cosyvoice-v3.5-plus-bailian-d9e80a08150f4986ae260fde904fe0ae",
-    "full_narration": "Skills装完先别急着用，技能商店上万个 Skills，但真正的底座就这 6 个，排行榜安装量最高的一条命令全装完。\n第一个：agent-browser 浏览器自动化\n让 AI 自己去操控浏览器，点按钮填表单，截图下文件，连动态渲染的页面都能读，相当于给 AI 装了一双手。\n第二个：heavily searchAI 专属联网\n搜索返回结果没广告，结构化输出直接给 AI 消费，网页正文自动提炼关键信息，你的 AI 终于不用靠过期知识回答问题了。\n第三个：self-improving agent 自我进化\n记住你的代码风格和习惯，从每次出错中学习自动修复，跨绘画保持记忆，越用越懂，效率越来越高。\n第四个：find skills 技能发现神器\n像逛应用商店一样搜索 skill，自然语言描述需求就能匹配，排行榜推荐加批量管理升级，回退一站搞定。\n第五个：skill-vendor 安全审查官\n装任何 skill 之前先让它扫一遍，检测恶意代码，拦截权限越界，阻止隐私泄露，出具安全评分报告，相当于给工具链装了个门禁。\n第六个：email-managemen 邮件管家\nAI 帮你读邮件写回复，自动分类整理，常规邮件直接帮你发送，Gmail、Outlook、163、QQ 全都支持。",
-    "voiceId": "cosyvoice-v3.5-plus-bailian-d9e80a08150f4986ae260fde904fe0ae",
-    "fullNarration": "Skills装完先别急着用，技能商店上万个 Skills，但真正的底座就这 6 个，排行榜安装量最高的一条命令全装完。\n第一个：agent-browser 浏览器自动化\n让 AI 自己去操控浏览器，点按钮填表单，截图下文件，连动态渲染的页面都能读，相当于给 AI 装了一双手。\n第二个：heavily searchAI 专属联网\n搜索返回结果没广告，结构化输出直接给 AI 消费，网页正文自动提炼关键信息，你的 AI 终于不用靠过期知识回答问题了。\n第三个：self-improving agent 自我进化\n记住你的代码风格和习惯，从每次出错中学习自动修复，跨绘画保持记忆，越用越懂，效率越来越高。\n第四个：find skills 技能发现神器\n像逛应用商店一样搜索 skill，自然语言描述需求就能匹配，排行榜推荐加批量管理升级，回退一站搞定。\n第五个：skill-vendor 安全审查官\n装任何 skill 之前先让它扫一遍，检测恶意代码，拦截权限越界，阻止隐私泄露，出具安全评分报告，相当于给工具链装了个门禁。\n第六个：email-managemen 邮件管家\nAI 帮你读邮件写回复，自动分类整理，常规邮件直接帮你发送，Gmail、Outlook、163、QQ 全都支持。",
-    "soundtrackPath": "projects/GlassShow/audio/narration.mp3",
-    "soundtrackDuration": 89.44326530612246
+    "soundtrack_path": "projects/GlassShow/audio/narration.mp3"
   },
   "slides": [
     {
-      "narration": "Skills装完先别急着用，技能商店上万个Skills，但真正的底座就这6个，排行榜安装量最高的一条命令全装完。",
-      "points": [
-        "真正的底座就这6个",
-        "排行榜安装量最高",
-        "一条命令全装完"
-      ],
-      "subtitle": "技能商店上万个Skills",
-      "title": "Skills装完先别急着用",
-      "audioDuration": 6.166666666666667,
-      "durationInFrames": 185,
-      "audioStart": 0,
-      "audioEnd": 6.166666666666667
+      "title": "Glass Interface",
+      "subtitle": "玻璃风信息表达",
+      "type": "hero",
+      "data": {
+        "badge": "NEW DESIGN",
+        "cta": "立即体验"
+      }
     },
     {
-      "narration": "第一个：agent-browser 浏览器自动化，让AI自己去操控浏览器，点按钮填表单，截图下文件，",
-      "points": [
-        "让AI自己去操控浏览器",
-        "点按钮、填表单、截图、下文件"
-      ],
-      "subtitle": "agent-browser 浏览器自动化",
-      "title": "第一个底座",
-      "audioDuration": 5.466666666666667,
-      "durationInFrames": 164,
-      "audioStart": 6.166666666666667,
-      "audioEnd": 11.633333333333333
+      "title": "核心数据",
+      "subtitle": "多维度指标一屏展示",
+      "type": "stats",
+      "data": {
+        "stats": [
+          { "value": 12800, "suffix": "+", "label": "活跃用户" },
+          { "value": 98, "suffix": "%", "label": "满意度" },
+          { "value": 365, "suffix": "天", "label": "持续运行" }
+        ]
+      }
     },
     {
-      "narration": "连动态渲染的页面都能读，相当于给AI装了一双手。",
-      "points": [
-        "连动态渲染的页面都能读",
-        "相当于给AI装了一双手"
-      ],
-      "subtitle": "agent-browser",
-      "title": "浏览器自动化",
-      "audioDuration": 4.1,
-      "durationInFrames": 123,
-      "audioStart": 11.633333333333333,
-      "audioEnd": 15.733333333333333
+      "title": "方案对比",
+      "subtitle": "传统流程 vs 智能流程",
+      "type": "compare",
+      "data": {
+        "left": {
+          "label": "传统方案",
+          "value": "3-5 天",
+          "desc": "人工串联多个步骤"
+        },
+        "right": {
+          "label": "智能方案",
+          "value": "10 分钟",
+          "desc": "自动化完成处理"
+        },
+        "vsText": "VS"
+      }
     },
     {
-      "narration": "第二个：heavily search AI专属联网，搜索返回结果没广告，结构化输出直接给AI消费，",
-      "points": [
-        "搜索返回结果没广告",
-        "结构化输出直接给AI消费"
-      ],
-      "subtitle": "heavily search AI专属联网",
-      "title": "第二个底座",
-      "audioDuration": 5.166666666666667,
-      "durationInFrames": 155,
-      "audioStart": 15.733333333333333,
-      "audioEnd": 20.9
+      "title": "实现步骤",
+      "subtitle": "三步完成部署",
+      "type": "steps",
+      "data": {
+        "steps": [
+          { "title": "配置环境", "description": "安装依赖并初始化参数" },
+          { "title": "导入数据", "description": "支持多种数据格式接入" },
+          { "title": "一键部署", "description": "自动发布到目标环境" }
+        ]
+      }
     },
     {
-      "narration": "网页正文自动提炼关键信息，你的AI终于不用靠过期知识回答问题了。",
-      "points": [
-        "网页正文自动提炼关键信息",
-        "AI终于不用靠过期知识回答问题了"
-      ],
-      "subtitle": "heavily search",
-      "title": "AI专属联网",
-      "audioDuration": 4.8,
-      "durationInFrames": 144,
-      "audioStart": 20.9,
-      "audioEnd": 25.7
+      "title": "核心优势",
+      "subtitle": "把复杂能力拆成清晰卡片",
+      "type": "list",
+      "data": {
+        "items": [
+          { "icon": "01", "text": "极速响应", "desc": "毫秒级处理链路" },
+          { "icon": "02", "text": "安全可靠", "desc": "端到端权限控制" },
+          { "icon": "03", "text": "界面精致", "desc": "更强的视觉层次" },
+          { "icon": "04", "text": "跨端协同", "desc": "桌面与视频一体化" }
+        ]
+      }
     },
     {
-      "narration": "第三个：self-improving agent 自我进化，记住你的代码风格和习惯，从每次出错中学习自动修复，",
-      "points": [
-        "记住你的代码风格和习惯",
-        "从每次出错中学习自动修复"
-      ],
-      "subtitle": "self-improving agent 自我进化",
-      "title": "第三个底座",
-      "audioDuration": 5.566666666666666,
-      "durationInFrames": 167,
-      "audioStart": 25.7,
-      "audioEnd": 31.266666666666666
+      "title": "性能图表",
+      "subtitle": "关键指标一目了然",
+      "type": "chart",
+      "data": {
+        "bars": [
+          { "label": "响应速度", "value": 95 },
+          { "label": "稳定性", "value": 88 },
+          { "label": "体验感", "value": 92 },
+          { "label": "安全性", "value": 97 }
+        ]
+      }
     },
     {
-      "narration": "跨绘画保持记忆，越用越懂，效率越来越高。",
-      "points": [
-        "跨绘画保持记忆",
-        "越用越懂，效率越来越高"
-      ],
-      "subtitle": "self-improving agent",
-      "title": "自我进化",
-      "audioDuration": 3.6,
-      "durationInFrames": 108,
-      "audioStart": 31.266666666666666,
-      "audioEnd": 34.86666666666667
+      "title": "发展历程",
+      "subtitle": "从起步到全面升级",
+      "type": "timeline",
+      "data": {
+        "timeline": [
+          { "year": "2021", "title": "项目启动", "description": "核心团队搭建完成" },
+          { "year": "2022", "title": "产品发布", "description": "首个版本正式上线" },
+          { "year": "2023", "title": "快速增长", "description": "用户规模持续扩张" },
+          { "year": "2024", "title": "全面升级", "description": "AI 能力深度接入" }
+        ]
+      }
     },
     {
-      "narration": "第四个：find skills 技能发现神器，像逛应用商店一样搜索skill，自然语言描述需求就能匹配，",
-      "points": [
-        "像逛应用商店一样搜索skill",
-        "自然语言描述需求就能匹配"
-      ],
-      "subtitle": "find skills 技能发现神器",
-      "title": "第四个底座",
-      "audioDuration": 5.6,
-      "durationInFrames": 168,
-      "audioStart": 34.86666666666667,
-      "audioEnd": 40.46666666666667
+      "title": "关键标签",
+      "subtitle": "适合结论强化页",
+      "type": "highlight",
+      "data": {
+        "items": ["高效", "智能", "安全", "易用", "专业", "创新"]
+      }
     },
     {
-      "narration": "排行榜推荐加批量管理升级，回退一站搞定。",
-      "points": [
-        "排行榜推荐加批量管理",
-        "升级、回退一站搞定"
-      ],
-      "subtitle": "find skills",
-      "title": "技能发现神器",
-      "audioDuration": 3.7666666666666666,
-      "durationInFrames": 113,
-      "audioStart": 40.46666666666667,
-      "audioEnd": 44.233333333333334
-    },
-    {
-      "narration": "第五个：skill-vendor 安全审查官，装任何skill之前先让它扫一遍，检测恶意代码，",
-      "points": [
-        "装任何skill之前先让它扫一遍",
-        "检测恶意代码"
-      ],
-      "subtitle": "skill-vendor 安全审查官",
-      "title": "第五个底座",
-      "audioDuration": 5.166666666666667,
-      "durationInFrames": 155,
-      "audioStart": 44.233333333333334,
-      "audioEnd": 49.4
-    },
-    {
-      "narration": "拦截权限越界，阻止隐私泄露，",
-      "points": [
-        "拦截权限越界",
-        "阻止隐私泄露"
-      ],
-      "subtitle": "skill-vendor",
-      "title": "安全审查官",
-      "audioDuration": 3.066666666666667,
-      "durationInFrames": 92,
-      "audioStart": 49.4,
-      "audioEnd": 52.46666666666667
-    },
-    {
-      "narration": "出具安全评分报告，相当于给工具链装了个门禁。",
-      "points": [
-        "出具安全评分报告",
-        "相当于给工具链装了个门禁"
-      ],
-      "subtitle": "skill-vendor",
-      "title": "安全审查官",
-      "audioDuration": 3.8666666666666667,
-      "durationInFrames": 116,
-      "audioStart": 52.46666666666667,
-      "audioEnd": 56.333333333333336
-    },
-    {
-      "narration": "第六个：email-management 邮件管家，AI帮你读邮件写回复，自动分类整理，",
-      "points": [
-        "AI帮你读邮件写回复",
-        "自动分类整理"
-      ],
-      "subtitle": "email-management 邮件管家",
-      "title": "第六个底座",
-      "audioDuration": 4.7,
-      "durationInFrames": 141,
-      "audioStart": 56.333333333333336,
-      "audioEnd": 61.03333333333333
-    },
-    {
-      "narration": "常规邮件直接帮你发送，Gmail、Outlook、163、QQ全都支持。",
-      "points": [
-        "常规邮件直接帮你发送",
-        "Gmail、Outlook、163、QQ全都支持"
-      ],
-      "subtitle": "email-management",
-      "title": "邮件管家",
-      "audioDuration": 5.2,
-      "durationInFrames": 156,
-      "audioStart": 61.03333333333333,
-      "audioEnd": 66.23333333333333
-    },
-    {
-      "narration": "六大底座：agent-browser 浏览器自动化，heavily search",
-      "points": [
-        "① agent-browser 浏览器自动化",
-        "② heavily search AI专属联网"
-      ],
-      "subtitle": "一条命令全装完",
-      "title": "六大底座速览",
-      "audioDuration": 5.733333333333333,
-      "durationInFrames": 172,
-      "audioStart": 66.23333333333333,
-      "audioEnd": 71.96666666666667
-    },
-    {
-      "narration": "AI专属联网，self-improving agent 自我进化，",
-      "points": [
-        "③ self-improving agent 自我进化"
-      ],
-      "subtitle": "一条命令全装完",
-      "title": "六大底座速览",
-      "audioDuration": 4.566666666666666,
-      "durationInFrames": 137,
-      "audioStart": 71.96666666666667,
-      "audioEnd": 76.53333333333333
-    },
-    {
-      "narration": "find skills 技能发现神器，skill-vendor 安全审查官，email-management 邮件管家。",
-      "points": [
-        "④ find skills 技能发现神器",
-        "⑤ skill-vendor 安全审查官",
-        "⑥ email-management 邮件管家"
-      ],
-      "subtitle": "一条命令全装完",
-      "title": "六大底座速览",
-      "audioDuration": 7.433333333333334,
-      "durationInFrames": 223,
-      "audioStart": 76.53333333333333,
-      "audioEnd": 83.96666666666667
-    },
-    {
-      "narration": "这6个底座Skills，排行榜安装量最高，覆盖AI工作核心场景，效率提升立竿见影，建议立即安装。",
-      "points": [
-        "排行榜安装量最高",
-        "覆盖AI工作核心场景",
-        "效率提升立竿见影"
-      ],
-      "subtitle": "这6个底座Skills",
-      "title": "建议立即安装",
-      "audioDuration": 5.5,
-      "durationInFrames": 165,
-      "audioStart": 83.96666666666667,
-      "audioEnd": 89.46666666666667
+      "title": "结论",
+      "subtitle": "一句话完成收束",
+      "type": "quote",
+      "data": {
+        "quote": "好的信息视频，不是每一页都做列表，而是让结构和节奏先成立。",
+        "author": "GlassShow Template"
+      }
     }
   ]
 }

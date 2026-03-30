@@ -14,9 +14,24 @@ const defaultSlides = [
     points: ['Blurred glass', 'Bright edges', 'Clear visual focus'],
   },
   {
+    title: 'Layered Atmosphere',
+    subtitle: 'The background should support the card, not compete with it',
+    points: ['Large color clouds', 'Stable card shell', 'Bright top highlight'],
+  },
+  {
+    title: 'Glass Discipline',
+    subtitle: 'Soft blur still needs hierarchy',
+    points: ['Headline first', 'Body second', 'Accent strip for rhythm'],
+  },
+  {
     title: 'One narration layer',
     subtitle: 'Keep the full story intact',
     points: ['Global audio file', 'Scene-level timing', 'No cut voice seams'],
+  },
+  {
+    title: 'Ambient Motion',
+    subtitle: 'Move the light, not the layout',
+    points: ['Slow background drift', 'Stable content box', 'Measured transitions'],
   },
   {
     title: 'Export ready',

@@ -14,6 +14,16 @@ const defaultSlides = [
     points: ['Bright accents', 'Hard cuts', 'Rhythmic motion'],
   },
   {
+    title: 'Night Signal',
+    subtitle: 'Build the page like a stage, not a document',
+    points: ['Outer frame first', 'Headline glow second', 'Content strips last'],
+  },
+  {
+    title: 'Contrast Rules',
+    subtitle: 'Neon works only when the dark base is stable',
+    points: ['Use fewer colors', 'Reserve glow for emphasis', 'Keep spacing strict'],
+  },
+  {
     title: 'Full-voice track',
     subtitle: 'One continuous narration',
     points: ['No fragment stitching', 'Stable mood', 'Better continuity'],
@@ -22,6 +32,11 @@ const defaultSlides = [
     title: 'Auto scene timing',
     subtitle: 'Slides match the speech',
     points: ['Scene weights', 'Frame allocation', 'Consistent preview'],
+  },
+  {
+    title: 'Final Burst',
+    subtitle: 'The closing page should feel louder than the rest',
+    points: ['Compress the message', 'Use one strong line', 'End on a visual spike'],
   },
 ];
 

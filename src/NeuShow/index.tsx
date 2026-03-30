@@ -14,13 +14,28 @@ const defaultSlides = [
     points: ['Calm surfaces', 'Clear hierarchy', 'Focused transitions'],
   },
   {
-    title: 'Narration aware',
-    subtitle: 'Scenes follow the script',
-    points: ['Global timing', 'Predictable pacing', 'No page-level audio cuts'],
+    title: 'Depth First',
+    subtitle: 'Use soft shadow to build order',
+    points: ['Primary block first', 'Secondary details second', 'Keep spacing intentional'],
   },
   {
-    title: 'Ship the video',
-    subtitle: 'Preview, iterate, export',
+    title: 'Content Rhythm',
+    subtitle: 'One page, one message',
+    points: ['Headline for hook', 'Body for context', 'One action for memory'],
+  },
+  {
+    title: 'Tactile Motion',
+    subtitle: 'Movement should feel pressed and released',
+    points: ['Short easing', 'Stable entry path', 'No noisy transitions'],
+  },
+  {
+    title: 'Scene System',
+    subtitle: 'Different pages still belong to one family',
+    points: ['Shared palette', 'Shared radius', 'Shared shadow language'],
+  },
+  {
+    title: 'Export Ready',
+    subtitle: 'Preview, iterate, deliver',
     points: ['Review the cut', 'Adjust content', 'Render MP4'],
   },
 ];
