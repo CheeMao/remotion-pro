@@ -23,8 +23,11 @@ serde = { version = "1.0", features = ["derive"] }
 log = "0.4"
 tauri = { version = "2.10.3", features = [] }
 tauri-plugin-log = "2"
-reqwest = { version = "0.11", features = ["json"] }
+reqwest = { version = "0.11", features = ["json", "multipart"] }
 tokio = { version = "1", features = ["full"] }
 chrono = "0.4"
 base64 = "0.22"
 regex = "1"
+hmac = "0.12"
+sha1 = "0.10"
+dotenvy = "0.15"

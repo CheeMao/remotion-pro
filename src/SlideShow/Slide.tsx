@@ -7,7 +7,6 @@ import {
 } from "remotion";
 import { getSlideMotionTiming } from "../templates/animationTiming";
 
-// 单个幻灯片组件
 export const Slide: React.FC<{
   title: string;
   subtitle?: string;
@@ -20,43 +19,35 @@ export const Slide: React.FC<{
   const { fps } = useVideoConfig();
   const timing = getSlideMotionTiming(durationInFrames, points?.length ?? 0);
 
-  // 科技感配色
   const colors = {
-    primary: "#00f0ff",    // 青色霓虹
-    secondary: "#7c3aed",  // 紫色
-    accent: "#06ffa5",     // 绿色强调
-    pink: "#ff2e97",       // 粉色
+    primary: "#00f0ff",
+    secondary: "#7c3aed",
+    accent: "#06ffa5",
+    pink: "#ff2e97",
   };
 
-  // 背景动态光效
   const glowMove = Math.sin(frame * 0.02) * 50;
-
-  // 标题入场
   const titleProgress = spring({
     frame: frame - timing.titleStart,
     fps,
     config: { damping: 12, stiffness: 120 },
   });
   const titleY = interpolate(titleProgress, [0, 1], [80, 0]);
-  const titleScale = interpolate(titleProgress, [0, 1], [0.9, 1]);
+  const titleScale = interpolate(titleProgress, [0, 1], [0.94, 1]);
 
-  // 副标题入场
   const subtitleProgress = spring({
     frame: frame - timing.subtitleStart,
     fps,
     config: { damping: 15, stiffness: 100 },
   });
-  const subtitleY = interpolate(subtitleProgress, [0, 1], [50, 0]);
+  const subtitleY = interpolate(subtitleProgress, [0, 1], [40, 0]);
 
-  // 分隔线动画
   const lineProgress = spring({
     frame: frame - timing.lineStart,
     fps,
     config: { damping: 12 },
   });
-  const lineWidth = interpolate(lineProgress, [0, 1], [0, 500]);
 
-  // 要点逐个入场
   const pointProgresses = (points || []).map((_, i) =>
     spring({
       frame: frame - timing.pointsStart - i * timing.pointStagger,
@@ -65,7 +56,6 @@ export const Slide: React.FC<{
     })
   );
 
-  // 淡出
   const exitOpacity = interpolate(
     frame,
     [timing.exitStart, timing.exitEnd],
@@ -73,8 +63,7 @@ export const Slide: React.FC<{
     { extrapolateLeft: "clamp", extrapolateRight: "clamp" }
   );
 
-  // 数字跳动效果
-  const numberPulse = Math.sin(frame * 0.15) * 0.05 + 1;
+  const numberPulse = Math.sin(frame * 0.15) * 0.04 + 1;
 
   return (
     <AbsoluteFill
@@ -86,7 +75,6 @@ export const Slide: React.FC<{
         overflow: "hidden",
       }}
     >
-      {/* 动态背景光效 */}
       <div
         style={{
           position: "absolute",
@@ -95,7 +83,7 @@ export const Slide: React.FC<{
           transform: `translateX(-50%) translateX(${glowMove}px)`,
           width: 900,
           height: 900,
-          background: `radial-gradient(ellipse, ${colors.primary}20 0%, transparent 60%)`,
+          background: `radial-gradient(ellipse, ${colors.primary}18 0%, transparent 60%)`,
           filter: "blur(60px)",
         }}
       />
@@ -106,7 +94,7 @@ export const Slide: React.FC<{
           right: "10%",
           width: 600,
           height: 600,
-          background: `radial-gradient(ellipse, ${colors.pink}15 0%, transparent 60%)`,
+          background: `radial-gradient(ellipse, ${colors.pink}12 0%, transparent 60%)`,
           filter: "blur(80px)",
         }}
       />
@@ -117,236 +105,242 @@ export const Slide: React.FC<{
           left: "-10%",
           width: 500,
           height: 500,
-          background: `radial-gradient(ellipse, ${colors.secondary}20 0%, transparent 60%)`,
+          background: `radial-gradient(ellipse, ${colors.secondary}14 0%, transparent 60%)`,
           filter: "blur(60px)",
         }}
       />
-
-      {/* 科技网格 */}
       <div
         style={{
           position: "absolute",
           inset: 0,
           backgroundImage: `
-            linear-gradient(${colors.primary}08 1px, transparent 1px),
-            linear-gradient(90deg, ${colors.primary}08 1px, transparent 1px)
+            linear-gradient(${colors.primary}06 1px, transparent 1px),
+            linear-gradient(90deg, ${colors.primary}06 1px, transparent 1px)
           `,
           backgroundSize: "80px 80px",
-          opacity: 0.8,
+          opacity: 0.55,
         }}
       />
 
-      {/* 浮动粒子装饰 */}
-      {[...Array(6)].map((_, i) => {
-        const particleY = ((frame * 0.5 + i * 200) % 2200) - 100;
-        const particleX = 100 + i * 180;
-        return (
-          <div
-            key={i}
-            style={{
-              position: "absolute",
-              left: particleX,
-              top: particleY,
-              width: 4,
-              height: 80,
-              background: `linear-gradient(180deg, transparent, ${i % 2 === 0 ? colors.primary : colors.accent}, transparent)`,
-              opacity: 0.4,
-              borderRadius: 2,
-              filter: `blur(1px)`,
-            }}
-          />
-        );
-      })}
-
-      {/* 主内容 */}
       <AbsoluteFill
         style={{
           opacity: exitOpacity,
           display: "flex",
-          flexDirection: "column",
           justifyContent: "center",
           alignItems: "center",
-          padding: "70px 60px",
+          padding: "88px 64px 118px",
           zIndex: 10,
         }}
       >
-        {/* 顶部装饰条 */}
         <div
           style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            right: 0,
-            height: 4,
-            background: `linear-gradient(90deg, transparent, ${colors.primary}, ${colors.pink}, ${colors.accent}, transparent)`,
-          }}
-        />
-
-        {/* 页码 */}
-        <div
-          style={{
-            position: "absolute",
-            top: 50,
-            right: 60,
+            width: 900,
+            maxWidth: "100%",
+            minHeight: 1320,
+            padding: "34px 42px 40px",
+            borderRadius: 36,
+            background: "linear-gradient(180deg, rgba(7,10,26,0.76), rgba(9,16,35,0.56))",
+            border: `1px solid ${colors.primary}22`,
+            boxShadow: "0 24px 70px rgba(0,0,0,0.32)",
             display: "flex",
-            alignItems: "baseline",
-            gap: 8,
+            flexDirection: "column",
+            backdropFilter: "blur(8px)",
           }}
         >
-          <span
-            style={{
-              fontSize: 72,
-              fontWeight: 900,
-              color: colors.primary,
-              textShadow: `0 0 40px ${colors.primary}80, 0 0 80px ${colors.primary}40`,
-              transform: `scale(${numberPulse})`,
-            }}
-          >
-            {String(index + 1).padStart(2, "0")}
-          </span>
-          <span
-            style={{
-              fontSize: 28,
-              color: "rgba(255,255,255,0.4)",
-              fontWeight: 400,
-            }}
-          >
-            / {String(totalSlides).padStart(2, "0")}
-          </span>
-        </div>
-
-        {/* 标题 */}
-        <h1
-          style={{
-            fontSize: 88,
-            fontWeight: 900,
-            color: "#ffffff",
-            textAlign: "center",
-            margin: 0,
-            marginBottom: 20,
-            transform: `translateY(${titleY}px) scale(${titleScale})`,
-            opacity: titleProgress,
-            textShadow: `
-              0 0 60px ${colors.primary}60,
-              0 0 120px ${colors.primary}30,
-              0 4px 30px rgba(0,0,0,0.5)
-            `,
-            letterSpacing: "-2px",
-            lineHeight: 1.15,
-          }}
-        >
-          {title}
-        </h1>
-
-        {/* 分隔线 */}
-        <div
-          style={{
-            width: lineWidth,
-            height: 3,
-            background: `linear-gradient(90deg, transparent, ${colors.primary}, ${colors.accent}, transparent)`,
-            borderRadius: 2,
-            marginBottom: 28,
-            boxShadow: `0 0 30px ${colors.primary}80`,
-          }}
-        />
-
-        {/* 副标题 */}
-        {subtitle && (
-          <p
-            style={{
-              fontSize: 38,
-              color: "rgba(255,255,255,0.85)",
-              textAlign: "center",
-              margin: 0,
-              marginBottom: 70,
-              transform: `translateY(${subtitleY}px)`,
-              opacity: subtitleProgress,
-              fontWeight: 400,
-              maxWidth: "85%",
-              letterSpacing: "0.5px",
-            }}
-          >
-            {subtitle}
-          </p>
-        )}
-
-        {/* 要点列表 */}
-        {points && points.length > 0 && (
           <div
             style={{
               display: "flex",
-              flexDirection: "column",
-              gap: 32,
-              maxWidth: "88%",
+              alignItems: "center",
+              justifyContent: "space-between",
+              marginBottom: 34,
             }}
           >
-            {points.map((point, i) => {
-              const progress = pointProgresses[i] || 0;
-              const pointX = interpolate(progress, [0, 1], [-100, 0]);
-              const pointGlow = i % 3 === 0 ? colors.primary : i % 3 === 1 ? colors.accent : colors.pink;
-
-              return (
-                <div
-                  key={i}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 28,
-                    transform: `translateX(${pointX}px)`,
-                    opacity: progress,
-                  }}
-                >
-                  {/* 科技感序号框 */}
-                  <div
-                    style={{
-                      minWidth: 64,
-                      height: 64,
-                      borderRadius: 12,
-                      background: `linear-gradient(135deg, ${pointGlow}25, ${pointGlow}10)`,
-                      border: `2px solid ${pointGlow}`,
-                      display: "flex",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      fontSize: 28,
-                      fontWeight: 700,
-                      color: pointGlow,
-                      boxShadow: `0 0 30px ${pointGlow}50, inset 0 0 20px ${pointGlow}20`,
-                    }}
-                  >
-                    {i + 1}
-                  </div>
-                  {/* 要点文字 */}
-                  <span
-                    style={{
-                      fontSize: 36,
-                      color: "#ffffff",
-                      fontWeight: 500,
-                      letterSpacing: "0.3px",
-                      textShadow: "0 2px 20px rgba(0,0,0,0.4)",
-                    }}
-                  >
-                    {point}
-                  </span>
-                </div>
-              );
-            })}
+            <div
+              style={{
+                padding: "10px 18px",
+                borderRadius: 999,
+                border: `1px solid ${colors.primary}50`,
+                background: "rgba(0, 240, 255, 0.08)",
+                color: "rgba(255,255,255,0.82)",
+                fontSize: 20,
+                fontWeight: 600,
+                letterSpacing: "0.8px",
+              }}
+            >
+              SCENE
+            </div>
+            <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
+              <span
+                style={{
+                  fontSize: 42,
+                  fontWeight: 900,
+                  color: colors.primary,
+                  textShadow: `0 0 24px ${colors.primary}70`,
+                  transform: `scale(${numberPulse})`,
+                }}
+              >
+                {String(index + 1).padStart(2, "0")}
+              </span>
+              <span
+                style={{
+                  fontSize: 20,
+                  color: "rgba(255,255,255,0.42)",
+                  fontWeight: 500,
+                }}
+              >
+                / {String(totalSlides).padStart(2, "0")}
+              </span>
+            </div>
           </div>
-        )}
 
-        {/* 底部装饰条 */}
-        <div
-          style={{
-            position: "absolute",
-            bottom: 0,
-            left: 0,
-            right: 0,
-            height: 4,
-            background: `linear-gradient(90deg, transparent, ${colors.accent}, ${colors.primary}, ${colors.pink}, transparent)`,
-          }}
-        />
+          <div style={{ marginBottom: subtitle ? 32 : 40 }}>
+            <h1
+              style={{
+                fontSize: 72,
+                fontWeight: 900,
+                color: "#ffffff",
+                textAlign: "left",
+                margin: 0,
+                marginBottom: 18,
+                transform: `translateY(${titleY}px) scale(${titleScale})`,
+                opacity: titleProgress,
+                textShadow: `
+                  0 0 42px ${colors.primary}40,
+                  0 4px 24px rgba(0,0,0,0.45)
+                `,
+                letterSpacing: "-1.5px",
+                lineHeight: 1.08,
+                maxWidth: 760,
+              }}
+            >
+              {title}
+            </h1>
+
+            <div
+              style={{
+                width: interpolate(lineProgress, [0, 1], [0, 220]),
+                height: 3,
+                background: `linear-gradient(90deg, ${colors.primary}, ${colors.accent}, transparent)`,
+                borderRadius: 2,
+                marginBottom: subtitle ? 18 : 0,
+                boxShadow: `0 0 24px ${colors.primary}60`,
+              }}
+            />
+
+            {subtitle && (
+              <p
+                style={{
+                  fontSize: 30,
+                  color: "rgba(255,255,255,0.82)",
+                  textAlign: "left",
+                  margin: 0,
+                  transform: `translateY(${subtitleY}px)`,
+                  opacity: subtitleProgress,
+                  fontWeight: 400,
+                  maxWidth: 740,
+                  lineHeight: 1.4,
+                  letterSpacing: "0.2px",
+                }}
+              >
+                {subtitle}
+              </p>
+            )}
+          </div>
+
+          <div
+            style={{
+              flex: 1,
+              display: "flex",
+              alignItems: "center",
+            }}
+          >
+            {points && points.length > 0 && (
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 24,
+                  width: "100%",
+                }}
+              >
+                {points.map((point, i) => {
+                  const progress = pointProgresses[i] || 0;
+                  const pointX = interpolate(progress, [0, 1], [-100, 0]);
+                  const pointGlow =
+                    i % 3 === 0 ? colors.primary : i % 3 === 1 ? colors.accent : colors.pink;
+
+                  return (
+                    <div
+                      key={i}
+                      style={{
+                        display: "flex",
+                        alignItems: "flex-start",
+                        gap: 24,
+                        transform: `translateX(${pointX}px)`,
+                        opacity: progress,
+                        padding: "22px 24px",
+                        borderRadius: 24,
+                        background: "rgba(255,255,255,0.03)",
+                        border: "1px solid rgba(255,255,255,0.06)",
+                      }}
+                    >
+                      <div
+                        style={{
+                          minWidth: 56,
+                          height: 56,
+                          borderRadius: 16,
+                          background: `linear-gradient(135deg, ${pointGlow}28, ${pointGlow}10)`,
+                          border: `1px solid ${pointGlow}66`,
+                          display: "flex",
+                          justifyContent: "center",
+                          alignItems: "center",
+                          fontSize: 24,
+                          fontWeight: 700,
+                          color: pointGlow,
+                          boxShadow: `0 0 20px ${pointGlow}30`,
+                        }}
+                      >
+                        {i + 1}
+                      </div>
+                      <span
+                        style={{
+                          fontSize: 31,
+                          color: "#ffffff",
+                          fontWeight: 500,
+                          letterSpacing: "0.2px",
+                          textShadow: "0 2px 16px rgba(0,0,0,0.35)",
+                          lineHeight: 1.35,
+                        }}
+                      >
+                        {point}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+          <div style={{ display: "flex", gap: 10, marginTop: 28 }}>
+            {[...Array(totalSlides)].map((_, i) => (
+              <div
+                key={i}
+                style={{
+                  width: i === index ? 44 : 12,
+                  height: 8,
+                  borderRadius: 999,
+                  background:
+                    i === index
+                      ? `linear-gradient(90deg, ${colors.primary}, ${colors.accent})`
+                      : "rgba(255,255,255,0.22)",
+                  boxShadow: i === index ? `0 0 16px ${colors.primary}50` : "none",
+                }}
+              />
+            ))}
+          </div>
+        </div>
       </AbsoluteFill>
 
-      {/* 角落装饰 */}
       <div
         style={{
           position: "absolute",
@@ -354,7 +348,7 @@ export const Slide: React.FC<{
           left: 30,
           width: 60,
           height: 60,
-          border: `2px solid ${colors.primary}40`,
+          border: `2px solid ${colors.primary}32`,
           borderRight: "none",
           borderBottom: "none",
         }}
@@ -366,7 +360,7 @@ export const Slide: React.FC<{
           right: 30,
           width: 60,
           height: 60,
-          border: `2px solid ${colors.accent}40`,
+          border: `2px solid ${colors.accent}28`,
           borderLeft: "none",
           borderTop: "none",
         }}

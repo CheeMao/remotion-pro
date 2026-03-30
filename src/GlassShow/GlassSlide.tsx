@@ -412,7 +412,7 @@ export const GlassSlide: React.FC<{
       case 'list': {
         const items = (data?.items as Array<{ icon?: string; text: string; desc?: string }>) || [];
         return (
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 20, width: "100%", maxWidth: 800 }}>
+          <div style={{ display: "grid", gridTemplateColumns: items.length > 4 ? "repeat(2, 1fr)" : "1fr", gap: 18, width: "100%", maxWidth: 800 }}>
             {items.map((item, i) => {
               const itemProgress = spring({
                 frame: frame - 10 - i * 6,
@@ -670,13 +670,11 @@ export const GlassSlide: React.FC<{
     }
   };
 
-  // 计算卡片高度
-  const getCardHeight = () => {
-    if (type === 'hero') return 750;
-    if (type === 'stats') return 850;
-    if (type === 'compare') return 600;
-    if (type === 'quote') return 650;
-    return 880;
+  const getCardMinHeight = () => {
+    if (type === 'hero') return 980;
+    if (type === 'compare') return 900;
+    if (type === 'quote') return 920;
+    return 1180;
   };
 
   return (
@@ -724,7 +722,7 @@ export const GlassSlide: React.FC<{
               borderRadius: "50%",
               background: dotColors[i % 4],
               boxShadow: `0 0 40px ${dotColors[i % 4]}80`,
-              opacity: 0.8,
+              opacity: 0.38,
             }}
           />
         );
@@ -738,19 +736,20 @@ export const GlassSlide: React.FC<{
           flexDirection: "column",
           justifyContent: "center",
           alignItems: "center",
-          padding: "50px",
+          padding: "88px 54px 108px",
           zIndex: 10,
         }}
       >
         {/* 毛玻璃主卡片 */}
         <div
           style={{
-            width: "92%",
-            height: getCardHeight(),
-            padding: "55px 50px",
+            width: "90%",
+            maxWidth: 920,
+            minHeight: getCardMinHeight(),
+            padding: "34px 34px 40px",
             background: "rgba(255, 255, 255, 0.08)",
             backdropFilter: "blur(20px)",
-            borderRadius: 40,
+            borderRadius: 34,
             border: "1px solid rgba(255, 255, 255, 0.15)",
             boxShadow: `
               0 25px 50px rgba(0, 0, 0, 0.3),
@@ -759,28 +758,46 @@ export const GlassSlide: React.FC<{
             transform: `translateY(${cardFloat}px)`,
             display: "flex",
             flexDirection: "column",
-            alignItems: "center",
-            justifyContent: type === 'hero' ? "center" : "flex-start",
-            overflow: "hidden",
+            alignItems: "stretch",
+            justifyContent: "flex-start",
           }}
         >
           {/* 页码标签 */}
           <div
             style={{
-              position: "absolute",
-              top: 24,
-              right: 32,
-              padding: "10px 24px",
-              background: `linear-gradient(135deg, ${colors.primary}, ${colors.secondary})`,
-              borderRadius: 24,
-              fontSize: 18,
-              fontWeight: 700,
-              color: "white",
-              boxShadow: `0 8px 30px ${colors.primary}50`,
-              zIndex: 10,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              marginBottom: 28,
             }}
           >
-            {index + 1} / {totalSlides}
+            <div
+              style={{
+                padding: "10px 18px",
+                borderRadius: 999,
+                background: "rgba(255,255,255,0.08)",
+                border: "1px solid rgba(255,255,255,0.12)",
+                fontSize: 18,
+                fontWeight: 600,
+                color: "rgba(255,255,255,0.82)",
+                letterSpacing: "0.4px",
+              }}
+            >
+              GLASS
+            </div>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "baseline",
+                gap: 8,
+                color: "white",
+              }}
+            >
+              <span style={{ fontSize: 34, fontWeight: 800 }}>{String(index + 1).padStart(2, "0")}</span>
+              <span style={{ fontSize: 18, color: "rgba(255,255,255,0.55)" }}>
+                / {String(totalSlides).padStart(2, "0")}
+              </span>
+            </div>
           </div>
 
           {/* 标题区域 (非 hero 类型) */}
@@ -788,10 +805,10 @@ export const GlassSlide: React.FC<{
             <>
               <h1
                 style={{
-                  fontSize: type === 'stats' || type === 'compare' ? 56 : 64,
+                  fontSize: type === 'stats' || type === 'compare' ? 52 : 58,
                   fontWeight: 800,
                   color: "#ffffff",
-                  textAlign: "center",
+                  textAlign: "left",
                   margin: 0,
                   marginBottom: 12,
                   transform: `translateY(${titleY}px)`,
@@ -799,10 +816,8 @@ export const GlassSlide: React.FC<{
                   filter: `blur(${titleBlur}px)`,
                   textShadow: "0 4px 30px rgba(0,0,0,0.3)",
                   letterSpacing: "-1px",
-                  maxWidth: "100%",
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                  whiteSpace: "nowrap",
+                  lineHeight: 1.08,
+                  maxWidth: 760,
                 }}
               >
                 {title}
@@ -822,14 +837,15 @@ export const GlassSlide: React.FC<{
                 <p
                   style={{
                     fontSize: 28,
-                    color: "rgba(255, 255, 255, 0.75)",
-                    textAlign: "center",
+                    color: "rgba(255, 255, 255, 0.78)",
+                    textAlign: "left",
                     margin: 0,
                     marginBottom: 36,
                     transform: `translateY(${subtitleY}px)`,
                     opacity: subtitleProgress,
                     fontWeight: 400,
-                    maxWidth: "100%",
+                    maxWidth: 760,
+                    lineHeight: 1.45,
                   }}
                 >
                   {subtitle}
@@ -839,7 +855,7 @@ export const GlassSlide: React.FC<{
           )}
 
           {/* 内容区域 */}
-          <div style={{ flex: 1, display: "flex", alignItems: type === 'timeline' ? "flex-start" : "center", justifyContent: "center", width: "100%", overflow: "hidden", paddingTop: type === 'quote' ? 60 : 0 }}>
+          <div style={{ flex: 1, display: "flex", alignItems: type === 'timeline' ? "flex-start" : "stretch", justifyContent: "center", width: "100%", overflow: "visible", paddingTop: type === 'quote' ? 24 : 0 }}>
             {renderContent()}
           </div>
         </div>

@@ -38,7 +38,7 @@ const ScanLines: React.FC<{ frame: number }> = ({ frame }) => {
           height: 2,
           background: `linear-gradient(90deg, transparent, ${colors.primary}, transparent)`,
           boxShadow: `0 0 20px ${colors.primary}, 0 0 40px ${colors.primary}`,
-          opacity: 0.8,
+          opacity: 0.42,
         }}
       />
       {/* 次扫描线 */}
@@ -50,7 +50,7 @@ const ScanLines: React.FC<{ frame: number }> = ({ frame }) => {
           width: "100%",
           height: 1,
           background: `linear-gradient(90deg, transparent, ${colors.secondary}, transparent)`,
-          opacity: 0.4,
+          opacity: 0.2,
         }}
       />
     </>
@@ -77,7 +77,7 @@ const DataParticles: React.FC<{ frame: number }> = ({ frame }) => {
           height: size * 4,
           background: color,
           borderRadius: 2,
-          opacity: 0.6,
+          opacity: 0.28,
           boxShadow: `0 0 10px ${color}`,
         }}
       />
@@ -98,7 +98,7 @@ const CircuitLines: React.FC<{ frame: number }> = ({ frame }) => {
 
   return (
     <svg
-      style={{ position: "absolute", width: "100%", height: "100%", opacity: 0.3 }}
+      style={{ position: "absolute", width: "100%", height: "100%", opacity: 0.16 }}
     >
       {paths.map((p, i) => {
         const progress = Math.min(1, Math.max(0, (frame - p.delay * 3) / 30));
@@ -232,7 +232,7 @@ const CyberCounter: React.FC<{
     >
       <div
         style={{
-          fontSize: 90,
+          fontSize: 76,
           fontWeight: 900,
           color: glitch ? colors.accent : color,
           textShadow: `0 0 30px ${color}, 0 0 60px ${color}50`,
@@ -369,12 +369,11 @@ export const TechSlide: React.FC<{
     <div
       style={{
         position: "absolute",
-        top: 40,
-        right: 40,
+        top: 34,
+        right: 34,
         fontFamily: "monospace",
-        fontSize: 24,
-        color: colors.primary,
-        textShadow: `0 0 10px ${colors.primary}`,
+        fontSize: 16,
+        color: "rgba(255,255,255,0.28)",
       }}
     >
       [{String(index + 1).padStart(2, "0")}/{String(totalSlides).padStart(2, "0")}]
@@ -397,14 +396,15 @@ export const TechSlide: React.FC<{
             {/* 主标题 */}
             <h1
               style={{
-                fontSize: 100,
+                fontSize: 82,
                 fontWeight: 900,
                 color: titleGlitch ? colors.accent : colors.text,
                 margin: 0,
                 textShadow: titleGlitch
                   ? `3px 0 ${colors.primary}, -3px 0 ${colors.accent}`
                   : `0 0 40px ${colors.primary}60`,
-                letterSpacing: "4px",
+                letterSpacing: "2px",
+                lineHeight: 1.05,
                 transform: titleGlitch ? `translateX(${Math.sin(frame)}px)` : "none",
               }}
             >
@@ -414,7 +414,7 @@ export const TechSlide: React.FC<{
             {typeof data.subtitle === 'string' && (
               <p
                 style={{
-                  fontSize: 36,
+                  fontSize: 30,
                   color: colors.muted,
                   marginTop: 24,
                   letterSpacing: "2px",
@@ -533,7 +533,7 @@ export const TechSlide: React.FC<{
                         {item.icon || String(i + 1).padStart(2, "0")}
                       </div>
                       <div>
-                        <div style={{ fontSize: 36, fontWeight: 700, color: colors.text }}>
+                        <div style={{ fontSize: 30, fontWeight: 700, color: colors.text }}>
                           {item.text}
                         </div>
                         {item.desc && (
@@ -602,7 +602,7 @@ export const TechSlide: React.FC<{
                 <div style={{ fontSize: 24, color: colors.accent, marginBottom: 10 }}>
                   // {String((data.left as { label: string })?.label ?? "")}
                 </div>
-                <div style={{ fontSize: 60, fontWeight: 900, color: colors.text }}>
+                <div style={{ fontSize: 48, fontWeight: 900, color: colors.text }}>
                   {String((data.left as { value: string })?.value ?? "")}
                 </div>
               </div>
@@ -610,7 +610,7 @@ export const TechSlide: React.FC<{
               {/* VS */}
               <div
                 style={{
-                  fontSize: 40,
+                  fontSize: 34,
                   fontWeight: 900,
                   color: colors.primary,
                   textShadow: `0 0 20px ${colors.primary}`,
@@ -631,7 +631,7 @@ export const TechSlide: React.FC<{
                 <div style={{ fontSize: 24, color: colors.secondary, marginBottom: 10 }}>
                   // {String((data.right as { label: string })?.label ?? "")}
                 </div>
-                <div style={{ fontSize: 60, fontWeight: 900, color: colors.text }}>
+                <div style={{ fontSize: 48, fontWeight: 900, color: colors.text }}>
                   {String((data.right as { value: string })?.value ?? "")}
                 </div>
               </div>
@@ -653,7 +653,7 @@ export const TechSlide: React.FC<{
                 &lt;QUOTE&gt;
               </div>
               <p style={{
-                fontSize: 40,
+                fontSize: 34,
                 fontStyle: "italic",
                 color: colors.text,
                 margin: 0,
@@ -692,7 +692,7 @@ export const TechSlide: React.FC<{
 
             <h1
               style={{
-                fontSize: 90,
+                fontSize: 76,
                 fontWeight: 900,
                 color: colors.text,
                 margin: "40px 0 20px",
@@ -717,7 +717,7 @@ export const TechSlide: React.FC<{
                   background: `linear-gradient(135deg, ${colors.primary}30, ${colors.secondary}30)`,
                   border: `2px solid ${colors.primary}`,
                   display: "inline-block",
-                  fontSize: 36,
+                  fontSize: 30,
                   fontWeight: 700,
                   color: colors.primary,
                   textShadow: `0 0 20px ${colors.primary}`,
@@ -771,9 +771,50 @@ export const TechSlide: React.FC<{
 
       <PageNum />
 
-      <div style={{ opacity: exitOpacity }}>
-        {renderContent()}
-      </div>
-    </AbsoluteFill>
+        <div
+          style={{
+            opacity: exitOpacity,
+            width: "90%",
+            maxWidth: 920,
+            minHeight: 1260,
+            padding: "32px 34px 38px",
+            borderRadius: 32,
+            background: "linear-gradient(180deg, rgba(4,8,20,0.76), rgba(4,10,18,0.62))",
+            border: `1px solid ${colors.primary}20`,
+            boxShadow: "0 24px 70px rgba(0,0,0,0.35)",
+            backdropFilter: "blur(10px)",
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              marginBottom: 28,
+            }}
+          >
+            <div
+              style={{
+                padding: "10px 18px",
+                border: `1px solid ${colors.primary}55`,
+                borderRadius: 999,
+                color: colors.primary,
+                fontSize: 18,
+                fontWeight: 700,
+                textShadow: `0 0 10px ${colors.primary}`,
+              }}
+            >
+              TECH
+            </div>
+            <div style={{ fontSize: 20, color: "rgba(255,255,255,0.64)", fontWeight: 600 }}>
+              {String(index + 1).padStart(2, "0")} / {String(totalSlides).padStart(2, "0")}
+            </div>
+          </div>
+
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: 1130 }}>
+            {renderContent()}
+          </div>
+        </div>
+      </AbsoluteFill>
   );
 };

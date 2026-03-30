@@ -50,6 +50,8 @@ type SettingsData = {
   aiUrl: string;
   aiApiKey: string;
   aiModel: string;
+  rewriteStyles: RewriteStyle[];
+  defaultRewriteStyleId: string;
 };
 
 type NarrationSegment = {
@@ -67,6 +69,12 @@ type NarrationTimeline = {
   segments: NarrationSegment[];
 };
 
+type RewriteStyle = {
+  id: string;
+  name: string;
+  prompt: string;
+};
+
 type PreviewProjectResponse = {
   template: string;
   slides: Array<Record<string, unknown>>;
@@ -75,12 +83,21 @@ type PreviewProjectResponse = {
   soundtrackDuration?: number;
 };
 
+type HomeDraft = {
+  douyinLink: string;
+  originalText: string;
+  editedText: string;
+  template: string;
+  selectedRewriteStyleId: string;
+};
+
 const FPS = 30;
 const MAX_SLIDE_DURATION_SECONDS = 8;
 
 const STORAGE_KEYS = {
   project: 'videomaker-project',
   settings: 'videomaker-settings',
+  homeDraft: 'videomaker-home-draft',
 } as const;
 
 const SPACING = {
@@ -180,6 +197,53 @@ const TEMPLATE_OPTIONS = [
   { label: '磨砂玻璃', value: 'FrostedShow' },
 ] as const;
 
+const DEFAULT_REWRITE_STYLES: RewriteStyle[] = [
+  {
+    id: 'rewrite-natural',
+    name: '系统默认',
+    prompt: `你是短视频二创文案助手。请把用户提供的原文案改写成适合中文短视频口播的成稿。
+
+要求：
+1. 保留原意，不要编造事实。
+2. 语言更自然、更顺口，读出来要像真人在讲，而不是书面总结。
+3. 可以优化原文里的重复、停顿词、口语病和不够顺的句子。
+4. 不要写成列表，不要加标题，不要加解释，不要加引号，只输出最终文案正文。
+5. 如果原文开头不够抓人，可以适度优化开场，但不要夸张标题党。
+6. 尽量保留原文的信息密度和节奏，适合直接用于配音。
+7. 输出必须是完整、通顺、可直接配音的中文口播文案。`,
+  },
+  {
+    id: 'rewrite-viral',
+    name: '短视频感',
+    prompt: `你是短视频爆款口播文案助手。请把输入文案改写成更适合短视频传播的版本。
+
+要求：
+1. 保留原意，不要编造事实。
+2. 开头更抓人，节奏更紧凑，但不要浮夸。
+3. 输出纯文本，不要加解释、标题、序号和引号。
+4. 语言更像真人口播，更有镜头感。
+5. 适度加强停顿感和重点句，但不要写成网络烂梗。
+
+原文案：
+{{text}}`,
+  },
+  {
+    id: 'rewrite-professional',
+    name: '专业清晰',
+    prompt: `你是知识类短视频口播编辑。请把输入文案改写成更专业、更清晰、更有条理的讲解文案。
+
+要求：
+1. 保留原意，不要编造事实。
+2. 表达要准确、清楚，避免过度口语化。
+3. 输出纯文本，不要加解释、标题、序号和引号。
+4. 适合知识分享、老师讲解、方法拆解类视频。
+5. 句子之间衔接自然，便于直接配音。
+
+原文案：
+{{text}}`,
+  },
+];
+
 const DEFAULT_SETTINGS: SettingsData = {
   voiceId: '',
   voiceModel: 'cosyvoice-v2',
@@ -188,6 +252,8 @@ const DEFAULT_SETTINGS: SettingsData = {
   aiUrl: 'https://dashscope.aliyuncs.com/compatible-mode/v1',
   aiApiKey: '',
   aiModel: 'qwen-plus',
+  rewriteStyles: DEFAULT_REWRITE_STYLES,
+  defaultRewriteStyleId: DEFAULT_REWRITE_STYLES[0].id,
 };
 
 const COMMON_SEGMENT_RULES = `
@@ -372,15 +438,36 @@ function loadSettings(): SettingsData {
   }
 
   try {
-    const parsed = JSON.parse(raw) as Partial<SettingsData>;
+    const parsed = JSON.parse(raw) as Partial<SettingsData> & {
+      bailianApiKey?: string;
+    };
+    const legacyDashScopeApiKey = parsed.bailianApiKey || '';
+    const rewriteStyles =
+      Array.isArray(parsed.rewriteStyles) && parsed.rewriteStyles.length > 0
+        ? parsed.rewriteStyles.filter(
+            (style): style is RewriteStyle =>
+              !!style &&
+              typeof style.id === 'string' &&
+              typeof style.name === 'string' &&
+              typeof style.prompt === 'string'
+          )
+        : DEFAULT_REWRITE_STYLES;
+    const defaultRewriteStyleId =
+      typeof parsed.defaultRewriteStyleId === 'string' &&
+      rewriteStyles.some((style) => style.id === parsed.defaultRewriteStyleId)
+        ? parsed.defaultRewriteStyleId
+        : rewriteStyles[0]?.id || DEFAULT_REWRITE_STYLES[0].id;
+
     return {
       voiceId: parsed.voiceId || '',
       voiceModel: parsed.voiceModel || DEFAULT_SETTINGS.voiceModel,
-      voiceApiKey: parsed.voiceApiKey || '',
+      voiceApiKey: parsed.voiceApiKey || legacyDashScopeApiKey,
       voiceSpeechRate: normalizeSpeechRate(parsed.voiceSpeechRate),
       aiUrl: parsed.aiUrl || DEFAULT_SETTINGS.aiUrl,
-      aiApiKey: parsed.aiApiKey || '',
+      aiApiKey: parsed.aiApiKey || legacyDashScopeApiKey,
       aiModel: parsed.aiModel || DEFAULT_SETTINGS.aiModel,
+      rewriteStyles,
+      defaultRewriteStyleId,
     };
   } catch {
     return DEFAULT_SETTINGS;
@@ -415,6 +502,35 @@ function saveProject(project: Project | null) {
   }
 
   localStorage.setItem(STORAGE_KEYS.project, JSON.stringify(project));
+}
+
+function loadHomeDraft(): HomeDraft | null {
+  const raw = localStorage.getItem(STORAGE_KEYS.homeDraft);
+  if (!raw) {
+    return null;
+  }
+
+  try {
+    const parsed = JSON.parse(raw) as Partial<HomeDraft>;
+    const settings = loadSettings();
+    return {
+      douyinLink: parsed.douyinLink || '',
+      originalText: parsed.originalText || '',
+      editedText: parsed.editedText || '',
+      template: parsed.template || 'SlideShow',
+      selectedRewriteStyleId:
+        typeof parsed.selectedRewriteStyleId === 'string' &&
+        settings.rewriteStyles.some((style) => style.id === parsed.selectedRewriteStyleId)
+          ? parsed.selectedRewriteStyleId
+          : settings.defaultRewriteStyleId,
+    };
+  } catch {
+    return null;
+  }
+}
+
+function saveHomeDraft(draft: HomeDraft) {
+  localStorage.setItem(STORAGE_KEYS.homeDraft, JSON.stringify(draft));
 }
 
 function getPagePlan(durationSeconds: number, template: string) {
@@ -692,6 +808,31 @@ async function generateSlidesWithAi(
   return slides;
 }
 
+function buildRewritePrompt(text: string, style: RewriteStyle): string {
+  const template = style.prompt.trim() || DEFAULT_REWRITE_STYLES[0].prompt;
+  if (template.includes('{{text}}')) {
+    return template.replaceAll('{{text}}', text);
+  }
+
+  return `${template}\n\n原文案：\n${text}`;
+}
+
+async function rewriteCopyWithAi(text: string, style: RewriteStyle): Promise<string> {
+  const settings = loadSettings();
+  if (!settings.aiApiKey) {
+    throw new Error('请先在设置中配置 AI API Key');
+  }
+
+  const result = await invokeTauri<string>('generate_slides', {
+    apiUrl: settings.aiUrl,
+    apiKey: settings.aiApiKey,
+    model: settings.aiModel,
+    prompt: buildRewritePrompt(text, style),
+  });
+
+  return result.trim();
+}
+
 async function saveSlidesToProject(project: Project) {
   const settings = loadSettings();
   const hasCompleteTiming =
@@ -835,16 +976,16 @@ const PRIMARY_BUTTON_STYLE: React.CSSProperties = {
 const PAGE_FRAME_STYLE: React.CSSProperties = {
   maxWidth: COMPACT_UI.pageMaxWidth,
   margin: '0 auto',
-  padding: `${SPACING.lg}px ${SPACING.lg}px ${SPACING.xl}px`,
+  padding: `16px 18px 18px`,
   display: 'flex',
   flexDirection: 'column',
-  gap: SPACING.md,
+  gap: 12,
 };
 
 const PAGE_HEADER_STYLE: React.CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 4,
+  gap: 0,
   maxWidth: 760,
 };
 
@@ -903,27 +1044,44 @@ function HomePage(props: {
   onProjectChange: (project: Project | null) => void;
 }) {
   const navigate = useNavigate();
+  const homeDraft = React.useMemo(() => loadHomeDraft(), []);
   // 文案状态
-  const [originalText, setOriginalText] = React.useState(''); // 原文案（提取的）
-  const [editedText, setEditedText] = React.useState(props.project?.rawText || ''); // 修改后的文案
-  const [template, setTemplate] = React.useState(props.project?.template || 'SlideShow');
+  const [originalText, setOriginalText] = React.useState(homeDraft?.originalText || ''); // 原文案（提取的）
+  const [editedText, setEditedText] = React.useState(homeDraft?.editedText || props.project?.rawText || ''); // 修改后的文案
+  const [template, setTemplate] = React.useState(homeDraft?.template || props.project?.template || 'SlideShow');
   const [loading, setLoading] = React.useState(false);
   const [status, setStatus] = React.useState('');
   const [error, setError] = React.useState('');
 
   // 抖音提取状态
-  const [douyinLink, setDouyinLink] = React.useState('');
+  const [douyinLink, setDouyinLink] = React.useState(homeDraft?.douyinLink || '');
   const [isExtracting, setIsExtracting] = React.useState(false);
-  const [activeTab, setActiveTab] = React.useState<'original' | 'edit'>('edit');
+  const [isRewriting, setIsRewriting] = React.useState(false);
+  const [selectedRewriteStyleId, setSelectedRewriteStyleId] = React.useState(
+    () => homeDraft?.selectedRewriteStyleId || loadSettings().defaultRewriteStyleId
+  );
+  const rewriteStyles = loadSettings().rewriteStyles;
+
+  React.useEffect(() => {
+    if (!rewriteStyles.some((style) => style.id === selectedRewriteStyleId)) {
+      setSelectedRewriteStyleId(loadSettings().defaultRewriteStyleId);
+    }
+  }, [rewriteStyles, selectedRewriteStyleId]);
+
+  React.useEffect(() => {
+    saveHomeDraft({
+      douyinLink,
+      originalText,
+      editedText,
+      template,
+      selectedRewriteStyleId,
+    });
+  }, [douyinLink, originalText, editedText, template, selectedRewriteStyleId]);
 
   // 从设置获取 API Key
   const getApiKey = () => {
-    const saved = localStorage.getItem('videomaker-settings');
-    if (saved) {
-      const settings = JSON.parse(saved);
-      return settings.bailianApiKey || '';
-    }
-    return '';
+    const settings = loadSettings() as SettingsData & { bailianApiKey?: string };
+    return settings.voiceApiKey || settings.aiApiKey || settings.bailianApiKey || '';
   };
 
   // 从抖音链接提取文案
@@ -960,7 +1118,6 @@ function HomePage(props: {
       // 设置原文案和修改后的文案
       setOriginalText(transcribeResult.text);
       setEditedText(transcribeResult.text);
-      setActiveTab('original');
 
       setStatus(`文案提取成功！视频时长: ${Math.round(transcribeResult.duration)}秒`);
       setTimeout(() => setStatus(''), 3000);
@@ -974,7 +1131,34 @@ function HomePage(props: {
   // 复制原文案到修改区
   const handleCopyToEdit = () => {
     setEditedText(originalText);
-    setActiveTab('edit');
+  };
+
+  const handleRewriteCopy = async () => {
+    const sourceText = (originalText || editedText).trim();
+    if (!sourceText) {
+      setError('请先输入或提取文案');
+      return;
+    }
+    const settings = loadSettings();
+    const selectedStyle =
+      settings.rewriteStyles.find((style) => style.id === selectedRewriteStyleId) ||
+      settings.rewriteStyles[0] ||
+      DEFAULT_REWRITE_STYLES[0];
+
+    setIsRewriting(true);
+    setError('');
+    setStatus('正在改写文案...');
+
+    try {
+      const rewritten = await rewriteCopyWithAi(sourceText, selectedStyle);
+      setEditedText(rewritten);
+      setStatus('文案改写完成');
+      window.setTimeout(() => setStatus(''), 2500);
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : String(cause));
+    } finally {
+      setIsRewriting(false);
+    }
   };
 
   const handleGenerate = async () => {
@@ -1020,15 +1204,10 @@ function HomePage(props: {
     <div style={PAGE_FRAME_STYLE}>
       <div style={PAGE_HEADER_STYLE}>
         <h2 style={{ marginTop: 0, marginBottom: 4, color: '#1d2129', fontSize: 18, letterSpacing: '-0.02em' }}>生成项目</h2>
-        <p style={{ margin: 0, color: '#86909c', fontSize: 12, lineHeight: 1.5 }}>从抖音链接提取文案，或直接输入文案生成视频。</p>
       </div>
 
       {/* 抖音链接提取区域 */}
-      <div style={{ ...PANEL_STYLE, width: '100%', marginBottom: SPACING.lg }}>
-        <div style={{ marginBottom: SPACING.md }}>
-          <h3 style={{ margin: '0 0 8px 0', fontSize: 14, color: '#1d2129' }}>📱 抖音链接提取</h3>
-          <p style={{ margin: 0, fontSize: 12, color: '#86909c' }}>粘贴抖音分享链接，自动提取视频口播文案</p>
-        </div>
+      <div style={{ ...PANEL_STYLE, width: '100%', marginBottom: 12, padding: 16 }}>
         <div style={{ display: 'flex', gap: SPACING.md, alignItems: 'flex-start' }}>
           <input
             type="text"
@@ -1058,58 +1237,43 @@ function HomePage(props: {
       </div>
 
       {/* 文案编辑区域 */}
-      <div style={{ ...PANEL_STYLE, width: '100%', display: 'flex', flexDirection: 'column', gap: SPACING.lg }}>
-        {/* 标签切换 */}
-        <div style={{ display: 'flex', gap: 4, borderBottom: '1px solid #e5e6eb', paddingBottom: 8 }}>
-          {originalText && (
-            <button
-              onClick={() => setActiveTab('original')}
-              style={{
-                padding: '8px 16px',
-                border: 'none',
-                background: activeTab === 'original' ? '#e8f3ff' : 'transparent',
-                color: activeTab === 'original' ? '#165dff' : '#4e5969',
-                borderRadius: 6,
-                cursor: 'pointer',
-                fontSize: 14,
-                fontWeight: activeTab === 'original' ? 600 : 400,
-              }}
-            >
-              原文案（提取）
-            </button>
-          )}
-          <button
-            onClick={() => setActiveTab('edit')}
-            style={{
-              padding: '8px 16px',
-              border: 'none',
-              background: activeTab === 'edit' ? '#e8f3ff' : 'transparent',
-              color: activeTab === 'edit' ? '#165dff' : '#4e5969',
-              borderRadius: 6,
-              cursor: 'pointer',
-              fontSize: 14,
-              fontWeight: activeTab === 'edit' ? 600 : 400,
-            }}
-          >
-            修改后的文案
-          </button>
+      <div style={{ ...PANEL_STYLE, width: '100%', display: 'flex', flexDirection: 'column', gap: 12, padding: 16 }}>
+        <div style={{ marginBottom: 0 }}>
+          <h3 style={{ margin: '0 0 6px 0', fontSize: 14, color: '#1d2129' }}>文案编辑</h3>
         </div>
 
-        {/* 原文案面板 */}
-        {activeTab === 'original' && originalText && (
-          <div style={FIELD_GROUP_STYLE}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <label style={FIELD_LABEL_STYLE}>原文案（从抖音提取）</label>
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: '1fr 1fr',
+            gap: 12,
+            alignItems: 'start',
+          }}
+        >
+          <div
+            style={{
+              ...FIELD_GROUP_STYLE,
+              marginTop: 0,
+              padding: 14,
+              borderRadius: 16,
+              background: 'linear-gradient(180deg, rgba(247,250,255,0.92) 0%, rgba(255,255,255,0.98) 100%)',
+              border: '1px solid #e5eaf4',
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10, gap: 8 }}>
+              <label style={FIELD_LABEL_STYLE}>原文案（提取）</label>
               <button
                 onClick={handleCopyToEdit}
+                disabled={!originalText}
                 style={{
                   padding: '6px 12px',
                   fontSize: 12,
                   border: '1px solid #165dff',
                   background: 'transparent',
-                  color: '#165dff',
-                  borderRadius: 4,
-                  cursor: 'pointer',
+                  color: !originalText ? '#94a3b8' : '#165dff',
+                  borderRadius: 8,
+                  cursor: !originalText ? 'not-allowed' : 'pointer',
+                  opacity: !originalText ? 0.6 : 1,
                 }}
               >
                 复制到修改区
@@ -1118,39 +1282,74 @@ function HomePage(props: {
             <div
               style={{
                 ...SOFT_INPUT_STYLE,
-                minHeight: 200,
-                padding: '14px 16px',
+                minHeight: 208,
+                maxHeight: 208,
+                padding: '12px 14px',
                 lineHeight: 1.6,
                 background: '#f7f8fa',
                 whiteSpace: 'pre-wrap',
                 overflow: 'auto',
               }}
             >
-              {originalText}
+              {originalText || '提取后的原文案会显示在这里'}
             </div>
           </div>
-        )}
 
-        {/* 修改后的文案面板 */}
-        {activeTab === 'edit' && (
-          <div style={FIELD_GROUP_STYLE}>
-            <label style={FIELD_LABEL_STYLE}>
-              {originalText ? '修改后的文案（将用于生成视频）' : '口播文案'}
-            </label>
+          <div
+            style={{
+              ...FIELD_GROUP_STYLE,
+              marginTop: 0,
+              padding: 14,
+              borderRadius: 16,
+              background: 'linear-gradient(180deg, rgba(247,250,255,0.92) 0%, rgba(255,255,255,0.98) 100%)',
+              border: '1px solid #e5eaf4',
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: SPACING.md, flexWrap: 'wrap', marginBottom: 10 }}>
+              <label style={FIELD_LABEL_STYLE}>修改后的文案</label>
+              <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'nowrap' }}>
+                <select
+                  value={selectedRewriteStyleId}
+                  onChange={(event) => setSelectedRewriteStyleId(event.target.value)}
+                  style={{ ...SOFT_INPUT_STYLE, minWidth: 148, width: 148, padding: '8px 12px' }}
+                >
+                  {rewriteStyles.map((style) => (
+                    <option key={style.id} value={style.id}>
+                      {style.name}
+                    </option>
+                  ))}
+                </select>
+                <button
+                  type="button"
+                  onClick={handleRewriteCopy}
+                  disabled={isRewriting}
+                  style={{
+                    ...PRIMARY_BUTTON_STYLE,
+                    minWidth: 108,
+                    padding: '8px 14px',
+                    background: isRewriting ? '#94b8ff' : '#165dff',
+                    cursor: isRewriting ? 'not-allowed' : 'pointer',
+                  }}
+                >
+                  {isRewriting ? '改写中...' : 'AI 改写'}
+                </button>
+              </div>
+            </div>
             <textarea
               value={editedText}
               onChange={(event) => setEditedText(event.target.value)}
-              rows={10}
+              rows={8}
               style={{
                 resize: 'vertical',
                 ...SOFT_INPUT_STYLE,
-                minHeight: 232,
-                padding: '14px 16px',
+                minHeight: 208,
+                maxHeight: 208,
+                padding: '12px 14px',
                 lineHeight: 1.6,
               }}
             />
           </div>
-        )}
+        </div>
 
         <div
           style={{
@@ -1158,7 +1357,7 @@ function HomePage(props: {
             gridTemplateColumns: '220px auto',
             alignItems: 'end',
             gap: SPACING.md,
-            paddingTop: SPACING.md,
+            paddingTop: 8,
             borderTop: '1px solid #edf1f7',
           }}
         >
@@ -1846,7 +2045,8 @@ function EditorPage(props: {
 function SettingsPage() {
   const [settings, setSettings] = React.useState<SettingsData>(loadSettings());
   const [saved, setSaved] = React.useState(false);
-  const [activeTab, setActiveTab] = React.useState<'voice' | 'ai'>('voice');
+  const [activeTab, setActiveTab] = React.useState<'voice' | 'ai' | 'rewrite'>('voice');
+  const [editingRewriteStyleId, setEditingRewriteStyleId] = React.useState<string | null>(null);
 
   const updateField = <K extends keyof SettingsData>(key: K, value: SettingsData[K]) => {
     setSettings((current) => ({ ...current, [key]: value }));
@@ -1856,6 +2056,46 @@ function SettingsPage() {
     saveSettings(settings);
     setSaved(true);
     window.setTimeout(() => setSaved(false), 1800);
+  };
+
+  const updateRewriteStyle = (id: string, patch: Partial<RewriteStyle>) => {
+    setSettings((current) => ({
+      ...current,
+      rewriteStyles: current.rewriteStyles.map((style) => (style.id === id ? { ...style, ...patch } : style)),
+    }));
+  };
+
+  const addRewriteStyle = () => {
+    const id = `rewrite-${Date.now()}`;
+    setSettings((current) => ({
+      ...current,
+      rewriteStyles: [
+        ...current.rewriteStyles,
+        {
+          id,
+          name: `新风格 ${current.rewriteStyles.length + 1}`,
+          prompt: '你是短视频文案改写助手。请把下面的原文案改写成更适合口播的视频文案。\n\n要求：输出纯文本，不要解释，不要加标题。\n\n原文案：\n{{text}}',
+        },
+      ],
+      defaultRewriteStyleId: current.defaultRewriteStyleId || id,
+    }));
+    setEditingRewriteStyleId(id);
+  };
+
+  const removeRewriteStyle = (id: string) => {
+    setSettings((current) => {
+      if (current.rewriteStyles.length <= 1) {
+        return current;
+      }
+      const rewriteStyles = current.rewriteStyles.filter((style) => style.id !== id);
+      return {
+        ...current,
+        rewriteStyles,
+        defaultRewriteStyleId:
+          current.defaultRewriteStyleId === id ? rewriteStyles[0].id : current.defaultRewriteStyleId,
+      };
+    });
+    setEditingRewriteStyleId((current) => (current === id ? null : current));
   };
 
   const settingsTabStyle = (active: boolean): React.CSSProperties => ({
@@ -1893,6 +2133,9 @@ function SettingsPage() {
             </button>
             <button type="button" onClick={() => setActiveTab('ai')} style={settingsTabStyle(activeTab === 'ai')}>
               AI 生成
+            </button>
+            <button type="button" onClick={() => setActiveTab('rewrite')} style={settingsTabStyle(activeTab === 'rewrite')}>
+              改写风格
             </button>
           </div>
 
@@ -1941,7 +2184,7 @@ function SettingsPage() {
                 />
               </div>
             </>
-          ) : (
+          ) : activeTab === 'ai' ? (
             <>
               <h3 style={{ ...SECTION_TITLE_STYLE, marginTop: 0 }}>AI 生成</h3>
 
@@ -1971,6 +2214,109 @@ function SettingsPage() {
                   onChange={(event) => updateField('aiModel', event.target.value)}
                   style={SOFT_INPUT_STYLE}
                 />
+              </div>
+            </>
+          ) : (
+            <>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: SPACING.md, flexWrap: 'wrap' }}>
+                <div>
+                  <h3 style={{ ...SECTION_TITLE_STYLE, marginTop: 0, marginBottom: 6 }}>改写风格</h3>
+                  <p style={{ margin: 0, color: '#86909c', fontSize: 12 }}>
+                    在这里管理二创提示词模板。首页改写文案时会使用你选择的风格。
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={addRewriteStyle}
+                  style={{ ...SECONDARY_BUTTON_STYLE, minWidth: 120, cursor: 'pointer' }}
+                >
+                  新增风格
+                </button>
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: SPACING.md }}>
+                {settings.rewriteStyles.map((style) => {
+                  const isDefault = settings.defaultRewriteStyleId === style.id;
+                  const isEditing = editingRewriteStyleId === style.id;
+                  const promptPreview = style.prompt.replace(/\s+/g, ' ').trim();
+                  return (
+                    <div
+                      key={style.id}
+                      style={{
+                        border: isDefault ? '1px solid rgba(22, 93, 255, 0.28)' : '1px solid rgba(229, 230, 235, 0.92)',
+                        borderRadius: 16,
+                        background: isDefault ? 'rgba(232, 243, 255, 0.45)' : '#fff',
+                        padding: 16,
+                        }}
+                      >
+                      <div style={{ display: 'flex', justifyContent: 'space-between', gap: SPACING.md, alignItems: 'center', flexWrap: 'wrap' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+                          {isEditing ? (
+                            <input
+                              value={style.name}
+                              onChange={(event) => updateRewriteStyle(style.id, { name: event.target.value })}
+                              style={{ ...SOFT_INPUT_STYLE, minWidth: 220 }}
+                            />
+                          ) : (
+                            <div style={{ fontSize: 15, fontWeight: 700, color: '#1d2129' }}>{style.name}</div>
+                          )}
+                          {isDefault ? (
+                            <span style={{ fontSize: 12, color: '#165dff', fontWeight: 700 }}>默认</span>
+                          ) : null}
+                        </div>
+                        <div style={{ display: 'flex', gap: 8 }}>
+                          <button
+                            type="button"
+                            onClick={() => setEditingRewriteStyleId((current) => (current === style.id ? null : style.id))}
+                            style={{ ...SECONDARY_BUTTON_STYLE, padding: '8px 12px', cursor: 'pointer' }}
+                          >
+                            {isEditing ? '收起' : '编辑'}
+                          </button>
+                          {!isDefault ? (
+                            <button
+                              type="button"
+                              onClick={() => updateField('defaultRewriteStyleId', style.id)}
+                              style={{ ...SECONDARY_BUTTON_STYLE, padding: '8px 12px', cursor: 'pointer' }}
+                            >
+                              设为默认
+                            </button>
+                          ) : null}
+                          <button
+                            type="button"
+                            onClick={() => removeRewriteStyle(style.id)}
+                            disabled={settings.rewriteStyles.length <= 1}
+                            style={{
+                              ...QUIET_DANGER_BUTTON_STYLE,
+                              padding: '8px 12px',
+                              cursor: settings.rewriteStyles.length <= 1 ? 'not-allowed' : 'pointer',
+                              opacity: settings.rewriteStyles.length <= 1 ? 0.5 : 1,
+                            }}
+                          >
+                            删除
+                          </button>
+                        </div>
+                      </div>
+
+                      {isEditing ? (
+                        <>
+                          <textarea
+                            value={style.prompt}
+                            onChange={(event) => updateRewriteStyle(style.id, { prompt: event.target.value })}
+                            rows={10}
+                            style={{ ...SOFT_INPUT_STYLE, minHeight: 220, lineHeight: 1.6, marginTop: 12 }}
+                          />
+                          <p style={{ margin: '10px 0 0 0', color: '#86909c', fontSize: 12, lineHeight: 1.6 }}>
+                            这里只写风格提示词本身。系统会自动把原文案拼接到后面。
+                          </p>
+                        </>
+                      ) : (
+                        <p style={{ margin: '12px 0 0 0', color: '#4e5969', fontSize: 13, lineHeight: 1.7 }}>
+                          {promptPreview.length > 140 ? `${promptPreview.slice(0, 140)}...` : promptPreview}
+                        </p>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             </>
           )}

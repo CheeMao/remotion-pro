@@ -207,13 +207,14 @@ export const RichSlide: React.FC<{
           <div style={{ textAlign: "center", maxWidth: 900 }}>
             <h1
               style={{
-                fontSize: 96,
+                fontSize: 84,
                 fontWeight: 900,
                 color: colors.text,
                 margin: 0,
                 marginBottom: 32,
                 textShadow: `0 0 60px ${colors.accent1}40`,
                 letterSpacing: "-2px",
+                lineHeight: 1.06,
               }}
             >
               {String(data.title ?? "")}
@@ -230,7 +231,7 @@ export const RichSlide: React.FC<{
       case "stats":
         return (
           <div style={{ width: "92%" }}>
-            <h2 style={{ fontSize: 56, fontWeight: 800, color: colors.text, margin: "0 0 50px 0", textAlign: "center" }}>
+            <h2 style={{ fontSize: 48, fontWeight: 800, color: colors.text, margin: "0 0 42px 0", textAlign: "left" }}>
               {String(data.title ?? "")}
             </h2>
             <div style={{ display: "flex", gap: 24, justifyContent: "center", flexWrap: "wrap" }}>
@@ -258,7 +259,7 @@ export const RichSlide: React.FC<{
       case "highlight":
         return (
           <div style={{ width: "92%" }}>
-            <h2 style={{ fontSize: 56, fontWeight: 800, color: colors.text, margin: "0 0 40px 0", textAlign: "center" }}>
+            <h2 style={{ fontSize: 48, fontWeight: 800, color: colors.text, margin: "0 0 32px 0", textAlign: "left" }}>
               {String(data.title ?? "")}
             </h2>
             <div style={{ display: "flex", gap: 20, flexWrap: "wrap", justifyContent: "center" }}>
@@ -286,7 +287,7 @@ export const RichSlide: React.FC<{
       case "progress":
         return (
           <div style={{ width: "92%" }}>
-            <h2 style={{ fontSize: 56, fontWeight: 800, color: colors.text, margin: "0 0 40px 0", textAlign: "center" }}>
+            <h2 style={{ fontSize: 48, fontWeight: 800, color: colors.text, margin: "0 0 32px 0", textAlign: "left" }}>
               {String(data.title ?? "")}
             </h2>
             <div style={{ display: "flex", gap: 30, justifyContent: "center", flexWrap: "wrap" }}>
@@ -329,7 +330,7 @@ export const RichSlide: React.FC<{
       case "compare":
         return (
           <div style={{ width: "92%" }}>
-            <h2 style={{ fontSize: 56, fontWeight: 800, color: colors.text, margin: "0 0 50px 0", textAlign: "center" }}>
+            <h2 style={{ fontSize: 48, fontWeight: 800, color: colors.text, margin: "0 0 40px 0", textAlign: "left" }}>
               {String(data.title ?? "")}
             </h2>
             <div style={{ display: "flex", gap: 30, alignItems: "center", justifyContent: "center" }}>
@@ -371,7 +372,7 @@ export const RichSlide: React.FC<{
       case "list":
         return (
           <div style={{ width: "92%" }}>
-            <h2 style={{ fontSize: 56, fontWeight: 800, color: colors.text, margin: "0 0 40px 0", textAlign: "center" }}>
+            <h2 style={{ fontSize: 48, fontWeight: 800, color: colors.text, margin: "0 0 32px 0", textAlign: "left" }}>
               {String(data.title ?? "")}
             </h2>
             <div style={{ display: "flex", gap: 20, flexWrap: "wrap", justifyContent: "center" }}>
@@ -516,7 +517,51 @@ export const RichSlide: React.FC<{
         ))}
       </div>
 
-      <div style={{ opacity: exitOpacity }}>{renderContent()}</div>
+      <div
+        style={{
+          opacity: exitOpacity,
+          width: "90%",
+          maxWidth: 920,
+          minHeight: 1280,
+          padding: "34px 34px 40px",
+          borderRadius: 32,
+          background: "linear-gradient(180deg, rgba(10, 10, 20, 0.48), rgba(18, 20, 38, 0.32))",
+          border: `1px solid ${colors.cardBorder}`,
+          boxShadow: "0 24px 60px rgba(0,0,0,0.28)",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "space-between",
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            marginBottom: 26,
+          }}
+        >
+          <div
+            style={{
+              padding: "10px 18px",
+              borderRadius: 999,
+              background: "rgba(255,255,255,0.08)",
+              border: `1px solid ${colors.cardBorder}`,
+              color: "rgba(255,255,255,0.82)",
+              fontSize: 18,
+              fontWeight: 600,
+              letterSpacing: "0.4px",
+            }}
+          >
+            RICH
+          </div>
+          <div style={{ fontSize: 20, color: "rgba(255,255,255,0.64)", fontWeight: 600 }}>
+            {String(index + 1).padStart(2, "0")} / {String(totalSlides).padStart(2, "0")}
+          </div>
+        </div>
+
+        <div style={{ flex: 1, display: "flex", alignItems: "center" }}>{renderContent()}</div>
+      </div>
     </AbsoluteFill>
   );
 };

@@ -95,7 +95,7 @@ const NeuralConnection: React.FC<{
         stroke={color}
         strokeWidth={1.5}
         strokeDasharray="4 4"
-        opacity={progress * 0.6}
+        opacity={progress * 0.3}
         style={{
           filter: `drop-shadow(0 0 4px ${color})`,
         }}
@@ -126,7 +126,7 @@ const DataFlow: React.FC<{ frame: number }> = ({ frame }) => {
           height: size * 6,
           background: `linear-gradient(180deg, transparent, ${color}, transparent)`,
           borderRadius: 2,
-          opacity: 0.5,
+          opacity: 0.22,
         }}
       />
     );
@@ -291,9 +291,6 @@ export const AISlide: React.FC<{
       {/* 数据流 */}
       <DataFlow frame={frame} />
 
-      {/* AI 核心 */}
-      <AICore frame={frame} />
-
       {/* 神经网络节点 */}
       {nodes.map((node, i) => (
         <NeuralNode
@@ -336,11 +333,12 @@ export const AISlide: React.FC<{
         <div
           style={{
             width: "90%",
-            minHeight: 850,
-            padding: "70px 60px",
+            maxWidth: 920,
+            minHeight: 1260,
+            padding: "34px 34px 38px",
             background: `linear-gradient(135deg, rgba(0,217,255,0.08), rgba(168,85,247,0.05))`,
             backdropFilter: "blur(20px)",
-            borderRadius: 32,
+            borderRadius: 30,
             border: `1px solid ${colors.primary}30`,
             boxShadow: `
               0 0 60px ${colors.primary}15,
@@ -348,92 +346,99 @@ export const AISlide: React.FC<{
             `,
             display: "flex",
             flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
+            alignItems: "stretch",
+            justifyContent: "flex-start",
           }}
         >
-          {/* 顶部状态栏 */}
           <div
             style={{
-              position: "absolute",
-              top: -18,
-              left: 50,
               display: "flex",
-              gap: 20,
               alignItems: "center",
+              justifyContent: "space-between",
+              marginBottom: 28,
             }}
           >
+            <div style={{ display: "flex", gap: 20, alignItems: "center" }}>
+              <div
+                style={{
+                  padding: "10px 24px",
+                  background: `linear-gradient(135deg, ${colors.primary}, ${colors.secondary})`,
+                  borderRadius: 20,
+                  fontSize: 18,
+                  fontWeight: 700,
+                  color: colors.text,
+                  boxShadow: `0 8px 30px ${colors.primary}50`,
+                }}
+              >
+                AI-{String(index + 1).padStart(2, "0")}
+              </div>
+              <div style={{ display: "flex", gap: 8 }}>
+                {[...Array(3)].map((_, i) => (
+                  <div
+                    key={i}
+                    style={{
+                      width: 10,
+                      height: 10,
+                      borderRadius: "50%",
+                      background: [colors.success, colors.warning, colors.secondary][i],
+                      boxShadow: `0 0 10px ${[colors.success, colors.warning, colors.secondary][i]}`,
+                      opacity: 0.8,
+                    }}
+                  />
+                ))}
+              </div>
+            </div>
+
             <div
               style={{
                 padding: "10px 24px",
-                background: `linear-gradient(135deg, ${colors.primary}, ${colors.secondary})`,
+                background: "rgba(255,255,255,0.1)",
+                backdropFilter: "blur(10px)",
                 borderRadius: 20,
+                border: `1px solid ${colors.primary}30`,
                 fontSize: 18,
-                fontWeight: 700,
-                color: colors.text,
-                boxShadow: `0 8px 30px ${colors.primary}50`,
+                fontWeight: 600,
+                color: colors.muted,
               }}
             >
-              AI-{String(index + 1).padStart(2, "0")}
+              {index + 1} / {totalSlides}
             </div>
-            <div
-              style={{
-                display: "flex",
-                gap: 8,
-              }}
-            >
-              {[...Array(3)].map((_, i) => (
-                <div
-                  key={i}
-                  style={{
-                    width: 10,
-                    height: 10,
-                    borderRadius: "50%",
-                    background: [colors.success, colors.warning, colors.secondary][i],
-                    boxShadow: `0 0 10px ${[colors.success, colors.warning, colors.secondary][i]}`,
-                    opacity: 0.8,
-                  }}
-                />
-              ))}
-            </div>
-          </div>
-
-          {/* 右上角页码 */}
-          <div
-            style={{
-              position: "absolute",
-              top: -18,
-              right: 50,
-              padding: "10px 24px",
-              background: "rgba(255,255,255,0.1)",
-              backdropFilter: "blur(10px)",
-              borderRadius: 20,
-              border: `1px solid ${colors.primary}30`,
-              fontSize: 18,
-              fontWeight: 600,
-              color: colors.muted,
-            }}
-          >
-            {index + 1} / {totalSlides}
           </div>
 
           {/* 标题 */}
-          <h1
+          <div
             style={{
-              fontSize: 80,
-              fontWeight: 800,
-              color: colors.text,
-              textAlign: "center",
-              margin: 0,
-              marginBottom: 16,
-              transform: `translateY(${interpolate(titleProgress, [0, 1], [50, 0])}px)`,
-              opacity: titleProgress,
-              textShadow: `0 0 40px ${colors.primary}40`,
-              letterSpacing: "-1px",
+              display: "flex",
+              alignItems: "flex-start",
+              justifyContent: "space-between",
+              gap: 24,
+              marginBottom: 20,
             }}
           >
-            {title}
-          </h1>
+            <div style={{ flex: 1 }}>
+              <h1
+                style={{
+                  fontSize: 68,
+                  fontWeight: 800,
+                  color: colors.text,
+                  textAlign: "left",
+                  margin: 0,
+                  marginBottom: 16,
+                  transform: `translateY(${interpolate(titleProgress, [0, 1], [50, 0])}px)`,
+                  opacity: titleProgress,
+                  textShadow: `0 0 40px ${colors.primary}40`,
+                  letterSpacing: "-0.5px",
+                  lineHeight: 1.06,
+                  maxWidth: 620,
+                }}
+              >
+                {title}
+              </h1>
+            </div>
+            <div style={{ flexShrink: 0 }}>
+              <AICore frame={frame} />
+            </div>
+          </div>
 
           {/* 装饰线 */}
           <div
@@ -451,9 +456,9 @@ export const AISlide: React.FC<{
           {subtitle && (
             <p
               style={{
-                fontSize: 34,
+                fontSize: 28,
                 color: colors.muted,
-                textAlign: "center",
+              textAlign: "left",
                 margin: 0,
                 marginBottom: 50,
                 transform: `translateY(${interpolate(subtitleProgress, [0, 1], [30, 0])}px)`,
@@ -473,8 +478,8 @@ export const AISlide: React.FC<{
                 flexDirection: "column",
                 gap: 20,
                 width: "100%",
-                maxWidth: 800,
-                marginTop: 10,
+                maxWidth: "100%",
+                marginTop: 18,
               }}
             >
               {points.map((point, i) => {
@@ -523,7 +528,7 @@ export const AISlide: React.FC<{
                     {/* 文字 */}
                     <span
                       style={{
-                        fontSize: 30,
+                        fontSize: 28,
                         color: colors.text,
                         fontWeight: 500,
                       }}

@@ -1,11 +1,15 @@
-use serde::{Deserialize, Serialize};
+﻿use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::fs;
+use std::io::Write;
 use std::net::{SocketAddr, TcpStream};
 use std::path::{Path, PathBuf};
 use std::process::Command;
 use base64::Engine;
+use hmac::{Hmac, Mac};
 use regex::Regex;
+use reqwest::multipart::{Form, Part};
+use sha1::Sha1;
 
 #[cfg(target_os = "windows")]
 use std::os::windows::process::CommandExt;
@@ -76,10 +80,348 @@ struct TranscriptionResult {
     duration: f64,
 }
 
-/// 解析抖音分享链接，获取视频信息
+#[derive(Debug, Clone)]
+struct QiniuConfig {
+    access_key: String,
+    secret_key: String,
+    bucket: String,
+    domain: String,
+    upload_url: String,
+}
+
+fn extract_douyin_content_id(url: &str) -> Option<(String, String)> {
+    let patterns = [
+        ("video", r"/(?:share/)?video/(\d+)"),
+        ("note", r"/(?:share/)?note/(\d+)"),
+        ("note", r"/(?:share/)?slides/(\d+)"),
+        ("video", r"[?&](?:modal_id|item_id|group_id)=(\d+)"),
+    ];
+
+    for (content_type, pattern) in patterns {
+        let regex = Regex::new(pattern).ok()?;
+        if let Some(captures) = regex.captures(url) {
+            if let Some(matched) = captures.get(1) {
+                return Some((content_type.to_string(), matched.as_str().to_string()));
+            }
+        }
+    }
+
+    None
+}
+
+fn find_first_douyin_item(value: &Value) -> Option<Value> {
+    match value {
+        Value::Object(map) => {
+            if let Some(first_item) = map
+                .get("item_list")
+                .and_then(|items| items.as_array())
+                .and_then(|items| items.first())
+            {
+                return Some(first_item.clone());
+            }
+
+            for nested in map.values() {
+                if let Some(found) = find_first_douyin_item(nested) {
+                    return Some(found);
+                }
+            }
+
+            None
+        }
+        Value::Array(items) => {
+            for item in items {
+                if let Some(found) = find_first_douyin_item(item) {
+                    return Some(found);
+                }
+            }
+
+            None
+        }
+        _ => None,
+    }
+}
+
+fn load_qiniu_config() -> Result<Option<QiniuConfig>, String> {
+    let access_key = std::env::var("QINIU_ACCESS_KEY").unwrap_or_default();
+    let secret_key = std::env::var("QINIU_SECRET_KEY").unwrap_or_default();
+    let bucket = std::env::var("QINIU_BUCKET").unwrap_or_default();
+    let domain = std::env::var("QINIU_DOMAIN").unwrap_or_default();
+    let upload_url = std::env::var("QINIU_UPLOAD_URL")
+        .unwrap_or_else(|_| "https://up.qiniup.com".to_string());
+
+    if [access_key.as_str(), secret_key.as_str(), bucket.as_str(), domain.as_str()]
+        .iter()
+        .all(|value| value.trim().is_empty())
+    {
+        return Ok(None);
+    }
+
+    if access_key.trim().is_empty()
+        || secret_key.trim().is_empty()
+        || bucket.trim().is_empty()
+        || domain.trim().is_empty()
+    {
+        return Err("七牛云配置不完整，请补全 QINIU_ACCESS_KEY / QINIU_SECRET_KEY / QINIU_BUCKET / QINIU_DOMAIN".to_string());
+    }
+
+    let normalized_domain = if domain.starts_with("http://") || domain.starts_with("https://") {
+        domain
+    } else {
+        format!("https://{}", domain)
+    };
+
+    Ok(Some(QiniuConfig {
+        access_key,
+        secret_key,
+        bucket,
+        domain: normalized_domain.trim_end_matches('/').to_string(),
+        upload_url: upload_url.trim_end_matches('/').to_string(),
+    }))
+}
+
+fn load_runtime_env() {
+    let candidates = [
+        PathBuf::from(".env"),
+        PathBuf::from("../.env"),
+        PathBuf::from("../../.env"),
+    ];
+
+    for candidate in candidates {
+        if candidate.exists() {
+            let _ = dotenvy::from_path_override(candidate);
+            break;
+        }
+    }
+}
+
+fn create_douyin_temp_dir() -> Result<PathBuf, String> {
+    let dir = std::env::temp_dir().join("ai-remotion-douyin");
+    if !dir.exists() {
+        fs::create_dir_all(&dir).map_err(|e| format!("Failed to create temp dir: {}", e))?;
+    }
+    Ok(dir)
+}
+
+fn sanitize_object_name(input: &str) -> String {
+    input
+        .chars()
+        .map(|ch| {
+            if ch.is_ascii_alphanumeric() || ch == '-' || ch == '_' || ch == '.' {
+                ch
+            } else {
+                '_'
+            }
+        })
+        .collect()
+}
+
+async fn download_file(url: &str, target_path: &Path) -> Result<(), String> {
+    let client = reqwest::Client::builder()
+        .user_agent("Mozilla/5.0 (iPhone; CPU iPhone OS 17_2 like Mac OS X) AppleWebKit/605.1.15")
+        .build()
+        .map_err(|e| format!("Failed to create download client: {}", e))?;
+    let bytes = client
+        .get(url)
+        .header("Referer", "https://www.douyin.com/")
+        .send()
+        .await
+        .map_err(|e| format!("Failed to download file: {}", e))?
+        .error_for_status()
+        .map_err(|e| format!("Download request failed: {}", e))?
+        .bytes()
+        .await
+        .map_err(|e| format!("Failed to read download response: {}", e))?;
+
+    let mut file = fs::File::create(target_path)
+        .map_err(|e| format!("Failed to create temp file: {}", e))?;
+    file.write_all(&bytes)
+        .map_err(|e| format!("Failed to write temp file: {}", e))?;
+    Ok(())
+}
+
+fn extract_audio_with_ffmpeg(video_path: &Path, audio_path: &Path) -> Result<(), String> {
+    let ffmpeg_path = std::env::var("FFMPEG_PATH").unwrap_or_else(|_| "F:\\ffmpeg\\bin\\ffmpeg.exe".to_string());
+    let output = Command::new(ffmpeg_path)
+        .args([
+            "-y",
+            "-i",
+            &video_path.to_string_lossy(),
+            "-vn",
+            "-acodec",
+            "libmp3lame",
+            "-ar",
+            "16000",
+            "-ac",
+            "1",
+            "-b:a",
+            "64k",
+            &audio_path.to_string_lossy(),
+        ])
+        .output()
+        .map_err(|e| format!("Failed to run ffmpeg: {}", e))?;
+
+    if !output.status.success() {
+        return Err(format!(
+            "Failed to extract audio: {}",
+            String::from_utf8_lossy(&output.stderr)
+        ));
+    }
+
+    Ok(())
+}
+
+fn validate_audio_with_ffprobe(audio_path: &Path) -> Result<(), String> {
+    let ffprobe_path = std::env::var("FFPROBE_PATH").unwrap_or_else(|_| "F:\\ffmpeg\\bin\\ffprobe.exe".to_string());
+    let output = Command::new(ffprobe_path)
+        .args([
+            "-v",
+            "error",
+            "-show_entries",
+            "stream=codec_type:format=duration,size",
+            "-of",
+            "json",
+            &audio_path.to_string_lossy(),
+        ])
+        .output()
+        .map_err(|e| format!("Failed to run ffprobe: {}", e))?;
+
+    if !output.status.success() {
+        return Err(format!(
+            "Failed to inspect extracted audio: {}",
+            String::from_utf8_lossy(&output.stderr)
+        ));
+    }
+
+    let probe_json: Value = serde_json::from_slice(&output.stdout)
+        .map_err(|e| format!("Failed to parse ffprobe output: {}", e))?;
+
+    let has_audio_stream = probe_json
+        .get("streams")
+        .and_then(|streams| streams.as_array())
+        .map(|streams| {
+            streams.iter().any(|stream| {
+                stream
+                    .get("codec_type")
+                    .and_then(|codec| codec.as_str())
+                    == Some("audio")
+            })
+        })
+        .unwrap_or(false);
+
+    let duration = probe_json
+        .get("format")
+        .and_then(|format| format.get("duration"))
+        .and_then(|duration| duration.as_str())
+        .and_then(|duration| duration.parse::<f64>().ok())
+        .unwrap_or(0.0);
+
+    if !has_audio_stream || duration < 0.3 {
+        return Err("提取出的音频无有效内容，请检查抖音视频是否包含可识别的人声".to_string());
+    }
+
+    Ok(())
+}
+
+fn build_qiniu_upload_token(config: &QiniuConfig, _object_key: &str) -> Result<String, String> {
+    let deadline = chrono::Utc::now().timestamp() + 3600;
+    let put_policy = serde_json::json!({
+        "scope": config.bucket,
+        "deadline": deadline,
+    });
+    let encoded_policy = base64::engine::general_purpose::URL_SAFE
+        .encode(put_policy.to_string());
+
+    let mut mac = Hmac::<Sha1>::new_from_slice(config.secret_key.as_bytes())
+        .map_err(|e| format!("Failed to build qiniu signature: {}", e))?;
+    mac.update(encoded_policy.as_bytes());
+    let signature = mac.finalize().into_bytes();
+    let encoded_signature = base64::engine::general_purpose::URL_SAFE.encode(signature);
+
+    Ok(format!(
+        "{}:{}:{}",
+        config.access_key, encoded_signature, encoded_policy
+    ))
+}
+
+async fn upload_file_to_qiniu(
+    file_path: &Path,
+    object_key: &str,
+    config: &QiniuConfig,
+) -> Result<String, String> {
+    let upload_token = build_qiniu_upload_token(config, object_key)?;
+    let file_name = file_path
+        .file_name()
+        .and_then(|name| name.to_str())
+        .unwrap_or("audio.wav")
+        .to_string();
+    let file_bytes = fs::read(file_path).map_err(|e| format!("Failed to read upload file: {}", e))?;
+
+    let form = Form::new()
+        .text("token", upload_token)
+        .text("key", object_key.to_string())
+        .part(
+            "file",
+            Part::bytes(file_bytes)
+                .file_name(file_name)
+                .mime_str("audio/mpeg")
+                .map_err(|e| format!("Failed to set upload mime: {}", e))?,
+        );
+
+    let response = reqwest::Client::new()
+        .post(&config.upload_url)
+        .multipart(form)
+        .send()
+        .await
+        .map_err(|e| format!("Failed to upload audio to Qiniu: {}", e))?
+        .error_for_status()
+        .map_err(|e| format!("Qiniu upload request failed: {}", e))?;
+
+    let _upload_result: Value = response
+        .json()
+        .await
+        .map_err(|e| format!("Failed to parse qiniu upload response: {}", e))?;
+
+    Ok(format!("{}/{}", config.domain, object_key))
+}
+
+async fn prepare_douyin_transcription_url(video_url: &str) -> Result<Option<String>, String> {
+    let Some(config) = load_qiniu_config()? else {
+        return Ok(None);
+    };
+
+    let temp_dir = create_douyin_temp_dir()?;
+    let timestamp = chrono::Utc::now().format("%Y%m%d%H%M%S").to_string();
+    let video_path = temp_dir.join(format!("douyin-{}.mp4", timestamp));
+    let audio_path = temp_dir.join(format!("douyin-{}.mp3", timestamp));
+    let object_key = format!(
+        "temp/asr/{}-{}.mp3",
+        timestamp,
+        sanitize_object_name(
+            video_path
+                .file_stem()
+                .and_then(|stem| stem.to_str())
+                .unwrap_or("douyin-audio")
+        )
+    );
+
+    let result = async {
+        download_file(video_url, &video_path).await?;
+        extract_audio_with_ffmpeg(&video_path, &audio_path)?;
+        validate_audio_with_ffprobe(&audio_path)?;
+        upload_file_to_qiniu(&audio_path, &object_key, &config).await
+    }
+    .await;
+
+    let _ = fs::remove_file(&video_path);
+    let _ = fs::remove_file(&audio_path);
+
+    result.map(Some)
+}
+
+/// 瑙ｆ瀽鎶栭煶鍒嗕韩閾炬帴锛岃幏鍙栬棰戜俊鎭?
 #[tauri::command]
 async fn parse_douyin_url(share_text: String) -> Result<DouyinParseResult, String> {
-    // Step 1: 从文本中提取URL
+    // Step 1: 浠庢枃鏈腑鎻愬彇URL
     let url_pattern = Regex::new(r"http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+")
         .map_err(|e| format!("Regex error: {}", e))?;
 
@@ -89,19 +431,19 @@ async fn parse_douyin_url(share_text: String) -> Result<DouyinParseResult, Strin
         .collect();
 
     if urls.is_empty() {
-        return Err("未找到有效的分享链接".to_string());
+        return Err("鏈壘鍒版湁鏁堢殑鍒嗕韩閾炬帴".to_string());
     }
 
     let share_url = urls[0];
 
-    // Step 2: 使用iPhone User-Agent获取重定向后的真实URL
-    let headers = reqwest::header::HeaderMap::new();
+    // Step 2: 浣跨敤iPhone User-Agent鑾峰彇閲嶅畾鍚戝悗鐨勭湡瀹濽RL
+    let _headers = reqwest::header::HeaderMap::new();
     let client = reqwest::Client::builder()
         .user_agent("Mozilla/5.0 (iPhone; CPU iPhone OS 17_2 like Mac OS X) AppleWebKit/605.1.15")
         .build()
         .map_err(|e| format!("Failed to create client: {}", e))?;
 
-    // 短链接会重定向到长链接
+    // 鐭摼鎺ヤ細閲嶅畾鍚戝埌闀块摼鎺?
     let response = client
         .get(share_url)
         .send()
@@ -109,9 +451,11 @@ async fn parse_douyin_url(share_text: String) -> Result<DouyinParseResult, Strin
         .map_err(|e| format!("Failed to fetch share URL: {}", e))?;
 
     let final_url = response.url().as_str().to_string();
+    let extracted_content = extract_douyin_content_id(&final_url)
+        .or_else(|| extract_douyin_content_id(share_url));
 
-    // Step 3: 从URL中提取视频ID
-    // URL格式: https://www.iesdouyin.com/share/video/VIDEO_ID
+    // Step 3: 浠嶶RL涓彁鍙栬棰慖D
+    // URL鏍煎紡: https://www.iesdouyin.com/share/video/VIDEO_ID
     let video_id = final_url
         .split('/')
         .last()
@@ -120,15 +464,27 @@ async fn parse_douyin_url(share_text: String) -> Result<DouyinParseResult, Strin
         .next()
         .unwrap_or("")
         .to_string();
+    let video_id = if video_id.is_empty() {
+        extracted_content
+            .as_ref()
+            .map(|(_, id)| id.clone())
+            .unwrap_or_default()
+    } else {
+        video_id
+    };
 
     if video_id.is_empty() {
-        return Err("无法从URL中提取视频ID".to_string());
+        return Err("鏃犳硶浠嶶RL涓彁鍙栬棰慖D".to_string());
     }
 
-    // Step 4: 构建标准分享页URL
+    // Step 4: 鏋勫缓鏍囧噯鍒嗕韩椤礥RL
     let share_page_url = format!("https://www.iesdouyin.com/share/video/{}", video_id);
+    let share_page_url = match extracted_content.as_ref().map(|(content_type, _)| content_type.as_str()) {
+        Some("note") => format!("https://www.iesdouyin.com/share/note/{}", video_id),
+        _ => share_page_url,
+    };
 
-    // Step 5: 获取页面HTML
+    // Step 5: 鑾峰彇椤甸潰HTML
     let html_text = client
         .get(&share_page_url)
         .send()
@@ -138,8 +494,8 @@ async fn parse_douyin_url(share_text: String) -> Result<DouyinParseResult, Strin
         .await
         .map_err(|e| format!("Failed to read response: {}", e))?;
 
-    // Step 6: 从HTML中提取视频信息(JSON)
-    // 抖音将视频数据存储在 window._ROUTER_DATA 变量中
+    // Step 6: 浠嶩TML涓彁鍙栬棰戜俊鎭?JSON)
+    // 鎶栭煶灏嗚棰戞暟鎹瓨鍌ㄥ湪 window._ROUTER_DATA 鍙橀噺涓?
     let pattern = Regex::new(r"window\._ROUTER_DATA\s*=\s*(.*?)</script>")
         .map_err(|e| format!("Regex error: {}", e))?;
 
@@ -152,7 +508,7 @@ async fn parse_douyin_url(share_text: String) -> Result<DouyinParseResult, Strin
     let json_data: Value = serde_json::from_str(match_data)
         .map_err(|e| format!("Failed to parse JSON: {}", e))?;
 
-    // Step 7: 提取视频数据
+    // Step 7: 鎻愬彇瑙嗛鏁版嵁
     let video_info_res = json_data
         .get("loaderData")
         .and_then(|l| {
@@ -160,15 +516,18 @@ async fn parse_douyin_url(share_text: String) -> Result<DouyinParseResult, Strin
                 .or_else(|| l.get(format!("note_{}/page", video_id)))
         })
         .and_then(|v| v.get("videoInfoRes"))
-        .ok_or_else(|| "无法解析视频或图文信息".to_string())?;
+        .cloned();
 
     let item_list = video_info_res
-        .get("item_list")
-        .and_then(|i| i.as_array())
-        .and_then(|arr| arr.first())
-        .ok_or_else(|| "无法获取视频列表".to_string())?;
+        .as_ref()
+        .and_then(|info| info.get("item_list"))
+        .and_then(|items| items.as_array())
+        .and_then(|items| items.first())
+        .cloned()
+        .or_else(|| find_first_douyin_item(&json_data))
+        .ok_or_else(|| "无法解析视频或图文信息".to_string())?;
 
-    // Step 8: 获取无水印视频URL
+    // Step 8: 鑾峰彇鏃犳按鍗拌棰慤RL
     let video_url = item_list
         .get("video")
         .and_then(|v| v.get("play_addr"))
@@ -177,9 +536,9 @@ async fn parse_douyin_url(share_text: String) -> Result<DouyinParseResult, Strin
         .and_then(|arr| arr.first())
         .and_then(|url| url.as_str())
         .map(|url| url.replace("playwm", "play"))
-        .ok_or_else(|| "无法获取视频URL".to_string())?;
+        .ok_or_else(|| "鏃犳硶鑾峰彇瑙嗛URL".to_string())?;
 
-    // 提取视频描述（标题）
+    // 鎻愬彇瑙嗛鎻忚堪锛堟爣棰橈級
     let desc = item_list
         .get("desc")
         .and_then(|d| d.as_str())
@@ -194,26 +553,32 @@ async fn parse_douyin_url(share_text: String) -> Result<DouyinParseResult, Strin
     })
 }
 
-/// 使用阿里云DashScope转写视频语音
+/// 浣跨敤闃块噷浜慏ashScope杞啓瑙嗛璇煶
 #[tauri::command]
 async fn transcribe_douyin_video(video_url: String, api_key: String) -> Result<TranscriptionResult, String> {
     if api_key.is_empty() {
-        return Err("请先配置阿里云DashScope API Key".to_string());
+        return Err("璇峰厛閰嶇疆闃块噷浜慏ashScope API Key".to_string());
     }
 
-    // Step 1: 提交异步转写任务
+    let transcription_source_url = prepare_douyin_transcription_url(&video_url)
+        .await?
+        .unwrap_or(video_url.clone());
+
+    // Step 1: 鎻愪氦寮傛杞啓浠诲姟
     let client = reqwest::Client::new();
     let task_response = client
         .post("https://dashscope.aliyuncs.com/api/v1/services/audio/asr/transcription")
         .header("Authorization", format!("Bearer {}", api_key))
         .header("Content-Type", "application/json")
+        .header("X-DashScope-Async", "enable")
         .json(&serde_json::json!({
             "model": "paraformer-v2",
             "input": {
-                "file_urls": [video_url]
+                "file_urls": [transcription_source_url]
             },
             "parameters": {
-                "language_hints": ["zh-CN"]
+                "channel_id": [0],
+                "language_hints": ["zh", "en"]
             }
         }))
         .send()
@@ -229,11 +594,11 @@ async fn transcribe_douyin_video(video_url: String, api_key: String) -> Result<T
         .get("output")
         .and_then(|o| o.get("task_id"))
         .and_then(|t| t.as_str())
-        .ok_or_else(|| format!("无法获取task_id: {:?}", task_json))?;
+        .ok_or_else(|| format!("鏃犳硶鑾峰彇task_id: {:?}", task_json))?;
 
-    // Step 2: 轮询等待任务完成
+    // Step 2: 杞绛夊緟浠诲姟瀹屾垚
     let mut attempts = 0;
-    let max_attempts = 60; // 最多等待60秒
+    let max_attempts = 60; // 鏈€澶氱瓑寰?0绉?
     let mut transcription_url = String::new();
 
     while attempts < max_attempts {
@@ -270,11 +635,11 @@ async fn transcribe_douyin_video(video_url: String, api_key: String) -> Result<T
                     .and_then(|item| item.get("transcription_url"))
                     .and_then(|u| u.as_str())
                     .map(|s| s.to_string())
-                    .ok_or_else(|| "无法获取转写结果URL".to_string())?;
+                    .ok_or_else(|| "鏃犳硶鑾峰彇杞啓缁撴灉URL".to_string())?;
                 break;
             }
             "FAILED" | "CANCELLED" => {
-                return Err(format!("转写任务失败: {:?}", query_json));
+                return Err(format!("杞啓浠诲姟澶辫触: {:?}", query_json));
             }
             _ => {
                 // PENDING or RUNNING, continue waiting
@@ -284,10 +649,10 @@ async fn transcribe_douyin_video(video_url: String, api_key: String) -> Result<T
     }
 
     if transcription_url.is_empty() {
-        return Err("转写任务超时".to_string());
+        return Err("杞啓浠诲姟瓒呮椂".to_string());
     }
 
-    // Step 3: 下载转写结果
+    // Step 3: 涓嬭浇杞啓缁撴灉
     let result_response = client
         .get(&transcription_url)
         .send()
@@ -299,14 +664,14 @@ async fn transcribe_douyin_video(video_url: String, api_key: String) -> Result<T
         .await
         .map_err(|e| format!("Failed to parse transcription JSON: {}", e))?;
 
-    // Step 4: 提取转写文本
+    // Step 4: 鎻愬彇杞啓鏂囨湰
     let transcripts = result_json
         .get("transcripts")
         .and_then(|t| t.as_array())
-        .ok_or_else(|| "转写结果格式错误".to_string())?;
+        .ok_or_else(|| "杞啓缁撴灉鏍煎紡閿欒".to_string())?;
 
     if transcripts.is_empty() {
-        return Err("转写结果为空".to_string());
+        return Err("杞啓缁撴灉涓虹┖".to_string());
     }
 
     let text = transcripts
@@ -320,7 +685,7 @@ async fn transcribe_douyin_video(video_url: String, api_key: String) -> Result<T
         .and_then(|t| t.get("end_time"))
         .and_then(|e| e.as_f64())
         .unwrap_or(0.0)
-        / 1000.0; // 毫秒转秒
+        / 1000.0; // 姣杞
 
     Ok(TranscriptionResult { text, duration })
 }
@@ -1117,6 +1482,7 @@ async fn render_video(template: String, content_path: String) -> Result<String, 
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
+    load_runtime_env();
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
             generate_slides,
