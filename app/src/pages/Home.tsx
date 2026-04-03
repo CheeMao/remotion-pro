@@ -71,7 +71,7 @@ export default function Home() {
         const settings = JSON.parse(saved);
         console.log(
           'Settings loaded, apiKey exists:',
-          !!(settings.aiApiKey || settings.voiceApiKey || settings.bailianApiKey)
+          !!(settings.volcengineAccessKey || settings.voiceApiKey || settings.aiApiKey)
         );
       } else {
         console.log('No settings found in localStorage');
@@ -93,11 +93,11 @@ export default function Home() {
     let currentApiKey = '';
     if (saved) {
       const settings = JSON.parse(saved);
-      currentApiKey = settings.aiApiKey || settings.voiceApiKey || settings.bailianApiKey || '';
+      currentApiKey = settings.volcengineAccessKey || settings.voiceApiKey || settings.aiApiKey || '';
     }
 
     if (!currentApiKey) {
-      Message.warning('请先在设置页配置 DashScope API Key');
+      Message.warning('请先在设置页配置火山引擎 Access Key');
       return;
     }
 
@@ -113,7 +113,7 @@ export default function Home() {
 
       const transcribeResult = await invokeTauri<TranscriptionResult>('transcribe_douyin_video', {
         videoUrl: parseResult.videoUrl,
-        apiKey: currentApiKey,
+        accessKey: currentApiKey,
       });
 
       setOriginalText(transcribeResult.text);

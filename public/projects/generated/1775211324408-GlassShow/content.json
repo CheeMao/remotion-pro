@@ -1,0 +1,90 @@
+{
+  "meta": {
+    "title": "Generated Video",
+    "template": "GlassShow",
+    "voice_id": "S_PlTK120R1",
+    "full_narration": "Gemini 的口碑一直很能打，但它到底好在哪里？不亲自试一试确实很难真正体会。有没有什么办法能让我们一分钱不花直接体验到它的满血版模型"
+  },
+  "slides": [
+    {
+      "audioDuration": 4.08,
+      "audioEnd": 4.08,
+      "audioStart": 0,
+      "data": {
+        "badge": "AI 模型",
+        "cta": "了解详情"
+      },
+      "durationInFrames": 122,
+      "narration": "Gemini 的口碑一直很能打",
+      "segmentIds": [
+        "segment-1"
+      ],
+      "subtitle": "真的很能打",
+      "title": "Gemini 口碑",
+      "type": "hero"
+    },
+    {
+      "audioDuration": 3.5039999999999996,
+      "audioEnd": 7.584,
+      "audioStart": 4.08,
+      "data": {
+        "items": [
+          "到底好在哪里？"
+        ]
+      },
+      "durationInFrames": 105,
+      "narration": "但它到底好在哪里？",
+      "segmentIds": [
+        "segment-2"
+      ],
+      "subtitle": "优势在哪里",
+      "title": "核心疑问",
+      "type": "highlight"
+    },
+    {
+      "audioDuration": 5.280000000000001,
+      "audioEnd": 12.864,
+      "audioStart": 7.584,
+      "data": {
+        "author": "真实反馈",
+        "quote": "不亲自试一试确实很难真正体会。"
+      },
+      "durationInFrames": 158,
+      "narration": "不亲自试一试确实很难真正体会。",
+      "segmentIds": [
+        "segment-3"
+      ],
+      "subtitle": "实践出真知",
+      "title": "用户体验",
+      "type": "quote"
+    },
+    {
+      "data": {
+        "steps": [
+          {
+            "description": "有没有办法",
+            "title": "一分钱不花"
+          }
+        ]
+      },
+      "narration": "有没有什么办法能让我们一分钱不花",
+      "segmentIds": [],
+      "subtitle": "无需付费",
+      "title": "免费体验",
+      "type": "steps"
+    },
+    {
+      "data": {
+        "points": [
+          "完整功能",
+          "直接体验"
+        ]
+      },
+      "narration": "直接体验到它的满血版模型",
+      "segmentIds": [],
+      "subtitle": "直接体验",
+      "title": "满血版模型",
+      "type": "default"
+    }
+  ]
+}

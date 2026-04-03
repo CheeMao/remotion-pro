@@ -48,6 +48,8 @@ const SimpleTimeline: React.FC<{
     title: string;
     subtitle?: string;
     points?: string[];
+    type?: string;
+    data?: Record<string, unknown>;
     index: number;
     totalSlides: number;
     durationInFrames: number;
@@ -72,6 +74,8 @@ const SimpleTimeline: React.FC<{
               title={slide.title || `Slide ${index + 1}`}
               subtitle={slide.subtitle}
               points={slide.points}
+              type={(slide as PreviewComplexSlide).type}
+              data={(slide as PreviewComplexSlide).data}
               index={index}
               totalSlides={slides.length}
               durationInFrames={duration}
@@ -236,6 +240,55 @@ const KnowledgeTimeline: React.FC<{
   );
 };
 
+const LiquidTimeline: React.FC<{
+  slides: PreviewComplexSlide[];
+  soundtrackPath?: string;
+}> = ({ slides, soundtrackPath }) => {
+  const soundtrackSrc = getStaticAssetPath(soundtrackPath);
+
+  return (
+    <AbsoluteFill style={{ background: '#e8e8ed' }}>
+      {soundtrackSrc ? <Audio src={staticFile(soundtrackSrc)} /> : null}
+      {slides.map((slide, index) => {
+        const { from, duration } = getSlideTiming(
+          slides,
+          index,
+          FPS,
+          DEFAULT_SLIDE_DURATION
+        );
+
+        return (
+          <Sequence key={slide.id || index} from={from} durationInFrames={duration}>
+            <LiquidSlide
+              title={slide.title || ''}
+              subtitle={slide.subtitle}
+              points={slide.points}
+              type={
+                slide.type as
+                  | 'default'
+                  | 'hero'
+                  | 'stats'
+                  | 'compare'
+                  | 'steps'
+                  | 'list'
+                  | 'chart'
+                  | 'timeline'
+                  | 'highlight'
+                  | 'quote'
+                  | undefined
+              }
+              data={slide.data}
+              index={index}
+              totalSlides={slides.length}
+              durationInFrames={duration}
+            />
+          </Sequence>
+        );
+      })}
+    </AbsoluteFill>
+  );
+};
+
 const LiquidBriefTimeline: React.FC<{
   slides: PreviewComplexSlide[];
   soundtrackPath?: string;
@@ -337,11 +390,9 @@ export const GeneratedTemplateRenderer: React.FC<{
       );
     case 'LiquidShow':
       return (
-        <SimpleTimeline
-          slides={slides as unknown as PreviewSimpleSlide[]}
+        <LiquidTimeline
+          slides={slides as unknown as PreviewComplexSlide[]}
           soundtrackPath={soundtrackPath}
-          background="#e8e8ed"
-          SlideComponent={LiquidSlide}
         />
       );
     case 'LiquidShow-1':

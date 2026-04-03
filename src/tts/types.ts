@@ -2,12 +2,29 @@
 
 // TTS 配置
 export interface TTSConfig {
-  apiKey: string;
+  apiKey?: string;
   model?: string;
   voiceId?: string;
   sampleRate?: number;
   speechRate?: number;
   format?: 'mp3' | 'wav' | 'pcm';
+  // 火山引擎配置
+  appId?: string;
+  accessKey?: string;
+  resourceId?: string;
+  uid?: string;
+}
+
+export interface TTSServiceOptions {
+  appId?: string;
+  apiKey?: string;
+  accessKey?: string;
+  resourceId?: string;
+  defaultVoiceId?: string;
+  defaultSpeechRate?: number;
+  uid?: string;
+  cacheDir?: string;
+  enableCache?: boolean;
 }
 
 export const DEFAULT_SPEECH_RATE = 1.0;
@@ -23,6 +40,20 @@ export const normalizeSpeechRate = (speechRate?: number): number | undefined => 
 
   return speechRate;
 };
+
+// 字级时间戳（火山引擎返回）
+export interface WordTimestamp {
+  word: string;
+  startTime: number;  // 秒
+  endTime: number;    // 秒
+  confidence: number;
+}
+
+// 句子时间戳信息
+export interface SentenceTimestamp {
+  text: string;
+  words: WordTimestamp[];
+}
 
 // 音色复刻配置
 export interface VoiceCloneConfig {
@@ -72,6 +103,7 @@ export interface AudioCacheEntry {
   speechRate?: number;
   audioPath: string;
   duration: number;  // 秒
+  timestamps?: WordTimestamp[];  // 新增：字级时间戳
   createdAt: string;
 }
 
@@ -79,5 +111,36 @@ export interface AudioCacheEntry {
 export interface SynthesisResult {
   audioPath: string;
   duration: number;
+  timestamps?: WordTimestamp[];  // 新增：字级时间戳
   fromCache: boolean;
+}
+
+// 火山引擎TTS请求参数
+export interface VolcEngineTTSRequest {
+  user: {
+    uid: string;
+  };
+  req_params: {
+    text: string;
+    speaker: string;
+    model?: string;
+    audio_params: {
+      format: 'mp3' | 'wav' | 'pcm';
+      sample_rate: number;
+      speech_rate?: number;
+      enable_timestamp?: boolean;
+      enable_subtitle?: boolean;
+    };
+  };
+}
+
+// 火山引擎TTS响应
+export interface VolcEngineTTSResponse {
+  code: number;
+  message: string;
+  data?: string;  // Base64音频数据
+  sentence?: SentenceTimestamp;  // 时间戳信息
+  usage?: {
+    text_words: number;
+  };
 }

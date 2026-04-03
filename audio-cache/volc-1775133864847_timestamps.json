@@ -1,0 +1,23 @@
+{
+  "timestamps": [
+    {
+      "word": "Template-scoped",
+      "startTime": 0,
+      "endTime": 0.045,
+      "confidence": 0.4893816
+    },
+    {
+      "word": "content",
+      "startTime": 0.935,
+      "endTime": 1.455,
+      "confidence": 0.89306754
+    },
+    {
+      "word": "preview.",
+      "startTime": 1.455,
+      "endTime": 1.955,
+      "confidence": 0.910045
+    }
+  ],
+  "duration": 1.955
+}

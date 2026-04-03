@@ -5,7 +5,7 @@
   "identifier": "com.videomaker.app",
   "build": {
     "frontendDist": "../app/dist",
-    "devUrl": "http://localhost:5173",
+    "devUrl": "http://localhost:5180",
     "beforeDevCommand": "npm run dev:app",
     "beforeBuildCommand": "npm run build:app"
   },

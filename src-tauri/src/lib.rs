@@ -5,6 +5,7 @@ use std::io::Write;
 use std::net::{SocketAddr, TcpStream};
 use std::path::{Path, PathBuf};
 use std::process::Command;
+use std::time::Duration;
 use base64::Engine;
 use hmac::{Hmac, Mac};
 use regex::Regex;
@@ -161,7 +162,7 @@ fn load_qiniu_config() -> Result<Option<QiniuConfig>, String> {
         || bucket.trim().is_empty()
         || domain.trim().is_empty()
     {
-        return Err("七牛云配置不完整，请补全 QINIU_ACCESS_KEY / QINIU_SECRET_KEY / QINIU_BUCKET / QINIU_DOMAIN".to_string());
+        return Err("涓冪墰浜戦厤缃笉瀹屾暣锛岃琛ュ叏 QINIU_ACCESS_KEY / QINIU_SECRET_KEY / QINIU_BUCKET / QINIU_DOMAIN".to_string());
     }
 
     let normalized_domain = if domain.starts_with("http://") || domain.starts_with("https://") {
@@ -418,10 +419,10 @@ async fn prepare_douyin_transcription_url(video_url: &str) -> Result<Option<Stri
     result.map(Some)
 }
 
-/// 瑙ｆ瀽鎶栭煶鍒嗕韩閾炬帴锛岃幏鍙栬棰戜俊鎭?
+/// 鐟欙絾鐎介幎鏍叾閸掑棔闊╅柧鐐复閿涘矁骞忛崣鏍潒妫版垳淇婇幁?
 #[tauri::command]
 async fn parse_douyin_url(share_text: String) -> Result<DouyinParseResult, String> {
-    // Step 1: 浠庢枃鏈腑鎻愬彇URL
+    // Step 1: 娴犲孩鏋冮張顑胯厬閹绘劕褰嘦RL
     let url_pattern = Regex::new(r"http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+")
         .map_err(|e| format!("Regex error: {}", e))?;
 
@@ -431,19 +432,19 @@ async fn parse_douyin_url(share_text: String) -> Result<DouyinParseResult, Strin
         .collect();
 
     if urls.is_empty() {
-        return Err("鏈壘鍒版湁鏁堢殑鍒嗕韩閾炬帴".to_string());
+        return Err("未找到有效的分享链接".to_string());
     }
 
     let share_url = urls[0];
 
-    // Step 2: 浣跨敤iPhone User-Agent鑾峰彇閲嶅畾鍚戝悗鐨勭湡瀹濽RL
+    // Step 2: 娴ｈ法鏁Phone User-Agent閼惧嘲褰囬柌宥呯暰閸氭垵鎮楅惃鍕埂鐎规拷RL
     let _headers = reqwest::header::HeaderMap::new();
     let client = reqwest::Client::builder()
         .user_agent("Mozilla/5.0 (iPhone; CPU iPhone OS 17_2 like Mac OS X) AppleWebKit/605.1.15")
         .build()
         .map_err(|e| format!("Failed to create client: {}", e))?;
 
-    // 鐭摼鎺ヤ細閲嶅畾鍚戝埌闀块摼鎺?
+    // 閻參鎽奸幒銉ょ窗闁插秴鐣鹃崥鎴濆煂闂€鍧楁懠閹?
     let response = client
         .get(share_url)
         .send()
@@ -454,8 +455,8 @@ async fn parse_douyin_url(share_text: String) -> Result<DouyinParseResult, Strin
     let extracted_content = extract_douyin_content_id(&final_url)
         .or_else(|| extract_douyin_content_id(share_url));
 
-    // Step 3: 浠嶶RL涓彁鍙栬棰慖D
-    // URL鏍煎紡: https://www.iesdouyin.com/share/video/VIDEO_ID
+    // Step 3: 娴犲抖RL娑擃厽褰侀崣鏍潒妫版厲D
+    // URL閺嶇厧绱? https://www.iesdouyin.com/share/video/VIDEO_ID
     let video_id = final_url
         .split('/')
         .last()
@@ -474,17 +475,17 @@ async fn parse_douyin_url(share_text: String) -> Result<DouyinParseResult, Strin
     };
 
     if video_id.is_empty() {
-        return Err("鏃犳硶浠嶶RL涓彁鍙栬棰慖D".to_string());
+        return Err("閺冪姵纭舵禒宥禦L娑擃厽褰侀崣鏍潒妫版厲D".to_string());
     }
 
-    // Step 4: 鏋勫缓鏍囧噯鍒嗕韩椤礥RL
+    // Step 4: 閺嬪嫬缂撻弽鍥у櫙閸掑棔闊╂い绀L
     let share_page_url = format!("https://www.iesdouyin.com/share/video/{}", video_id);
     let share_page_url = match extracted_content.as_ref().map(|(content_type, _)| content_type.as_str()) {
         Some("note") => format!("https://www.iesdouyin.com/share/note/{}", video_id),
         _ => share_page_url,
     };
 
-    // Step 5: 鑾峰彇椤甸潰HTML
+    // Step 5: 閼惧嘲褰囨い鐢告桨HTML
     let html_text = client
         .get(&share_page_url)
         .send()
@@ -494,8 +495,8 @@ async fn parse_douyin_url(share_text: String) -> Result<DouyinParseResult, Strin
         .await
         .map_err(|e| format!("Failed to read response: {}", e))?;
 
-    // Step 6: 浠嶩TML涓彁鍙栬棰戜俊鎭?JSON)
-    // 鎶栭煶灏嗚棰戞暟鎹瓨鍌ㄥ湪 window._ROUTER_DATA 鍙橀噺涓?
+    // Step 6: 娴犲订TML娑擃厽褰侀崣鏍潒妫版垳淇婇幁?JSON)
+    // 閹舵牠鐓剁亸鍡氼潒妫版垶鏆熼幑顔肩摠閸屻劌婀?window._ROUTER_DATA 閸欐﹢鍣烘稉?
     let pattern = Regex::new(r"window\._ROUTER_DATA\s*=\s*(.*?)</script>")
         .map_err(|e| format!("Regex error: {}", e))?;
 
@@ -503,12 +504,12 @@ async fn parse_douyin_url(share_text: String) -> Result<DouyinParseResult, Strin
         .captures(&html_text)
         .and_then(|c| c.get(1))
         .map(|m| m.as_str().trim())
-        .ok_or_else(|| "无法从HTML中解析视频信息".to_string())?;
+        .ok_or_else(|| "无法从 HTML 中解析视频信息".to_string())?;
 
     let json_data: Value = serde_json::from_str(match_data)
         .map_err(|e| format!("Failed to parse JSON: {}", e))?;
 
-    // Step 7: 鎻愬彇瑙嗛鏁版嵁
+    // Step 7: 閹绘劕褰囩憴鍡涱暥閺佺増宓?
     let video_info_res = json_data
         .get("loaderData")
         .and_then(|l| {
@@ -527,7 +528,7 @@ async fn parse_douyin_url(share_text: String) -> Result<DouyinParseResult, Strin
         .or_else(|| find_first_douyin_item(&json_data))
         .ok_or_else(|| "无法解析视频或图文信息".to_string())?;
 
-    // Step 8: 鑾峰彇鏃犳按鍗拌棰慤RL
+    // Step 8: 閼惧嘲褰囬弮鐘虫寜閸楁媽顫嬫０鎱L
     let video_url = item_list
         .get("video")
         .and_then(|v| v.get("play_addr"))
@@ -536,9 +537,9 @@ async fn parse_douyin_url(share_text: String) -> Result<DouyinParseResult, Strin
         .and_then(|arr| arr.first())
         .and_then(|url| url.as_str())
         .map(|url| url.replace("playwm", "play"))
-        .ok_or_else(|| "鏃犳硶鑾峰彇瑙嗛URL".to_string())?;
+        .ok_or_else(|| "閺冪姵纭堕懢宄板絿鐟欏棝顣禪RL".to_string())?;
 
-    // 鎻愬彇瑙嗛鎻忚堪锛堟爣棰橈級
+    // 閹绘劕褰囩憴鍡涱暥閹诲繗鍫敍鍫熺垼妫版﹫绱?
     let desc = item_list
         .get("desc")
         .and_then(|d| d.as_str())
@@ -553,22 +554,22 @@ async fn parse_douyin_url(share_text: String) -> Result<DouyinParseResult, Strin
     })
 }
 
-/// 浣跨敤闃块噷浜慏ashScope杞啓瑙嗛璇煶
+/// 娴ｈ法鏁ら梼鍧楀櫡娴滄厪ashScope鏉烆剙鍟撶憴鍡涱暥鐠囶參鐓?
 #[tauri::command]
-async fn transcribe_douyin_video(video_url: String, api_key: String) -> Result<TranscriptionResult, String> {
-    if api_key.is_empty() {
-        return Err("璇峰厛閰嶇疆闃块噷浜慏ashScope API Key".to_string());
+async fn transcribe_douyin_video(video_url: String, access_key: String) -> Result<TranscriptionResult, String> {
+    if access_key.is_empty() {
+        return Err("鐠囧嘲鍘涢柊宥囩枂闂冨潡鍣锋禍鎱廰shScope API Key".to_string());
     }
 
     let transcription_source_url = prepare_douyin_transcription_url(&video_url)
         .await?
         .unwrap_or(video_url.clone());
 
-    // Step 1: 鎻愪氦寮傛杞啓浠诲姟
+    // Step 1: 閹绘劒姘﹀鍌涱劄鏉烆剙鍟撴禒璇插
     let client = reqwest::Client::new();
     let task_response = client
         .post("https://dashscope.aliyuncs.com/api/v1/services/audio/asr/transcription")
-        .header("Authorization", format!("Bearer {}", api_key))
+        .header("Authorization", format!("Bearer {}", access_key))
         .header("Content-Type", "application/json")
         .header("X-DashScope-Async", "enable")
         .json(&serde_json::json!({
@@ -594,11 +595,11 @@ async fn transcribe_douyin_video(video_url: String, api_key: String) -> Result<T
         .get("output")
         .and_then(|o| o.get("task_id"))
         .and_then(|t| t.as_str())
-        .ok_or_else(|| format!("鏃犳硶鑾峰彇task_id: {:?}", task_json))?;
+        .ok_or_else(|| format!("閺冪姵纭堕懢宄板絿task_id: {:?}", task_json))?;
 
-    // Step 2: 杞绛夊緟浠诲姟瀹屾垚
+    // Step 2: 鏉烆喛顕楃粵澶婄窡娴犺濮熺€瑰本鍨?
     let mut attempts = 0;
-    let max_attempts = 60; // 鏈€澶氱瓑寰?0绉?
+    let max_attempts = 60; // 閺堚偓婢舵氨鐡戝?0缁?
     let mut transcription_url = String::new();
 
     while attempts < max_attempts {
@@ -609,7 +610,7 @@ async fn transcribe_douyin_video(video_url: String, api_key: String) -> Result<T
                 "https://dashscope.aliyuncs.com/api/v1/tasks/{}",
                 task_id
             ))
-            .header("Authorization", format!("Bearer {}", api_key))
+            .header("Authorization", format!("Bearer {}", access_key))
             .send()
             .await
             .map_err(|e| format!("Failed to query task: {}", e))?;
@@ -635,11 +636,11 @@ async fn transcribe_douyin_video(video_url: String, api_key: String) -> Result<T
                     .and_then(|item| item.get("transcription_url"))
                     .and_then(|u| u.as_str())
                     .map(|s| s.to_string())
-                    .ok_or_else(|| "鏃犳硶鑾峰彇杞啓缁撴灉URL".to_string())?;
+                    .ok_or_else(|| "閺冪姵纭堕懢宄板絿鏉烆剙鍟撶紒鎾寸亯URL".to_string())?;
                 break;
             }
             "FAILED" | "CANCELLED" => {
-                return Err(format!("杞啓浠诲姟澶辫触: {:?}", query_json));
+                return Err(format!("鏉烆剙鍟撴禒璇插婢惰精瑙? {:?}", query_json));
             }
             _ => {
                 // PENDING or RUNNING, continue waiting
@@ -649,10 +650,10 @@ async fn transcribe_douyin_video(video_url: String, api_key: String) -> Result<T
     }
 
     if transcription_url.is_empty() {
-        return Err("杞啓浠诲姟瓒呮椂".to_string());
+        return Err("转写任务超时".to_string());
     }
 
-    // Step 3: 涓嬭浇杞啓缁撴灉
+    // Step 3: 娑撳娴囨潪顒€鍟撶紒鎾寸亯
     let result_response = client
         .get(&transcription_url)
         .send()
@@ -664,14 +665,14 @@ async fn transcribe_douyin_video(video_url: String, api_key: String) -> Result<T
         .await
         .map_err(|e| format!("Failed to parse transcription JSON: {}", e))?;
 
-    // Step 4: 鎻愬彇杞啓鏂囨湰
+    // Step 4: 閹绘劕褰囨潪顒€鍟撻弬鍥ㄦ拱
     let transcripts = result_json
         .get("transcripts")
         .and_then(|t| t.as_array())
-        .ok_or_else(|| "杞啓缁撴灉鏍煎紡閿欒".to_string())?;
+        .ok_or_else(|| "鏉烆剙鍟撶紒鎾寸亯閺嶇厧绱￠柨娆掝嚖".to_string())?;
 
     if transcripts.is_empty() {
-        return Err("杞啓缁撴灉涓虹┖".to_string());
+        return Err("转写结果为空".to_string());
     }
 
     let text = transcripts
@@ -685,7 +686,7 @@ async fn transcribe_douyin_video(video_url: String, api_key: String) -> Result<T
         .and_then(|t| t.get("end_time"))
         .and_then(|e| e.as_f64())
         .unwrap_or(0.0)
-        / 1000.0; // 姣杞
+        / 1000.0; // 濮ｎ偆顫楁潪顒傤潡
 
     Ok(TranscriptionResult { text, duration })
 }
@@ -800,11 +801,11 @@ async fn wait_for_remotion_port(max_attempts: usize) -> Result<Option<u16>, Stri
 #[tauri::command(rename_all = "camelCase")]
 async fn generate_slides(
     api_url: String,
-    api_key: String,
+    access_key: String,
     model: String,
     prompt: String,
 ) -> Result<String, String> {
-    if api_key.is_empty() {
+    if access_key.is_empty() {
         return Err("Please configure the AI API key first.".to_string());
     }
 
@@ -824,10 +825,14 @@ async fn generate_slides(
         model
     };
 
-    let client = reqwest::Client::new();
+    let client = reqwest::Client::builder()
+        .connect_timeout(Duration::from_secs(10))
+        .timeout(Duration::from_secs(180))
+        .build()
+        .map_err(|e| format!("Failed to create AI HTTP client: {}", e))?;
     let response = client
         .post(&url)
-        .header("Authorization", format!("Bearer {}", api_key))
+        .header("Authorization", format!("Bearer {}", access_key))
         .header("Content-Type", "application/json")
         .header("User-Agent", "codex-desktop/1.0.0")
         .json(&serde_json::json!({
@@ -843,10 +848,22 @@ async fn generate_slides(
         .await
         .map_err(|e| format!("AI request failed: {}", e))?;
 
-    let json: serde_json::Value = response
-        .json()
+    let status = response.status();
+    let body_text = response
+        .text()
         .await
-        .map_err(|e| format!("Failed to parse AI response: {}", e))?;
+        .map_err(|e| format!("Failed to read AI response body: {}", e))?;
+
+    if !status.is_success() {
+        return Err(format!(
+            "AI request returned HTTP {}: {}",
+            status.as_u16(),
+            body_text
+        ));
+    }
+
+    let json: serde_json::Value = serde_json::from_str(&body_text)
+        .map_err(|e| format!("Failed to parse AI response JSON: {}. Body: {}", e, body_text))?;
 
     let content = json["choices"][0]["message"]["content"]
         .as_str()
@@ -994,39 +1011,12 @@ async fn ensure_remotion_running() -> Result<RemotionStartupResult, String> {
     )
 }
 
-#[tauri::command]
-async fn synthesize_voice(
-    text: String,
-    voice_id: String,
-    output_path: String,
-) -> Result<String, String> {
-    let project_dir = get_project_dir()?;
-    let script_path = project_dir.join("scripts").join("tts_synthesize.py");
-    let api_key = std::env::var("DASHSCOPE_API_KEY").unwrap_or_default();
-
-    let output = Command::new("python")
-        .arg(&script_path)
-        .arg("--voice")
-        .arg(&voice_id)
-        .arg("--text")
-        .arg(&text)
-        .arg("--output")
-        .arg(&output_path)
-        .env("DASHSCOPE_API_KEY", &api_key)
-        .output()
-        .map_err(|e| format!("Failed to execute TTS script: {}", e))?;
-
-    if output.status.success() {
-        Ok(String::from_utf8_lossy(&output.stdout).to_string())
-    } else {
-        Err(String::from_utf8_lossy(&output.stderr).to_string())
-    }
-}
-
 #[tauri::command(rename_all = "camelCase")]
 async fn generate_audio(
     voice_id: String,
-    api_key: String,
+    access_key: String,
+    app_id: String,
+    resource_id: String,
     speech_rate: Option<f64>,
     content_path: String,
 ) -> Result<String, String> {
@@ -1066,6 +1056,12 @@ async fn generate_audio(
             &voice_id,
             "-o",
             &audio_dir_repo_relative,
+            "-k",
+            &access_key,
+            "--app-id",
+            &app_id,
+            "--resource-id",
+            &resource_id,
         ]);
 
         if let Some(rate) = speech_rate {
@@ -1074,7 +1070,6 @@ async fn generate_audio(
 
         command
             .current_dir(&project_dir)
-            .env("DASHSCOPE_API_KEY", &api_key)
             .output()
             .map_err(|e| format!("Failed to generate audio: {}", e))?
     };
@@ -1091,6 +1086,12 @@ async fn generate_audio(
             &voice_id,
             "-o",
             &audio_dir_repo_relative,
+            "-k",
+            &access_key,
+            "--app-id",
+            &app_id,
+            "--resource-id",
+            &resource_id,
         ]);
 
         if let Some(rate) = speech_rate {
@@ -1099,7 +1100,6 @@ async fn generate_audio(
 
         command
             .current_dir(&project_dir)
-            .env("DASHSCOPE_API_KEY", &api_key)
             .output()
             .map_err(|e| format!("Failed to generate audio: {}", e))?
     };
@@ -1118,7 +1118,9 @@ async fn generate_audio(
 async fn generate_narration(
     raw_text: String,
     voice_id: String,
-    api_key: String,
+    access_key: String,
+    app_id: String,
+    resource_id: String,
     speech_rate: Option<f64>,
     content_path: String,
 ) -> Result<String, String> {
@@ -1166,7 +1168,11 @@ async fn generate_narration(
             "-o",
             &audio_repo_relative,
             "-k",
-            &api_key,
+            &access_key,
+            "--app-id",
+            &app_id,
+            "--resource-id",
+            &resource_id,
         ]);
 
         if let Some(rate) = speech_rate {
@@ -1192,7 +1198,11 @@ async fn generate_narration(
             "-o",
             &audio_repo_relative,
             "-k",
-            &api_key,
+            &access_key,
+            "--app-id",
+            &app_id,
+            "--resource-id",
+            &resource_id,
         ]);
 
         if let Some(rate) = speech_rate {
@@ -1223,7 +1233,9 @@ async fn generate_narration(
 async fn generate_storyboard_timeline(
     raw_text: String,
     voice_id: String,
-    api_key: String,
+    access_key: String,
+    app_id: String,
+    resource_id: String,
     speech_rate: Option<f64>,
     content_path: String,
 ) -> Result<String, String> {
@@ -1271,7 +1283,11 @@ async fn generate_storyboard_timeline(
             "-o",
             &audio_dir_repo_relative,
             "-k",
-            &api_key,
+            &access_key,
+            "--app-id",
+            &app_id,
+            "--resource-id",
+            &resource_id,
         ]);
 
         if let Some(rate) = speech_rate {
@@ -1297,7 +1313,11 @@ async fn generate_storyboard_timeline(
             "-o",
             &audio_dir_repo_relative,
             "-k",
-            &api_key,
+            &access_key,
+            "--app-id",
+            &app_id,
+            "--resource-id",
+            &resource_id,
         ]);
 
         if let Some(rate) = speech_rate {
@@ -1490,7 +1510,6 @@ pub fn run() {
             check_remotion_running,
             start_remotion,
             ensure_remotion_running,
-            synthesize_voice,
             generate_narration,
             generate_storyboard_timeline,
             generate_audio,
@@ -1513,3 +1532,5 @@ pub fn run() {
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
+
+

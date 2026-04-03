@@ -39,14 +39,18 @@ program
   .option('-v, --voice <voice-id>', 'Voice ID for TTS')
   .option('-r, --speech-rate <rate>', 'Speech rate for TTS (0.5-2.0)', parseSpeechRate)
   .option('-o, --output-dir <dir>', 'Output directory for audio files', 'public/audio')
-  .option('-k, --api-key <key>', 'DashScope API Key (or set DASHSCOPE_API_KEY env)')
+  .option('-k, --access-key <key>', 'VolcEngine Access Key (or set VOLCENGINE_ACCESS_KEY env)')
+  .option('--app-id <id>', 'VolcEngine App ID (or set VOLCENGINE_APP_ID env)')
+  .option('--resource-id <id>', 'VolcEngine Resource ID (default: seed-tts-1.0)')
   .action(async (contentFile, options) => {
     await workflow.generateAudioOnly({
       contentFile,
       voiceId: options.voice,
       speechRate: options.speechRate,
       outputDir: options.outputDir,
-      apiKey: options.apiKey || process.env.DASHSCOPE_API_KEY,
+      accessKey: options.accessKey || process.env.VOLCENGINE_ACCESS_KEY,
+      appId: options.appId || process.env.VOLCENGINE_APP_ID,
+      resourceId: options.resourceId || process.env.VOLCENGINE_RESOURCE_ID,
     });
   });
 
@@ -57,14 +61,18 @@ program
   .option('-v, --voice <voice-id>', 'Voice ID for TTS')
   .option('-r, --speech-rate <rate>', 'Speech rate for TTS (0.5-2.0)', parseSpeechRate)
   .option('-o, --output <output>', 'Output audio path', 'public/audio/narration.mp3')
-  .option('-k, --api-key <key>', 'DashScope API Key (or set DASHSCOPE_API_KEY env)')
+  .option('-k, --access-key <key>', 'VolcEngine Access Key (or set VOLCENGINE_ACCESS_KEY env)')
+  .option('--app-id <id>', 'VolcEngine App ID (or set VOLCENGINE_APP_ID env)')
+  .option('--resource-id <id>', 'VolcEngine Resource ID (default: seed-tts-1.0)')
   .action(async (textFile, options) => {
     await workflow.generateNarrationOnly({
       textFile,
       voiceId: options.voice,
       speechRate: options.speechRate,
       outputFile: options.output,
-      apiKey: options.apiKey || process.env.DASHSCOPE_API_KEY,
+      accessKey: options.accessKey || process.env.VOLCENGINE_ACCESS_KEY,
+      appId: options.appId || process.env.VOLCENGINE_APP_ID,
+      resourceId: options.resourceId || process.env.VOLCENGINE_RESOURCE_ID,
     });
   });
 
@@ -75,14 +83,18 @@ program
   .option('-v, --voice <voice-id>', 'Voice ID for TTS')
   .option('-r, --speech-rate <rate>', 'Speech rate for TTS (0.5-2.0)', parseSpeechRate)
   .option('-o, --output-dir <dir>', 'Output directory for narration timeline assets', 'public/audio')
-  .option('-k, --api-key <key>', 'DashScope API Key (or set DASHSCOPE_API_KEY env)')
+  .option('-k, --access-key <key>', 'VolcEngine Access Key (or set VOLCENGINE_ACCESS_KEY env)')
+  .option('--app-id <id>', 'VolcEngine App ID (or set VOLCENGINE_APP_ID env)')
+  .option('--resource-id <id>', 'VolcEngine Resource ID (default: seed-tts-1.0)')
   .action(async (textFile, options) => {
     await workflow.generateNarrationTimelineOnly({
       textFile,
       voiceId: options.voice,
       speechRate: options.speechRate,
       outputDir: options.outputDir,
-      apiKey: options.apiKey || process.env.DASHSCOPE_API_KEY,
+      accessKey: options.accessKey || process.env.VOLCENGINE_ACCESS_KEY,
+      appId: options.appId || process.env.VOLCENGINE_APP_ID,
+      resourceId: options.resourceId || process.env.VOLCENGINE_RESOURCE_ID,
     });
   });
 
@@ -114,28 +126,6 @@ program
       template: options.template,
       outputPath: options.output,
     });
-  });
-
-// 创建自定义音色
-program
-  .command('clone-voice')
-  .description('Create custom voice from audio URL')
-  .argument('<audio-url>', 'Public URL of reference audio')
-  .argument('<prefix>', 'Voice prefix identifier (lowercase letters and numbers, max 10 chars)')
-  .action(async (audioUrl, prefix) => {
-    await workflow.cloneVoice({
-      audioUrl,
-      prefix,
-    });
-  });
-
-// 查询音色状态
-program
-  .command('voice-status')
-  .description('Query voice clone status')
-  .argument('<voice-id>', 'Voice ID to query')
-  .action(async (voiceId) => {
-    await workflow.queryVoiceStatus(voiceId);
   });
 
 program.parse();

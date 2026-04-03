@@ -51,6 +51,8 @@ export function contentToVideoConfig(content: ContentFile): VideoConfig {
       subtitle: slide.subtitle,
       points: slide.points,
       narration: slide.narration,
+      type: slide.type,
+      data: slide.data,
       audioDuration:
         typeof slide.audioDuration === 'number'
           ? slide.audioDuration

@@ -46,6 +46,8 @@ type SettingsData = {
   voiceId: string;
   voiceModel: string;
   voiceApiKey: string;
+  volcengineAppId: string;
+  volcengineResourceId: string;
   voiceSpeechRate: number;
   aiUrl: string;
   aiApiKey: string;
@@ -249,6 +251,8 @@ const DEFAULT_SETTINGS: SettingsData = {
   voiceId: '',
   voiceModel: 'cosyvoice-v2',
   voiceApiKey: '',
+  volcengineAppId: '',
+  volcengineResourceId: 'seed-icl-2.0',
   voiceSpeechRate: 1,
   aiUrl: 'https://dashscope.aliyuncs.com/compatible-mode/v1',
   aiApiKey: '',
@@ -696,6 +700,8 @@ function loadSettings(): SettingsData {
       voiceId: parsed.voiceId || '',
       voiceModel: parsed.voiceModel || DEFAULT_SETTINGS.voiceModel,
       voiceApiKey: parsed.voiceApiKey || legacyDashScopeApiKey,
+      volcengineAppId: parsed.volcengineAppId || '',
+      volcengineResourceId: parsed.volcengineResourceId || DEFAULT_SETTINGS.volcengineResourceId,
       voiceSpeechRate: normalizeSpeechRate(parsed.voiceSpeechRate),
       aiUrl: parsed.aiUrl || DEFAULT_SETTINGS.aiUrl,
       aiApiKey: parsed.aiApiKey || legacyDashScopeApiKey,
@@ -860,14 +866,16 @@ async function generateStoryboardTimeline(
   contentPath: string
 ): Promise<NarrationTimeline> {
   const settings = loadSettings();
-  if (!settings.voiceId || !settings.voiceApiKey) {
-    throw new Error('请先在设置中配置语音 ID 和 API Key');
+  if (!settings.voiceId || !settings.voiceApiKey || !settings.volcengineAppId || !settings.volcengineResourceId) {
+    throw new Error('请先在设置中配置语音 ID、Access Key、App ID 和 Resource ID');
   }
 
   const result = await invokeTauri<string>('generate_storyboard_timeline', {
     rawText,
     voiceId: settings.voiceId,
-    apiKey: settings.voiceApiKey,
+    accessKey: settings.voiceApiKey,
+    appId: settings.volcengineAppId,
+    resourceId: settings.volcengineResourceId,
     speechRate: normalizeSpeechRate(settings.voiceSpeechRate),
     contentPath,
   });
@@ -1265,7 +1273,7 @@ async function generateSlidesWithAi(
   const requestSlides = async (strict: boolean): Promise<Slide[]> => {
     const result = await invokeTauri<string>('generate_slides', {
       apiUrl: settings.aiUrl,
-      apiKey: settings.aiApiKey,
+      accessKey: settings.aiApiKey,
       model: settings.aiModel,
       prompt: getPrompt(template, timeline, strict).replace('{input_text}', rawText),
     });
@@ -1324,7 +1332,7 @@ async function rewriteCopyWithAi(text: string, style: RewriteStyle): Promise<str
 
   const result = await invokeTauri<string>('generate_slides', {
     apiUrl: settings.aiUrl,
-    apiKey: settings.aiApiKey,
+    accessKey: settings.aiApiKey,
     model: settings.aiModel,
     prompt: buildRewritePrompt(text, style),
   });
@@ -1404,13 +1412,15 @@ async function saveSlidesToProject(project: Project) {
 
 async function syncAudio(project: Project) {
   const settings = loadSettings();
-  if (!settings.voiceId || !settings.voiceApiKey) {
+  if (!settings.voiceId || !settings.voiceApiKey || !settings.volcengineAppId || !settings.volcengineResourceId) {
     return;
   }
 
   await invokeTauri<string>('generate_audio', {
     voiceId: settings.voiceId,
-    apiKey: settings.voiceApiKey,
+    accessKey: settings.voiceApiKey,
+    appId: settings.volcengineAppId,
+    resourceId: settings.volcengineResourceId,
     speechRate: normalizeSpeechRate(settings.voiceSpeechRate),
     contentPath: project.contentPath,
   });
@@ -1611,7 +1621,7 @@ function HomePage(props: {
       // Step 2: 调用语音转写
       const transcribeResult = await invokeTauri<{ text: string; duration: number }>('transcribe_douyin_video', {
         videoUrl: parseResult.videoUrl,
-        apiKey: apiKey,
+        accessKey: apiKey,
       });
 
       // 设置原文案和修改后的文案
@@ -2637,11 +2647,29 @@ function SettingsPage() {
               <h3 style={{ ...SECTION_TITLE_STYLE, marginTop: 0 }}>配音</h3>
 
               <div style={FIELD_GROUP_STYLE}>
-                <label style={FIELD_LABEL_STYLE}>API Key</label>
+                <label style={FIELD_LABEL_STYLE}>Access Key</label>
                 <input
                   type="password"
                   value={settings.voiceApiKey}
                   onChange={(event) => updateField('voiceApiKey', event.target.value)}
+                  style={SOFT_INPUT_STYLE}
+                />
+              </div>
+
+              <div style={{ ...FIELD_GROUP_STYLE, marginTop: SPACING.md }}>
+                <label style={FIELD_LABEL_STYLE}>App ID</label>
+                <input
+                  value={settings.volcengineAppId}
+                  onChange={(event) => updateField('volcengineAppId', event.target.value)}
+                  style={SOFT_INPUT_STYLE}
+                />
+              </div>
+
+              <div style={{ ...FIELD_GROUP_STYLE, marginTop: SPACING.md }}>
+                <label style={FIELD_LABEL_STYLE}>Resource ID</label>
+                <input
+                  value={settings.volcengineResourceId}
+                  onChange={(event) => updateField('volcengineResourceId', event.target.value)}
                   style={SOFT_INPUT_STYLE}
                 />
               </div>

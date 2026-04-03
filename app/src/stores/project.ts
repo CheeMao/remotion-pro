@@ -4,8 +4,31 @@ export interface Slide {
   id: string;
   title: string;
   subtitle?: string;
-  points: string[];
+  points?: string[];
   narration: string;
+  // 新增：布局相关字段
+  layout?: string;
+  type?: string;
+  // 各布局类型的数据字段
+  stats?: Array<{ value: number; suffix?: string; label: string; color?: string }>;
+  compare?: {
+    left: { label: string; value: string; desc?: string };
+    right: { label: string; value: string; desc?: string };
+    vsText?: string;
+  };
+  steps?: Array<{ title: string; description?: string; icon?: string }>;
+  items?: Array<{ icon?: string; text: string; desc?: string }>;
+  chart?: {
+    type?: 'bar' | 'progress' | 'pie';
+    bars?: Array<{ label: string; value: number; color?: string }>;
+  };
+  timeline?: Array<{ year: string; title: string; description?: string }>;
+  highlights?: string[];
+  quote?: string;
+  author?: string;
+  badge?: string;
+  cta?: string;
+  data?: Record<string, unknown>;
 }
 
 export interface Project {

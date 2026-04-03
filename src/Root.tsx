@@ -328,15 +328,6 @@ export const RemotionRoot: React.FC = () => {
   return (
     <>
       <Composition
-        id="SlideShowWide"
-        component={SlideShowWide}
-        durationInFrames={FALLBACK_COMPOSITION_DURATION}
-        fps={30}
-        width={slideShowWideDimensions.width}
-        height={slideShowWideDimensions.height}
-        calculateMetadata={getTemplateMetadata("SlideShowWide")}
-      />
-      <Composition
         id="GlassShow"
         component={GlassShow}
         durationInFrames={FALLBACK_COMPOSITION_DURATION}
@@ -353,24 +344,6 @@ export const RemotionRoot: React.FC = () => {
         width={glassWideDimensions.width}
         height={glassWideDimensions.height}
         calculateMetadata={getTemplateMetadata("GlassWideShow")}
-      />
-      <Composition
-        id="NeuShow"
-        component={NeuShow}
-        durationInFrames={FALLBACK_COMPOSITION_DURATION}
-        fps={30}
-        width={1080}
-        height={1920}
-        calculateMetadata={getTemplateMetadata("NeuShow")}
-      />
-      <Composition
-        id="NeuWideShow"
-        component={NeuWideShow}
-        durationInFrames={FALLBACK_COMPOSITION_DURATION}
-        fps={30}
-        width={neuWideDimensions.width}
-        height={neuWideDimensions.height}
-        calculateMetadata={getTemplateMetadata("NeuWideShow")}
       />
 
       <Composition

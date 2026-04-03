@@ -8,7 +8,6 @@ import {
   syncTimelineToSoundtrack,
 } from './generate-audio';
 import { renderVideo } from './render-video';
-import { createTTSService } from '../tts';
 
 export interface GenerateOptions {
   contentFile: string;
@@ -24,12 +23,9 @@ export interface AudioOnlyOptions {
   voiceId?: string;
   speechRate?: number;
   outputDir?: string;
-  apiKey?: string;
-}
-
-export interface CloneVoiceOptions {
-  audioUrl: string;
-  prefix: string;
+  accessKey?: string;
+  appId?: string;
+  resourceId?: string;
 }
 
 export interface RenderOnlyOptions {
@@ -43,7 +39,9 @@ export interface NarrationOnlyOptions {
   voiceId?: string;
   speechRate?: number;
   outputFile?: string;
-  apiKey?: string;
+  accessKey?: string;
+  appId?: string;
+  resourceId?: string;
 }
 
 export interface NarrationTimelineOnlyOptions {
@@ -51,7 +49,9 @@ export interface NarrationTimelineOnlyOptions {
   voiceId?: string;
   speechRate?: number;
   outputDir?: string;
-  apiKey?: string;
+  accessKey?: string;
+  appId?: string;
+  resourceId?: string;
 }
 
 export interface TimelineOnlyOptions {
@@ -112,7 +112,9 @@ export async function generateAudioOnly(options: AudioOnlyOptions): Promise<void
     voiceId: options.voiceId,
     speechRate: options.speechRate,
     outputDir: options.outputDir,
-    apiKey: options.apiKey,
+    accessKey: options.accessKey,
+    appId: options.appId,
+    resourceId: options.resourceId,
   });
 
   console.log(`Generated soundtrack: ${result.soundtrackPath}`);
@@ -129,7 +131,9 @@ export async function generateNarrationOnly(
     voiceId: options.voiceId,
     speechRate: options.speechRate,
     outputFile: options.outputFile,
-    apiKey: options.apiKey,
+    accessKey: options.accessKey,
+    appId: options.appId,
+    resourceId: options.resourceId,
   });
 
   console.log(
@@ -153,7 +157,9 @@ export async function generateNarrationTimelineOnly(
     voiceId: options.voiceId,
     speechRate: options.speechRate,
     outputDir: options.outputDir,
-    apiKey: options.apiKey,
+    accessKey: options.accessKey,
+    appId: options.appId,
+    resourceId: options.resourceId,
   });
 
   console.log(
@@ -221,32 +227,6 @@ export async function renderOnly(options: RenderOnlyOptions): Promise<void> {
   console.log(`Output: ${options.outputPath}`);
 }
 
-export async function cloneVoice(options: CloneVoiceOptions): Promise<void> {
-  console.log('=== Voice Cloning ===\n');
-
-  const tts = createTTSService();
-
-  console.log(`Creating voice from: ${options.audioUrl}`);
-  console.log(`Prefix: ${options.prefix}`);
-
-  const voiceId = await tts.createVoice(options.audioUrl, options.prefix);
-
-  console.log(`\nVoice created: ${voiceId}`);
-  console.log('\nYou can now use this voice ID in your content file:');
-  console.log(`  "meta": { "voiceId": "${voiceId}" }`);
-}
-
-export async function queryVoiceStatus(voiceId: string): Promise<void> {
-  const tts = createTTSService();
-  const info = await tts.queryVoice(voiceId);
-
-  console.log(`Voice ID: ${voiceId}`);
-  console.log(`Status: ${info.status}`);
-  if (info.createdAt) {
-    console.log(`Created: ${info.createdAt}`);
-  }
-}
-
 export const workflow = {
   generateFromContent,
   generateAudioOnly,
@@ -254,6 +234,4 @@ export const workflow = {
   generateNarrationTimelineOnly,
   syncTimelineOnly,
   renderOnly,
-  cloneVoice,
-  queryVoiceStatus,
 };

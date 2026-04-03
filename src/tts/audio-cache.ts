@@ -49,21 +49,26 @@ export class AudioCache {
   }
 
   /**
-   * 保存缓存
+   * 保存缓存（支持时间戳）
    */
   set(
     text: string,
     voiceId: string,
-    audioBuffer: Buffer,
+    audioPathOrBuffer: string | Buffer,
     duration?: number,
-    speechRate?: number
+    speechRate?: number,
+    timestamps?: Array<{ word: string; startTime: number; endTime: number; confidence: number }>
   ): AudioCacheEntry {
     const key = this.getCacheKey(text, voiceId, speechRate);
     const metaPath = join(this.cacheDir, `${key}.json`);
-    const audioPath = join(this.cacheDir, `${key}.mp3`);
+    const audioPath = typeof audioPathOrBuffer === 'string'
+      ? audioPathOrBuffer
+      : join(this.cacheDir, `${key}.mp3`);
 
-    // 保存音频
-    writeFileSync(audioPath, audioBuffer);
+    // 如果是Buffer，保存音频
+    if (Buffer.isBuffer(audioPathOrBuffer)) {
+      writeFileSync(audioPath, audioPathOrBuffer);
+    }
 
     // 估算时长（如果没有提供）
     const estimatedDuration = duration ?? this.estimateDuration(text);
@@ -75,10 +80,21 @@ export class AudioCache {
       speechRate,
       audioPath,
       duration: estimatedDuration,
+      timestamps,
       createdAt: new Date().toISOString(),
     };
 
     writeFileSync(metaPath, JSON.stringify(entry, null, 2));
+
+    // 同时保存时间戳到独立文件
+    if (timestamps) {
+      const timestampPath = audioPath.replace('.mp3', '_timestamps.json');
+      writeFileSync(
+        timestampPath,
+        JSON.stringify({ timestamps, duration: estimatedDuration }, null, 2),
+        'utf-8'
+      );
+    }
 
     return entry;
   }

@@ -1,43 +1,41 @@
-// TTS 服务统一入口
-import { CosyVoiceClient } from './cosyvoice';
-import { VoiceCloneClient } from './voice-clone';
+// TTS 服务统一入口 - 火山引擎版本
+import { VolcEngineTTSClient } from './volcengine';
 import { AudioCache } from './audio-cache';
+import type {
+  TTSConfig,
+  SynthesisResult,
+  WordTimestamp,
+} from './types';
+
 import {
   DEFAULT_SPEECH_RATE,
   normalizeSpeechRate,
-  TTSConfig,
-  SynthesisResult,
+  type TTSServiceOptions,
 } from './types';
 
-export { CosyVoiceClient } from './cosyvoice';
-export { VoiceCloneClient } from './voice-clone';
+export { VolcEngineTTSClient } from './volcengine';
+export { findCueInTimestamps, calculateDurationFromTimestamps } from './volcengine';
 export { AudioCache } from './audio-cache';
 export * from './types';
 
-export interface TTSServiceOptions {
-  apiKey: string;
-  defaultVoiceId?: string;
-  defaultSpeechRate?: number;
-  enableCache?: boolean;
-  cacheDir?: string;
-}
-
 export class TTSService {
-  private client: CosyVoiceClient;
-  private voiceClone: VoiceCloneClient;
+  private client: VolcEngineTTSClient;
   private cache: AudioCache;
   private enableCache: boolean;
   private defaultSpeechRate: number;
 
   constructor(options: TTSServiceOptions) {
     const config: TTSConfig = {
-      apiKey: options.apiKey,
+      appId: options.appId || process.env.VOLCENGINE_APP_ID,
+      apiKey: options.apiKey || process.env.VOLCENGINE_ACCESS_KEY,
+      accessKey: options.accessKey || process.env.VOLCENGINE_ACCESS_KEY,
+      resourceId: options.resourceId || process.env.VOLCENGINE_RESOURCE_ID || 'seed-tts-1.0',
       voiceId: options.defaultVoiceId,
       speechRate: options.defaultSpeechRate,
+      uid: options.uid || 'default-user',
     };
 
-    this.client = new CosyVoiceClient(config);
-    this.voiceClone = new VoiceCloneClient(options.apiKey);
+    this.client = new VolcEngineTTSClient(config);
     this.cache = new AudioCache(options.cacheDir);
     this.enableCache = options.enableCache !== false;
     this.defaultSpeechRate =
@@ -45,54 +43,68 @@ export class TTSService {
   }
 
   /**
-   * 合成语音（带缓存）
+   * 合成语音（带缓存和时间戳）
    */
   async synthesize(
     text: string,
     voiceId?: string,
     speechRate?: number
-  ): Promise<SynthesisResult> {
+  ): Promise<SynthesisResult & { timestamps?: WordTimestamp[] }> {
     const vid = voiceId || 'default';
     const rate =
       normalizeSpeechRate(speechRate) ?? this.defaultSpeechRate;
 
-    // 检查缓存
+    // 检查缓存（注意：缓存现在也存储时间戳）
     if (this.enableCache) {
       const cached = this.cache.get(text, vid, rate);
       if (cached) {
+        // 尝试读取缓存的时间戳
+        const timestampPath = cached.audioPath.replace('.mp3', '_timestamps.json');
+        let timestamps: WordTimestamp[] | undefined;
+
+        try {
+          const { readFileSync } = await import('fs');
+          const tsData = JSON.parse(readFileSync(timestampPath, 'utf-8'));
+          timestamps = tsData.timestamps;
+        } catch {
+          // 时间戳文件不存在，忽略
+        }
+
         return {
           audioPath: cached.audioPath,
           duration: cached.duration,
+          timestamps,
           fromCache: true,
         };
       }
     }
 
     // 调用 TTS
-    const audioBuffer = await this.client.synthesize(text, voiceId, speechRate);
-    const entry = this.cache.set(text, vid, audioBuffer, undefined, rate);
+    const result = await this.client.synthesize(text, voiceId, speechRate);
+
+    // 保存到缓存
+    if (this.enableCache) {
+      this.cache.set(text, vid, result.audioPath, result.duration, rate);
+
+      // 同时保存时间戳
+      if (result.timestamps) {
+        const timestampPath = result.audioPath.replace('.mp3', '_timestamps.json');
+        const { writeFileSync } = await import('fs');
+        writeFileSync(
+          timestampPath,
+          JSON.stringify({
+            timestamps: result.timestamps,
+            duration: result.duration,
+          }, null, 2),
+          'utf-8'
+        );
+      }
+    }
 
     return {
-      audioPath: entry.audioPath,
-      duration: entry.duration,
+      ...result,
       fromCache: false,
     };
-  }
-
-  /**
-   * 创建自定义音色
-   */
-  async createVoice(audioUrl: string, prefix: string): Promise<string> {
-    const voiceId = await this.voiceClone.createVoice(audioUrl, prefix);
-    await this.voiceClone.waitForVoiceReady(voiceId);
-    return voiceId;
-  }
-
-  /**
-   * 查询音色状态
-   */
-  async queryVoice(voiceId: string) {
-    return this.voiceClone.queryVoice(voiceId);
   }
 
   /**
@@ -107,13 +119,22 @@ export class TTSService {
  * 从环境变量创建 TTS 服务
  */
 export function createTTSService(options?: Partial<TTSServiceOptions>): TTSService {
-  const apiKey = options?.apiKey || process.env.DASHSCOPE_API_KEY;
-  if (!apiKey) {
-    throw new Error('DASHSCOPE_API_KEY is required. Set it as environment variable or pass in options.');
+  const appId = options?.appId || process.env.VOLCENGINE_APP_ID;
+  const accessKey = options?.apiKey || options?.accessKey || process.env.VOLCENGINE_ACCESS_KEY;
+
+  if (!appId || !accessKey) {
+    throw new Error(
+      'VOLCENGINE_APP_ID and VOLCENGINE_ACCESS_KEY are required. Set them as environment variables or pass in options.'
+    );
   }
 
   return new TTSService({
-    apiKey,
+    appId,
+    accessKey,
+    resourceId: options?.resourceId || process.env.VOLCENGINE_RESOURCE_ID,
     ...options,
   });
 }
+
+// 导出默认配置
+export { DEFAULT_SPEECH_RATE, normalizeSpeechRate } from './types';

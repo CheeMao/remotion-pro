@@ -1,33 +1,26 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Card,
   Form,
   Input,
-  Select,
   Button,
   Message,
   Space,
   Typography,
   Divider,
+  Select,
 } from '@arco-design/web-react';
 import { IconSave } from '@arco-design/web-react/icon';
 
 const { Title, Text } = Typography;
 
 interface Settings {
-  aiProvider: 'bailian' | 'openai' | 'anthropic';
-  bailianApiKey: string;
-  openaiApiKey: string;
-  anthropicApiKey: string;
+  volcengineAppId: string;
+  volcengineAccessKey: string;
+  volcengineResourceId: string;
   defaultVoiceId: string;
   defaultTemplate: string;
 }
-
-const AI_PROVIDERS = [
-  { label: '阿里云百炼（Qwen）', value: 'bailian' },
-  { label: 'OpenAI（GPT）', value: 'openai' },
-  { label: 'Anthropic（Claude）', value: 'anthropic' },
-];
 
 const TEMPLATES = [
   { label: '科技风', value: 'SlideShow' },
@@ -39,24 +32,34 @@ const TEMPLATES = [
 
 export default function Settings() {
   const [settings, setSettings] = useState<Settings>({
-    aiProvider: 'bailian',
-    bailianApiKey: '',
-    openaiApiKey: '',
-    anthropicApiKey: '',
+    volcengineAppId: '',
+    volcengineAccessKey: '',
+    volcengineResourceId: 'seed-tts-1.0',
     defaultVoiceId: '',
     defaultTemplate: 'SlideShow',
   });
 
   useEffect(() => {
-    // 从 localStorage 加载设置
     const saved = localStorage.getItem('videomaker-settings');
     if (saved) {
-      setSettings(JSON.parse(saved));
+      const parsed = JSON.parse(saved);
+      setSettings({
+        volcengineAppId: parsed.volcengineAppId || '',
+        volcengineAccessKey: parsed.volcengineAccessKey || parsed.voiceApiKey || '',
+        volcengineResourceId: parsed.volcengineResourceId || 'seed-tts-1.0',
+        defaultVoiceId: parsed.defaultVoiceId || parsed.voiceId || '',
+        defaultTemplate: parsed.defaultTemplate || 'SlideShow',
+      });
     }
   }, []);
 
   const handleSave = () => {
-    localStorage.setItem('videomaker-settings', JSON.stringify(settings));
+    const next = {
+      ...settings,
+      voiceApiKey: settings.volcengineAccessKey,
+      voiceId: settings.defaultVoiceId,
+    };
+    localStorage.setItem('videomaker-settings', JSON.stringify(next));
     Message.success('设置已保存');
   };
 
@@ -69,60 +72,45 @@ export default function Settings() {
           <Divider />
 
           <Form layout="vertical">
-            <Form.Item label="AI 服务提供商">
-              <Select
-                value={settings.aiProvider}
-                onChange={(value) => setSettings({ ...settings, aiProvider: value })}
-              >
-                {AI_PROVIDERS.map((p) => (
-                  <Select.Option key={p.value} value={p.value}>
-                    {p.label}
-                  </Select.Option>
-                ))}
-              </Select>
+            <Form.Item label="火山引擎 App ID">
+              <Input
+                value={settings.volcengineAppId}
+                onChange={(value) => setSettings({ ...settings, volcengineAppId: value })}
+                placeholder="输入 VOLCENGINE_APP_ID"
+              />
+              <Text type="secondary" style={{ fontSize: 12 }}>
+                在火山引擎控制台 - 语音合成 - 应用管理 中获取
+              </Text>
             </Form.Item>
 
-            {settings.aiProvider === 'bailian' && (
-              <Form.Item label="百炼 API Key">
-                <Input.Password
-                  value={settings.bailianApiKey}
-                  onChange={(value) => setSettings({ ...settings, bailianApiKey: value })}
-                  placeholder="sk-..."
-                />
-              </Form.Item>
-            )}
+            <Form.Item label="火山引擎 Access Key">
+              <Input.Password
+                value={settings.volcengineAccessKey}
+                onChange={(value) => setSettings({ ...settings, volcengineAccessKey: value })}
+                placeholder="输入 VOLCENGINE_ACCESS_KEY"
+              />
+              <Text type="secondary" style={{ fontSize: 12 }}>
+                用于语音合成与抖音语音转写。
+              </Text>
+            </Form.Item>
 
-            {settings.aiProvider === 'openai' && (
-              <Form.Item label="OpenAI API Key">
-                <Input.Password
-                  value={settings.openaiApiKey}
-                  onChange={(value) => setSettings({ ...settings, openaiApiKey: value })}
-                  placeholder="sk-..."
-                />
-              </Form.Item>
-            )}
-
-            {settings.aiProvider === 'anthropic' && (
-              <Form.Item label="Anthropic API Key">
-                <Input.Password
-                  value={settings.anthropicApiKey}
-                  onChange={(value) => setSettings({ ...settings, anthropicApiKey: value })}
-                  placeholder="sk-ant-..."
-                />
-              </Form.Item>
-            )}
-
-            <Divider />
+            <Form.Item label="火山引擎 Resource ID">
+              <Input
+                value={settings.volcengineResourceId}
+                onChange={(value) => setSettings({ ...settings, volcengineResourceId: value })}
+                placeholder="seed-tts-1.0"
+              />
+              <Text type="secondary" style={{ fontSize: 12 }}>
+                默认 seed-tts-1.0，一般无需修改
+              </Text>
+            </Form.Item>
 
             <Form.Item label="默认声音 ID">
               <Input
                 value={settings.defaultVoiceId}
                 onChange={(value) => setSettings({ ...settings, defaultVoiceId: value })}
-                placeholder="cosyvoice-v3.5-plus-bailian-xxx"
+                placeholder="zh_female_shuangkuaisisi_moon_bigtts"
               />
-              <Text type="secondary" style={{ fontSize: 12 }}>
-                在百炼控制台复刻声音后获得的 ID
-              </Text>
             </Form.Item>
 
             <Form.Item label="默认模板">

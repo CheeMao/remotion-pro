@@ -1,224 +1,41 @@
 {
-  "template": "FrostedShow",
+  "template": "SlideShow",
   "slides": [
     {
       "id": "slide-0",
-      "title": "90%的人用AI都在踩这个坑",
-      "subtitle": "错误示范：直接丢指令",
+      "title": "Template-scoped content",
+      "subtitle": "This file belongs only to SlideShow",
       "points": [
-        "打开对话框直接说'帮我写个方案'",
-        "结果嫌AI答案太水"
+        "Independent JSON",
+        "No shared schema collision",
+        "Preview and render stay stable"
       ],
-      "narration": "很多人用AI还在犯这个错，打开对话框直接丢一句'帮我写个方案'，然后嫌AI给的答案太水。",
-      "audioDuration": 7.81061224489796,
-      "durationInFrames": 234,
+      "narration": "Template-scoped content preview.",
+      "audioDuration": 2.52,
+      "durationInFrames": 76,
       "audioStart": 0,
-      "audioEnd": 7.81061224489796
+      "audioEnd": 2.52
     },
     {
       "id": "slide-1",
-      "title": "答案水的真正原因",
-      "subtitle": "AI根本不认识你",
+      "title": "Template is locked",
+      "subtitle": "Editor can no longer switch template",
       "points": [
-        "你没让AI认识你",
-        "只能拿到放哪行都通用的标准答案"
+        "Content path follows template",
+        "Audio path follows template",
+        "Rendering uses the same composition"
       ],
-      "narration": "问题是你都没让AI认识你，它当然只能给你放哪行都通用的标准答案。",
-      "audioDuration": 6.948571428571428,
-      "durationInFrames": 208,
-      "audioStart": 7.81061224489796,
-      "audioEnd": 14.759183673469387
-    },
-    {
-      "id": "slide-2",
-      "title": "第一步：让AI彻底了解你",
-      "subtitle": "复制这段话直接念",
-      "points": [
-        "打开AI工具",
-        "念这段设定话术",
-        "说明你的工作、公司业务"
-      ],
-      "narration": "想让AI真正好用，先做这一步，打开你的AI工具，直接念这段话，'我想让你彻底了解我，我是做什么工作的，我的公司主营什么业务。",
-      "audioDuration": 9.848163265306123,
-      "durationInFrames": 295,
-      "audioStart": 14.759183673469387,
-      "audioEnd": 24.60734693877551
-    },
-    {
-      "id": "slide-3",
-      "title": "关键指令：让它主动追问",
-      "subtitle": "直到完全了解为止",
-      "points": [
-        "让AI问你所有需要的问题",
-        "覆盖业务、客户群体、真实卡点"
-      ],
-      "narration": "现在请你问我所有需要的问题，直到完全了解我的业务、客户群体和真实卡点。",
-      "audioDuration": 6.739591836734694,
-      "durationInFrames": 202,
-      "audioStart": 24.60734693877551,
-      "audioEnd": 31.346938775510203
-    },
-    {
-      "id": "slide-4",
-      "title": "执行要求：认真回答半小时",
-      "subtitle": "别敷衍，这是投资",
-      "points": [
-        "接下来半小时",
-        "认真回答AI的每个问题"
-      ],
-      "narration": "接下来半小时，认真回答AI的每个问题。",
-      "audioDuration": 2.873469387755102,
-      "durationInFrames": 86,
-      "audioStart": 31.346938775510203,
-      "audioEnd": 34.220408163265304
-    },
-    {
-      "id": "slide-5",
-      "title": "一次投入，长期受益",
-      "subtitle": "说得越清楚，建议越值钱",
-      "points": [
-        "这一步做一次就够了",
-        "你说得越清楚，它越懂你",
-        "给的建议越值钱"
-      ],
-      "narration": "别嫌烦，这一步做一次就够了。你说得越清楚，它越懂你，给的建议越值钱。",
-      "audioDuration": 6.2693877551020405,
-      "durationInFrames": 188,
-      "audioStart": 34.220408163265304,
-      "audioEnd": 40.48979591836734
-    },
-    {
-      "id": "slide-6",
-      "title": "第二步：设定毒舌人设",
-      "subtitle": "告别捧杀，要听真话",
-      "points": [
-        "给它一个'毒舌人设'",
-        "跟它说..."
-      ],
-      "narration": "然后给它一个'毒舌人设'。跟它说：",
-      "audioDuration": 3.186938775510204,
-      "durationInFrames": 96,
-      "audioStart": 40.48979591836734,
-      "audioEnd": 43.67673469387755
-    },
-    {
-      "id": "slide-7",
-      "title": "角色指令：做我的陪练",
-      "subtitle": "基于了解，开始实战",
-      "points": [
-        "基于你对我的了解",
-        "现在做我的陪练"
-      ],
-      "narration": "基于你对我的了解，现在做我的陪练。",
-      "audioDuration": 3.813877551020408,
-      "durationInFrames": 114,
-      "audioStart": 43.67673469387755,
-      "audioEnd": 47.49061224489796
-    },
-    {
-      "id": "slide-8",
-      "title": "核心规则：只挑刺，不夸我",
-      "subtitle": "专门找3-5个风险漏洞",
-      "points": [
-        "不管提什么想法，不要夸我",
-        "专门挑刺",
-        "列出3到5个没想到的风险和漏洞"
-      ],
-      "narration": "不管我提什么想法，不要夸我，专门挑刺，列出3到5个我没想到的风险和漏洞。",
-      "audioDuration": 6.217142857142857,
-      "durationInFrames": 187,
-      "audioStart": 47.49061224489796,
-      "audioEnd": 53.70775510204082
-    },
-    {
-      "id": "slide-9",
-      "title": "这步很关键",
-      "subtitle": "强调重要性",
-      "points": [
-        "这步很关键"
-      ],
-      "narration": "这步很关键。",
-      "audioDuration": 1.8546938775510204,
-      "durationInFrames": 56,
-      "audioStart": 53.70775510204082,
-      "audioEnd": 55.56244897959184
-    },
-    {
-      "id": "slide-10",
-      "title": "毒舌的价值：打破自我感动",
-      "subtitle": "成熟想法的照妖镜",
-      "points": [
-        "自己觉得成熟的想法",
-        "第一时间告诉你哪里会翻车",
-        "哪里在自我感动"
-      ],
-      "narration": "我们自己觉得成熟的想法，它能第一时间告诉你哪里会翻车，哪里在自我感动。",
-      "audioDuration": 5.564081632653061,
-      "durationInFrames": 167,
-      "audioStart": 55.56244897959184,
-      "audioEnd": 61.126530612244906
-    },
-    {
-      "id": "slide-11",
-      "title": "关键决策的秘密武器",
-      "subtitle": "对手比帮手更有用",
-      "points": [
-        "做关键决策时",
-        "这种对手比帮手更有用"
-      ],
-      "narration": "做关键决策时，这种对手比帮手更有用。",
-      "audioDuration": 3.239183673469388,
-      "durationInFrames": 97,
-      "audioStart": 61.126530612244906,
-      "audioEnd": 64.36571428571429
-    },
-    {
-      "id": "slide-12",
-      "title": "第三步：变成长期资产",
-      "subtitle": "从工具到伙伴",
-      "points": [
-        "最后把它变成长期资产"
-      ],
-      "narration": "最后把它变成长期资产。",
-      "audioDuration": 2.507755102040816,
-      "durationInFrames": 75,
-      "audioStart": 64.36571428571429,
-      "audioEnd": 66.87346938775511
-    },
-    {
-      "id": "slide-13",
-      "title": "固定使用，保持记忆",
-      "subtitle": "别换来换去",
-      "points": [
-        "固定使用一个AI",
-        "这样才会一直有记忆"
-      ],
-      "narration": "固定使用一个AI，这样才会一直有记忆。",
-      "audioDuration": 3.082448979591837,
-      "durationInFrames": 92,
-      "audioStart": 66.87346938775511,
-      "audioEnd": 69.95591836734694
-    },
-    {
-      "id": "slide-14",
-      "title": "下次直接聊，不用从头来",
-      "subtitle": "记忆带来的效率飞跃",
-      "points": [
-        "下次有新想法直接进去聊",
-        "它立刻记得你是谁",
-        "不用从头再来一遍"
-      ],
-      "narration": "下次有新想法直接进去聊，它立刻记得你是谁，不用从头再来一遍。",
-      "audioDuration": 5.12,
-      "durationInFrames": 154,
-      "audioStart": 69.95591836734694,
-      "audioEnd": 75.07591836734694
+      "narration": "Locked template prevents incompatible template switches.",
+      "audioDuration": 3.696,
+      "durationInFrames": 111,
+      "audioStart": 2.52,
+      "audioEnd": 6.216
     }
   ],
   "fps": 30,
   "width": 1080,
   "height": 1920,
   "defaultDurationPerSlide": 150,
-  "soundtrackPath": "projects/generated/1774870862555-FrostedShow/audio/narration.mp3",
-  "soundtrackDuration": 75.07591836734694
+  "soundtrackPath": "audio/narration.mp3",
+  "soundtrackDuration": 6.216
 }

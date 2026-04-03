@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-A Remotion-based video generation system for creating short vertical videos (9:16 aspect ratio, 1080x1920) for TikTok/Douyin. Features multiple visual templates, TTS narration via DashScope CosyVoice, and a Tauri desktop app for the editor.
+A Remotion-based video generation system for creating short vertical videos (9:16 aspect ratio, 1080x1920) for TikTok/Douyin. Features multiple visual templates, TTS narration via VolcEngine (火山引擎), and a Tauri desktop app for the editor.
 
 ## Commands
 
@@ -33,12 +33,6 @@ npx tsx src/cli/index.ts timeline <content.json> -s public/audio/narration.mp3
 # CLI: Render video from existing content (skips audio gen)
 npx tsx src/cli/index.ts render <content.json> [-o out/video.mp4]
 
-# CLI: Voice cloning
-npm run clone-voice -- <audio-url> <prefix>
-
-# CLI: Check voice clone status
-npx tsx src/cli/index.ts voice-status <voice-id>
-
 # Tauri desktop app (requires separate npm install in app/)
 npm run tauri:dev
 npm run tauri:build
@@ -49,7 +43,7 @@ npm run tauri:build
 ### Video Generation Pipeline
 
 1. **Content file** (`public/projects/{template}/content.json`) → defines slides, narration text, template
-2. **TTS** (DashScope CosyVoice WebSocket API) → generates narration soundtrack with timing
+2. **TTS** (VolcEngine OpenSpeech HTTP API) → generates narration soundtrack with timing
 3. **Timeline sync** → calculates frame durations from audio segments
 4. **Remotion render** → outputs MP4 via Puppeteer/Chromium
 
@@ -66,7 +60,7 @@ src/
 │   └── parse-content.ts        # Content file parsing helpers
 ├── tts/                        # Text-to-speech service
 │   ├── index.ts                # TTSService class
-│   ├── cosyvoice.ts            # DashScope CosyVoice WebSocket client
+│   ├── volcengine.ts           # VolcEngine OpenSpeech client
 │   ├── voice-clone.ts          # Custom voice creation
 │   ├── audio-cache.ts          # File-based audio caching
 │   └── types.ts                # TTS type definitions
@@ -113,7 +107,7 @@ src-tauri/                      # Rust backend for Tauri app
   "meta": {
     "title": "Video title",
     "template": "SlideShow",
-    "voiceId": "cosyvoice-voice-id",
+    "voiceId": "zh_female_shuangkuaisisi_moon_bigtts",
     "soundtrackPath": "audio/narration.mp3",
     "soundtrackDuration": 45.2
   },
@@ -126,7 +120,18 @@ src-tauri/                      # Rust backend for Tauri app
       "durationInFrames": 150,
       "audioStart": 0.0,
       "audioEnd": 5.0,
-      "type": "default"
+      "elementTimings": [
+        {
+          "id": "stat-0",
+          "type": "stat",
+          "cue": "100万用户",
+          "audioStart": 0.5,
+          "audioEnd": 2.0,
+          "entryDelay": 0,
+          "entryDuration": 0.4
+        }
+      ],
+      "type": "stats"
     }
   ]
 }
@@ -142,20 +147,28 @@ The `GeneratedVideo` composition uses query parameters (`?template=xxx&contentPa
 
 ### TTS Integration
 
-The project uses DashScope CosyVoice via WebSocket for text-to-speech:
+The project uses **VolcEngine (火山引擎) TTS** via HTTP API for text-to-speech with **word-level timestamps**:
 
 ```typescript
 import { createTTSService } from './tts';
 
-const tts = createTTSService(); // Uses DASHSCOPE_API_KEY env var
+const tts = createTTSService(); // Uses VOLCENGINE_APP_ID and VOLCENGINE_ACCESS_KEY env vars
 const result = await tts.synthesize("Hello world", "voice-id");
-// result.audioPath, result.duration, result.fromCache
+// result.audioPath, result.duration, result.timestamps, result.fromCache
 ```
 
 Features:
-- Audio caching in `public/audio/cache.json` to avoid regenerating
-- Voice cloning support (create custom voices from audio URLs)
+- **Word-level timestamps** for precise element animation synchronization
+- Audio caching with timestamp persistence
 - Speech rate control (0.5-2.0x)
+- Supports seed-tts-1.0 resource with multiple voices
+
+Environment variables:
+```bash
+VOLCENGINE_APP_ID=your_app_id
+VOLCENGINE_ACCESS_KEY=your_access_key
+VOLCENGINE_RESOURCE_ID=seed-tts-1.0
+```
 
 ### Audio Timeline System
 
@@ -171,7 +184,9 @@ Use `narrate-timeline` to generate segmented narration, or `timeline` to sync ex
 - `remotion.config.ts` - Remotion configuration (video format: jpeg, overwrite: true)
 - `tsconfig.json` - TypeScript config (excludes remotion.config.ts due to module type)
 - `eslint.config.mjs` - Uses `@remotion/eslint-config-flat`
-- `DASHSCOPE_API_KEY` - Environment variable for TTS service (required for audio generation)
+- `VOLCENGINE_APP_ID` - 火山引擎App ID (用于TTS服务)
+- `VOLCENGINE_ACCESS_KEY` - 火山引擎Access Key (用于TTS服务)
+- `VOLCENGINE_RESOURCE_ID` - 火山引擎Resource ID (默认: seed-tts-1.0)
 
 ## Desktop App
 

@@ -80,7 +80,14 @@
       "Bash(powershell.exe -Command \"Stop-Process -Id 34412 -Force -ErrorAction SilentlyContinue; Stop-Process -Id 33100 -Force -ErrorAction SilentlyContinue; Start-Sleep -Seconds 2\")",
       "Bash(cargo build:*)",
       "Bash(start:*)",
-      "Bash(findstr \"抖音\")"
+      "Bash(findstr \"抖音\")",
+      "mcp__plugin_context7_context7__resolve-library-id",
+      "mcp__plugin_context7_context7__query-docs",
+      "Bash(python:*)",
+      "Bash(export VOLCENGINE_APP_ID=\"4008836872\")",
+      "Bash(export VOLCENGINE_ACCESS_KEY=\"k0kPBblPBCWFCaP9-VF7zpctTDqVAn39\")",
+      "Bash(export VOLCENGINE_RESOURCE_ID=\"seed-tts-1.0\")",
+      "Bash(pkill -f \"tauri dev\")"
     ]
   }
 }

@@ -1,4 +1,5 @@
 import { Slide } from '../stores/project';
+import { generateAIPrompt, normalizeAISlides } from '../../../src/templates/templateRegistry';
 
 // 动态导入 Tauri API，避免在非 Tauri 环境中报错
 async function invokeTauri<T>(cmd: string, args: Record<string, unknown>): Promise<T> {
@@ -11,56 +12,58 @@ async function invokeTauri<T>(cmd: string, args: Record<string, unknown>): Promi
   }
 }
 
-const AI_PROMPT = `你是一个短视频内容策划专家。请将以下口播文案拆分为 4-8 张幻灯片。
-
-要求：
-1. 每张幻灯片包含：title(标题, 4-10字)、subtitle(副标题, 8-15字)、points(要点, 3-5条, 每条8-20字)、narration(旁白, 对应原文片段)
-2. 标题要吸引眼球，适合抖音/视频号风格
-3. 要点用简洁的语言概括核心信息
-4. 旁白从原文中提取，保持口语化，每条旁白要完整表达一个意思
-
-文案：
-"""
-{input_text}
-"""
-
-请以 JSON 格式输出，不要包含其他内容：
-{
-  "slides": [
-    {
-      "title": "...",
-      "subtitle": "...",
-      "points": ["...", "..."],
-      "narration": "..."
-    }
-  ]
-}`;
-
-export async function generateSlides(text: string): Promise<Omit<Slide, 'id'>[]> {
+export async function generateSlides(
+  text: string,
+  templateId: string = 'GlassShow'
+): Promise<Omit<Slide, 'id'>[]> {
   try {
+    // 根据模板生成对应的prompt
+    const prompt = generateAIPrompt(templateId, text);
+
     // 调用 Tauri 后端命令
     const result = await invokeTauri<string>('generate_slides', {
       content: text,
-      prompt: AI_PROMPT.replace('{input_text}', text),
+      prompt,
+      templateId,
     });
 
     const data = JSON.parse(result);
 
     if (data.slides && Array.isArray(data.slides)) {
-      return data.slides;
+      // 规范化slides（新格式 -> 旧格式）
+      const normalizedSlides = normalizeAISlides(data.slides);
+      return normalizedSlides.map((slide) => ({
+        title: slide.title || '',
+        subtitle: slide.subtitle,
+        // 将新格式的字段也包含进来
+        layout: slide.layout || slide.type,
+        points: slide.points,
+        stats: slide.stats,
+        compare: slide.compare,
+        steps: slide.steps,
+        items: slide.items,
+        chart: slide.chart,
+        timeline: slide.timeline,
+        highlights: slide.highlights,
+        quote: slide.quote,
+        author: slide.author,
+        badge: slide.badge,
+        cta: slide.cta,
+        narration: slide.narration,
+      })) as Omit<Slide, 'id'>[];
     }
 
     throw new Error('AI 返回格式错误');
   } catch (error) {
     // 如果 Tauri 命令不可用，使用模拟数据
     console.warn('Tauri command not available, using mock data:', error);
-    return generateMockSlides(text);
+    return generateMockSlides(text, templateId);
   }
 }
 
 // 模拟数据（开发时使用）
-function generateMockSlides(text: string): Omit<Slide, 'id'>[] {
-  const paragraphs = text.split(/\n\n+/).filter(p => p.trim());
+function generateMockSlides(text: string, templateId: string): Omit<Slide, 'id'>[] {
+  const paragraphs = text.split(/\n\n+/).filter((p) => p.trim());
 
   return paragraphs.slice(0, 5).map((p, i) => ({
     title: `幻灯片 ${i + 1}`,

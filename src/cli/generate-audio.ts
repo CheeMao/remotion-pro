@@ -5,13 +5,16 @@ import { parseFile } from 'music-metadata';
 import { createTTSService } from '../tts';
 import { ContentFile, ContentSlide } from '../templates/types';
 import { parseContentFile } from './parse-content';
+import { calculateElementTimingsFromTimestamps } from '../templates/elementTiming';
 
 export interface GenerateAudioOptions {
   contentFile: string;
   voiceId?: string;
   speechRate?: number;
   outputDir?: string;
-  apiKey?: string;
+  accessKey?: string;
+  appId?: string;
+  resourceId?: string;
 }
 
 export interface AudioGenerationResult {
@@ -26,7 +29,9 @@ export interface NarrationGenerationOptions {
   voiceId?: string;
   speechRate?: number;
   outputFile?: string;
-  apiKey?: string;
+  accessKey?: string;
+  appId?: string;
+  resourceId?: string;
 }
 
 export interface NarrationGenerationResult {
@@ -48,7 +53,9 @@ export interface GenerateNarrationTimelineOptions {
   voiceId?: string;
   speechRate?: number;
   outputDir?: string;
-  apiKey?: string;
+  accessKey?: string;
+  appId?: string;
+  resourceId?: string;
 }
 
 export interface NarrationSegment {
@@ -298,7 +305,9 @@ export async function generateNarrationTrack(
     voiceId,
     speechRate,
     outputFile = join('public', 'audio', DEFAULT_SOUNDTRACK_FILE),
-    apiKey,
+    accessKey,
+    appId,
+    resourceId,
   } = options;
 
   const trimmed = text.trim();
@@ -312,7 +321,9 @@ export async function generateNarrationTrack(
   ensureDir(dirname(outputFile));
 
   const tts = createTTSService({
-    apiKey,
+    accessKey,
+    appId,
+    resourceId,
     defaultVoiceId: voiceId,
     defaultSpeechRate: speechRate,
   });
@@ -337,7 +348,9 @@ export async function generateNarrationTimeline(
     voiceId,
     speechRate,
     outputDir = join('public', 'audio'),
-    apiKey,
+    accessKey,
+    appId,
+    resourceId,
   } = options;
 
   const segmentsText = splitNarrationIntoSegments(text);
@@ -350,7 +363,9 @@ export async function generateNarrationTimeline(
   clearDir(segmentsDir);
 
   const tts = createTTSService({
-    apiKey,
+    accessKey,
+    appId,
+    resourceId,
     defaultVoiceId: voiceId,
     defaultSpeechRate: speechRate,
   });
@@ -456,7 +471,9 @@ export async function generateAudio(
     voiceId,
     speechRate,
     outputDir = 'public/audio',
-    apiKey,
+    accessKey,
+    appId,
+    resourceId,
   } = options;
 
   const content = parseContentFile(contentFile);
@@ -465,13 +482,16 @@ export async function generateAudio(
   clearDir(slidesDir);
 
   const tts = createTTSService({
-    apiKey,
+    accessKey,
+    appId,
+    resourceId,
     defaultVoiceId: resolvedVoiceId,
     defaultSpeechRate: speechRate,
   });
 
   const durations: Array<{ duration: number; audioPath: string }> = [];
   const files: string[] = [];
+  const slideTimestamps: Array<{ slideIndex: number; timestamps?: import('../tts/types').WordTimestamp[] }> = [];
 
   for (let index = 0; index < content.slides.length; index += 1) {
     const slide = content.slides[index];
@@ -488,6 +508,11 @@ export async function generateAudio(
 
       const result = await tts.synthesize(text, resolvedVoiceId, speechRate);
       writeFileSync(outputFile, readFileSync(result.audioPath));
+
+      // 保存时间戳用于后续计算元素动画
+      if (result.timestamps) {
+        slideTimestamps.push({ slideIndex: index, timestamps: result.timestamps });
+      }
     }
 
     const duration = await getAudioDuration(outputFile);
@@ -503,13 +528,43 @@ export async function generateAudio(
   const soundtrackDuration = await getAudioDuration(soundtrackFile);
   const soundtrackPath = toRelativePublicPath(soundtrackFile);
 
-  const updated = buildTimedSlidesFromDurations(
+  // 构建基础更新后的content
+  let updated = buildTimedSlidesFromDurations(
     content,
     durations,
     resolvedVoiceId,
     soundtrackPath,
     soundtrackDuration
   );
+
+  // 如果有时间戳，计算每个slide的元素级时间戳
+  if (slideTimestamps.length > 0) {
+    let currentTime = 0;
+    const slidesWithTimings = updated.slides.map((slide, index) => {
+      const slideStartTime = currentTime;
+      const slideDuration = slide.audioDuration || durations[index]?.duration || 5;
+      currentTime += slideDuration;
+
+      const timestampData = slideTimestamps.find((st) => st.slideIndex === index);
+      if (timestampData?.timestamps) {
+        const elementTimings = calculateElementTimingsFromTimestamps(
+          slide,
+          slideStartTime,
+          timestampData.timestamps
+        );
+        return {
+          ...slide,
+          elementTimings,
+        };
+      }
+      return slide;
+    });
+
+    updated = {
+      ...updated,
+      slides: slidesWithTimings,
+    };
+  }
 
   writeFileSync(contentFile, JSON.stringify(updated, null, 2));
 
