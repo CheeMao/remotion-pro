@@ -1,11 +1,12 @@
 ﻿use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::fs;
+use std::fs::OpenOptions;
 use std::io::Write;
 use std::net::{SocketAddr, TcpStream};
 use std::path::{Path, PathBuf};
 use std::process::Command;
-use std::time::Duration;
+use std::time::{Duration, Instant};
 use base64::Engine;
 use hmac::{Hmac, Mac};
 use regex::Regex;
@@ -88,6 +89,23 @@ struct QiniuConfig {
     bucket: String,
     domain: String,
     upload_url: String,
+}
+
+fn append_debug_log(message: &str) {
+    let log_dir = std::env::temp_dir().join("ai-remotion-debug");
+    let log_file = log_dir.join("ai-generate-slides.log");
+
+    if !log_dir.exists() {
+        let _ = fs::create_dir_all(&log_dir);
+    }
+
+    if let Ok(mut file) = OpenOptions::new()
+        .create(true)
+        .append(true)
+        .open(log_file)
+    {
+        let _ = writeln!(file, "{}", message);
+    }
 }
 
 fn extract_douyin_content_id(url: &str) -> Option<(String, String)> {
@@ -805,6 +823,8 @@ async fn generate_slides(
     model: String,
     prompt: String,
 ) -> Result<String, String> {
+    let started_at = Instant::now();
+
     if access_key.is_empty() {
         return Err("Please configure the AI API key first.".to_string());
     }
@@ -813,10 +833,11 @@ async fn generate_slides(
         return Err("Please configure the AI API URL first.".to_string());
     }
 
-    let url = if api_url.ends_with('/') {
-        format!("{}chat/completions", api_url)
+    let trimmed_api_url = api_url.trim_end_matches('/');
+    let url = if trimmed_api_url.ends_with("/chat/completions") {
+        trimmed_api_url.to_string()
     } else {
-        format!("{}/chat/completions", api_url)
+        format!("{}/chat/completions", trimmed_api_url)
     };
 
     let model_name = if model.is_empty() {
@@ -825,11 +846,20 @@ async fn generate_slides(
         model
     };
 
+    append_debug_log(&format!(
+        "generate_slides:start elapsed_ms=0 url={} model={} prompt_chars={}",
+        url,
+        model_name,
+        prompt.chars().count()
+    ));
+
     let client = reqwest::Client::builder()
         .connect_timeout(Duration::from_secs(10))
-        .timeout(Duration::from_secs(180))
+        .timeout(Duration::from_secs(60))
         .build()
         .map_err(|e| format!("Failed to create AI HTTP client: {}", e))?;
+
+    let before_send = Instant::now();
     let response = client
         .post(&url)
         .header("Authorization", format!("Bearer {}", access_key))
@@ -846,13 +876,38 @@ async fn generate_slides(
         }))
         .send()
         .await
-        .map_err(|e| format!("AI request failed: {}", e))?;
+        .map_err(|e| {
+            append_debug_log(&format!(
+                "generate_slides:send_error elapsed_ms={} send_ms={} error={}",
+                started_at.elapsed().as_millis(),
+                before_send.elapsed().as_millis(),
+                e
+            ));
+            format!("AI request failed: {}", e)
+        })?;
 
     let status = response.status();
+    let after_send_ms = started_at.elapsed().as_millis();
     let body_text = response
         .text()
         .await
-        .map_err(|e| format!("Failed to read AI response body: {}", e))?;
+        .map_err(|e| {
+            append_debug_log(&format!(
+                "generate_slides:body_error elapsed_ms={} status={} error={}",
+                started_at.elapsed().as_millis(),
+                status.as_u16(),
+                e
+            ));
+            format!("Failed to read AI response body: {}", e)
+        })?;
+
+    append_debug_log(&format!(
+        "generate_slides:response elapsed_ms={} send_ms={} status={} body_chars={}",
+        started_at.elapsed().as_millis(),
+        after_send_ms,
+        status.as_u16(),
+        body_text.chars().count()
+    ));
 
     if !status.is_success() {
         return Err(format!(
@@ -875,7 +930,13 @@ async fn generate_slides(
         .map(|index| index + 1)
         .unwrap_or(content.len());
 
-    Ok(content[json_start..json_end].to_string())
+    let result = content[json_start..json_end].to_string();
+    append_debug_log(&format!(
+        "generate_slides:success elapsed_ms={} content_chars={}",
+        started_at.elapsed().as_millis(),
+        result.chars().count()
+    ));
+    Ok(result)
 }
 
 #[tauri::command(rename_all = "camelCase")]

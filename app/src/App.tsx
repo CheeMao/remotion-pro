@@ -330,16 +330,18 @@ ${COMMON_SEGMENT_RULES}
 页面要求：
 1. 第一页必须是 title，最后一页必须是 cta。
 2. 中间页面只能使用：list、stats、progress、compare、quote。
-3. 不要让相邻两页使用同一种版式。
-4. 不要整支视频几乎全是 list；list 页只能在必要时使用。
-5. 当页数 >= 6 时，至少使用 4 种不同版式；当页数 >= 8 时，至少使用 5 种不同版式。
-6. 每页版式必须和信息类型匹配：
+3. 不要让相邻两页使用同一种版式，但也不要为了“凑变化”硬切版式。
+4. 版式选择优先服从内容表达，不要为了炫技强行做成数据页、比例页、进度页。
+5. list 是默认优先版式；只有内容明确适合时才使用 stats / progress / compare / quote。
+6. 当页数 >= 6 时，尽量使用 3-4 种不同版式即可；只有内容确实支持时再更多变化。
+7. 每页版式必须和信息类型匹配：
 - compare：适合前后方案、旧新方法、常见误区 vs 正确做法
-- stats：适合数字、占比、规模、效果
-- progress：适合阶段、能力成熟度、完成度、拆解进程
-- list：适合并列要点，但不要整片都用
+- stats：只适合文本里明确出现数字、占比、规模、效果时；没有数字就不要硬造比例
+- progress：只适合阶段、路径、成熟度、完成度、步骤推进；没有“进程感”就不要使用
+- list：适合并列要点、结论拆分、建议整理，是最稳妥的中性版式
 - quote：适合一句关键结论、提醒、收口
-7. 列表项可使用 "01"、"02"、"03" 这类编号。
+8. 如果一段内容只是普通讲解，没有明显数字、对比或阶段结构，请优先使用 list，而不是 stats / progress。
+9. 列表项可使用 "01"、"02"、"03" 这类编号。
 
 字段约定：
 - title: data = { title, subtitle? }
@@ -377,11 +379,12 @@ ${COMMON_SEGMENT_RULES}
 页面要求：
 1. 页面类型只能使用：hero、stats、compare、steps、list、chart、timeline、highlight、quote、default。
 2. 每页都要有 title、可选 subtitle、type、narration、segmentIds。
-3. 优先让版式和内容匹配，不要整套都输出成 default 或 list。
-4. 不要让相邻两页使用同一种版式。
-5. 当页数 >= 6 时，至少使用 4 种不同版式；当页数 >= 8 时，至少使用 5 种不同版式。
-6. hero 只适合开场钩子或阶段总述；quote 适合关键结论；timeline 适合过程；steps 适合拆解；stats / chart 适合数据。
-7. default 只能作为补位页，不能成为主体页型。
+3. 优先让版式和内容匹配，不要为了“显得丰富”硬塞 chart、stats、timeline。
+4. 不要让相邻两页使用同一种版式，但如果内容都只是普通要点，连续使用 list / default 也比硬造数据图更好。
+5. 当页数 >= 6 时，尽量使用 3-4 种不同版式即可；内容不足时不要强行凑到 5 种。
+6. hero 只适合开场钩子或阶段总述；quote 适合关键结论；timeline 适合过程；steps 适合拆解；stats / chart 只适合真实数据。
+7. default 和 list 都可以作为正常主体页型，不需要刻意回避；真正应该回避的是“无依据的结构页”。
+8. 如果没有真实数字，就不要使用 stats / chart；如果没有明显过程，就不要使用 timeline / steps。
 
 字段约定：
 - hero: data 可包含 badge、cta
@@ -424,11 +427,12 @@ ${COMMON_SEGMENT_RULES}
 页面要求：
 1. 页面类型只能使用：hero、stats、compare、steps、list、chart、timeline、highlight、quote、default。
 2. 每页都要有 title、可选 subtitle、type、narration、segmentIds。
-3. 优先让版式和内容匹配，不要整套都输出成 default 或 list。
-4. 不要让相邻两页使用同一种版式。
-5. 当页数 >= 6 时，至少使用 4 种不同版式；当页数 >= 8 时，至少使用 5 种不同版式。
-6. hero 只适合开场钩子或阶段总述；quote 适合关键结论；timeline 适合过程；steps 适合拆解；stats / chart 适合数据。
-7. default 只能作为补位页，不能成为主体页型。
+3. 优先让版式和内容匹配，不要为了“显得丰富”硬塞 chart、stats、timeline。
+4. 不要让相邻两页使用同一种版式，但如果内容都只是普通要点，连续使用 list / default 也比硬造数据图更好。
+5. 当页数 >= 6 时，尽量使用 3-4 种不同版式即可；内容不足时不要强行凑到 5 种。
+6. hero 只适合开场钩子或阶段总述；quote 适合关键结论；timeline 适合过程；steps 适合拆解；stats / chart 只适合真实数据。
+7. default 和 list 都可以作为正常主体页型，不需要刻意回避；真正应该回避的是“无依据的结构页”。
+8. 如果没有真实数字，就不要使用 stats / chart；如果没有明显过程，就不要使用 timeline / steps。
 
 字段约定：
 - hero: data 可包含 badge、cta
@@ -528,10 +532,11 @@ function getTechShowMinUniqueTypes(pageCount: number): number {
 function getTechShowDirectorBrief(pageCount: number): string {
   const targets = getTechShowTypeTargets(pageCount);
   return [
-    `建议页型节奏：${targets.join(' -> ')}`,
-    `至少使用 ${getTechShowMinUniqueTypes(pageCount)} 种不同版式`,
-    '中段必须在 compare / stats / progress / list / quote 之间切换，不要连续重复',
-    '如果信息偏密，优先拆成 compare、stats、progress 这类结构页，而不是全部塞成列表',
+    '优先按内容语义选择版式，而不是按固定顺序轮换版式',
+    `可参考节奏：${targets.join(' -> ')}，但只有内容真的适合时才采用`,
+    '普通说明、建议、并列要点优先使用 list',
+    '只有文本里明确出现数字、比例、阶段、对比、结论时，才使用 stats / progress / compare / quote',
+    `尽量保持 ${Math.min(4, getTechShowMinUniqueTypes(pageCount))} 种左右的有效版式变化，宁可少而准，不要多而乱`,
   ].join('\n');
 }
 
@@ -579,10 +584,11 @@ function getGlassShowMinUniqueTypes(pageCount: number): number {
 function getGlassShowDirectorBrief(pageCount: number): string {
   const targets = getGlassShowTypeTargets(pageCount);
   return [
-    `建议页型节奏：${targets.join(' -> ')}`,
-    `至少使用 ${getGlassShowMinUniqueTypes(pageCount)} 种不同版式`,
-    '优先用 hero / stats / compare / steps / timeline / chart / quote 形成节奏，不要大量 default',
-    '如果信息适合数字、阶段、对比或过程，请优先映射为对应结构页',
+    '优先按内容语义选择版式，不要为了变化而变化',
+    `可参考节奏：${targets.join(' -> ')}，但不要硬套`,
+    '普通解释、结论展开、建议整理可以直接使用 list 或 default',
+    '只有内容确实带有数字、过程、时间顺序、对比时，才使用 stats / chart / timeline / steps / compare',
+    `尽量保持 ${Math.min(4, getGlassShowMinUniqueTypes(pageCount))} 种左右的有效版式变化，宁可自然，也不要硬凑`,
   ].join('\n');
 }
 
@@ -630,10 +636,11 @@ function getLiquidShowMinUniqueTypes(pageCount: number): number {
 function getLiquidShowDirectorBrief(pageCount: number): string {
   const targets = getLiquidShowTypeTargets(pageCount);
   return [
-    `建议页型节奏：${targets.join(' -> ')}`,
-    `至少使用 ${getLiquidShowMinUniqueTypes(pageCount)} 种不同版式`,
-    '优先用 hero / stats / compare / steps / chart / timeline / quote 形成节奏，不要大量 default 或 list',
-    '如果信息适合数字、阶段、对比或过程，请优先映射为对应结构页',
+    '优先按内容语义选择版式，不要为了变化而变化',
+    `可参考节奏：${targets.join(' -> ')}，但不要硬套`,
+    '普通解释、结论展开、建议整理可以直接使用 list 或 default',
+    '只有内容确实带有数字、过程、时间顺序、对比时，才使用 stats / chart / timeline / steps / compare',
+    `尽量保持 ${Math.min(4, getLiquidShowMinUniqueTypes(pageCount))} 种左右的有效版式变化，宁可自然，也不要硬凑`,
   ].join('\n');
 }
 
@@ -795,11 +802,70 @@ function getPagePlan(durationSeconds: number, template: string) {
 }
 
 function formatSegmentsForPrompt(segments: NarrationSegment[]): string {
-  return segments
+  if (segments.length === 0) {
+    return '';
+  }
+
+  // Reduce prompt size: merge adjacent short segments into semantic groups.
+  const groups: Array<{
+    ids: string[];
+    start: number;
+    end: number;
+    text: string;
+  }> = [];
+
+  const sentenceEndPattern = /[。！？!?]$/;
+  const maxCharsPerGroup = 34;
+  const maxIdsPerGroup = 4;
+  let current: {
+    ids: string[];
+    start: number;
+    end: number;
+    text: string;
+  } | null = null;
+
+  const pushCurrent = () => {
+    if (!current) {
+      return;
+    }
+    groups.push(current);
+    current = null;
+  };
+
+  for (const segment of segments) {
+    const segmentText = segment.text.trim();
+    if (!current) {
+      current = {
+        ids: [segment.id],
+        start: segment.start,
+        end: segment.end,
+        text: segmentText,
+      };
+    } else {
+      current = {
+        ids: [...current.ids, segment.id],
+        start: current.start,
+        end: segment.end,
+        text: `${current.text}${segmentText}`.trim(),
+      };
+    }
+
+    const isSentenceEnd = sentenceEndPattern.test(segmentText);
+    const isLengthEnough = current.text.length >= maxCharsPerGroup;
+    const isGroupSizeEnough = current.ids.length >= maxIdsPerGroup;
+    if (isSentenceEnd || isLengthEnough || isGroupSizeEnough) {
+      pushCurrent();
+    }
+  }
+
+  pushCurrent();
+
+  return groups
     .map((segment) => {
-      return `- ${segment.id} | ${segment.start.toFixed(2)}s - ${segment.end.toFixed(
+      const preview = segment.text.length > 40 ? `${segment.text.slice(0, 40)}...` : segment.text;
+      return `- ${segment.ids.join(',')} | ${segment.start.toFixed(2)}s - ${segment.end.toFixed(
         2
-      )}s | ${segment.text}`;
+      )}s | ${preview}`;
     })
     .join('\n');
 }
@@ -859,6 +925,28 @@ function getPrompt(
 async function invokeTauri<T>(command: string, args: Record<string, unknown>): Promise<T> {
   const { invoke } = await import('@tauri-apps/api/core');
   return invoke<T>(command, args);
+}
+
+function withTimeout<T>(promise: Promise<T>, timeoutMs: number, label: string): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    const timer = window.setTimeout(() => {
+      reject(
+        new Error(
+          `${label} 超时（>${Math.round(timeoutMs / 1000)} 秒）。建议稍后重试，或缩短文案/更换更快模型。`
+        )
+      );
+    }, timeoutMs);
+
+    promise
+      .then((value) => {
+        window.clearTimeout(timer);
+        resolve(value);
+      })
+      .catch((error) => {
+        window.clearTimeout(timer);
+        reject(error);
+      });
+  });
 }
 
 async function generateStoryboardTimeline(
@@ -1018,6 +1106,48 @@ function hasNonEmptyString(value: unknown): value is string {
   return typeof value === 'string' && value.trim().length > 0;
 }
 
+function collectSlideText(slide: Slide): string {
+  const parts: string[] = [];
+
+  if ('title' in slide && hasNonEmptyString(slide.title)) {
+    parts.push(slide.title);
+  }
+  if ('subtitle' in slide && hasNonEmptyString(slide.subtitle)) {
+    parts.push(slide.subtitle);
+  }
+  if ('narration' in slide && hasNonEmptyString(slide.narration)) {
+    parts.push(slide.narration);
+  }
+  if ('points' in slide && Array.isArray(slide.points)) {
+    parts.push(...slide.points.filter((item): item is string => hasNonEmptyString(item)));
+  }
+  if (isComplexSlide(slide)) {
+    parts.push(JSON.stringify(slide.data || {}));
+  }
+
+  return parts.join(' ');
+}
+
+function hasNumberCue(text: string): boolean {
+  return /\d/.test(text) || /百分之|占比|比例|数据|增长|下降|翻倍|倍|排名|Top|TOP|%/.test(text);
+}
+
+function hasProcessCue(text: string): boolean {
+  return /步骤|阶段|流程|路径|先|再|然后|最后|第一|第二|第三|进阶|推进|过程|逐步|成熟度|完成度/.test(text);
+}
+
+function hasCompareCue(text: string): boolean {
+  return /对比|相比|区别|不同|vs|VS|一边|另一边|优点|缺点|误区|正确|过去|现在|之前|之后/.test(text);
+}
+
+function hasQuoteCue(text: string): boolean {
+  return /一句话|核心|重点|结论|记住|本质|关键|说白了|提醒/.test(text);
+}
+
+function hasListFriendlyCue(text: string): boolean {
+  return /包括|主要|比如|例如|可以|建议|方法|要点|原因|优势|问题|重点|注意/.test(text);
+}
+
 function hasTechShowRequiredData(slide: Slide): boolean {
   if (!isComplexSlide(slide)) {
     return false;
@@ -1096,6 +1226,27 @@ function shouldRetryTechShowSlides(slides: Slide[]): boolean {
   }
 
   if (techSlides.some((slide) => !hasTechShowRequiredData(slide))) {
+    return true;
+  }
+
+  if (
+    techSlides.some((slide) => {
+      const text = collectSlideText(slide);
+      if (slide.type === 'stats') {
+        return !hasNumberCue(text);
+      }
+      if (slide.type === 'progress') {
+        return !hasProcessCue(text);
+      }
+      if (slide.type === 'compare') {
+        return !hasCompareCue(text);
+      }
+      if (slide.type === 'quote') {
+        return !hasQuoteCue(text);
+      }
+      return false;
+    })
+  ) {
     return true;
   }
 
@@ -1179,6 +1330,30 @@ function shouldRetryGlassShowSlides(slides: Slide[]): boolean {
     return true;
   }
 
+  if (
+    glassSlides.some((slide) => {
+      const text = collectSlideText(slide);
+      if (slide.type === 'stats' || slide.type === 'chart') {
+        return !hasNumberCue(text);
+      }
+      if (slide.type === 'timeline' || slide.type === 'steps') {
+        return !hasProcessCue(text);
+      }
+      if (slide.type === 'compare') {
+        return !hasCompareCue(text);
+      }
+      if (slide.type === 'quote') {
+        return !hasQuoteCue(text);
+      }
+      if (slide.type === 'highlight') {
+        return !hasListFriendlyCue(text) && !hasQuoteCue(text);
+      }
+      return false;
+    })
+  ) {
+    return true;
+  }
+
   return false;
 }
 
@@ -1257,6 +1432,30 @@ function shouldRetryLiquidShowSlides(slides: Slide[]): boolean {
     return true;
   }
 
+  if (
+    liquidSlides.some((slide) => {
+      const text = collectSlideText(slide);
+      if (slide.type === 'stats' || slide.type === 'chart') {
+        return !hasNumberCue(text);
+      }
+      if (slide.type === 'timeline' || slide.type === 'steps') {
+        return !hasProcessCue(text);
+      }
+      if (slide.type === 'compare') {
+        return !hasCompareCue(text);
+      }
+      if (slide.type === 'quote') {
+        return !hasQuoteCue(text);
+      }
+      if (slide.type === 'highlight') {
+        return !hasListFriendlyCue(text) && !hasQuoteCue(text);
+      }
+      return false;
+    })
+  ) {
+    return true;
+  }
+
   return false;
 }
 
@@ -1271,12 +1470,16 @@ async function generateSlidesWithAi(
   }
 
   const requestSlides = async (strict: boolean): Promise<Slide[]> => {
-    const result = await invokeTauri<string>('generate_slides', {
-      apiUrl: settings.aiUrl,
-      accessKey: settings.aiApiKey,
-      model: settings.aiModel,
-      prompt: getPrompt(template, timeline, strict).replace('{input_text}', rawText),
-    });
+    const result = await withTimeout(
+      invokeTauri<string>('generate_slides', {
+        apiUrl: settings.aiUrl,
+        accessKey: settings.aiApiKey,
+        model: settings.aiModel,
+        prompt: getPrompt(template, timeline, strict).replace('{input_text}', rawText),
+      }),
+      45_000,
+      strict ? 'AI 分页规划请求（严格重试）' : 'AI 分页规划请求'
+    );
     const parsed = JSON.parse(result) as { slides?: Array<Record<string, unknown>> };
 
     if (!parsed.slides || !Array.isArray(parsed.slides) || parsed.slides.length === 0) {
@@ -1308,7 +1511,12 @@ async function generateSlidesWithAi(
   };
 
   let slides = await requestSlides(false);
-  if (shouldRetry(slides)) {
+  const shouldTryStrictRetry =
+    shouldRetry(slides) &&
+    rawText.trim().length > 120 &&
+    timeline.segments.length > 4;
+
+  if (shouldTryStrictRetry) {
     slides = await requestSlides(true);
   }
 
@@ -1685,8 +1893,18 @@ function HomePage(props: {
       setStatus('正在生成语义时间轴...');
       const timeline = await generateStoryboardTimeline(editedText, contentPath);
 
-      setStatus('正在规划最终分页...');
-      const slides = await generateSlidesWithAi(editedText, template, timeline);
+      const planningStart = Date.now();
+      setStatus('正在规划最终分页...（已等待 0 秒）');
+      const planningTimer = window.setInterval(() => {
+        const waited = Math.floor((Date.now() - planningStart) / 1000);
+        setStatus(`正在规划最终分页...（已等待 ${waited} 秒）`);
+      }, 5000);
+      let slides: Slide[];
+      try {
+        slides = await generateSlidesWithAi(editedText, template, timeline);
+      } finally {
+        window.clearInterval(planningTimer);
+      }
 
       const project: Project = {
         id: projectId,
