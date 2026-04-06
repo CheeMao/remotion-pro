@@ -60,6 +60,12 @@ const c = {
 
 const accents = [c.blue, c.purple, c.cyan, c.pink, c.green];
 
+const metricToNumber = (value?: string): number => {
+  if (!value) return 0;
+  const match = value.match(/-?\d+(\.\d+)?/);
+  return match ? Number(match[0]) : 0;
+};
+
 const splitPoint = (point: string): ListItem => {
   const parts = point
     .split(/[:：-]\s*/)
@@ -462,51 +468,6 @@ const Pill: React.FC<{
   );
 };
 
-const DockStrip: React.FC<{ labels: string[]; frame: number; delay?: number }> = ({
-  labels,
-  frame,
-  delay = 0,
-}) => {
-  const { fps } = useVideoConfig();
-  const progress = spring({ frame: frame - delay, fps, config: { damping: 18, stiffness: 105 } });
-  return (
-    <div
-      style={{
-        display: "inline-flex",
-        gap: 12,
-        padding: "12px 16px",
-        borderRadius: 999,
-        background: "rgba(255,255,255,0.62)",
-        border: `1px solid ${c.border}`,
-        boxShadow: "0 18px 36px rgba(15,23,42,0.08)",
-        transform: `translateY(${interpolate(progress, [0, 1], [14, 0])}px)`,
-        opacity: progress,
-      }}
-    >
-      {labels.map((label, index) => (
-        <div
-          key={`${label}-${index}`}
-          style={{
-            minWidth: 54,
-            height: 54,
-            borderRadius: 18,
-            padding: "0 16px",
-            background: `${accents[index % accents.length]}16`,
-            color: accents[index % accents.length],
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            fontSize: 15,
-            fontWeight: 800,
-          }}
-        >
-          {label}
-        </div>
-      ))}
-    </div>
-  );
-};
-
 const SignalMeter: React.FC<{
   items: Array<{ label: string; value: string }>;
   frame: number;
@@ -560,8 +521,38 @@ export const MacSlide: React.FC<Props> = ({
   data,
   index,
   totalSlides,
+  durationInFrames,
 }) => {
   const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
+  const slideDuration = Math.max(1, durationInFrames);
+  const clampTiming = {
+    extrapolateLeft: "clamp" as const,
+    extrapolateRight: "clamp" as const,
+  };
+  const hookTakeover = interpolate(
+    frame,
+    [0, slideDuration * 0.12, slideDuration * 0.26],
+    [1, 1, 0],
+    clampTiming,
+  );
+  const revealProgress = interpolate(
+    frame,
+    [slideDuration * 0.1, slideDuration * 0.36],
+    [0, 1],
+    clampTiming,
+  );
+  const evidenceReveal = interpolate(
+    frame,
+    [slideDuration * 0.34, slideDuration * 0.6],
+    [0, 1],
+    clampTiming,
+  );
+  const endingPulse = spring({
+    frame: frame - Math.max(0, slideDuration - 22),
+    fps,
+    config: { damping: 10, stiffness: 140 },
+  });
 
   const items = toList(points, data).slice(0, 6);
   const stats = toStats(points, data).slice(0, 4);
@@ -569,6 +560,27 @@ export const MacSlide: React.FC<Props> = ({
   const compare = toCompare(points, data);
   const timeline = toTimeline(points, data).slice(0, 5);
   const steps = toSteps(points, data).slice(0, 4);
+  const mainStat = stats[0];
+  const winnerScoreLeft = metricToNumber(compare.left.value);
+  const winnerScoreRight = metricToNumber(compare.right.value);
+  const compareWinner =
+    winnerScoreRight >= winnerScoreLeft
+      ? { side: "right" as const, label: compare.right.label, value: compare.right.value }
+      : { side: "left" as const, label: compare.left.label, value: compare.left.value };
+  const activeItemIndex =
+    items.length > 0
+      ? Math.min(
+          items.length - 1,
+          Math.floor(
+            interpolate(
+              frame,
+              [slideDuration * 0.28, slideDuration * 0.84],
+              [0, items.length],
+              clampTiming,
+            ),
+          ),
+        )
+      : 0;
   const heroBadge = typeof data?.badge === "string" ? data.badge : items[0]?.title || "macOS workflow";
   const heroCta =
     typeof data?.cta === "string"
@@ -600,8 +612,45 @@ export const MacSlide: React.FC<Props> = ({
   })();
 
   const renderHero = () => (
-    <div style={{ display: "grid", gridTemplateColumns: "1.25fr 0.95fr", gap: 30, minHeight: 690 }}>
-      <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+    <div style={{ display: "grid", gridTemplateColumns: "1.25fr 0.95fr", gap: 30, minHeight: 690, position: "relative" }}>
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          pointerEvents: "none",
+          opacity: hookTakeover,
+          transform: `scale(${interpolate(hookTakeover, [0, 1], [1.08, 1])})`,
+          zIndex: 4,
+        }}
+      >
+        <div
+          style={{
+            maxWidth: 1120,
+            padding: "30px 40px",
+            borderRadius: 30,
+            background: "rgba(255,255,255,0.78)",
+            border: `1px solid ${c.border}`,
+            boxShadow: "0 30px 70px rgba(15,23,42,0.12)",
+            textAlign: "center",
+          }}
+        >
+          <div style={{ fontSize: 78, lineHeight: 0.95, color: c.text, fontWeight: 900, letterSpacing: "-0.06em" }}>
+            {title || "Mac workflow"}
+          </div>
+        </div>
+      </div>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "space-between",
+          opacity: revealProgress,
+          transform: `translateY(${interpolate(revealProgress, [0, 1], [20, 0])}px)`,
+        }}
+      >
         <div>
           <Pill text={heroBadge} frame={frame} />
           <SectionHeader title={title} subtitle={subtitle} frame={frame} />
@@ -619,17 +668,21 @@ export const MacSlide: React.FC<Props> = ({
               />
             ))}
           </div>
-          <DockStrip labels={["Finder", "Edit", "Preview", "Ship"]} frame={frame} delay={18} />
         </div>
       </div>
-      <div style={{ display: "grid", gridTemplateRows: "1.2fr 0.8fr", gap: 18 }}>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateRows: "1.2fr 0.8fr",
+          gap: 18,
+          opacity: revealProgress,
+          transform: `translateY(${interpolate(revealProgress, [0, 1], [28, 0])}px) scale(${interpolate(revealProgress, [0, 1], [0.98, 1])})`,
+        }}
+      >
         <SoftCard frame={frame} delay={8} accent={c.blue} style={{ padding: 24 }}>
           <div style={{ display: "grid", gridTemplateColumns: "1.1fr 0.9fr", gap: 18 }}>
             <div>
-              <div style={{ fontSize: 16, fontWeight: 700, color: c.muted, letterSpacing: "0.08em", textTransform: "uppercase" }}>
-                Workspace
-              </div>
-              <div style={{ marginTop: 14, fontSize: 38, fontWeight: 800, color: c.text, lineHeight: 1.08 }}>
+              <div style={{ fontSize: 38, fontWeight: 800, color: c.text, lineHeight: 1.08 }}>
                 {title || "Mac workflow"}
               </div>
               <div style={{ marginTop: 14, fontSize: 20, lineHeight: 1.6, color: c.muted }}>
@@ -638,6 +691,21 @@ export const MacSlide: React.FC<Props> = ({
             </div>
             <div style={{ display: "grid", gap: 14 }}>
               <SignalMeter items={stats.slice(0, 3)} frame={frame} delay={12} />
+            </div>
+          </div>
+          <div
+            style={{
+              marginTop: 20,
+              padding: "18px 20px",
+              borderRadius: 20,
+              background: "rgba(10,132,255,0.08)",
+              border: "1px solid rgba(10,132,255,0.12)",
+              opacity: evidenceReveal,
+              transform: `translateY(${interpolate(evidenceReveal, [0, 1], [16, 0])}px)`,
+            }}
+          >
+            <div style={{ fontSize: 24, lineHeight: 1.35, color: c.text, fontWeight: 800 }}>
+              {items[0]?.title || title || "Lead with one result before explaining the workflow."}
             </div>
           </div>
         </SoftCard>
@@ -677,7 +745,18 @@ export const MacSlide: React.FC<Props> = ({
               frame={frame}
               delay={8 + itemIndex * 5}
               accent={accents[itemIndex % accents.length]}
-              style={{ padding: "20px 22px" }}
+              style={{
+                padding: "20px 22px",
+                marginLeft: itemIndex === activeItemIndex ? interpolate(evidenceReveal, [0, 1], [0, 14]) : 0,
+                filter:
+                  itemIndex === activeItemIndex
+                    ? `brightness(${interpolate(evidenceReveal, [0, 1], [1, 1.04])})`
+                    : `brightness(${interpolate(evidenceReveal, [0, 1], [1, 0.88])})`,
+                boxShadow:
+                  itemIndex === activeItemIndex
+                    ? `0 28px 50px ${accents[itemIndex % accents.length]}18, inset 0 1px 0 rgba(255,255,255,0.75)`
+                    : undefined,
+              }}
             >
               <div style={{ display: "grid", gridTemplateColumns: "64px 1fr", gap: 18, alignItems: "start" }}>
                 <div
@@ -697,7 +776,16 @@ export const MacSlide: React.FC<Props> = ({
                   {String(itemIndex + 1).padStart(2, "0")}
                 </div>
                 <div>
-                  <div style={{ fontSize: 28, lineHeight: 1.2, color: c.text, fontWeight: 800 }}>{item.title}</div>
+                  <div
+                    style={{
+                      fontSize: itemIndex === activeItemIndex ? 32 : 28,
+                      lineHeight: 1.2,
+                      color: c.text,
+                      fontWeight: 800,
+                    }}
+                  >
+                    {item.title}
+                  </div>
                   {item.desc ? (
                     <div style={{ marginTop: 8, fontSize: 19, lineHeight: 1.6, color: c.muted }}>{item.desc}</div>
                   ) : null}
@@ -708,23 +796,42 @@ export const MacSlide: React.FC<Props> = ({
         </div>
       </div>
       <div style={{ display: "grid", gap: 18, alignContent: "start" }}>
-        <SoftCard frame={frame} delay={14} accent={c.cyan} style={{ padding: 22 }}>
-          <div style={{ fontSize: 16, color: c.muted, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase" }}>
-            Snapshot
-          </div>
-          <div style={{ marginTop: 16 }}>
-            <SignalMeter items={stats.slice(0, 3)} frame={frame} delay={18} />
-          </div>
-        </SoftCard>
-        <SoftCard frame={frame} delay={22} accent={c.pink} style={{ padding: 22 }}>
-          <div style={{ fontSize: 18, fontWeight: 700, color: c.text }}>Quick note</div>
-          <div style={{ marginTop: 12, fontSize: 18, lineHeight: 1.7, color: c.muted }}>
-            {subtitle || "Keep one main takeaway on screen and let narration carry the detail."}
-          </div>
-          <div style={{ marginTop: 18 }}>
-            <DockStrip labels={["Hook", "Proof", "Why"]} frame={frame} delay={24} />
-          </div>
-        </SoftCard>
+        <div
+          style={{
+            opacity: evidenceReveal,
+            transform: `translateY(${interpolate(evidenceReveal, [0, 1], [30, 0])}px) scale(${interpolate(
+              evidenceReveal,
+              [0, 1],
+              [0.96, 1],
+            )})`,
+          }}
+        >
+          <SoftCard frame={frame} delay={14} accent={c.cyan} style={{ padding: 22 }}>
+            <div style={{ fontSize: 28, lineHeight: 1.22, color: c.text, fontWeight: 800 }}>
+              {items[activeItemIndex]?.title || title || "Main takeaway"}
+            </div>
+            {items[activeItemIndex]?.desc ? (
+              <div style={{ marginTop: 10, fontSize: 18, lineHeight: 1.6, color: c.muted }}>
+                {items[activeItemIndex]?.desc}
+              </div>
+            ) : null}
+            <div style={{ marginTop: 16 }}>
+              <SignalMeter items={stats.slice(0, 3)} frame={frame} delay={18} />
+            </div>
+          </SoftCard>
+        </div>
+        <div
+          style={{
+            opacity: evidenceReveal,
+            transform: `translateY(${interpolate(evidenceReveal, [0, 1], [36, 0])}px)`,
+          }}
+        >
+          <SoftCard frame={frame} delay={22} accent={c.pink} style={{ padding: 22 }}>
+            <div style={{ fontSize: 18, lineHeight: 1.7, color: c.muted }}>
+              {subtitle || "Keep one main takeaway on screen and let narration carry the detail."}
+            </div>
+          </SoftCard>
+        </div>
       </div>
     </div>
   );
@@ -732,15 +839,53 @@ export const MacSlide: React.FC<Props> = ({
   const renderStats = () => (
     <div>
       <SectionHeader title={title} subtitle={subtitle} frame={frame} compact />
-      <div style={{ marginBottom: 18 }}>
-        <DockStrip labels={["Signal", "Metric", "Proof", "Trend"]} frame={frame} delay={4} />
-      </div>
-      <div style={{ display: "grid", gridTemplateColumns: `repeat(${Math.max(2, Math.min(4, stats.length))}, 1fr)`, gap: 18 }}>
-        {stats.map((item, itemIndex) => (
+      {mainStat ? (
+        <div
+          style={{
+            marginBottom: 18,
+            transform: `scale(${interpolate(revealProgress, [0, 1], [0.96, 1])})`,
+            transformOrigin: "center center",
+          }}
+        >
+          <SoftCard frame={frame} delay={6} accent={c.blue} style={{ padding: "28px 30px" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "0.9fr 1.1fr", gap: 24, alignItems: "center" }}>
+              <div>
+                <div
+                  style={{
+                    fontSize: 110,
+                    lineHeight: 0.92,
+                    color: c.text,
+                    fontWeight: 900,
+                    letterSpacing: "-0.08em",
+                    transform: `scale(${interpolate(endingPulse, [0, 1], [1, 1.05])})`,
+                    transformOrigin: "left center",
+                  }}
+                >
+                  {mainStat.value}
+                </div>
+              </div>
+              <div>
+                <div style={{ fontSize: 30, lineHeight: 1.2, color: c.text, fontWeight: 800 }}>{mainStat.label}</div>
+                <div style={{ marginTop: 12, fontSize: 20, lineHeight: 1.65, color: c.muted }}>
+                  {mainStat.note || subtitle || "Open with the number that feels like proof, then let the rest support it."}
+                </div>
+              </div>
+            </div>
+          </SoftCard>
+        </div>
+      ) : null}
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: `repeat(${Math.max(2, Math.min(3, Math.max(1, stats.length - (mainStat ? 1 : 0))))}, 1fr)`,
+          gap: 18,
+        }}
+      >
+        {stats.slice(mainStat ? 1 : 0).map((item, itemIndex) => (
           <SoftCard
             key={`${item.label}-${itemIndex}`}
             frame={frame}
-            delay={8 + itemIndex * 5}
+            delay={12 + itemIndex * 5}
             accent={accents[itemIndex % accents.length]}
             style={{ padding: 24, minHeight: 220 }}
           >
@@ -754,36 +899,55 @@ export const MacSlide: React.FC<Props> = ({
           </SoftCard>
         ))}
       </div>
-      <SoftCard frame={frame} delay={24} accent={c.blue} style={{ padding: "18px 22px", marginTop: 18 }}>
-        <div style={{ display: "flex", justifyContent: "space-between", gap: 18, alignItems: "center" }}>
-          <div style={{ fontSize: 18, color: c.text, fontWeight: 700 }}>Performance summary</div>
-          <div style={{ display: "flex", gap: 14, flexWrap: "wrap" }}>
-            {stats.map((item, itemIndex) => (
-              <div key={`${item.label}-summary-${itemIndex}`} style={{ fontSize: 16, color: c.muted }}>
-                <span style={{ color: accents[itemIndex % accents.length], fontWeight: 800 }}>{item.value}</span> {item.label}
-              </div>
-            ))}
-          </div>
-        </div>
-      </SoftCard>
     </div>
   );
 
   const renderCompare = () => (
     <div>
       <SectionHeader title={title} subtitle={subtitle} frame={frame} compact />
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 140px 1fr", gap: 18, alignItems: "stretch" }}>
-        <SoftCard frame={frame} delay={8} accent={c.pink} style={{ padding: 28 }}>
-          <div style={{ fontSize: 16, color: c.muted, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em" }}>
-            {compare.left.label}
+      <div
+        style={{
+          marginBottom: 18,
+          opacity: evidenceReveal,
+          transform: `translateY(${interpolate(evidenceReveal, [0, 1], [20, 0])}px) scale(${interpolate(
+            evidenceReveal,
+            [0, 1],
+            [0.98, 1],
+          )})`,
+        }}
+      >
+        <SoftCard frame={frame} delay={6} accent={compareWinner.side === "right" ? c.green : c.pink} style={{ padding: "18px 22px" }}>
+          <div style={{ fontSize: 28, lineHeight: 1.2, color: c.text, fontWeight: 800 }}>
+            {compareWinner.label} wins attention with {compareWinner.value}
           </div>
-          <div style={{ marginTop: 18, fontSize: 44, lineHeight: 1.06, color: c.text, fontWeight: 900 }}>
-            {compare.left.value}
-          </div>
-          {compare.left.desc ? (
-            <div style={{ marginTop: 16, fontSize: 20, color: c.muted, lineHeight: 1.6 }}>{compare.left.desc}</div>
-          ) : null}
         </SoftCard>
+      </div>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 140px 1fr", gap: 18, alignItems: "stretch" }}>
+        <div
+          style={{
+            opacity:
+              compareWinner.side === "left"
+                ? 1
+                : interpolate(evidenceReveal, [0, 1], [1, 0.68]),
+            transform: `scale(${
+              compareWinner.side === "left"
+                ? interpolate(evidenceReveal, [0, 1], [1, 1.03])
+                : interpolate(evidenceReveal, [0, 1], [1, 0.97])
+            })`,
+          }}
+        >
+          <SoftCard frame={frame} delay={8} accent={c.pink} style={{ padding: 28 }}>
+            <div style={{ fontSize: 16, color: c.muted, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em" }}>
+              {compare.left.label}
+            </div>
+            <div style={{ marginTop: 18, fontSize: 44, lineHeight: 1.06, color: c.text, fontWeight: 900 }}>
+              {compare.left.value}
+            </div>
+            {compare.left.desc ? (
+              <div style={{ marginTop: 16, fontSize: 20, color: c.muted, lineHeight: 1.6 }}>{compare.left.desc}</div>
+            ) : null}
+          </SoftCard>
+        </div>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
           <div style={{ display: "grid", gap: 14, justifyItems: "center" }}>
             <div
@@ -805,20 +969,33 @@ export const MacSlide: React.FC<Props> = ({
             >
               VS
             </div>
-            <DockStrip labels={["Before", "After"]} frame={frame} delay={16} />
           </div>
         </div>
-        <SoftCard frame={frame} delay={14} accent={c.green} style={{ padding: 28 }}>
-          <div style={{ fontSize: 16, color: c.muted, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em" }}>
-            {compare.right.label}
-          </div>
-          <div style={{ marginTop: 18, fontSize: 44, lineHeight: 1.06, color: c.text, fontWeight: 900 }}>
-            {compare.right.value}
-          </div>
-          {compare.right.desc ? (
-            <div style={{ marginTop: 16, fontSize: 20, color: c.muted, lineHeight: 1.6 }}>{compare.right.desc}</div>
-          ) : null}
-        </SoftCard>
+        <div
+          style={{
+            opacity:
+              compareWinner.side === "right"
+                ? 1
+                : interpolate(evidenceReveal, [0, 1], [1, 0.68]),
+            transform: `scale(${
+              compareWinner.side === "right"
+                ? interpolate(evidenceReveal, [0, 1], [1, 1.03])
+                : interpolate(evidenceReveal, [0, 1], [1, 0.97])
+            })`,
+          }}
+        >
+          <SoftCard frame={frame} delay={14} accent={c.green} style={{ padding: 28 }}>
+            <div style={{ fontSize: 16, color: c.muted, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em" }}>
+              {compare.right.label}
+            </div>
+            <div style={{ marginTop: 18, fontSize: 44, lineHeight: 1.06, color: c.text, fontWeight: 900 }}>
+              {compare.right.value}
+            </div>
+            {compare.right.desc ? (
+              <div style={{ marginTop: 16, fontSize: 20, color: c.muted, lineHeight: 1.6 }}>{compare.right.desc}</div>
+            ) : null}
+          </SoftCard>
+        </div>
       </div>
     </div>
   );
@@ -944,22 +1121,15 @@ export const MacSlide: React.FC<Props> = ({
   const renderCta = () => (
     <div style={{ minHeight: 690, display: "grid", gridTemplateColumns: "1.15fr 0.85fr", gap: 24, alignItems: "center" }}>
       <div>
-        <Pill text="Ready to ship" accent={c.green} frame={frame} />
         <SectionHeader title={title} subtitle={subtitle} frame={frame} />
         <div style={{ display: "flex", gap: 14, marginTop: 12, flexWrap: "wrap" }}>
           {highlightItems.slice(0, 3).map((item, itemIndex) => (
             <Pill key={`${item}-${itemIndex}`} text={item} accent={accents[itemIndex % accents.length]} frame={frame} delay={10 + itemIndex * 4} />
           ))}
         </div>
-        <div style={{ marginTop: 20 }}>
-          <DockStrip labels={["Save", "Publish", "Share"]} frame={frame} delay={16} />
-        </div>
       </div>
       <SoftCard frame={frame} delay={12} accent={c.blue} style={{ padding: 28 }}>
-        <div style={{ fontSize: 16, color: c.muted, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em" }}>
-          Call to action
-        </div>
-        <div style={{ marginTop: 18, fontSize: 34, lineHeight: 1.15, color: c.text, fontWeight: 900 }}>
+        <div style={{ fontSize: 34, lineHeight: 1.15, color: c.text, fontWeight: 900 }}>
           {heroCta}
         </div>
         <div style={{ marginTop: 14, fontSize: 18, lineHeight: 1.65, color: c.muted }}>
@@ -978,6 +1148,8 @@ export const MacSlide: React.FC<Props> = ({
             fontSize: 20,
             fontWeight: 800,
             boxShadow: "0 18px 36px rgba(10,132,255,0.24)",
+            transform: `scale(${interpolate(endingPulse, [0, 1], [1, 1.08])})`,
+            transformOrigin: "left center",
           }}
         >
           {heroCta}

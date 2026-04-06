@@ -328,16 +328,37 @@ ${COMMON_SEGMENT_RULES}
   ]
 }`;
 
-const SHARED_STRUCTURED_PROMPT = `你是短视频分镜导演。请基于语义片段时间轴，把内容规划成共享版式视频脚本，而不是按旧模板的固定页面结构输出。${COMMON_SEGMENT_RULES}
-核心原则：
-1. 页面结构由内容语义决定，不要因为选择了某个风格，就把所有页都做成同一种布局。
-2. 风格只影响视觉气质，不影响页面骨架。你只需要决定每页最合适的 layout。
-3. 普通讲解、建议整理、原因拆分，优先使用 list 或 default。
-4. 只有在内容真的存在数字、对照、步骤、时间推进、结论金句时，再使用 stats / compare / steps / timeline / quote / chart。
-5. 开头优先 hero，结尾在适合时可以用 quote 或 cta，但不要硬套。
+const SHARED_STRUCTURED_PROMPT = `你是短视频导演，不只是负责分页，更要把内容组织成“每一页都尽量吸引人”的视频脚本。请基于语义片段时间轴输出共享版式 JSON，而不是按旧模板的固定页面结构输出。${COMMON_SEGMENT_RULES}
+核心目标：
+1. 不是只有第一页要抓人，而是每一页都要有继续看的理由。
+2. 每一页都必须承担一个明确任务：抛钩子、给结论、做对比、给证据、拆步骤、提炼记忆点、做收束。
+3. 页面不能只是重复 narration，要补充 narration 没有直接提供的视觉价值，比如反差、证据、压缩理解、结果强化。
+4. 页面之间要有推进关系，不要做成一页页并列解释。
+5. 标题、要点、数据都要像短视频镜头文案，不要像 PPT 说明文字。
 
-可用 layout：
-hero, default, steps, compare, stats, quote, list, chart, timeline, highlight, cta
+页面吸引力原则：
+1. 一页只保留一个主重点，其他内容只能辅助，不要平均用力。
+2. 每一页都尽量比上一页多给一点新信息、新证据、新反差或新结论。
+3. 如果某页只是普通说明，没有新的价值，就把它和相邻片段合并，或改成更有表达力的 layout。
+4. 避免连续多页都只是 default / list；即使使用 default / list，也要让每页承担不同任务。
+5. 不要输出没有用户价值的装饰性标签、伪 UI 标签、模板自解释文案，例如 “Hook”、“Verdict”、“Signal”、“Preview”、“Call to action” 这类词。
+
+layout 使用原则：
+1. hero：适合开场钩子、强结论、反常识、利益点、问题抛出。
+2. default / list：适合普通讲解，但页面必须有清晰主重点，不要只是堆字。
+3. compare：适合旧方案 vs 新方案、错误 vs 正确、前后反差、两类选择冲突。
+4. stats / chart：适合真实数字、比例、量化结果、证据型内容；没有数字就不要硬造。
+5. steps：适合方法拆解、流程动作、顺序执行。
+6. timeline：适合阶段推进、演变过程、先后变化。
+7. highlight / quote：适合金句、提醒、单句结论、记忆点。
+8. cta：适合收束、行动建议、最后一步，不要只是重复前文。
+
+节奏要求：
+1. 开头优先 hero，但重点不是“必须像封面”，而是必须立刻给人停住的理由。
+2. 中段必须尽量出现证据页、反差页、或拆解页，避免整条视频都在解释。
+3. 结尾优先 quote / cta / highlight，用于收束和记忆点。
+4. 相邻页面尽量不要机械重复同一 layout；如果连续使用同类 layout，也必须承担不同任务。
+5. 全片通常保持 3-5 种有效 layout 变化就够了，宁可少而准，不要乱切。
 
 字段约定：
 - hero: title, subtitle?, data.badge?, data.cta?
@@ -352,9 +373,12 @@ hero, default, steps, compare, stats, quote, list, chart, timeline, highlight, c
 - highlight: title, subtitle?, data.items = ["关键词"]
 - cta: title, subtitle?, data.cta 或 data.button
 
-输出偏好：
-1. 全片通常保持 3-5 种有效 layout 变化就够了，宁可少而准，不要乱切。
-2. 相邻页面尽量不要机械重复同一 layout，但如果内容都只是普通讲解，连续使用 default / list 是允许的。
+输出要求：
+1. title 要短、狠、清楚，适合做页面主视觉，不要写成长句。
+2. subtitle 只有在它能增强推进、解释冲突、补充证据时才写，不要每页都写。
+3. points 和 data 都要服务视觉表达，不要把 narration 原文大段搬上屏幕。
+4. narration 可以自然口语化，但屏幕文字必须更短、更干、更像镜头文案。
+5. 如果一页没有明显主重点、没有新推进、没有新价值，就说明这页不够吸引人，应当重新组织。
 
 输入信息：
 - 风格：{template_name}
@@ -1494,13 +1518,12 @@ function getPrompt(
             ? getMacShowDirectorBrief(plan.targetPages)
           : '';
   void legacyDirectorBrief;
+  void MACSHOW_PROMPT;
 
   let prompt =
-    template === 'MacShow'
-      ? MACSHOW_PROMPT
-      : isStructuredTemplate(template)
-        ? SHARED_STRUCTURED_PROMPT
-        : SIMPLE_PROMPT;
+    isStructuredTemplate(template)
+      ? SHARED_STRUCTURED_PROMPT
+      : SIMPLE_PROMPT;
   prompt = replaceToken(prompt, '{template_name}', template);
   prompt = replaceToken(prompt, '{duration_seconds}', timeline.duration.toFixed(2));
   prompt = replaceToken(prompt, '{target_pages}', String(plan.targetPages));
