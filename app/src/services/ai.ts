@@ -62,7 +62,7 @@ export async function generateSlides(
 }
 
 // 模拟数据（开发时使用）
-function generateMockSlides(text: string, templateId: string): Omit<Slide, 'id'>[] {
+function generateMockSlides(text: string, _templateId: string): Omit<Slide, 'id'>[] {
   const paragraphs = text.split(/\n\n+/).filter((p) => p.trim());
 
   return paragraphs.slice(0, 5).map((p, i) => ({

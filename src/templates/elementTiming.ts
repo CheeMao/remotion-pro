@@ -1,6 +1,5 @@
 import type { ContentSlide, ElementTiming } from './types';
 import type { WordTimestamp } from '../tts/types';
-import { findCueInTimestamps } from '../tts/volcengine';
 
 /**
  * 默认中文语速（字/秒）
@@ -24,6 +23,45 @@ export const TITLE_READING_TIME = 1.2;
  * 副标题朗读时长估算（秒）
  */
 export const SUBTITLE_READING_TIME = 0.8;
+
+function findCueInTimestamps(
+  cue: string,
+  timestamps: WordTimestamp[]
+): { start: number; end: number } | null {
+  if (!cue || !timestamps || timestamps.length === 0) {
+    return null;
+  }
+
+  const cueChars = cue.split('').filter((char) => /[\u4e00-\u9fa5a-zA-Z0-9]/.test(char));
+  if (cueChars.length === 0) {
+    return null;
+  }
+
+  for (let index = 0; index <= timestamps.length - cueChars.length; index++) {
+    const window = timestamps.slice(index, index + cueChars.length);
+    const windowText = window.map((timestamp) => timestamp.word).join('');
+    if (windowText.includes(cue) || cue.includes(windowText)) {
+      return {
+        start: window[0].startTime,
+        end: window[window.length - 1].endTime,
+      };
+    }
+  }
+
+  const cuePosition = timestamps.findIndex(
+    (timestamp) => cue.includes(timestamp.word) || timestamp.word.includes(cue[0])
+  );
+
+  if (cuePosition >= 0) {
+    const endPosition = Math.min(cuePosition + cueChars.length, timestamps.length);
+    return {
+      start: timestamps[cuePosition].startTime,
+      end: timestamps[endPosition - 1].endTime,
+    };
+  }
+
+  return null;
+}
 
 /**
  * 计算中文字符数（不含标点）
@@ -182,10 +220,39 @@ function extractElementsWithCues(slide: ContentSlide): Array<{
   const elements: Array<{ id: string; type: ElementTiming['type']; cue: string; index?: number }> = [];
 
   // 根据layout类型提取元素
-  const layout = slide.type || slide.layout || 'default';
+  const inferredLayout =
+    slide.type ||
+    slide.layout ||
+    (Array.isArray((slide as ContentSlide & { steps?: unknown[] }).steps)
+      ? 'steps'
+      : Array.isArray((slide as ContentSlide & { timeline?: unknown[] }).timeline)
+        ? 'timeline'
+        : Array.isArray((slide as ContentSlide & { highlights?: unknown[] }).highlights)
+          ? 'highlight'
+          : (slide as ContentSlide & { chart?: unknown }).chart
+            ? 'chart'
+            : 'default');
+  const layout = inferredLayout;
 
   // 提取data中的元素
-  const data = slide.data || {};
+  const data = (slide.data || {}) as {
+    stats?: Array<{ label?: string; value?: number | string; suffix?: string }>;
+    steps?: Array<{ title?: string; description?: string }>;
+    items?: Array<string | { text?: string; title?: string; desc?: string }>;
+    left?: { label?: string };
+    right?: { label?: string };
+    timeline?: Array<{ year?: string; title?: string; description?: string }>;
+    highlights?: Array<string | { text?: string }>;
+    quote?: string;
+    bars?: Array<{ label?: string; value?: number }>;
+    chart?: { values?: Array<{ label?: string; value?: number }> };
+  };
+  const directSlide = slide as ContentSlide & {
+    steps?: Array<{ title?: string; description?: string }>;
+    timeline?: Array<{ year?: string; title?: string; description?: string }>;
+    highlights?: Array<string | { text?: string }>;
+    chart?: { values?: Array<{ label?: string; value?: number }> };
+  };
 
   switch (layout) {
     case 'stats':
@@ -214,16 +281,27 @@ function extractElementsWithCues(slide: ContentSlide): Array<{
             index,
           });
         });
+      } else if (directSlide.steps && Array.isArray(directSlide.steps)) {
+        directSlide.steps.forEach((step, index: number) => {
+          elements.push({
+            id: `step-${index}`,
+            type: 'step',
+            cue: step.title || '',
+            index,
+          });
+        });
       }
       break;
 
     case 'list':
       if (data.items && Array.isArray(data.items)) {
-        data.items.forEach((item: { text?: string; title?: string; desc?: string }, index: number) => {
+        data.items.forEach((item, index) => {
+          const text =
+            typeof item === 'string' ? item : item.text || item.title || item.desc || '';
           elements.push({
             id: `item-${index}`,
             type: 'item',
-            cue: item.text || item.title || '',
+            cue: text,
             index,
           });
         });
@@ -257,21 +335,42 @@ function extractElementsWithCues(slide: ContentSlide): Array<{
             index,
           });
         });
+      } else if (directSlide.timeline && Array.isArray(directSlide.timeline)) {
+        directSlide.timeline.forEach((item, index: number) => {
+          elements.push({
+            id: `timeline-${index}`,
+            type: 'timeline-item',
+            cue: item.title || '',
+            index,
+          });
+        });
       }
       break;
 
     case 'highlight':
       if (data.items && Array.isArray(data.items)) {
-        data.items.forEach((item: string, index: number) => {
+        data.items.forEach((item, index) => {
+          const text =
+            typeof item === 'string' ? item : item.text || item.title || item.desc || '';
           elements.push({
             id: `highlight-${index}`,
             type: 'highlight',
-            cue: item,
+            cue: text,
             index,
           });
         });
       } else if (data.highlights && Array.isArray(data.highlights)) {
         data.highlights.forEach((item: string | { text?: string }, index: number) => {
+          const text = typeof item === 'string' ? item : item.text || '';
+          elements.push({
+            id: `highlight-${index}`,
+            type: 'highlight',
+            cue: text,
+            index,
+          });
+        });
+      } else if (directSlide.highlights && Array.isArray(directSlide.highlights)) {
+        directSlide.highlights.forEach((item, index: number) => {
           const text = typeof item === 'string' ? item : item.text || '';
           elements.push({
             id: `highlight-${index}`,
@@ -296,6 +395,24 @@ function extractElementsWithCues(slide: ContentSlide): Array<{
     case 'chart':
       if (data.bars && Array.isArray(data.bars)) {
         data.bars.forEach((bar: { label?: string; value?: number }, index: number) => {
+          elements.push({
+            id: `chart-bar-${index}`,
+            type: 'chart',
+            cue: bar.label || '',
+            index,
+          });
+        });
+      } else if (data.chart?.values && Array.isArray(data.chart.values)) {
+        data.chart.values.forEach((bar, index: number) => {
+          elements.push({
+            id: `chart-bar-${index}`,
+            type: 'chart',
+            cue: bar.label || '',
+            index,
+          });
+        });
+      } else if (directSlide.chart?.values && Array.isArray(directSlide.chart.values)) {
+        directSlide.chart.values.forEach((bar, index: number) => {
           elements.push({
             id: `chart-bar-${index}`,
             type: 'chart',

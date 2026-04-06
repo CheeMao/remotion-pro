@@ -537,24 +537,10 @@ export const RichSlide: React.FC<{
           style={{
             display: "flex",
             alignItems: "center",
-            justifyContent: "space-between",
+            justifyContent: "flex-end",
             marginBottom: 26,
           }}
         >
-          <div
-            style={{
-              padding: "10px 18px",
-              borderRadius: 999,
-              background: "rgba(255,255,255,0.08)",
-              border: `1px solid ${colors.cardBorder}`,
-              color: "rgba(255,255,255,0.82)",
-              fontSize: 18,
-              fontWeight: 600,
-              letterSpacing: "0.4px",
-            }}
-          >
-            RICH
-          </div>
           <div style={{ fontSize: 20, color: "rgba(255,255,255,0.64)", fontWeight: 600 }}>
             {String(index + 1).padStart(2, "0")} / {String(totalSlides).padStart(2, "0")}
           </div>

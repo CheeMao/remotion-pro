@@ -54,6 +54,7 @@ export interface AudioSlideData extends TimelineFields {
   narration?: string;
   type?: string;
   data?: Record<string, unknown>;
+  elementTimings?: ElementTiming[];
 }
 
 export interface VideoConfig {
@@ -86,11 +87,14 @@ export interface ContentSlide extends TimelineFields {
   points?: string[];
   narration?: string;
   segmentIds?: string[];
+  layout?: string;
+  elementTimings?: ElementTiming[];
   type?:
     | 'default'
     | 'steps'
     | 'timeline'
     | 'chart'
+    | 'cta'
     | 'highlight'
     | 'list'
     | 'compare'

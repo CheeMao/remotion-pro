@@ -15,7 +15,7 @@ program
   .command('generate')
   .description('Generate video from content JSON file')
   .argument('<content-file>', 'Path to content JSON file')
-  .option('-t, --template <template>', 'Template name', 'SlideShow')
+  .option('-t, --template <template>', 'Template name', 'GlassShow')
   .option('-v, --voice <voice-id>', 'Voice ID for TTS')
   .option('-r, --speech-rate <rate>', 'Speech rate for TTS (0.5-2.0)', parseSpeechRate)
   .option('-o, --output <output>', 'Output video path', 'out/video.mp4')
@@ -111,6 +111,20 @@ program
       soundtrackFile: options.soundtrack,
       soundtrackPath: options.soundtrackPath,
       voiceId: options.voice,
+    });
+  });
+
+program
+  .command('structure')
+  .description('Convert plain slides into structured layouts and default element timings')
+  .argument('<content-file>', 'Path to content JSON file')
+  .option('-t, --template <template>', 'Template name override')
+  .option('-o, --output <output>', 'Output content path (defaults to overwriting the input file)')
+  .action(async (contentFile, options) => {
+    await workflow.structureContentOnly({
+      contentFile,
+      template: options.template,
+      outputFile: options.output,
     });
   });
 

@@ -43,8 +43,9 @@ export function buildDataFromFlatFields(slide: ContentSlide): Record<string, unk
   }
 
   if (slide.layout === 'chart' && slide.chart) {
-    if (slide.chart.bars) {
-      data.bars = slide.chart.bars;
+    const chart = slide.chart as { bars?: unknown };
+    if (chart.bars) {
+      data.bars = chart.bars;
     }
   }
 

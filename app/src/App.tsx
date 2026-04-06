@@ -1,6 +1,8 @@
 import React from 'react';
 import { Link, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import { EmbeddedPreview, PreviewProjectData } from './remotion-preview/EmbeddedPreview';
+import { prepareSlidesForRender } from '@remotion-root/templates/autoLayout';
+import type { ContentSlide, ElementTiming } from '@remotion-root/templates/types';
 
 type SimpleSlide = {
   id: string;
@@ -8,6 +10,10 @@ type SimpleSlide = {
   subtitle: string;
   points: string[];
   narration: string;
+  layout?: string;
+  type?: string;
+  data?: Record<string, unknown>;
+  elementTimings?: ElementTiming[];
   segmentIds?: string[];
   audioStart?: number;
   audioEnd?: number;
@@ -19,6 +25,8 @@ type ComplexSlide = {
   id: string;
   type: string;
   data: Record<string, unknown>;
+  layout?: string;
+  elementTimings?: ElementTiming[];
   title?: string;
   subtitle?: string;
   points?: string[];
@@ -200,6 +208,30 @@ const TEMPLATE_OPTIONS = [
   { label: '磨砂玻璃', value: 'FrostedShow' },
 ] as const;
 
+const ACTIVE_TEMPLATE_OPTIONS = [
+  { label: '玻璃风', value: 'GlassShow' },
+  { label: '液态玻璃', value: 'LiquidShow' },
+  { label: '液态简报', value: 'LiquidBriefShow' },
+  { label: 'Mac 横屏', value: 'MacShow' },
+  { label: '科技信息流', value: 'TechShow' },
+  { label: '富效果', value: 'RichShow' },
+  { label: '知识讲解', value: 'KnowledgeShow' },
+] as const;
+
+const DEFAULT_TEMPLATE = 'GlassShow';
+const ACTIVE_TEMPLATES: Set<string> = new Set(
+  ACTIVE_TEMPLATE_OPTIONS.map((option) => option.value)
+);
+void TEMPLATE_OPTIONS;
+
+function normalizeTemplate(template?: string): string {
+  if (!template) {
+    return DEFAULT_TEMPLATE;
+  }
+
+  return ACTIVE_TEMPLATES.has(template) ? template : DEFAULT_TEMPLATE;
+}
+
 const DEFAULT_REWRITE_STYLES: RewriteStyle[] = [
   {
     id: 'rewrite-natural',
@@ -291,6 +323,119 @@ ${COMMON_SEGMENT_RULES}
       "title": "...",
       "subtitle": "...",
       "points": ["...", "..."],
+      "narration": "..."
+    }
+  ]
+}`;
+
+const SHARED_STRUCTURED_PROMPT = `你是短视频分镜导演。请基于语义片段时间轴，把内容规划成共享版式视频脚本，而不是按旧模板的固定页面结构输出。${COMMON_SEGMENT_RULES}
+核心原则：
+1. 页面结构由内容语义决定，不要因为选择了某个风格，就把所有页都做成同一种布局。
+2. 风格只影响视觉气质，不影响页面骨架。你只需要决定每页最合适的 layout。
+3. 普通讲解、建议整理、原因拆分，优先使用 list 或 default。
+4. 只有在内容真的存在数字、对照、步骤、时间推进、结论金句时，再使用 stats / compare / steps / timeline / quote / chart。
+5. 开头优先 hero，结尾在适合时可以用 quote 或 cta，但不要硬套。
+
+可用 layout：
+hero, default, steps, compare, stats, quote, list, chart, timeline, highlight, cta
+
+字段约定：
+- hero: title, subtitle?, data.badge?, data.cta?
+- default: title, subtitle?, points
+- steps: title, subtitle?, data.steps = [{ title, description? }]
+- compare: title, subtitle?, data.left / data.right / data.vsText
+- stats: title, subtitle?, data.stats = [{ value, suffix?, label, color? }]
+- quote: title?, subtitle?, data.quote, data.author?
+- list: title, subtitle?, data.items = [{ icon?, text, desc? }]
+- chart: title, subtitle?, data.bars = [{ label, value, color? }]
+- timeline: title, subtitle?, data.timeline = [{ year, title, description? }]
+- highlight: title, subtitle?, data.items = ["关键词"]
+- cta: title, subtitle?, data.cta 或 data.button
+
+输出偏好：
+1. 全片通常保持 3-5 种有效 layout 变化就够了，宁可少而准，不要乱切。
+2. 相邻页面尽量不要机械重复同一 layout，但如果内容都只是普通讲解，连续使用 default / list 是允许的。
+
+输入信息：
+- 风格：{template_name}
+- 音频总时长：{duration_seconds} 秒
+- 建议页数：{target_pages} 页，可在 {min_pages}-{max_pages} 之间调整
+- 语义片段时间轴：
+{segments_text}
+
+只输出 JSON：
+{
+  "slides": [
+    {
+      "segmentIds": ["segment-1", "segment-2"],
+      "title": "...",
+      "subtitle": "...",
+      "type": "list",
+      "layout": "list",
+      "data": {
+        "items": [{ "text": "...", "desc": "..." }]
+      },
+      "points": ["...", "..."],
+      "narration": "..."
+    }
+  ]
+}`;
+
+const MACSHOW_PROMPT = `你是横屏知识视频导演，目标是把内容做成“像高质量 Mac 产品发布视频一样干净、顺滑、抓人”的分镜脚本。${COMMON_SEGMENT_RULES}
+导演目标：
+1. 不是只把内容讲清楚，而是要让用户愿意继续看下一页。
+2. 开头 1-2 页必须有明显钩子：优先结论、反常识、收益点、冲突点，不要先平铺背景介绍。
+3. 中段必须出现“证据页”或“反差页”，优先使用 compare / stats / chart / timeline，而不是整条视频都落成 list。
+4. 每一页都要有明确视觉任务：抛问题、给结论、做对比、给证据、拆步骤、做收束。
+5. 横屏更适合双栏结构、信息主副区分、数据侧栏和产品面板感，请优先考虑这些表达。
+
+页面节奏要求：
+1. 第一页必须是 hero。
+2. 最后一页优先使用 cta 或 quote。
+3. 全片至少要有 3 种 layout；如果页数 >= 5，尽量做到 4 种左右。
+4. 中间至少有一页来自 compare / stats / chart / timeline 之一。
+5. 相邻两页不要机械重复同一种 layout，除非内容真的只适合普通解释。
+
+可用 layout：
+hero, default, steps, compare, stats, quote, list, chart, timeline, highlight, cta
+
+各 layout 的使用建议：
+- hero：只放一个强主题，一个强结论，一个强钩子
+- list/default：用于普通讲解，但不要连续过多
+- compare：用于旧方案 vs 新方案、错误做法 vs 正确做法、前后反差
+- stats/chart：用于明确数字、比例、量化结果
+- steps：用于方法拆解、流程路径
+- timeline：用于演进过程、阶段推进、顺序变化
+- quote：用于一句话结论或关键提醒
+- cta：用于结尾动作和收束
+
+输出要求：
+1. 标题尽量短，适合大字号展示。
+2. subtitle 只在确实能增强推进时才写，不要每页都写。
+3. points 和 data 都要服务于视觉表达，不要把 narration 原文大段搬上屏幕。
+4. narration 保持自然口播感，但页面文案要更凝练、更像镜头字幕。
+
+输入信息：
+- 模板：{template_name}
+- 音频总时长：{duration_seconds} 秒
+- 建议页数：{target_pages} 页，可在 {min_pages}-{max_pages} 之间调整
+- 语义片段时间轴：
+{segments_text}
+
+只输出 JSON：
+{
+  "slides": [
+    {
+      "segmentIds": ["segment-1"],
+      "title": "...",
+      "subtitle": "...",
+      "type": "hero",
+      "layout": "hero",
+      "data": {
+        "badge": "...",
+        "cta": "..."
+      },
+      "points": ["..."],
       "narration": "..."
     }
   ]
@@ -499,23 +644,23 @@ ${COMMON_SEGMENT_RULES}
 }`;
 
 function isStructuredTemplate(template: string): boolean {
-  return template === 'GlassShow' || template === 'LiquidShow' || template === 'RichShow' || template === 'TechShow';
-}
-
-function usesDataOnlyStructuredSlides(template: string): boolean {
-  return template === 'RichShow' || template === 'TechShow';
+  return (
+    template === 'GlassShow' ||
+    template === 'LiquidShow' ||
+    template === 'LiquidBriefShow' ||
+    template === 'MacShow' ||
+    template === 'RichShow' ||
+    template === 'TechShow' ||
+    template === 'KnowledgeShow'
+  );
 }
 
 function getTemplateSlideTypes(template: string): string[] {
-  if (template === 'GlassShow' || template === 'LiquidShow') {
-    return ['hero', 'stats', 'compare', 'steps', 'list', 'chart', 'timeline', 'highlight', 'quote', 'default'];
+  if (!isStructuredTemplate(template)) {
+    return ['default'];
   }
 
-  if (template === 'TechShow') {
-    return ['title', 'list', 'compare', 'quote', 'progress', 'stats', 'cta'];
-  }
-
-  return ['title', 'list', 'compare', 'quote', 'highlight', 'progress', 'stats', 'cta'];
+  return ['hero', 'default', 'steps', 'compare', 'stats', 'quote', 'list', 'chart', 'timeline', 'highlight', 'cta'];
 }
 
 const TECH_SHOW_MIDDLE_TYPES = ['compare', 'stats', 'progress', 'list', 'quote'] as const;
@@ -675,6 +820,45 @@ function getLiquidShowDirectorBrief(pageCount: number): string {
   ].join('\n');
 }
 
+function getMacShowTypeTargets(pageCount: number): string[] {
+  if (pageCount <= 1) {
+    return ['hero'];
+  }
+
+  if (pageCount === 2) {
+    return ['hero', 'cta'];
+  }
+
+  const middleCount = Math.max(0, pageCount - 2);
+  const preferredOrder = ['compare', 'stats', 'steps', 'chart', 'list', 'timeline', 'highlight'] as const;
+  const result: string[] = ['hero'];
+  let cursor = 0;
+
+  for (let index = 0; index < middleCount; index += 1) {
+    let nextType = preferredOrder[cursor % preferredOrder.length];
+    if (result[result.length - 1] === nextType) {
+      nextType = preferredOrder[(cursor + 1) % preferredOrder.length];
+      cursor += 1;
+    }
+    result.push(nextType);
+    cursor += 1;
+  }
+
+  result.push('cta');
+  return result;
+}
+
+function getMacShowDirectorBrief(pageCount: number): string {
+  const targets = getMacShowTypeTargets(pageCount);
+  return [
+    '开头必须像横屏产品视频的钩子页，而不是普通封面',
+    `可参考节奏：${targets.join(' -> ')}，但要服从内容本身`,
+    '中段优先安排至少一页证据页或反差页，优先 compare / stats / chart / timeline',
+    'list 和 default 只用于解释，不要让它们占满整条视频',
+    '结尾要有明确收束，优先 cta，其次 quote',
+  ].join('\n');
+}
+
 function isComplexSlide(slide: Slide): slide is ComplexSlide {
   return 'type' in slide;
 }
@@ -689,6 +873,380 @@ function detachSlideNarrationTiming<T extends Slide>(slide: T, narration: string
     audioDuration: undefined,
     durationInFrames: undefined,
   } as T;
+}
+
+function getSlideLayout(slide: Slide): string {
+  if (isComplexSlide(slide)) {
+    return slide.layout || slide.type || 'default';
+  }
+
+  return slide.layout || slide.type || 'default';
+}
+
+function splitEditorLine(line: string): { title: string; description?: string } {
+  const parts = line
+    .split(/[：:]/)
+    .map((part) => part.trim())
+    .filter(Boolean);
+
+  if (parts.length <= 1) {
+    return { title: line.trim() };
+  }
+
+  return {
+    title: parts[0],
+    description: parts.slice(1).join('：'),
+  };
+}
+
+function getComplexSlideEditorPoints(slide: ComplexSlide): string[] {
+  if (Array.isArray(slide.points) && slide.points.length > 0) {
+    return slide.points;
+  }
+
+  const layout = getSlideLayout(slide);
+  const data = slide.data || {};
+
+  if (layout === 'compare') {
+    const lines: string[] = [];
+    const left = data.left as Record<string, unknown> | undefined;
+    const right = data.right as Record<string, unknown> | undefined;
+
+    if (left) {
+      const label = typeof left.label === 'string' ? left.label : '左侧';
+      const value =
+        typeof left.value === 'string'
+          ? left.value
+          : typeof left.title === 'string'
+            ? left.title
+            : '';
+      if (value) lines.push(`${label}：${value}`);
+    }
+
+    if (right) {
+      const label = typeof right.label === 'string' ? right.label : '右侧';
+      const value =
+        typeof right.value === 'string'
+          ? right.value
+          : typeof right.title === 'string'
+            ? right.title
+            : '';
+      if (value) lines.push(`${label}：${value}`);
+    }
+
+    return lines;
+  }
+
+  if (layout === 'stats' && Array.isArray(data.stats)) {
+    return data.stats
+      .map((item) => {
+        if (!item || typeof item !== 'object') return '';
+        const record = item as Record<string, unknown>;
+        const value = record.value ?? '';
+        const suffix = typeof record.suffix === 'string' ? record.suffix : '';
+        const label = typeof record.label === 'string' ? record.label : '';
+        return `${label}：${value}${suffix}`.trim();
+      })
+      .filter(Boolean);
+  }
+
+  if (layout === 'chart' && Array.isArray(data.bars)) {
+    return data.bars
+      .map((item) => {
+        if (!item || typeof item !== 'object') return '';
+        const record = item as Record<string, unknown>;
+        const label = typeof record.label === 'string' ? record.label : '';
+        const value = record.percent ?? record.value ?? '';
+        return `${label}：${value}`.trim();
+      })
+      .filter(Boolean);
+  }
+
+  if (layout === 'steps' && Array.isArray(data.steps)) {
+    return data.steps
+      .map((item) => {
+        if (!item || typeof item !== 'object') return '';
+        const record = item as Record<string, unknown>;
+        const title = typeof record.title === 'string' ? record.title : '';
+        const description =
+          typeof record.description === 'string' ? record.description : '';
+        return description ? `${title}：${description}` : title;
+      })
+      .filter(Boolean);
+  }
+
+  if (layout === 'timeline' && Array.isArray(data.timeline)) {
+    return data.timeline
+      .map((item) => {
+        if (!item || typeof item !== 'object') return '';
+        const record = item as Record<string, unknown>;
+        const year = typeof record.year === 'string' ? record.year : '';
+        const title = typeof record.title === 'string' ? record.title : '';
+        const description =
+          typeof record.description === 'string' ? record.description : '';
+        const main = [year, title].filter(Boolean).join('：');
+        return description ? `${main}：${description}` : main;
+      })
+      .filter(Boolean);
+  }
+
+  if (layout === 'list' && Array.isArray(data.items)) {
+    return data.items
+      .map((item) => {
+        if (typeof item === 'string') return item;
+        if (!item || typeof item !== 'object') return '';
+        const record = item as Record<string, unknown>;
+        const text =
+          typeof record.text === 'string'
+            ? record.text
+            : typeof record.title === 'string'
+              ? record.title
+              : '';
+        const desc =
+          typeof record.desc === 'string'
+            ? record.desc
+            : typeof record.description === 'string'
+              ? record.description
+              : '';
+        return desc ? `${text}：${desc}` : text;
+      })
+      .filter(Boolean);
+  }
+
+  if (layout === 'highlight' && Array.isArray(data.highlights)) {
+    return data.highlights
+      .map((item) => {
+        if (typeof item === 'string') return item;
+        if (item && typeof item === 'object' && typeof (item as { text?: unknown }).text === 'string') {
+          return (item as { text: string }).text;
+        }
+        return '';
+      })
+      .filter(Boolean);
+  }
+
+  if (layout === 'quote' && Array.isArray(data.tags)) {
+    return data.tags.filter((item): item is string => typeof item === 'string' && item.trim().length > 0);
+  }
+
+  if (layout === 'hero' || layout === 'cta') {
+    const extras: string[] = [];
+    if (typeof data.badge === 'string' && data.badge.trim()) extras.push(data.badge);
+    const ctaText =
+      typeof data.button === 'string'
+        ? data.button
+        : typeof data.cta === 'string'
+          ? data.cta
+          : '';
+    if (ctaText.trim()) extras.push(ctaText);
+    return extras;
+  }
+
+  return [];
+}
+
+function parseMetricLine(line: string, index: number): { label: string; value: number; suffix?: string } | null {
+  const trimmed = line.trim();
+  if (!trimmed) return null;
+
+  const match = trimmed.match(/(\d+(?:[.,]\d+)?)(\s*[%a-zA-Z\u4e00-\u9fa5]*)/);
+  if (!match || match.index === undefined) {
+    return null;
+  }
+
+  const value = Number(match[1].replace(',', '.'));
+  if (Number.isNaN(value)) return null;
+
+  const suffix = match[2]?.trim() || undefined;
+  const label = `${trimmed.slice(0, match.index)} ${trimmed.slice(match.index + match[0].length)}`
+    .replace(/\s+/g, ' ')
+    .replace(/^[：:\-]+|[：:\-]+$/g, '')
+    .trim();
+
+  return {
+    label: label || `数据 ${index + 1}`,
+    value,
+    suffix,
+  };
+}
+
+function syncComplexSlideForEditor(slide: ComplexSlide): ComplexSlide {
+  const layout = getSlideLayout(slide);
+  const points = Array.isArray(slide.points)
+    ? slide.points.map((point) => point.trim()).filter(Boolean)
+    : [];
+
+  let data: Record<string, unknown> = {};
+
+  switch (layout) {
+    case 'hero': {
+      data = {
+        badge: points[0] || undefined,
+        cta: points[1] || undefined,
+      };
+      break;
+    }
+    case 'compare': {
+      const left = splitEditorLine(points[0] || '');
+      const right = splitEditorLine(points[1] || '');
+      data = {
+        left: {
+          label: left.title || '左侧',
+          value: left.description || left.title || '',
+          title: left.description || left.title || '',
+          desc: left.description,
+        },
+        right: {
+          label: right.title || '右侧',
+          value: right.description || right.title || '',
+          title: right.description || right.title || '',
+          desc: right.description,
+        },
+        centerLabel: 'VS',
+      };
+      break;
+    }
+    case 'stats': {
+      data = {
+        stats: points
+          .map((point, index) => parseMetricLine(point, index))
+          .filter((item): item is NonNullable<ReturnType<typeof parseMetricLine>> => item !== null)
+          .map((item) => ({
+            label: item.label,
+            value: item.value,
+            suffix: item.suffix,
+            note: '',
+          })),
+      };
+      break;
+    }
+    case 'chart': {
+      const bars = points
+        .map((point, index) => parseMetricLine(point, index))
+        .filter((item): item is NonNullable<ReturnType<typeof parseMetricLine>> => item !== null)
+        .map((item) => ({
+          label: item.label,
+          percent: item.value,
+          value: item.value,
+        }));
+
+      data = {
+        bars,
+        chart: {
+          type: 'progress',
+          values: bars.map((item) => ({
+            label: item.label,
+            value: item.percent,
+          })),
+        },
+      };
+      break;
+    }
+    case 'steps': {
+      data = {
+        steps: points.map((point) => {
+          const parsed = splitEditorLine(point);
+          return {
+            title: parsed.title,
+            description: parsed.description,
+          };
+        }),
+      };
+      break;
+    }
+    case 'timeline': {
+      data = {
+        timeline: points.map((point, index) => {
+          const parsed = splitEditorLine(point);
+          return {
+            year: parsed.title || String(index + 1).padStart(2, '0'),
+            title: parsed.description || parsed.title,
+            description: parsed.description ? undefined : undefined,
+          };
+        }),
+      };
+      break;
+    }
+    case 'list': {
+      data = {
+        items: points.map((point, index) => {
+          const parsed = splitEditorLine(point);
+          return {
+            icon: String(index + 1).padStart(2, '0'),
+            text: parsed.title,
+            desc: parsed.description,
+          };
+        }),
+      };
+      break;
+    }
+    case 'highlight': {
+      data = {
+        highlights: points.map((point) => ({ text: point })),
+        items: points,
+      };
+      break;
+    }
+    case 'quote': {
+      data = {
+        quote: slide.title || '',
+        author: slide.subtitle || '',
+        tags: points,
+      };
+      break;
+    }
+    case 'cta': {
+      const ctaText = points[0] || '';
+      data = {
+        title: slide.title || '',
+        subtitle: slide.subtitle || '',
+        cta: ctaText,
+        button: ctaText,
+      };
+      break;
+    }
+    default: {
+      data = {};
+    }
+  }
+
+  return {
+    ...slide,
+    layout,
+    type: layout,
+    data,
+  };
+}
+
+function getComplexEditorLabels(slide: ComplexSlide): {
+  title: string;
+  subtitle: string;
+  points: string;
+} {
+  const layout = getSlideLayout(slide);
+
+  switch (layout) {
+    case 'quote':
+      return { title: '引用内容', subtitle: '署名 / 来源', points: '标签' };
+    case 'cta':
+      return { title: '收尾标题', subtitle: '补充说明', points: '按钮文案' };
+    case 'hero':
+      return { title: '标题', subtitle: '副标题', points: '补充信息' };
+    case 'compare':
+      return { title: '标题', subtitle: '副标题', points: '左右对比内容' };
+    case 'stats':
+      return { title: '标题', subtitle: '副标题', points: '数据项' };
+    case 'chart':
+      return { title: '标题', subtitle: '副标题', points: '图表项' };
+    case 'steps':
+      return { title: '标题', subtitle: '副标题', points: '步骤内容' };
+    case 'timeline':
+      return { title: '标题', subtitle: '副标题', points: '时间线内容' };
+    case 'highlight':
+      return { title: '标题', subtitle: '副标题', points: '重点内容' };
+    default:
+      return { title: '标题', subtitle: '副标题', points: '页面内容' };
+  }
 }
 
 function getProjectContentPath(template: string): string {
@@ -764,9 +1322,11 @@ function loadProject(): Project | null {
 
   try {
     const parsed = JSON.parse(raw) as Project;
+    const template = normalizeTemplate(parsed.template);
     return {
       ...parsed,
-      contentPath: parsed.contentPath || getProjectContentPath(parsed.template),
+      template,
+      contentPath: parsed.contentPath || getProjectContentPath(template),
     };
   } catch {
     return null;
@@ -795,7 +1355,7 @@ function loadHomeDraft(): HomeDraft | null {
       douyinLink: parsed.douyinLink || '',
       originalText: parsed.originalText || '',
       editedText: parsed.editedText || '',
-      template: parsed.template || 'SlideShow',
+      template: normalizeTemplate(parsed.template),
       selectedRewriteStyleId:
         typeof parsed.selectedRewriteStyleId === 'string' &&
         settings.rewriteStyles.some((style) => style.id === parsed.selectedRewriteStyleId)
@@ -911,35 +1471,43 @@ function getPrompt(
   strict: boolean
 ): string {
   const plan = getPagePlan(timeline.duration, template);
-  const basePrompt =
+  const legacyPrompt =
     template === 'RichShow'
       ? RICH_PROMPT
       : template === 'TechShow'
         ? TECH_PROMPT
         : template === 'GlassShow'
           ? GLASS_PROMPT
-          : template === 'LiquidShow'
+          : template === 'LiquidShow' || template === 'LiquidBriefShow'
             ? LIQUID_PROMPT
-          : SIMPLE_PROMPT;
+            : SIMPLE_PROMPT;
+  void legacyPrompt;
 
-  let prompt = basePrompt as string;
+  const legacyDirectorBrief =
+    template === 'TechShow'
+      ? getTechShowDirectorBrief(plan.targetPages)
+      : template === 'GlassShow'
+        ? getGlassShowDirectorBrief(plan.targetPages)
+        : template === 'LiquidShow' || template === 'LiquidBriefShow'
+          ? getLiquidShowDirectorBrief(plan.targetPages)
+          : template === 'MacShow'
+            ? getMacShowDirectorBrief(plan.targetPages)
+          : '';
+  void legacyDirectorBrief;
+
+  let prompt =
+    template === 'MacShow'
+      ? MACSHOW_PROMPT
+      : isStructuredTemplate(template)
+        ? SHARED_STRUCTURED_PROMPT
+        : SIMPLE_PROMPT;
   prompt = replaceToken(prompt, '{template_name}', template);
   prompt = replaceToken(prompt, '{duration_seconds}', timeline.duration.toFixed(2));
   prompt = replaceToken(prompt, '{target_pages}', String(plan.targetPages));
   prompt = replaceToken(prompt, '{min_pages}', String(plan.minPages));
   prompt = replaceToken(prompt, '{max_pages}', String(plan.maxPages));
   prompt = replaceToken(prompt, '{segments_text}', formatSegmentsForPrompt(timeline.segments));
-  prompt = replaceToken(
-    prompt,
-    '{director_brief}',
-    template === 'TechShow'
-      ? getTechShowDirectorBrief(plan.targetPages)
-      : template === 'GlassShow'
-        ? getGlassShowDirectorBrief(plan.targetPages)
-        : template === 'LiquidShow'
-          ? getLiquidShowDirectorBrief(plan.targetPages)
-        : ''
-  );
+  prompt = replaceToken(prompt, '{director_brief}', legacyDirectorBrief);
 
   if (!strict) {
     return prompt;
@@ -1077,47 +1645,12 @@ function attachTimingToSlides(
 
 function normalizeSlides(
   rawSlides: Array<Record<string, unknown>>,
-  template: string,
+  _template: string,
   segments: NarrationSegment[]
 ): Slide[] {
-  const structured = isStructuredTemplate(template);
-  const dataOnly = usesDataOnlyStructuredSlides(template);
   const assignments = repairSegmentAssignments(rawSlides, segments);
 
   const normalized = rawSlides.map((item, index) => {
-    if (structured) {
-      return {
-        id: `slide-${index}`,
-        type: typeof item.type === 'string' ? item.type : dataOnly ? 'title' : 'default',
-        data:
-          item.data && typeof item.data === 'object'
-            ? (item.data as Record<string, unknown>)
-            : {},
-        title:
-          !dataOnly && typeof item.title === 'string'
-            ? item.title
-            : undefined,
-        subtitle:
-          !dataOnly && typeof item.subtitle === 'string'
-            ? item.subtitle
-            : undefined,
-        points:
-          !dataOnly && Array.isArray(item.points)
-            ? item.points.filter((point): point is string => typeof point === 'string')
-            : undefined,
-        badge:
-          !dataOnly && typeof item.badge === 'string'
-            ? item.badge
-            : undefined,
-        items:
-          !dataOnly && Array.isArray(item.items)
-            ? item.items.filter((entry): entry is Record<string, unknown> => Boolean(entry) && typeof entry === 'object')
-            : undefined,
-        narration: typeof item.narration === 'string' ? item.narration : '',
-        segmentIds: assignments[index],
-      };
-    }
-
     return {
       id: `slide-${index}`,
       title: typeof item.title === 'string' ? item.title : `第 ${index + 1} 页`,
@@ -1126,11 +1659,58 @@ function normalizeSlides(
         ? item.points.filter((point): point is string => typeof point === 'string')
         : [],
       narration: typeof item.narration === 'string' ? item.narration : '',
+      layout: typeof item.layout === 'string' ? item.layout : undefined,
+      type: typeof item.type === 'string' ? item.type : undefined,
+      data:
+        item.data && typeof item.data === 'object'
+          ? (item.data as Record<string, unknown>)
+          : undefined,
+      badge: typeof item.badge === 'string' ? item.badge : undefined,
+      items: Array.isArray(item.items)
+        ? item.items.filter((entry): entry is Record<string, unknown> => Boolean(entry) && typeof entry === 'object')
+        : undefined,
       segmentIds: assignments[index],
     };
   });
 
-  return attachTimingToSlides(normalized, segments);
+  const timedSlides = attachTimingToSlides(normalized, segments);
+  const preparedSlides = prepareSlidesForRender(
+    timedSlides.map((slide) => ({
+      title: slide.title,
+      subtitle: slide.subtitle,
+      points: slide.points,
+      narration: slide.narration,
+      layout: slide.layout,
+      type: slide.type as ContentSlide['type'],
+      data: slide.data,
+      segmentIds: slide.segmentIds,
+      audioStart: slide.audioStart,
+      audioEnd: slide.audioEnd,
+      audioDuration: slide.audioDuration,
+      durationInFrames: slide.durationInFrames,
+    }))
+  );
+
+  return preparedSlides.map((slide, index) => ({
+    id: `slide-${index}`,
+    title: typeof slide.title === 'string' ? slide.title : `第 ${index + 1} 页`,
+    subtitle: typeof slide.subtitle === 'string' ? slide.subtitle : '',
+    points: Array.isArray(slide.points)
+      ? slide.points.filter((point): point is string => typeof point === 'string')
+      : [],
+    narration: typeof slide.narration === 'string' ? slide.narration : '',
+    layout: typeof slide.layout === 'string' ? slide.layout : undefined,
+    type: typeof slide.type === 'string' ? slide.type : undefined,
+    data: slide.data,
+    elementTimings: slide.elementTimings,
+    segmentIds: Array.isArray(slide.segmentIds)
+      ? slide.segmentIds.filter((segmentId): segmentId is string => typeof segmentId === 'string')
+      : [],
+    audioStart: slide.audioStart,
+    audioEnd: slide.audioEnd,
+    audioDuration: slide.audioDuration,
+    durationInFrames: slide.durationInFrames,
+  }));
 }
 
 function hasNonEmptyString(value: unknown): value is string {
@@ -1490,6 +2070,42 @@ function shouldRetryLiquidShowSlides(slides: Slide[]): boolean {
   return false;
 }
 
+function shouldRetryMacShowSlides(slides: Slide[]): boolean {
+  const macSlides = slides.filter(isComplexSlide);
+  const types = macSlides.map((slide) => slide.type);
+
+  if (types.length === 0) {
+    return true;
+  }
+
+  if (types[0] !== 'hero') {
+    return true;
+  }
+
+  const lastType = types[types.length - 1];
+  if (lastType !== 'cta' && lastType !== 'quote') {
+    return true;
+  }
+
+  const uniqueTypeCount = new Set(types).size;
+  if (types.length >= 4 && uniqueTypeCount < Math.min(4, types.length)) {
+    return true;
+  }
+
+  const evidenceLayouts = new Set(['compare', 'stats', 'chart', 'timeline']);
+  const hasEvidenceSlide = types.slice(1, -1).some((type) => evidenceLayouts.has(type));
+  if (types.length >= 4 && !hasEvidenceSlide) {
+    return true;
+  }
+
+  const listLikeCount = types.filter((type) => type === 'list' || type === 'default').length;
+  if (listLikeCount > Math.ceil(types.length / 2)) {
+    return true;
+  }
+
+  return false;
+}
+
 async function generateSlidesWithAi(
   rawText: string,
   template: string,
@@ -1526,18 +2142,29 @@ async function generateSlidesWithAi(
     const maxDuration = durations.length > 0 ? Math.max(...durations) : 0;
     const coveredIds = slides.flatMap((slide) => slide.segmentIds || []);
     const expectedIds = timeline.segments.map((segment) => segment.id);
-    const techShowInvalid = template === 'TechShow' && shouldRetryTechShowSlides(slides);
-    const glassShowInvalid = template === 'GlassShow' && shouldRetryGlassShowSlides(slides);
-    const liquidShowInvalid = template === 'LiquidShow' && shouldRetryLiquidShowSlides(slides);
+    const legacyTemplateChecks =
+      (template === 'TechShow' && shouldRetryTechShowSlides(slides)) ||
+      (template === 'GlassShow' && shouldRetryGlassShowSlides(slides)) ||
+      ((template === 'LiquidShow' || template === 'LiquidBriefShow') &&
+        shouldRetryLiquidShowSlides(slides)) ||
+      (template === 'MacShow' && shouldRetryMacShowSlides(slides));
+
+    const layouts = slides
+      .map((slide) => ('layout' in slide ? slide.layout : slide.type))
+      .filter((item): item is string => typeof item === 'string' && item.length > 0);
+    const uniqueLayoutCount = new Set(layouts).size;
+    const hasStructuredSlide = slides.some((slide) => isComplexSlide(slide) || Boolean(slide.layout));
+    const needsVariety = isStructuredTemplate(template) && slides.length >= 4;
+    const varietyTooLow = needsVariety && uniqueLayoutCount < Math.min(3, slides.length);
 
     return (
       slides.length < plan.targetPages ||
       maxDuration > MAX_SLIDE_DURATION_SECONDS ||
       coveredIds.length !== expectedIds.length ||
       coveredIds.some((id, index) => id !== expectedIds[index]) ||
-      techShowInvalid ||
-      glassShowInvalid ||
-      liquidShowInvalid
+      legacyTemplateChecks ||
+      (isStructuredTemplate(template) && !hasStructuredSlide) ||
+      varietyTooLow
     );
   };
 
@@ -1593,7 +2220,9 @@ async function saveSlidesToProject(project: Project) {
     if (isComplexSlide(slide)) {
       const payload: Record<string, unknown> = {
         type: slide.type,
+        layout: slide.layout,
         data: slide.data,
+        elementTimings: slide.elementTimings,
         narration: slide.narration || '',
         segmentIds: slide.segmentIds || [],
         audioStart: slide.audioStart,
@@ -1626,6 +2255,10 @@ async function saveSlidesToProject(project: Project) {
       subtitle: slide.subtitle,
       points: slide.points,
       narration: slide.narration,
+      layout: slide.layout,
+      type: slide.type,
+      data: slide.data,
+      elementTimings: slide.elementTimings,
       segmentIds: slide.segmentIds || [],
       audioStart: slide.audioStart,
       audioEnd: slide.audioEnd,
@@ -1796,7 +2429,9 @@ function HomePage(props: {
   // 文案状态
   const [originalText, setOriginalText] = React.useState(homeDraft?.originalText || ''); // 原文案（提取的）
   const [editedText, setEditedText] = React.useState(homeDraft?.editedText || props.project?.rawText || ''); // 修改后的文案
-  const [template, setTemplate] = React.useState(homeDraft?.template || props.project?.template || 'SlideShow');
+  const [template, setTemplate] = React.useState(
+    normalizeTemplate(homeDraft?.template || props.project?.template || DEFAULT_TEMPLATE)
+  );
   const [loading, setLoading] = React.useState(false);
   const [status, setStatus] = React.useState('');
   const [error, setError] = React.useState('');
@@ -2139,7 +2774,7 @@ function HomePage(props: {
               onChange={(event) => setTemplate(event.target.value)}
               style={{ ...SOFT_INPUT_STYLE, width: 260, maxWidth: '100%', flexShrink: 0 }}
             >
-              {TEMPLATE_OPTIONS.map((option) => (
+                {ACTIVE_TEMPLATE_OPTIONS.map((option) => (
                 <option key={option.value} value={option.value}>
                   {option.label}
                 </option>
@@ -2221,22 +2856,34 @@ function EditorPage(props: {
     }));
   };
 
+  const updateComplexSlideFields = (
+    index: number,
+    patch: Partial<ComplexSlide>
+  ) => {
+    updateSlide(index, (current) =>
+      syncComplexSlideForEditor({
+        ...(current as ComplexSlide),
+        ...patch,
+      })
+    );
+  };
+
   const saveCurrentProject = async () => {
     await saveSlidesToProject(project);
   };
 
   const handleAddSlide = () => {
-    const usesGlassStyleData = project.template === 'GlassShow' || project.template === 'LiquidShow';
+    const defaultLayout = getTemplateSlideTypes(project.template)[0] || 'hero';
     const nextSlide: Slide = complex
       ? {
           id: `slide-${Date.now()}`,
-          type: getTemplateSlideTypes(project.template)[0] || 'title',
+          layout: defaultLayout,
+          type: defaultLayout,
           title: '新页面',
           subtitle: '',
           points: [],
-          badge: usesGlassStyleData ? 'NEW PAGE' : undefined,
-          items: usesGlassStyleData ? [] : undefined,
-          data: usesGlassStyleData ? {} : { title: '新页面', subtitle: '' },
+          items: [],
+          data: {},
           narration: '',
         }
       : {
@@ -2337,6 +2984,12 @@ function EditorPage(props: {
   const panelTitle = isComplexSlide(slide)
     ? String((slide.title || slide.data.title || slide.data.quote || slide.type) ?? `第 ${safeIndex + 1} 页`)
     : slide.title || `第 ${safeIndex + 1} 页`;
+  const complexEditorLabels = isComplexSlide(slide)
+    ? getComplexEditorLabels(slide)
+    : null;
+  const complexEditorPoints = isComplexSlide(slide)
+    ? getComplexSlideEditorPoints(slide)
+    : [];
 
   return (
     <div style={{ ...PAGE_FRAME_STYLE, maxWidth: 1140 }}>
@@ -2546,109 +3199,61 @@ function EditorPage(props: {
             {isComplexSlide(slide) ? (
               <>
                 <div style={FIELD_GROUP_STYLE}>
-                  <label style={{ display: 'block', marginBottom: 8, fontWeight: 600 }}>版式类型</label>
-                  <select
-                    value={slide.type}
+                  <label style={{ display: 'block', marginBottom: 8, fontWeight: 600 }}>
+                    {complexEditorLabels?.title || '标题'}
+                  </label>
+                  <input
+                    value={slide.title || ''}
                     onChange={(event) => {
-                      const nextType = event.target.value;
-                      updateSlide(safeIndex, (current) => ({
-                        ...(current as ComplexSlide),
-                        type: nextType,
-                      }));
+                      updateComplexSlideFields(safeIndex, {
+                        title: event.target.value,
+                      });
                     }}
                     onBlur={() => {
                       void saveCurrentProject();
                     }}
                     style={SOFT_INPUT_STYLE}
-                  >
-                    {getTemplateSlideTypes(project.template).map((item) => (
-                      <option key={item} value={item}>
-                        {item}
-                      </option>
-                    ))}
-                  </select>
+                  />
                 </div>
 
-                {project.template === 'GlassShow' || project.template === 'LiquidShow' ? (
-                  <>
-                    <div style={{ ...FIELD_GROUP_STYLE, marginTop: SPACING.md }}>
-                      <label style={{ display: 'block', marginBottom: 8, fontWeight: 600 }}>标题</label>
-                      <input
-                        value={slide.title || ''}
-                        onChange={(event) => {
-                          updateSlide(safeIndex, (current) => ({
-                            ...(current as ComplexSlide),
-                            title: event.target.value,
-                          }));
-                        }}
-                        onBlur={() => {
-                          void saveCurrentProject();
-                        }}
-                        style={SOFT_INPUT_STYLE}
-                      />
-                    </div>
-
-                    <div style={{ ...FIELD_GROUP_STYLE, marginTop: SPACING.md }}>
-                      <label style={{ display: 'block', marginBottom: 8, fontWeight: 600 }}>副标题</label>
-                      <input
-                        value={slide.subtitle || ''}
-                        onChange={(event) => {
-                          updateSlide(safeIndex, (current) => ({
-                            ...(current as ComplexSlide),
-                            subtitle: event.target.value,
-                          }));
-                        }}
-                        onBlur={() => {
-                          void saveCurrentProject();
-                        }}
-                        style={SOFT_INPUT_STYLE}
-                      />
-                    </div>
-
-                    <div style={{ ...FIELD_GROUP_STYLE, marginTop: SPACING.md }}>
-                      <label style={{ display: 'block', marginBottom: 8, fontWeight: 600 }}>要点</label>
-                      <textarea
-                        value={(slide.points || []).join('\n')}
-                        onChange={(event) => {
-                          const nextPoints = event.target.value
-                            .split('\n')
-                            .map((line) => line.trim())
-                            .filter(Boolean);
-                          updateSlide(safeIndex, (current) => ({
-                            ...(current as ComplexSlide),
-                            points: nextPoints,
-                          }));
-                        }}
-                        onBlur={() => {
-                          void saveCurrentProject();
-                        }}
-                        rows={5}
-                        style={{ ...SOFT_INPUT_STYLE, minHeight: 128 }}
-                      />
-                    </div>
-                  </>
-                ) : null}
-
                 <div style={{ ...FIELD_GROUP_STYLE, marginTop: SPACING.md }}>
-                  <label style={{ display: 'block', marginBottom: 8, fontWeight: 600 }}>内容 JSON</label>
-                  <textarea
-                    value={JSON.stringify(slide.data, null, 2)}
+                  <label style={{ display: 'block', marginBottom: 8, fontWeight: 600 }}>
+                    {complexEditorLabels?.subtitle || '副标题'}
+                  </label>
+                  <input
+                    value={slide.subtitle || ''}
                     onChange={(event) => {
-                      try {
-                        const parsed = JSON.parse(event.target.value) as Record<string, unknown>;
-                        updateSlide(safeIndex, (current) => ({
-                          ...(current as ComplexSlide),
-                          data: parsed,
-                        }));
-                      } catch {
-                        return;
-                      }
+                      updateComplexSlideFields(safeIndex, {
+                        subtitle: event.target.value,
+                      });
                     }}
                     onBlur={() => {
                       void saveCurrentProject();
                     }}
-                    rows={14}
-                    style={{ ...SOFT_INPUT_STYLE, minHeight: 220, fontFamily: 'monospace', fontSize: 12, lineHeight: 1.55 }}
+                    style={SOFT_INPUT_STYLE}
+                  />
+                </div>
+
+                <div style={{ ...FIELD_GROUP_STYLE, marginTop: SPACING.md }}>
+                  <label style={{ display: 'block', marginBottom: 8, fontWeight: 600 }}>
+                    {complexEditorLabels?.points || '页面内容'}
+                  </label>
+                  <textarea
+                    value={complexEditorPoints.join('\n')}
+                    onChange={(event) => {
+                      const nextPoints = event.target.value
+                        .split('\n')
+                        .map((line) => line.trim())
+                        .filter(Boolean);
+                      updateComplexSlideFields(safeIndex, {
+                        points: nextPoints,
+                      });
+                    }}
+                    onBlur={() => {
+                      void saveCurrentProject();
+                    }}
+                    rows={5}
+                    style={{ ...SOFT_INPUT_STYLE, minHeight: 128 }}
                   />
                 </div>
 
@@ -3255,5 +3860,3 @@ export default function App() {
     </ErrorBoundary>
   );
 }
-
-

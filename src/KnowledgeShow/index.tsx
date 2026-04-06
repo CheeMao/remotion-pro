@@ -108,6 +108,8 @@ export const KnowledgeShow: React.FC = () => {
               steps={slide.steps}
               timeline={slide.timeline}
               chart={slide.chart}
+              elementTimings={slide.elementTimings}
+              slideAudioStart={slide.audioStart}
               index={index}
               totalSlides={slides.length}
               durationInFrames={duration}

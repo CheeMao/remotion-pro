@@ -767,24 +767,10 @@ export const GlassSlide: React.FC<{
             style={{
               display: "flex",
               alignItems: "center",
-              justifyContent: "space-between",
+              justifyContent: "flex-end",
               marginBottom: 28,
             }}
           >
-            <div
-              style={{
-                padding: "10px 18px",
-                borderRadius: 999,
-                background: "rgba(255,255,255,0.08)",
-                border: "1px solid rgba(255,255,255,0.12)",
-                fontSize: 18,
-                fontWeight: 600,
-                color: "rgba(255,255,255,0.82)",
-                letterSpacing: "0.4px",
-              }}
-            >
-              GLASS
-            </div>
             <div
               style={{
                 display: "flex",

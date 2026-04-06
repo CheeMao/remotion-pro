@@ -1,41 +1,220 @@
 {
-  "template": "SlideShow",
+  "template": "LiquidShow",
   "slides": [
     {
       "id": "slide-0",
-      "title": "Template-scoped content",
-      "subtitle": "This file belongs only to SlideShow",
+      "title": "Gemini 到底好在哪里？",
+      "subtitle": "口碑很强，但很多人还没真正体验过",
       "points": [
-        "Independent JSON",
-        "No shared schema collision",
-        "Preview and render stay stable"
+        "Gemini 的口碑一直很能打",
+        "但它到底好在哪里？"
       ],
-      "narration": "Template-scoped content preview.",
-      "audioDuration": 2.52,
-      "durationInFrames": 76,
+      "narration": "Gemini 的口碑一直很能打，但它到底好在哪里？",
+      "type": "hero",
+      "data": {
+        "badge": "LiquidShow",
+        "cta": "继续看下去"
+      },
+      "elementTimings": [
+        {
+          "audioEnd": 0.5651999999999999,
+          "audioStart": 0,
+          "cue": "Gemini 到底好在哪里？",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 0.8289599999999999,
+          "audioStart": 0.4521599999999999,
+          "cue": "口碑很强，但很多人还没真正体验过",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "subtitle",
+          "type": "subtitle"
+        },
+        {
+          "audioEnd": 2.73984,
+          "audioStart": 0.94056,
+          "cue": "Gemini 的口碑一直很能打",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-0",
+          "index": 0,
+          "type": "custom"
+        },
+        {
+          "audioEnd": 3.768,
+          "audioStart": 2.73984,
+          "cue": "但它到底好在哪里？",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-1",
+          "index": 1,
+          "type": "custom"
+        }
+      ],
+      "audioDuration": 3.768,
+      "durationInFrames": 113,
       "audioStart": 0,
-      "audioEnd": 2.52
+      "audioEnd": 3.768
     },
     {
       "id": "slide-1",
-      "title": "Template is locked",
-      "subtitle": "Editor can no longer switch template",
+      "title": "不试一次，很难真正体会",
+      "subtitle": "纸面评价，和实际体验往往不是一回事",
       "points": [
-        "Content path follows template",
-        "Audio path follows template",
-        "Rendering uses the same composition"
+        "不亲自试一试，确实很难真正体会"
       ],
-      "narration": "Locked template prevents incompatible template switches.",
-      "audioDuration": 3.696,
-      "durationInFrames": 111,
-      "audioStart": 2.52,
-      "audioEnd": 6.216
+      "narration": "不亲自试一试，确实很难真正体会。",
+      "type": "default",
+      "data": {
+        "points": [
+          "不亲自试一试，确实很难真正体会",
+          "很多感受只有上手后才会更清楚"
+        ]
+      },
+      "elementTimings": [
+        {
+          "audioEnd": 4.326,
+          "audioStart": 3.768,
+          "cue": "不试一次，很难真正体会",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 4.586399999999999,
+          "audioStart": 4.2143999999999995,
+          "cue": "纸面评价，和实际体验往往不是一回事",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "subtitle",
+          "type": "subtitle"
+        },
+        {
+          "audioEnd": 7.488,
+          "audioStart": 4.700399999999999,
+          "cue": "不亲自试一试，确实很难真正体会",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-0",
+          "index": 0,
+          "type": "custom"
+        }
+      ],
+      "audioDuration": 3.72,
+      "durationInFrames": 112,
+      "audioStart": 3.768,
+      "audioEnd": 7.4879999999999995
+    },
+    {
+      "id": "slide-2",
+      "title": "怎么零成本体验满血版？",
+      "subtitle": "先把大家最关心的问题抛出来",
+      "points": [
+        "有没有什么办法能让我们一分钱不花直接体验到它的满血版模型？"
+      ],
+      "narration": "有没有什么办法能让我们一分钱不花，直接体验到它的满血版模型？",
+      "type": "steps",
+      "data": {
+        "steps": [
+          {
+            "description": "有没有什么办法能让我们一分钱不花直接体验到它的满血版模型？",
+            "title": "问题一"
+          }
+        ]
+      },
+      "elementTimings": [
+        {
+          "audioEnd": 8.301599999999999,
+          "audioStart": 7.488,
+          "cue": "怎么零成本体验满血版？",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 8.681280000000001,
+          "audioStart": 8.13888,
+          "cue": "先把大家最关心的问题抛出来",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "subtitle",
+          "type": "subtitle"
+        },
+        {
+          "audioEnd": 12.912,
+          "audioStart": 8.710080000000001,
+          "cue": "问题一",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "step-0",
+          "index": 0,
+          "type": "step"
+        }
+      ],
+      "audioDuration": 5.424,
+      "durationInFrames": 163,
+      "audioStart": 7.4879999999999995,
+      "audioEnd": 12.911999999999999
+    },
+    {
+      "id": "slide-3",
+      "title": "官方免费渠道，今天一次讲清",
+      "subtitle": "少有人知道的 Google AI Studio",
+      "points": [
+        "今天这期视频就跟大家扒一扒少有人知道的官方免费渠道",
+        "Google AI Studio"
+      ],
+      "narration": "今天这期视频就跟大家扒一扒少有人知道的官方免费渠道——Google AI Studio。",
+      "type": "quote",
+      "data": {
+        "author": "",
+        "quote": "今天这期视频就跟大家扒一扒少有人知道的官方免费渠道 —— Google AI Studio"
+      },
+      "elementTimings": [
+        {
+          "audioEnd": 14.111999999999998,
+          "audioStart": 12.912,
+          "cue": "官方免费渠道，今天一次讲清",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 14.672,
+          "audioStart": 13.872,
+          "cue": "少有人知道的 Google AI Studio",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "subtitle",
+          "type": "subtitle"
+        },
+        {
+          "audioEnd": 20.976,
+          "audioStart": 14.572,
+          "cue": "今天这期视频就跟大家扒一扒少有人知道的官方免费渠道 —— Google AI Studio",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "quote-text",
+          "type": "quote"
+        }
+      ],
+      "audioDuration": 8.064,
+      "durationInFrames": 242,
+      "audioStart": 12.911999999999999,
+      "audioEnd": 20.976
     }
   ],
   "fps": 30,
   "width": 1080,
   "height": 1920,
   "defaultDurationPerSlide": 150,
-  "soundtrackPath": "audio/narration.mp3",
-  "soundtrackDuration": 6.216
+  "soundtrackPath": "projects/generated/1775473523750-LiquidShow/audio/narration.mp3",
+  "soundtrackDuration": 20.976
 }

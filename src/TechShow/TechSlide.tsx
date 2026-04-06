@@ -388,11 +388,6 @@ export const TechSlide: React.FC<{
         const titleGlitch = frame % 40 < 3;
         return (
           <div style={{ textAlign: "center" }}>
-            {/* 终端提示 */}
-            <div style={{ marginBottom: 40 }}>
-              <TerminalText text="SYSTEM INITIALIZING..." delay={0} frame={frame} />
-            </div>
-
             {/* 主标题 */}
             <h1
               style={{
@@ -424,31 +419,6 @@ export const TechSlide: React.FC<{
               </p>
             )}
 
-            {/* 状态指示 */}
-            <div
-              style={{
-                marginTop: 60,
-                display: "flex",
-                gap: 40,
-                justifyContent: "center",
-              }}
-            >
-              {["READY", "ONLINE", "SECURE"].map((status, i) => (
-                <div
-                  key={i}
-                  style={{
-                    padding: "8px 20px",
-                    border: `1px solid ${colors.primary}`,
-                    fontSize: 18,
-                    color: colors.primary,
-                    textShadow: `0 0 10px ${colors.primary}`,
-                    opacity: spring({ frame: frame - 30 - i * 5, fps, config: { damping: 12 } }),
-                  }}
-                >
-                  ◉ {status}
-                </div>
-              ))}
-            </div>
           </div>
         );
       }
@@ -644,14 +614,6 @@ export const TechSlide: React.FC<{
         return (
           <HoloFrame delay={5} frame={frame} fps={fps}>
             <div style={{ maxWidth: 800 }}>
-              <div style={{
-                fontSize: 72,
-                color: colors.primary,
-                textShadow: `0 0 30px ${colors.primary}`,
-                marginBottom: 20,
-              }}>
-                &lt;QUOTE&gt;
-              </div>
               <p style={{
                 fontSize: 34,
                 fontStyle: "italic",
@@ -669,15 +631,6 @@ export const TechSlide: React.FC<{
               }}>
                 — {String(data.author ?? "")}
               </div>
-              <div style={{
-                marginTop: 20,
-                fontSize: 60,
-                color: colors.primary,
-                textShadow: `0 0 30px ${colors.primary}`,
-                textAlign: "right",
-              }}>
-                &lt;/QUOTE&gt;
-              </div>
             </div>
           </HoloFrame>
         );
@@ -688,8 +641,6 @@ export const TechSlide: React.FC<{
 
         return (
           <div style={{ textAlign: "center" }}>
-            <TerminalText text="MISSION READY" delay={0} frame={frame} />
-
             <h1
               style={{
                 fontSize: 76,
@@ -725,7 +676,7 @@ export const TechSlide: React.FC<{
                   boxShadow: `0 0 30px ${colors.primary}50, inset 0 0 30px ${colors.primary}20`,
                 }}
               >
-                &gt;&gt; {data.button} &lt;&lt;
+                {data.button}
               </div>
             )}
           </div>
@@ -789,23 +740,10 @@ export const TechSlide: React.FC<{
             style={{
               display: "flex",
               alignItems: "center",
-              justifyContent: "space-between",
+              justifyContent: "flex-end",
               marginBottom: 28,
             }}
           >
-            <div
-              style={{
-                padding: "10px 18px",
-                border: `1px solid ${colors.primary}55`,
-                borderRadius: 999,
-                color: colors.primary,
-                fontSize: 18,
-                fontWeight: 700,
-                textShadow: `0 0 10px ${colors.primary}`,
-              }}
-            >
-              TECH
-            </div>
             <div style={{ fontSize: 20, color: "rgba(255,255,255,0.64)", fontWeight: 600 }}>
               {String(index + 1).padStart(2, "0")} / {String(totalSlides).padStart(2, "0")}
             </div>

@@ -55,23 +55,9 @@ const tagStyle=(color:string)=>({
   letterSpacing:'0.02em',
 } as const);
 
-const MetricOrb:React.FC<{color:string}>=({color})=>(
-  <div
-    style={{
-      width:34,
-      height:34,
-      borderRadius:'50%',
-      background:`radial-gradient(circle at 34% 30%, rgba(255,255,255,0.95) 0%, ${color} 42%, ${color}c4 100%)`,
-      boxShadow:`0 12px 22px ${color}4a`,
-      flexShrink:0,
-    }}
-  />
-);
-
 export const LiquidBriefSlide:React.FC<Props>=({
   title,
   subtitle,
-  badge='LIQUID BRIEF',
   items=[],
   type='cover',
   data,
@@ -189,17 +175,12 @@ export const LiquidBriefSlide:React.FC<Props>=({
                 <div style={{position:'relative',zIndex:1,display:'flex',flexDirection:'column',height:'100%'}}>
                   <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',gap:12}}>
                     <div style={tagStyle(color)}>{card.eyebrow||`0${i+1}`}</div>
-                    <div style={{fontSize:14,fontWeight:800,color:c.soft,letterSpacing:'0.16em'}}>CARD {String(i+1).padStart(2,'0')}</div>
                   </div>
                   <div style={{marginTop:22,fontSize:30,fontWeight:800,lineHeight:1.16,color:c.ink,letterSpacing:'-0.04em',maxWidth:290}}>
                     {card.title}
                   </div>
                   <div style={{marginTop:14,fontSize:21,lineHeight:1.58,color:c.muted,fontWeight:500}}>
                     {card.body}
-                  </div>
-                  <div style={{marginTop:'auto',paddingTop:22,display:'flex',alignItems:'center',gap:12}}>
-                    <MetricOrb color={color} />
-                    <div style={{fontSize:16,fontWeight:700,color:c.ink}}>每张卡片只负责一种信息动作</div>
                   </div>
                 </div>
               </div>
@@ -265,9 +246,6 @@ export const LiquidBriefSlide:React.FC<Props>=({
                   </div>
                 ))}
               </div>
-              <div style={{marginTop:22,paddingTop:16,borderTop:`1px solid ${color}22`,fontSize:13,fontWeight:700,letterSpacing:'0.14em',color:c.soft,textTransform:'uppercase'}}>
-                {d<0?'Soft but blurry':'Structured and clear'}
-              </div>
             </div>
           </div>
         );
@@ -324,12 +302,7 @@ export const LiquidBriefSlide:React.FC<Props>=({
               );
             })}
           </div>
-          <div style={{...glassBase,borderRadius:30,padding:'24px 24px 26px',display:'grid',gridTemplateColumns:'220px 1fr',gap:24,alignItems:'start'}}>
-            <div style={{paddingTop:12}}>
-              <div style={tagStyle(c.lavender)}>读图结论</div>
-              <div style={{marginTop:18,fontSize:24,lineHeight:1.45,color:c.ink,fontWeight:800,letterSpacing:'-0.03em'}}>数字要有解释，不能只堆数值</div>
-              <div style={{marginTop:12,fontSize:18,lineHeight:1.6,color:c.muted,fontWeight:600}}>让数字成为锚点，让说明文字负责翻译含义。</div>
-            </div>
+          <div style={{...glassBase,borderRadius:30,padding:'24px 24px 26px'}}>
             <div style={{display:'grid',gap:12}}>
               {insights.map((text,i)=>{
                 const color=[c.pink,c.aqua,c.apricot][i%3];
@@ -360,16 +333,12 @@ export const LiquidBriefSlide:React.FC<Props>=({
           </div>
         </div>
         <div style={{...glassBase,borderRadius:28,padding:'22px 20px',display:'flex',flexDirection:'column'}}>
-          <div style={{fontSize:15,fontWeight:800,letterSpacing:'0.16em',color:c.soft,marginBottom:16}}>KEY TAGS</div>
           <div style={{display:'flex',flexWrap:'wrap',gap:14}}>
             {tags.map((tag,i)=>{
               const p=spring({frame:frame-t.pointsStart-i*4,fps,config:{damping:18,stiffness:110}});
               const color=[c.pink,c.aqua,c.apricot,c.lavender][i%4];
               return <div key={`${tag}-${i}`} style={{opacity:p,transform:`scale(${interpolate(p,[0,1],[0.84,1])})`}}><div style={tagStyle(color)}>{tag}</div></div>;
             })}
-          </div>
-          <div style={{marginTop:'auto',paddingTop:18,borderTop:`1px solid ${c.line}`,fontSize:18,lineHeight:1.55,color:c.muted,fontWeight:600}}>
-            结尾页负责把前面的内容压成一句能记住的话，再用标签做第二次强化。
           </div>
         </div>
       </div>
@@ -416,10 +385,7 @@ export const LiquidBriefSlide:React.FC<Props>=({
         >
           <div style={{position:'absolute',inset:0,background:'radial-gradient(42% 34% at 22% 72%, rgba(162,240,243,0.28) 0%, transparent 68%), radial-gradient(34% 28% at 80% 88%, rgba(255,214,140,0.24) 0%, transparent 68%), linear-gradient(180deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 100%)',pointerEvents:'none'}} />
           <div style={{position:'relative',zIndex:1}}>
-            <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:28,opacity:head,transform:rise(head,10)}}>
-              <div style={{padding:'13px 18px',borderRadius:999,background:'rgba(255,255,255,0.56)',boxShadow:'0 6px 18px rgba(255,255,255,0.3) inset'}}>
-                <span style={{fontSize:16,fontWeight:700,letterSpacing:'0.11em',color:'#6d7788'}}>{badge}</span>
-              </div>
+            <div style={{display:'flex',justifyContent:'flex-end',alignItems:'center',marginBottom:28,opacity:head,transform:rise(head,10)}}>
               <div style={{padding:'13px 18px',borderRadius:999,background:'rgba(255,255,255,0.52)',minWidth:96,textAlign:'center',boxShadow:'0 6px 18px rgba(255,255,255,0.28) inset'}}>
                 <span style={{fontSize:18,fontWeight:800,color:'#273243',letterSpacing:'0.02em'}}>{String(index+1).padStart(2,'0')} / {String(totalSlides).padStart(2,'0')}</span>
               </div>

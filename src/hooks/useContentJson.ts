@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { continueRender, delayRender } from 'remotion';
-import { TimelineFields } from '../templates/types';
+import { prepareSlidesForRender } from '../templates/autoLayout';
+import { ContentSlide, TimelineFields } from '../templates/types';
 import { toStaticContentPath } from '../project-content';
 import { parseJsonWithRepair } from '../utils/json-repair';
 
@@ -28,7 +29,6 @@ export interface LoadedContent<TSlide> {
   soundtrackDuration?: number;
 }
 
-// 检查 slide 是否符合特定模板的格式要求
 type SlideFormatValidator<TSlide> = (slide: unknown) => slide is TSlide;
 
 export function useContentJson<TSlide>(
@@ -40,7 +40,9 @@ export function useContentJson<TSlide>(
   }
 ): LoadedContent<TSlide> {
   const [content, setContent] = useState<LoadedContent<TSlide>>({
-    slides: defaultSlides,
+    slides: prepareSlidesForRender(
+      defaultSlides as unknown as ContentSlide[]
+    ) as unknown as TSlide[],
   });
   const [handle] = useState(() => delayRender('load content json'));
 
@@ -62,24 +64,18 @@ export function useContentJson<TSlide>(
         return parseJsonWithRepair<ContentJsonResponse<TSlide>>(rawText, url).data;
       })
       .then((data: ContentJsonResponse<TSlide>) => {
-        let slides: TSlide[];
         const rawSlides = data.slides;
-
-        // 检查模板是否匹配
-        const templateMatch = !options?.expectedTemplate ||
-          data.meta?.template === options.expectedTemplate;
-
-        // 检查数据格式是否有效
-        const hasValidSlides = Array.isArray(rawSlides) &&
+        const templateMatch =
+          !options?.expectedTemplate || data.meta?.template === options.expectedTemplate;
+        const hasValidSlides =
+          Array.isArray(rawSlides) &&
           rawSlides.length > 0 &&
           (!options?.validateSlide || rawSlides.every(options.validateSlide));
 
-        if (templateMatch && hasValidSlides) {
-          slides = rawSlides;
-        } else {
-          // 格式不匹配或模板不匹配，使用默认数据
-          slides = defaultSlides;
-        }
+        const sourceSlides = templateMatch && hasValidSlides ? rawSlides : defaultSlides;
+        const slides = prepareSlidesForRender(
+          sourceSlides as unknown as ContentSlide[]
+        ) as unknown as TSlide[];
 
         setContent({
           meta: data.meta,

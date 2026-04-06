@@ -6,7 +6,8 @@ import {
   useVideoConfig,
 } from "remotion";
 import { getSlideMotionTiming } from "../templates/animationTiming";
-import type { HighlightWord, StepItem, TimelineItem, ChartData } from "../templates/types";
+import { getElementProgress } from "../templates/runtimeTiming";
+import type { HighlightWord, StepItem, TimelineItem, ChartData, ElementTiming } from "../templates/types";
 
 const colors = {
   bg: "#0f172a",
@@ -71,18 +72,26 @@ const InfoCard: React.FC<{ children: React.ReactNode; frame: number; delay: numb
 
 const chipPalette = [colors.accent1, colors.accent2, colors.accent3, colors.accent4, colors.accent5];
 
-const HighlightText: React.FC<{ highlights: HighlightWord[]; frame: number; delay: number }> = ({
+const HighlightText: React.FC<{
+  highlights: HighlightWord[];
+  frame: number;
+  delay: number;
+  getProgress?: (id: string, fallbackStart: number) => number;
+}> = ({
   highlights,
   frame,
   delay,
+  getProgress,
 }) => (
   <div style={{ display: "flex", flexWrap: "wrap", gap: 12, justifyContent: "center" }}>
     {highlights.map((word, i) => {
-      const progress = spring({
-        frame: frame - delay - i * 3,
-        fps: 30,
-        config: { damping: 12 },
-      });
+      const progress = getProgress
+        ? getProgress(`highlight-${i}`, delay + i * 3)
+        : spring({
+            frame: frame - delay - i * 3,
+            fps: 30,
+            config: { damping: 12 },
+          });
       const accent = word.color || chipPalette[i % chipPalette.length];
       return (
         <div
@@ -107,18 +116,26 @@ const HighlightText: React.FC<{ highlights: HighlightWord[]; frame: number; dela
   </div>
 );
 
-const StepsFlow: React.FC<{ steps: StepItem[]; frame: number; delay: number }> = ({
+const StepsFlow: React.FC<{
+  steps: StepItem[];
+  frame: number;
+  delay: number;
+  getProgress?: (id: string, fallbackStart: number) => number;
+}> = ({
   steps,
   frame,
   delay,
+  getProgress,
 }) => (
   <div style={{ display: "grid", gap: 14 }}>
     {steps.map((step, i) => {
-      const progress = spring({
-        frame: frame - delay - i * 5,
-        fps: 30,
-        config: { damping: 15 },
-      });
+      const progress = getProgress
+        ? getProgress(`step-${i}`, delay + i * 5)
+        : spring({
+            frame: frame - delay - i * 5,
+            fps: 30,
+            config: { damping: 15 },
+          });
       const accent = chipPalette[i % chipPalette.length];
       return (
         <div
@@ -167,18 +184,26 @@ const StepsFlow: React.FC<{ steps: StepItem[]; frame: number; delay: number }> =
   </div>
 );
 
-const TimelineView: React.FC<{ items: TimelineItem[]; frame: number; delay: number }> = ({
+const TimelineView: React.FC<{
+  items: TimelineItem[];
+  frame: number;
+  delay: number;
+  getProgress?: (id: string, fallbackStart: number) => number;
+}> = ({
   items,
   frame,
   delay,
+  getProgress,
 }) => (
   <div style={{ display: "grid", gap: 14 }}>
     {items.map((item, i) => {
-      const progress = spring({
-        frame: frame - delay - i * 4,
-        fps: 30,
-        config: { damping: 16 },
-      });
+      const progress = getProgress
+        ? getProgress(`timeline-${i}`, delay + i * 4)
+        : spring({
+            frame: frame - delay - i * 4,
+            fps: 30,
+            config: { damping: 16 },
+          });
       const accent = chipPalette[i % chipPalette.length];
       return (
         <div
@@ -204,20 +229,28 @@ const TimelineView: React.FC<{ items: TimelineItem[]; frame: number; delay: numb
   </div>
 );
 
-const ChartView: React.FC<{ chart: ChartData; frame: number; delay: number }> = ({
+const ChartView: React.FC<{
+  chart: ChartData;
+  frame: number;
+  delay: number;
+  getProgress?: (id: string, fallbackStart: number) => number;
+}> = ({
   chart,
   frame,
   delay,
+  getProgress,
 }) => {
   if (chart.type === "progress") {
     return (
       <div style={{ display: "grid", gap: 18 }}>
         {chart.values.map((item, i) => {
-          const progress = spring({
-            frame: frame - delay - i * 4,
-            fps: 30,
-            config: { damping: 15 },
-          });
+          const progress = getProgress
+            ? getProgress(`chart-bar-${i}`, delay + i * 4)
+            : spring({
+                frame: frame - delay - i * 4,
+                fps: 30,
+                config: { damping: 15 },
+              });
           const accent = item.color || chipPalette[i % chipPalette.length];
           return (
             <div key={i} style={{ opacity: progress }}>
@@ -248,11 +281,13 @@ const ChartView: React.FC<{ chart: ChartData; frame: number; delay: number }> = 
     return (
       <div style={{ display: "flex", alignItems: "flex-end", gap: 14, height: 250 }}>
         {chart.values.map((item, i) => {
-          const progress = spring({
-            frame: frame - delay - i * 4,
-            fps: 30,
-            config: { damping: 15 },
-          });
+          const progress = getProgress
+            ? getProgress(`chart-bar-${i}`, delay + i * 4)
+            : spring({
+                frame: frame - delay - i * 4,
+                fps: 30,
+                config: { damping: 15 },
+              });
           const accent = item.color || chipPalette[i % chipPalette.length];
           return (
             <div key={i} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
@@ -285,25 +320,43 @@ export const KnowledgeSlide: React.FC<{
   steps?: StepItem[];
   timeline?: TimelineItem[];
   chart?: ChartData;
+  elementTimings?: ElementTiming[];
+  slideAudioStart?: number;
   index: number;
   totalSlides: number;
   durationInFrames: number;
-}> = ({ title, subtitle, points, highlights, steps, timeline, chart, index, totalSlides, durationInFrames }) => {
+}> = ({
+  title,
+  subtitle,
+  points,
+  highlights,
+  steps,
+  timeline,
+  chart,
+  elementTimings,
+  slideAudioStart,
+  index,
+  totalSlides,
+  durationInFrames,
+}) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const timing = getSlideMotionTiming(durationInFrames, points?.length ?? 0);
 
-  const titleProgress = spring({
-    frame: frame - timing.titleStart,
-    fps,
-    config: { damping: 18, stiffness: 100 },
-  });
+  const resolveProgress = (id: string, fallbackStart: number) =>
+    getElementProgress({
+      frame,
+      fps,
+      elementTimings,
+      slideAudioStart,
+      id,
+      fallbackStart,
+      damping: 16,
+      stiffness: 96,
+    });
 
-  const subtitleProgress = spring({
-    frame: frame - timing.subtitleStart,
-    fps,
-    config: { damping: 18, stiffness: 90 },
-  });
+  const titleProgress = resolveProgress("title", timing.titleStart);
+  const subtitleProgress = resolveProgress("subtitle", timing.subtitleStart);
 
   const exitOpacity = interpolate(
     frame,
@@ -332,26 +385,6 @@ export const KnowledgeSlide: React.FC<{
         }}
       />
 
-      <div
-        style={{
-          position: "absolute",
-          top: 40,
-          left: 40,
-          display: "flex",
-          gap: 10,
-          alignItems: "center",
-          padding: "10px 18px",
-          borderRadius: 999,
-          background: "rgba(0,0,0,0.28)",
-          border: `1px solid ${colors.border}`,
-          color: colors.muted,
-          fontSize: 14,
-          fontWeight: 800,
-          letterSpacing: "0.14em",
-        }}
-      >
-        KNOWLEDGE
-      </div>
       <div
         style={{
           position: "absolute",
@@ -411,40 +444,46 @@ export const KnowledgeSlide: React.FC<{
         ) : null}
 
         <InfoCard frame={frame} delay={10}>
-          <div
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 10,
-              padding: "10px 16px",
-              borderRadius: 999,
-              background: "rgba(59,130,246,0.12)",
-              border: `1px solid ${colors.accent1}30`,
-              color: colors.text,
-              fontSize: 15,
-              fontWeight: 800,
-              letterSpacing: "0.12em",
-              marginBottom: 22,
-            }}
-          >
-            INSIGHT FRAME
-          </div>
-
           {highlights && highlights.length > 0 ? (
-            <HighlightText highlights={highlights} frame={frame} delay={15} />
+            <HighlightText
+              highlights={highlights}
+              frame={frame}
+              delay={15}
+              getProgress={resolveProgress}
+            />
           ) : null}
-          {steps && steps.length > 0 ? <StepsFlow steps={steps} frame={frame} delay={15} /> : null}
-          {timeline && timeline.length > 0 ? <TimelineView items={timeline} frame={frame} delay={15} /> : null}
-          {chart ? <ChartView chart={chart} frame={frame} delay={15} /> : null}
+          {steps && steps.length > 0 ? (
+            <StepsFlow
+              steps={steps}
+              frame={frame}
+              delay={15}
+              getProgress={resolveProgress}
+            />
+          ) : null}
+          {timeline && timeline.length > 0 ? (
+            <TimelineView
+              items={timeline}
+              frame={frame}
+              delay={15}
+              getProgress={resolveProgress}
+            />
+          ) : null}
+          {chart ? (
+            <ChartView
+              chart={chart}
+              frame={frame}
+              delay={15}
+              getProgress={resolveProgress}
+            />
+          ) : null}
 
           {points && points.length > 0 && !highlights && !steps && !timeline && !chart ? (
             <div style={{ display: "grid", gap: 14 }}>
               {points.map((point, i) => {
-                const progress = spring({
-                  frame: frame - timing.pointsStart - i * timing.pointStagger,
-                  fps,
-                  config: { damping: 14 },
-                });
+                const progress = resolveProgress(
+                  `point-${i}`,
+                  timing.pointsStart + i * timing.pointStagger
+                );
                 const accent = chipPalette[i % chipPalette.length];
                 return (
                   <div

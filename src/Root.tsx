@@ -1,28 +1,16 @@
 import { Composition, continueRender, delayRender } from "remotion";
 import { useEffect, useState } from "react";
-import { AIShow } from "./AIShow";
-import { FrostedShow } from "./FrostedShow";
 import { GlassShow } from "./GlassShow";
-import { GlassWideShow } from "./GlassWideShow";
 import { KnowledgeShow } from "./KnowledgeShow";
 import { LiquidBriefShow } from "./LiquidBriefShow";
 import { LiquidShow } from "./LiquidShow";
-import { LiquidWideShow } from "./LiquidWideShow";
-import { LuxeShow } from "./LuxeShow";
-import { NeonShow } from "./NeonShow";
-import { NeuShow } from "./NeuShow";
-import { NeuWideShow } from "./NeuWideShow";
+import { MacShow } from "./MacShow";
 import { RichShow } from "./RichShow";
-import { SlideShow } from "./SlideShow";
-import { SlideShowWide } from "./SlideShowWide";
 import { TechShow } from "./TechShow";
-import {
-  DynamicSlideShow,
-  DynamicSlideShowProps,
-  calculateTotalFrames,
-} from "./templates/DynamicSlideShow";
+import { calculateTotalFrames } from "./templates/DynamicSlideShow";
+import { prepareSlidesForRender } from "./templates/autoLayout";
 import { AudioSlideData, ContentFile, ContentSlide } from "./templates/types";
-import { GeneratedTemplateRenderer } from "./templates/GeneratedTemplateRenderer";
+import { SharedVideo } from "./renderers/SharedVideo";
 import { getTemplateDimensions } from "./templates/templateSpecs";
 import { getTemplateContentPath, toStaticContentPath } from "./project-content";
 
@@ -45,7 +33,7 @@ interface GeneratedVideoProps {
   contentPath?: string;
 }
 
-const DEFAULT_TEMPLATE = "DynamicSlideShow";
+const DEFAULT_TEMPLATE = "GlassShow";
 const DEFAULT_DURATION = 150;
 const FALLBACK_COMPOSITION_DURATION = 5400;
 
@@ -113,12 +101,15 @@ const readCurrentProjectReference =
   };
 
 const toAudioSlides = (content: ContentFile): AudioSlideData[] => {
-  return content.slides.map((slide, index) => ({
+  return prepareSlidesForRender(content.slides).map((slide, index) => ({
     id: `slide-${index}`,
     title: slide.title || `Slide ${index + 1}`,
     subtitle: slide.subtitle,
     points: slide.points,
     narration: slide.narration,
+    type: slide.type,
+    data: slide.data,
+    elementTimings: slide.elementTimings,
     audioDuration: slide.audioDuration,
     durationInFrames: slide.durationInFrames,
     audioStart: slide.audioStart,
@@ -127,12 +118,15 @@ const toAudioSlides = (content: ContentFile): AudioSlideData[] => {
 };
 
 const coerceToAudioSlides = (slides: ContentSlide[]): AudioSlideData[] => {
-  return slides.map((slide, index) => ({
+  return prepareSlidesForRender(slides).map((slide, index) => ({
     id: `slide-${index}`,
     title: slide.title || `Slide ${index + 1}`,
     subtitle: slide.subtitle,
     points: slide.points,
     narration: slide.narration,
+    type: slide.type,
+    data: slide.data,
+    elementTimings: slide.elementTimings,
     audioDuration: slide.audioDuration,
     durationInFrames: slide.durationInFrames,
     audioStart: slide.audioStart,
@@ -164,14 +158,17 @@ const loadSlidesFromJson = async (
     }
 
     const data: ContentFile = await response.json();
+    const resolvedTemplate = data.meta.template || template || DEFAULT_TEMPLATE;
     return {
-      slides: data.slides,
-      template: data.meta.template || DEFAULT_TEMPLATE,
+      slides: prepareSlidesForRender(data.slides),
+      template: resolvedTemplate,
       soundtrackPath: data.meta.soundtrackPath || data.meta.soundtrack_path,
     };
   } catch {
     return {
-      slides: defaultSlides as unknown as ContentSlide[],
+      slides: prepareSlidesForRender(
+        defaultSlides as unknown as ContentSlide[]
+      ),
       template: DEFAULT_TEMPLATE,
     };
   }
@@ -257,54 +254,15 @@ const DynamicLoader: React.FC<GeneratedVideoProps> = ({
     return null;
   }
 
-  if (
-    data.template === "DynamicSlideShow" ||
-    data.template === "GeneratedVideo"
-  ) {
-    return (
-      <DynamicSlideShow
-        slides={coerceToAudioSlides(data.slides)}
-        defaultSlideDuration={defaultSlideDuration}
-        soundtrackPath={data.soundtrackPath}
-      />
-    );
-  }
-
   return (
-    <GeneratedTemplateRenderer
+    <SharedVideo
+      slides={coerceToAudioSlides(data.slides)}
       template={data.template}
-      slides={data.slides as unknown as Array<Record<string, unknown>>}
       soundtrackPath={data.soundtrackPath}
+      defaultSlideDuration={defaultSlideDuration}
     />
   );
 };
-
-const DynamicSlideShowComposition: React.FC<Record<string, unknown>> = (
-  props,
-) => {
-  return <DynamicSlideShow {...(props as unknown as DynamicSlideShowProps)} />;
-};
-
-const demoSlides: AudioSlideData[] = [
-  {
-    id: "1",
-    title: "Dynamic timeline",
-    subtitle: "Frames come from narration",
-    points: ["Single soundtrack", "Auto scene lengths", "Flexible preview"],
-    durationInFrames: 150,
-  },
-  {
-    id: "2",
-    title: "Export ready",
-    subtitle: "Use one composition",
-    points: [
-      "Preview GeneratedVideo",
-      "Render GeneratedVideo",
-      "Keep template style",
-    ],
-    durationInFrames: 150,
-  },
-];
 
 const getTemplateMetadata = (template: string) => {
   return async () => ({
@@ -320,11 +278,6 @@ const getGeneratedCompositionDimensions = (template?: string) => {
 };
 
 export const RemotionRoot: React.FC = () => {
-  const slideShowWideDimensions = getTemplateDimensions("SlideShowWide");
-  const glassWideDimensions = getTemplateDimensions("GlassWideShow");
-  const liquidWideDimensions = getTemplateDimensions("LiquidWideShow");
-  const neuWideDimensions = getTemplateDimensions("NeuWideShow");
-
   return (
     <>
       <Composition
@@ -337,25 +290,6 @@ export const RemotionRoot: React.FC = () => {
         calculateMetadata={getTemplateMetadata("GlassShow")}
       />
       <Composition
-        id="GlassWideShow"
-        component={GlassWideShow}
-        durationInFrames={FALLBACK_COMPOSITION_DURATION}
-        fps={30}
-        width={glassWideDimensions.width}
-        height={glassWideDimensions.height}
-        calculateMetadata={getTemplateMetadata("GlassWideShow")}
-      />
-
-      <Composition
-        id="NeonShow"
-        component={NeonShow}
-        durationInFrames={FALLBACK_COMPOSITION_DURATION}
-        fps={30}
-        width={1080}
-        height={1920}
-        calculateMetadata={getTemplateMetadata("NeonShow")}
-      />
-      <Composition
         id="LiquidShow"
         component={LiquidShow}
         durationInFrames={FALLBACK_COMPOSITION_DURATION}
@@ -363,15 +297,6 @@ export const RemotionRoot: React.FC = () => {
         width={1080}
         height={1920}
         calculateMetadata={getTemplateMetadata("LiquidShow")}
-      />
-      <Composition
-        id="LiquidWideShow"
-        component={LiquidWideShow}
-        durationInFrames={FALLBACK_COMPOSITION_DURATION}
-        fps={30}
-        width={liquidWideDimensions.width}
-        height={liquidWideDimensions.height}
-        calculateMetadata={getTemplateMetadata("LiquidWideShow")}
       />
       <Composition
         id="LiquidBriefShow"
@@ -383,15 +308,6 @@ export const RemotionRoot: React.FC = () => {
         calculateMetadata={getTemplateMetadata("LiquidBriefShow")}
       />
       <Composition
-        id="FrostedShow"
-        component={FrostedShow}
-        durationInFrames={FALLBACK_COMPOSITION_DURATION}
-        fps={30}
-        width={1080}
-        height={1920}
-        calculateMetadata={getTemplateMetadata("FrostedShow")}
-      />
-      <Composition
         id="KnowledgeShow"
         component={KnowledgeShow}
         durationInFrames={FALLBACK_COMPOSITION_DURATION}
@@ -399,6 +315,33 @@ export const RemotionRoot: React.FC = () => {
         width={1080}
         height={1920}
         calculateMetadata={getTemplateMetadata("KnowledgeShow")}
+      />
+      <Composition
+        id="MacShow"
+        component={MacShow}
+        durationInFrames={FALLBACK_COMPOSITION_DURATION}
+        fps={30}
+        width={1920}
+        height={1080}
+        calculateMetadata={getTemplateMetadata("MacShow")}
+      />
+      <Composition
+        id="RichShow"
+        component={RichShow}
+        durationInFrames={FALLBACK_COMPOSITION_DURATION}
+        fps={30}
+        width={1080}
+        height={1920}
+        calculateMetadata={getTemplateMetadata("RichShow")}
+      />
+      <Composition
+        id="TechShow"
+        component={TechShow}
+        durationInFrames={FALLBACK_COMPOSITION_DURATION}
+        fps={30}
+        width={1080}
+        height={1920}
+        calculateMetadata={getTemplateMetadata("TechShow")}
       />
       <Composition
         id="GeneratedVideo"

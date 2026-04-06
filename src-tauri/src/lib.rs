@@ -755,14 +755,42 @@ fn derive_project_paths(
     ))
 }
 
-fn get_project_dir() -> Result<std::path::PathBuf, String> {
-    let tauri_dir = std::env::current_dir()
-        .map_err(|e| format!("Failed to get current directory: {}", e))?;
+fn looks_like_repo_root(path: &Path) -> bool {
+    path.join("package.json").exists() && path.join("src-tauri").exists()
+}
 
-    tauri_dir
-        .parent()
-        .map(|path| path.to_path_buf())
-        .ok_or_else(|| "Failed to resolve project root".to_string())
+fn find_repo_root_from(start: &Path) -> Option<PathBuf> {
+    for candidate in start.ancestors() {
+        if looks_like_repo_root(candidate) {
+            return Some(candidate.to_path_buf());
+        }
+    }
+    None
+}
+
+fn get_project_dir() -> Result<std::path::PathBuf, String> {
+    if let Ok(current_dir) = std::env::current_dir() {
+        if let Some(root) = find_repo_root_from(&current_dir) {
+            return Ok(root);
+        }
+    }
+
+    if let Ok(current_exe) = std::env::current_exe() {
+        if let Some(exe_dir) = current_exe.parent() {
+            if let Some(root) = find_repo_root_from(exe_dir) {
+                return Ok(root);
+            }
+        }
+    }
+
+    let manifest_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+    if let Some(root) = manifest_dir.parent() {
+        if looks_like_repo_root(root) {
+            return Ok(root.to_path_buf());
+        }
+    }
+
+    Err("Failed to resolve project root".to_string())
 }
 
 fn spawn_remotion_process(project_dir: &std::path::Path) -> Result<(), String> {
@@ -1593,5 +1621,4 @@ pub fn run() {
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
-
 

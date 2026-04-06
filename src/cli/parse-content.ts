@@ -1,4 +1,5 @@
 import { readFileSync, writeFileSync } from 'fs';
+import { prepareSlidesForRender } from '../templates/autoLayout';
 import { AudioSlideData, ContentFile, VideoConfig } from '../templates/types';
 import { getTemplateDimensions } from '../templates/templateSpecs';
 import { parseJsonWithRepair } from '../utils/json-repair';
@@ -37,8 +38,9 @@ export function contentToVideoConfig(content: ContentFile): VideoConfig {
   const fps = DEFAULT_FPS;
   const defaultDurationPerSlide = DEFAULT_DURATION_PER_SLIDE;
   const dimensions = getTemplateDimensions(content.meta.template);
+  const structuredSlides = prepareSlidesForRender(content.slides);
 
-  const slides: AudioSlideData[] = content.slides.map((slide, index) => {
+  const slides: AudioSlideData[] = structuredSlides.map((slide, index) => {
     const durationInFrames = getSlideDurationInFrames(
       slide,
       fps,
@@ -53,6 +55,7 @@ export function contentToVideoConfig(content: ContentFile): VideoConfig {
       narration: slide.narration,
       type: slide.type,
       data: slide.data,
+      elementTimings: slide.elementTimings,
       audioDuration:
         typeof slide.audioDuration === 'number'
           ? slide.audioDuration

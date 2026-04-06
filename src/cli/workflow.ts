@@ -1,6 +1,7 @@
 import { readFileSync, writeFileSync } from 'fs';
 import { join } from 'path';
 import { contentToVideoConfig, parseContentFile } from './parse-content';
+import { prepareSlidesForRender } from '../templates/autoLayout';
 import {
   generateAudio,
   generateNarrationTrack,
@@ -59,6 +60,12 @@ export interface TimelineOnlyOptions {
   soundtrackFile?: string;
   soundtrackPath?: string;
   voiceId?: string;
+}
+
+export interface StructureOnlyOptions {
+  contentFile: string;
+  template?: string;
+  outputFile?: string;
 }
 
 export async function generateFromContent(options: GenerateOptions): Promise<void> {
@@ -227,6 +234,32 @@ export async function renderOnly(options: RenderOnlyOptions): Promise<void> {
   console.log(`Output: ${options.outputPath}`);
 }
 
+export async function structureContentOnly(
+  options: StructureOnlyOptions
+): Promise<void> {
+  console.log('=== Content Structuring ===\n');
+
+  const content = parseContentFile(options.contentFile);
+  const template = options.template || content.meta.template;
+  const structuredSlides = prepareSlidesForRender(content.slides);
+  const outputFile = options.outputFile || options.contentFile;
+
+  const updated = {
+    ...content,
+    meta: {
+      ...content.meta,
+      template,
+    },
+    slides: structuredSlides,
+  };
+
+  writeFileSync(outputFile, JSON.stringify(updated, null, 2));
+
+  console.log(`Template: ${template}`);
+  console.log(`Slides: ${structuredSlides.length}`);
+  console.log(`Output: ${outputFile}`);
+}
+
 export const workflow = {
   generateFromContent,
   generateAudioOnly,
@@ -234,4 +267,5 @@ export const workflow = {
   generateNarrationTimelineOnly,
   syncTimelineOnly,
   renderOnly,
+  structureContentOnly,
 };

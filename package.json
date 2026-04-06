@@ -9,6 +9,7 @@
     "lint": "eslint src && tsc",
     "generate": "npx tsx src/cli/index.ts generate",
     "generate:audio": "npx tsx src/cli/index.ts audio",
+    "generate:structure": "npx tsx src/cli/index.ts structure",
     "dev:app": "cd app && npm run dev",
     "build:app": "cd app && npm run build",
     "tauri": "tauri",

@@ -7,11 +7,15 @@ import {
   useVideoConfig,
 } from "remotion";
 import { getSlideMotionTiming } from "../animationTiming";
+import { getElementProgress } from "../runtimeTiming";
+import type { ElementTiming } from "../types";
 
 interface DynamicSlideProps {
   title: string;
   subtitle?: string;
   points?: string[];
+  elementTimings?: ElementTiming[];
+  slideAudioStart?: number;
   index: number;
   totalSlides: number;
   durationInFrames: number;
@@ -21,6 +25,8 @@ export const DynamicSlide: React.FC<DynamicSlideProps> = ({
   title,
   subtitle,
   points,
+  elementTimings,
+  slideAudioStart,
   index,
   totalSlides,
   durationInFrames,
@@ -42,19 +48,29 @@ export const DynamicSlide: React.FC<DynamicSlideProps> = ({
 
   // 动态调整动画时间（根据总时长）
   // 标题入场
-  const titleProgress = spring({
-    frame: frame - timing.titleStart,
+  const titleProgress = getElementProgress({
+    frame,
     fps,
-    config: { damping: 12, stiffness: 120 },
+    elementTimings,
+    slideAudioStart,
+    id: "title",
+    fallbackStart: timing.titleStart,
+    damping: 12,
+    stiffness: 120,
   });
   const titleY = interpolate(titleProgress, [0, 1], [80, 0]);
   const titleScale = interpolate(titleProgress, [0, 1], [0.9, 1]);
 
   // 副标题入场
-  const subtitleProgress = spring({
-    frame: frame - timing.subtitleStart,
+  const subtitleProgress = getElementProgress({
+    frame,
     fps,
-    config: { damping: 15, stiffness: 100 },
+    elementTimings,
+    slideAudioStart,
+    id: "subtitle",
+    fallbackStart: timing.subtitleStart,
+    damping: 15,
+    stiffness: 100,
   });
   const subtitleY = interpolate(subtitleProgress, [0, 1], [50, 0]);
 
@@ -68,10 +84,15 @@ export const DynamicSlide: React.FC<DynamicSlideProps> = ({
 
   // 要点逐个入场
   const pointProgresses = (points || []).map((_, i) =>
-    spring({
-      frame: frame - timing.pointsStart - i * timing.pointStagger,
+    getElementProgress({
+      frame,
       fps,
-      config: { damping: 10, stiffness: 100 },
+      elementTimings,
+      slideAudioStart,
+      id: `point-${i}`,
+      fallbackStart: timing.pointsStart + i * timing.pointStagger,
+      damping: 10,
+      stiffness: 100,
     })
   );
 

@@ -1,76 +1,137 @@
 # AGENTS.md
 
-This file provides guidance to Codex (Codex.ai/code) when working with code in this repository.
+This file provides guidance to Codex when working in this repository.
 
 ## Project Overview
 
-This is a Remotion video project for creating short vertical videos (9:16 aspect ratio, 1080x1920) suitable for TikTok/Douyin/Video accounts. The project contains multiple video templates with different visual styles.
+This is a Remotion-based vertical video system for short-form content. The project now uses a layered rendering architecture instead of the old "one template = one fixed page structure" model.
+
+## Read First
+
+Before changing architecture, templates, or AI generation logic, read:
+
+- `docs/IMPLEMENTATION_LOGIC.md`
+- `docs/TEMPLATE_DEVELOPMENT_SPEC.md`
+
+These two files are the current source of truth.
 
 ## Commands
 
 ```bash
-npm install        # Install dependencies
-npm run dev        # Start Remotion Studio (preview)
-npm run build      # Bundle the project
-npm run lint       # Run ESLint and TypeScript checks
-npx remotion render <CompositionId> out/video.mp4  # Render specific composition
-npx remotion upgrade                               # Upgrade Remotion version
+npm install
+npm run dev
+npm run build
+npm run lint
+npx remotion render <CompositionId> out/video.mp4
 ```
 
-## Architecture
+Desktop app:
 
-### Entry Points
-- `src/index.ts` - Registers the root component with Remotion
-- `src/Root.tsx` - Defines all video compositions (each appears in Remotion Studio sidebar)
-
-### Template Structure
-
-Each video template follows this pattern:
-
-```
-src/<TemplateName>/
-├── index.tsx         # Entry file with content configuration (slides array)
-├── <Slide>.tsx       # Individual slide component with styling/animations
-└── TEMPLATE_SPEC.md  # Documentation for the template
+```bash
+cd app
+npm run build
 ```
 
-### Available Templates
+## Current Architecture
 
-| Template | Style | Duration |
-|----------|-------|----------|
-| SlideShow | Cyberpunk tech | 750 frames (25s) |
-| GlassShow | Glassmorphism | 600 frames (20s) |
-| NeuShow | Neumorphism | 600 frames (20s) |
-| RichShow | Rich effects | 1200 frames (40s) |
-| TechShow | Tech effects | 1050 frames (35s) |
+Core pipeline:
 
-### Creating/Modifying Content
+`raw slides -> prepareSlidesForRender() -> unified layout/type/data -> templateSceneRegistry -> SceneRenderer -> SlideTimeline`
 
-To modify video content, edit the `slides` array in the template's `index.tsx`:
+Important ideas:
 
-```typescript
-const slides = [
-  {
-    title: "Title text",
-    subtitle: "Optional subtitle",
-    points: ["Point 1", "Point 2", "Point 3"],  // Optional
-  },
-];
+- Content schema is unified
+- Layout set is shared platform capability
+- Templates should support the full layout set
+- Template scenes render first
+- Shared layouts are fallback only
+- Theme tokens are support data, not the full template identity
+
+Main entry files:
+
+- `src/index.ts`
+- `src/Root.tsx`
+- `src/templates/autoLayout.ts`
+- `src/renderers/SharedVideo.tsx`
+- `src/renderers/SlideTimeline.tsx`
+- `src/renderers/SceneRenderer.tsx`
+- `src/renderers/templateSceneRegistry.tsx`
+- `src/themes/registry.ts`
+
+## Current Templates
+
+Only these templates should be treated as active:
+
+- `GlassShow`
+- `LiquidShow`
+- `LiquidBriefShow`
+- `TechShow`
+- `RichShow`
+- `KnowledgeShow`
+
+## Required Layout Set
+
+Every active template should support:
+
+- `hero`
+- `default`
+- `steps`
+- `compare`
+- `stats`
+- `quote`
+- `list`
+- `chart`
+- `timeline`
+- `highlight`
+- `cta`
+
+If a template does not support one of these layouts, rendering may fall back to the shared layout layer and create visual inconsistency.
+
+## Content Expectations
+
+Content is data-driven. AI and code should aim for slides that normalize into this shape:
+
+```ts
+{
+  title?: string;
+  subtitle?: string;
+  points?: string[];
+  narration?: string;
+  layout: 'hero' | 'default' | 'steps' | 'compare' | 'stats' | 'quote' | 'list' | 'chart' | 'timeline' | 'highlight' | 'cta';
+  data?: Record<string, unknown>;
+  elementTimings?: unknown[];
+}
 ```
 
-Each template has a `TEMPLATE_SPEC.md` with detailed documentation on content guidelines, color schemes, and animation timing.
+Do not treat templates as separate incompatible content protocols.
 
-### Remotion Key Concepts
+## Template UI Rules
 
-- `AbsoluteFill` - Absolutely positioned container (like a full-screen div)
-- `Sequence` - Time-shifts its children (used for slide transitions)
-- `useCurrentFrame()` - Hook to get current frame number
-- `useVideoConfig()` - Hook to get fps, duration, dimensions
-- `spring()` - Physics-based animation helper
-- `interpolate()` - Map frame ranges to values
+Do not add meaningless static filler text such as:
+
+- template name badges
+- system-flavored dummy labels
+- explanatory placeholder sentences
+- decorative copy that does not carry user content
+
+Allowed fixed UI elements include:
+
+- page numbers
+- step numbers
+- progress indicators
+- meaningful structural labels
+
+## Remotion Concepts
+
+- `AbsoluteFill`
+- `Sequence`
+- `useCurrentFrame()`
+- `useVideoConfig()`
+- `spring()`
+- `interpolate()`
 
 ## Configuration
 
-- `remotion.config.ts` - Remotion configuration (video format, output settings)
-- `tsconfig.json` - TypeScript config (excludes remotion.config.ts)
-- `eslint.config.mjs` - Uses `@remotion/eslint-config-flat`
+- `remotion.config.ts`
+- `tsconfig.json`
+- `eslint.config.mjs`
