@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import { Link, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import { EmbeddedPreview, PreviewProjectData } from './remotion-preview/EmbeddedPreview';
 
@@ -75,20 +75,6 @@ type RewriteStyle = {
   id: string;
   name: string;
   prompt: string;
-};
-
-type PromptMode = 'simple' | 'structured';
-
-type TemplatePromptConfig = {
-  mode: PromptMode;
-  role: string;
-  objective: string;
-  allowedTypes?: string[];
-  styleGoals: string[];
-  pageRules: string[];
-  typeGuidelines?: string[];
-  fieldRules: string[];
-  outputExample: string;
 };
 
 type PreviewProjectResponse = {
@@ -284,17 +270,11 @@ const COMMON_SEGMENT_RULES = `
 5. narration 必须与该页 segmentIds 覆盖的原文一致，只能做轻微口语化整理，不能跨页挪内容。
 `;
 
-const MASTER_SIMPLE_PROMPT = `你是{role}。请根据模板风格和语义片段时间轴，{objective}。
+const SIMPLE_PROMPT = `你是短视频分镜策划助手。请根据模板风格和语义片段时间轴，输出最终分页结果。
 ${COMMON_SEGMENT_RULES}
-
-整体目标：
-{style_goals}
-
 页面要求：
-{page_rules}
-
-字段约定：
-{field_rules}
+1. 每页输出 title、subtitle、points、narration、segmentIds。
+2. 页面内容适合知识干货类短视频，表达清晰、重点明确。
 
 输入信息：
 - 模板：{template_name}
@@ -304,58 +284,7 @@ ${COMMON_SEGMENT_RULES}
 {segments_text}
 
 只输出 JSON：
-{output_example}`;
-
-const MASTER_STRUCTURED_PROMPT = `你是{role}。请根据模板风格和语义片段时间轴，{objective}。
-${COMMON_SEGMENT_RULES}
-
-整体目标：
-{style_goals}
-
-导演编排要求：
-{director_brief}
-
-允许的页面类型：
-{allowed_types}
-
-页面要求：
-{page_rules}
-
-版式判断准则：
-{type_guidelines}
-
-字段约定：
-{field_rules}
-
-输入信息：
-- 模板：{template_name}
-- 音频总时长：{duration_seconds} 秒
-- 建议页数：{target_pages} 页，可在 {min_pages}-{max_pages} 之间调整
-- 语义片段时间轴：
-{segments_text}
-
-只输出 JSON：
-{output_example}`;
-
-const DEFAULT_TEMPLATE_PROMPT_CONFIG: TemplatePromptConfig = {
-  mode: 'simple',
-  role: '短视频分镜策划助手',
-  objective: '输出最终分页结果',
-  styleGoals: [
-    '页面内容适合知识干货类短视频，表达清晰、重点明确。',
-    '优先保证信息顺序自然、口播匹配、分页合理。',
-  ],
-  pageRules: [
-    '每页输出 title、subtitle、points、narration、segmentIds。',
-    '不要把过多信息挤进同一页，宁可自然拆页。',
-  ],
-  fieldRules: [
-    'title：页面标题',
-    'subtitle：可选补充说明',
-    'points：核心要点数组',
-    'narration：与本页内容对应的口播',
-  ],
-  outputExample: `{
+{
   "slides": [
     {
       "segmentIds": ["segment-1", "segment-2"],
@@ -365,45 +294,24 @@ const DEFAULT_TEMPLATE_PROMPT_CONFIG: TemplatePromptConfig = {
       "narration": "..."
     }
   ]
-}`,
-};
+}`;
 
-const TEMPLATE_PROMPT_CONFIGS: Record<string, TemplatePromptConfig> = {
-  RichShow: {
-    mode: 'structured',
-    role: '短视频分镜策划助手',
-    objective: '输出多版式分镜',
-    allowedTypes: ['title', 'list', 'compare', 'quote', 'highlight', 'progress', 'stats', 'cta'],
-    styleGoals: [
-      '整体节奏要有起承转合，开场立题，中段展开，结尾收口。',
-      '版式要服务信息表达，不要只为了变化而变化。',
-    ],
-    pageRules: [
-      '第一页必须是 title，最后一页必须是 cta。',
-      '中间页面优先选择最能表达内容关系的版式。',
-      '不要让相邻两页使用同一种版式。',
-    ],
-    typeGuidelines: [
-      'title：开场立题、抛出主题',
-      'list：并列要点、建议整理、原因拆分',
-      'compare：明确的前后方案或两种路径对照',
-      'quote：一句值得单独强调的核心结论',
-      'highlight：少量关键词强化',
-      'progress：有阶段推进或完成度时使用',
-      'stats：有真实数字、占比、规模时使用',
-      'cta：结尾总结与行动引导',
-    ],
-    fieldRules: [
-      'title: data = { title, subtitle? }',
-      'compare: data = { title, left: { label, value }, right: { label, value } }',
-      'stats: data = { title, stats: [{ value, suffix?, label }] }',
-      'progress: data = { title, bars: [{ label, percent }] }',
-      'list: data = { title, items: [{ icon?, text, desc? }] }',
-      'quote: data = { quote, author }',
-      'highlight: data = { title?, items: ["关键词"] }',
-      'cta: data = { title, subtitle?, button }',
-    ],
-    outputExample: `{
+const RICH_PROMPT = `你是短视频分镜策划助手。请根据 RichShow 模板风格和语义片段时间轴，输出多版式分镜。
+${COMMON_SEGMENT_RULES}
+页面要求：
+1. 第一页必须是 title，最后一页必须是 cta。
+2. 中间页面可以使用：list、compare、quote、highlight、progress、stats。
+3. 每页版式要和内容类型匹配。
+
+输入信息：
+- 模板：{template_name}
+- 音频总时长：{duration_seconds} 秒
+- 建议页数：{target_pages} 页，可在 {min_pages}-{max_pages} 之间调整
+- 语义片段时间轴：
+{segments_text}
+
+只输出 JSON：
+{
   "slides": [
     {
       "segmentIds": ["segment-1"],
@@ -412,41 +320,47 @@ const TEMPLATE_PROMPT_CONFIGS: Record<string, TemplatePromptConfig> = {
       "narration": "..."
     }
   ]
-}`,
-  },
-  TechShow: {
-    mode: 'structured',
-    role: '短视频分镜策划助手',
-    objective: '输出科技信息流分镜',
-    allowedTypes: ['title', 'list', 'stats', 'progress', 'compare', 'quote', 'cta'],
-    styleGoals: [
-      '页面要像科技信息流短片，信息干净、判断明确、节奏利落。',
-      '普通讲解优先使用 list，避免无依据的数据页和进度页。',
-    ],
-    pageRules: [
-      '第一页必须是 title，最后一页必须是 cta。',
-      '不要让相邻两页使用同一种版式，但也不要为了凑变化硬切版式。',
-      '当内容只是普通讲解时，请优先使用 list。',
-    ],
-    typeGuidelines: [
-      'title：开场立题或问题抛出',
-      'list：并列要点、建议整理、结论拆分，是默认优先版式',
-      'stats：只适合文本里明确出现数字、占比、规模、效果时',
-      'progress：只适合阶段、路径、成熟度、完成度、步骤推进',
-      'compare：只适合前后方案、旧新方法、常见误区 vs 正确做法',
-      'quote：只适合一句关键结论、提醒、收口',
-      'cta：结尾总结与行动引导',
-    ],
-    fieldRules: [
-      'title: data = { title, subtitle? }',
-      'compare: data = { title, left: { label, value }, right: { label, value } }',
-      'stats: data = { title, stats: [{ value, suffix?, label }] }',
-      'progress: data = { title, bars: [{ label, percent }] }',
-      'list: data = { title, items: [{ icon?, text, desc? }] }',
-      'quote: data = { quote, author }',
-      'cta: data = { title, subtitle?, button }',
-    ],
-    outputExample: `{
+}`;
+
+const TECH_PROMPT = `你是短视频分镜策划助手。请根据 TechShow 模板风格和语义片段时间轴，输出科技信息流分镜。
+${COMMON_SEGMENT_RULES}
+导演编排要求：
+{director_brief}
+
+页面要求：
+1. 第一页必须是 title，最后一页必须是 cta。
+2. 中间页面只能使用：list、stats、progress、compare、quote。
+3. 不要让相邻两页使用同一种版式，但也不要为了“凑变化”硬切版式。
+4. 版式选择优先服从内容表达，不要为了炫技强行做成数据页、比例页、进度页。
+5. list 是默认优先版式；只有内容明确适合时才使用 stats / progress / compare / quote。
+6. 当页数 >= 6 时，尽量使用 3-4 种不同版式即可；只有内容确实支持时再更多变化。
+7. 每页版式必须和信息类型匹配：
+- compare：适合前后方案、旧新方法、常见误区 vs 正确做法
+- stats：只适合文本里明确出现数字、占比、规模、效果时；没有数字就不要硬造比例
+- progress：只适合阶段、路径、成熟度、完成度、步骤推进；没有“进程感”就不要使用
+- list：适合并列要点、结论拆分、建议整理，是最稳妥的中性版式
+- quote：适合一句关键结论、提醒、收口
+8. 如果一段内容只是普通讲解，没有明显数字、对比或阶段结构，请优先使用 list，而不是 stats / progress。
+9. 列表项可使用 "01"、"02"、"03" 这类编号。
+
+字段约定：
+- title: data = { title, subtitle? }
+- compare: data = { title, left: { label, value }, right: { label, value } }
+- stats: data = { title, stats: [{ value, suffix?, label }] }
+- progress: data = { title, bars: [{ label, percent }] }
+- list: data = { title, items: [{ icon?, text, desc? }] }
+- quote: data = { quote, author }
+- cta: data = { title, subtitle?, button }
+
+输入信息：
+- 模板：{template_name}
+- 音频总时长：{duration_seconds} 秒
+- 建议页数：{target_pages} 页，可在 {min_pages}-{max_pages} 之间调整
+- 语义片段时间轴：
+{segments_text}
+
+只输出 JSON：
+{
   "slides": [
     {
       "segmentIds": ["segment-1"],
@@ -455,49 +369,75 @@ const TEMPLATE_PROMPT_CONFIGS: Record<string, TemplatePromptConfig> = {
       "narration": "..."
     }
   ]
-}`,
-  },
-  GlassShow: {
-    mode: 'structured',
-    role: '一个有审美判断的短视频导演兼信息设计师',
-    objective: '输出像真实产品团队做出来的玻璃风分镜，而不是机械套模板',
-    allowedTypes: ['hero', 'stats', 'compare', 'steps', 'list', 'chart', 'timeline', 'highlight', 'quote', 'default'],
-    styleGoals: [
-      '画面要像一套完整产品，而不是一页页随机拼起来的模板。',
-      '优先追求信息表达自然、节奏舒服、页面意图明确，不要为了花哨强行换版式。',
-      '同一条视频允许有稳定的视觉惯性，不必为了变化把每页都做成不同结构。',
-      '如果内容本身只是解释、拆分、总结、建议，优先用 list / default 这类稳定版式。',
-    ],
-    pageRules: [
-      '每页都要有 title、可选 subtitle、type、narration、segmentIds。',
-      '不要让相邻两页机械重复同一种版式，但如果内容都只是普通要点，连续使用 list / default 也比硬造数据图更好。',
-      '当页数 >= 6 时，尽量使用 3-4 种不同版式即可；内容不足时不要强行凑到 5 种。',
-      'default 和 list 都可以作为主体页型，不需要刻意回避；真正应该回避的是无依据的结构页。',
-    ],
-    typeGuidelines: [
-      'hero：用在开头、转场、总述、抛观点，不要塞太多细节',
-      'list：最适合普通讲解、并列要点、建议整理、原因拆分，是主力版式',
-      'default：适合信息比较轻、需要留白、重点不多的一页',
-      'highlight：适合少量关键词、短句提醒、强重点提炼',
-      'compare：只有左右两侧真的能形成明确对照时才使用',
-      'stats / chart：必须有真实数字或明确量化信息；没有数字就不要假造',
-      'steps / timeline：必须真的有步骤感、阶段感或时间推进感；没有过程就不要假造',
-      'quote：只在确实值得单独强调的一句结论出现时使用，不要滥用',
-      '不要为了看起来高级，硬把普通文案做成比例图、数据图、进度条',
-    ],
-    fieldRules: [
-      'hero: data 可包含 badge、cta',
-      'stats: data.stats = [{ value, suffix?, label, color? }]',
-      'compare: data.left / data.right / data.vsText',
-      'steps: data.steps = [{ title, description? }]',
-      'list: data.items = [{ icon?, text, desc? }]',
-      'chart: data.bars = [{ label, value, color? }]',
-      'timeline: data.timeline = [{ year, title, description? }]',
-      'highlight: data.items = ["关键词"]',
-      'quote: data.quote / data.author',
-      'default: 使用 title / subtitle / points',
-    ],
-    outputExample: `{
+}`;
+
+const GLASS_PROMPT = `你是一个有审美判断的短视频导演兼信息设计师。请根据 GlassShow 模板风格和语义片段时间轴，输出“像真实产品团队做出来的”玻璃风分镜，而不是机械套模板。
+${COMMON_SEGMENT_RULES}
+导演编排要求：
+{director_brief}
+
+整体风格目标：
+1. 画面要像一套完整产品，而不是一页页随机拼起来的模板。
+2. 优先追求信息表达自然、节奏舒服、页面意图明确，不要为了花哨强行换版式。
+3. 每一页都先判断“这一页想表达什么”，再决定 type；不要先想 type 再硬塞内容。
+4. 同一条视频里允许有稳定的视觉惯性，不必为了变化把每页都做成不同结构。
+5. 如果内容本身只是解释、拆分、总结、建议，优先用 list / default 这类稳定版式。
+6. 只有当内容真的存在数字、对比、阶段、时间顺序、结论金句时，才使用更强结构的版式。
+
+页面要求：
+1. 页面类型只能使用：hero、stats、compare、steps、list、chart、timeline、highlight、quote、default。
+2. 每页都要有 title、可选 subtitle、type、narration、segmentIds。
+3. 优先让版式和内容匹配，不要为了“显得丰富”硬塞 chart、stats、timeline。
+4. 不要让相邻两页机械重复同一种版式，但如果内容都只是普通要点，连续使用 list / default 也比硬造数据图更好。
+5. 当页数 >= 6 时，尽量使用 3-4 种不同版式即可；内容不足时不要强行凑到 5 种。
+6. hero 只适合开场钩子、立题、阶段总述；quote 适合关键结论；timeline 适合有明显时间顺序或演变过程；steps 适合有清晰拆解关系；stats / chart 只适合真实数据。
+7. default 和 list 都可以作为主体页型，不需要刻意回避；真正应该回避的是“无依据的结构页”。
+8. 如果没有真实数字，就不要使用 stats / chart；如果没有明显过程，就不要使用 timeline / steps；如果没有明显对照关系，就不要使用 compare。
+
+版式判断准则：
+- hero：用在开头、转场、总述、抛观点，不要塞太多细节
+- list：最适合普通讲解、并列要点、建议整理、原因拆分，是 GlassShow 的主力版式
+- default：适合信息比较轻、需要留白、重点不多的一页
+- highlight：适合少量关键词、短句提醒、强重点提炼
+- compare：只有左右两侧真的能形成明确对照时才使用
+- stats / chart：必须有真实数字或明确量化信息；没有数字就不要假造
+- steps / timeline：必须真的有步骤感、阶段感或时间推进感；没有过程就不要假造
+- quote：只在确实值得单独强调的一句结论出现时使用，不要滥用
+
+负面约束：
+1. 不要为了看起来高级，硬把普通文案做成比例图、数据图、进度条。
+2. 不要把一句普通结论强行包装成 quote。
+3. 不要把缺乏时间顺序的内容写成 timeline。
+4. 不要把普通并列观点伪装成 compare。
+5. 不要输出“样式很丰富但信息很空”的页面。
+
+输出偏好：
+1. 宁可少一点版式变化，也要保证每一页看起来合理、自然、像同一个产品。
+2. 页面标题要像真实成片里的标题，不要像 PPT 小标题。
+3. subtitle 只有在能增强气质或补充语义时才写，不要每页硬写。
+4. narration 要和页面内容高度一致，不能页面很花、口播却很平。
+
+字段约定：
+- hero: data 可包含 badge、cta
+- stats: data.stats = [{ value, suffix?, label, color? }]
+- compare: data.left / data.right / data.vsText
+- steps: data.steps = [{ title, description? }]
+- list: data.items = [{ icon?, text, desc? }]
+- chart: data.bars = [{ label, value, color? }]
+- timeline: data.timeline = [{ year, title, description? }]
+- highlight: data.items = ["关键词"]
+- quote: data.quote / data.author
+- default: 使用 title / subtitle / points
+
+输入信息：
+- 模板：{template_name}
+- 音频总时长：{duration_seconds} 秒
+- 建议页数：{target_pages} 页，可在 {min_pages}-{max_pages} 之间调整
+- 语义片段时间轴：
+{segments_text}
+
+只输出 JSON：
+{
   "slides": [
     {
       "segmentIds": ["segment-1", "segment-2"],
@@ -508,45 +448,44 @@ const TEMPLATE_PROMPT_CONFIGS: Record<string, TemplatePromptConfig> = {
       "narration": "..."
     }
   ]
-}`,
-  },
-  LiquidShow: {
-    mode: 'structured',
-    role: '短视频分镜策划助手',
-    objective: '输出多版式液态玻璃分镜',
-    allowedTypes: ['hero', 'stats', 'compare', 'steps', 'list', 'chart', 'timeline', 'highlight', 'quote', 'default'],
-    styleGoals: [
-      '优先按内容语义选择版式，不要为了变化而变化。',
-      '普通解释、结论展开、建议整理可以直接使用 list 或 default。',
-      '只有内容确实带有数字、过程、时间顺序、对比时，才使用更强结构的版式。',
-    ],
-    pageRules: [
-      '每页都要有 title、可选 subtitle、type、narration、segmentIds。',
-      '不要让相邻两页使用同一种版式，但如果内容都只是普通要点，连续使用 list / default 也比硬造数据图更好。',
-      '当页数 >= 6 时，尽量使用 3-4 种不同版式即可；内容不足时不要强行凑到 5 种。',
-    ],
-    typeGuidelines: [
-      'hero：开场钩子或阶段总述',
-      'list / default：普通说明、建议整理、结论展开',
-      'compare：有明确对照关系时使用',
-      'stats / chart：只适合真实数字',
-      'steps / timeline：只适合真实过程与阶段',
-      'highlight：关键词强化',
-      'quote：关键结论收口',
-    ],
-    fieldRules: [
-      'hero: data 可包含 badge、cta',
-      'stats: data.stats = [{ value, suffix?, label, color? }]',
-      'compare: data.left / data.right / data.vsText',
-      'steps: data.steps = [{ title, description? }]',
-      'list: data.items = [{ icon?, text, desc? }]',
-      'chart: data.bars = [{ label, value, color? }]',
-      'timeline: data.timeline = [{ year, title, description? }]',
-      'highlight: data.items = ["关键词"]',
-      'quote: data.quote / data.author',
-      'default: 使用 title / subtitle / points',
-    ],
-    outputExample: `{
+}`;
+
+const LIQUID_PROMPT = `你是短视频分镜策划助手。请根据 LiquidShow 模板风格和语义片段时间轴，输出多版式液态玻璃分镜。
+${COMMON_SEGMENT_RULES}
+导演编排要求：
+{director_brief}
+
+页面要求：
+1. 页面类型只能使用：hero、stats、compare、steps、list、chart、timeline、highlight、quote、default。
+2. 每页都要有 title、可选 subtitle、type、narration、segmentIds。
+3. 优先让版式和内容匹配，不要为了“显得丰富”硬塞 chart、stats、timeline。
+4. 不要让相邻两页使用同一种版式，但如果内容都只是普通要点，连续使用 list / default 也比硬造数据图更好。
+5. 当页数 >= 6 时，尽量使用 3-4 种不同版式即可；内容不足时不要强行凑到 5 种。
+6. hero 只适合开场钩子或阶段总述；quote 适合关键结论；timeline 适合过程；steps 适合拆解；stats / chart 只适合真实数据。
+7. default 和 list 都可以作为正常主体页型，不需要刻意回避；真正应该回避的是“无依据的结构页”。
+8. 如果没有真实数字，就不要使用 stats / chart；如果没有明显过程，就不要使用 timeline / steps。
+
+字段约定：
+- hero: data 可包含 badge、cta
+- stats: data.stats = [{ value, suffix?, label, color? }]
+- compare: data.left / data.right / data.vsText
+- steps: data.steps = [{ title, description? }]
+- list: data.items = [{ icon?, text, desc? }]
+- chart: data.bars = [{ label, value, color? }]
+- timeline: data.timeline = [{ year, title, description? }]
+- highlight: data.items = ["关键词"]
+- quote: data.quote / data.author
+- default: 使用 title / subtitle / points
+
+输入信息：
+- 模板：{template_name}
+- 音频总时长：{duration_seconds} 秒
+- 建议页数：{target_pages} 页，可在 {min_pages}-{max_pages} 之间调整
+- 语义片段时间轴：
+{segments_text}
+
+只输出 JSON：
+{
   "slides": [
     {
       "segmentIds": ["segment-1", "segment-2"],
@@ -557,9 +496,7 @@ const TEMPLATE_PROMPT_CONFIGS: Record<string, TemplatePromptConfig> = {
       "narration": "..."
     }
   ]
-}`,
-  },
-};
+}`;
 
 function isStructuredTemplate(template: string): boolean {
   return template === 'GlassShow' || template === 'LiquidShow' || template === 'RichShow' || template === 'TechShow';
@@ -968,50 +905,30 @@ function replaceToken(source: string, token: string, value: string): string {
   return source.split(token).join(value);
 }
 
-function formatNumberedPromptLines(lines: string[]): string {
-  return lines.map((line, index) => `${index + 1}. ${line}`).join('\n');
-}
-
-function formatBulletedPromptLines(lines: string[]): string {
-  return lines.map((line) => `- ${line}`).join('\n');
-}
-
-function getTemplatePromptConfig(template: string): TemplatePromptConfig {
-  return TEMPLATE_PROMPT_CONFIGS[template] || DEFAULT_TEMPLATE_PROMPT_CONFIG;
-}
-
 function getPrompt(
   template: string,
   timeline: NarrationTimeline,
   strict: boolean
 ): string {
   const plan = getPagePlan(timeline.duration, template);
-  const config = getTemplatePromptConfig(template);
-  const basePrompt = config.mode === 'structured' ? MASTER_STRUCTURED_PROMPT : MASTER_SIMPLE_PROMPT;
+  const basePrompt =
+    template === 'RichShow'
+      ? RICH_PROMPT
+      : template === 'TechShow'
+        ? TECH_PROMPT
+        : template === 'GlassShow'
+          ? GLASS_PROMPT
+          : template === 'LiquidShow'
+            ? LIQUID_PROMPT
+          : SIMPLE_PROMPT;
 
-  let prompt = basePrompt;
+  let prompt = basePrompt as string;
   prompt = replaceToken(prompt, '{template_name}', template);
   prompt = replaceToken(prompt, '{duration_seconds}', timeline.duration.toFixed(2));
   prompt = replaceToken(prompt, '{target_pages}', String(plan.targetPages));
   prompt = replaceToken(prompt, '{min_pages}', String(plan.minPages));
   prompt = replaceToken(prompt, '{max_pages}', String(plan.maxPages));
   prompt = replaceToken(prompt, '{segments_text}', formatSegmentsForPrompt(timeline.segments));
-  prompt = replaceToken(prompt, '{role}', config.role);
-  prompt = replaceToken(prompt, '{objective}', config.objective);
-  prompt = replaceToken(prompt, '{style_goals}', formatNumberedPromptLines(config.styleGoals));
-  prompt = replaceToken(prompt, '{page_rules}', formatNumberedPromptLines(config.pageRules));
-  prompt = replaceToken(prompt, '{field_rules}', formatBulletedPromptLines(config.fieldRules));
-  prompt = replaceToken(prompt, '{output_example}', config.outputExample);
-  prompt = replaceToken(
-    prompt,
-    '{allowed_types}',
-    config.allowedTypes ? config.allowedTypes.join('、') : '无额外限制'
-  );
-  prompt = replaceToken(
-    prompt,
-    '{type_guidelines}',
-    config.typeGuidelines ? formatBulletedPromptLines(config.typeGuidelines) : '无额外准则'
-  );
   prompt = replaceToken(
     prompt,
     '{director_brief}',
@@ -3338,3 +3255,5 @@ export default function App() {
     </ErrorBoundary>
   );
 }
+
+
