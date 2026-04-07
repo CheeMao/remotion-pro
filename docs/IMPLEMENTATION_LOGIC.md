@@ -125,6 +125,9 @@
 - `TechShow`
 - `RichShow`
 - `KnowledgeShow`
+- `MacShow`
+- `StudioShow`
+- `EditorialShow`
 
 ### 3.4 主题 token 层
 

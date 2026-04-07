@@ -1,10 +1,14 @@
 import React from 'react';
+import { EditorialSlide } from '../EditorialShow/EditorialSlide';
+import { InsightSlide } from '../InsightShow/InsightSlide';
+import { StickSlide } from '../StickShow/StickSlide';
 import { GlassSlide } from '../GlassShow/GlassSlide';
 import { KnowledgeSlide } from '../KnowledgeShow/KnowledgeSlide';
 import { LiquidBriefSlide } from '../LiquidBriefShow/LiquidBriefSlide';
 import { LiquidSlide } from '../LiquidShow/LiquidSlide';
 import { MacSlide } from '../MacShow/MacSlide';
 import { RichSlide } from '../RichShow/RichSlide';
+import { StudioSlide } from '../StudioShow/StudioSlide';
 import { TechSlide } from '../TechShow/TechSlide';
 import type { SharedLayoutSlide } from '../layouts';
 import type { ChartData, HighlightWord, StepItem, TimelineItem } from '../templates/types';
@@ -487,7 +491,7 @@ const renderGlassScene = ({ slide, index, totalSlides, durationInFrames }: Templ
     return null;
   }
 
-  const componentLayout = layout === 'cta' ? 'hero' : layout;
+  const componentLayout = layout;
 
   return (
     <GlassSlide
@@ -534,7 +538,7 @@ const renderLiquidScene = ({ slide, index, totalSlides, durationInFrames }: Temp
     return null;
   }
 
-  const componentLayout = layout === 'cta' ? 'hero' : layout;
+  const componentLayout = layout;
 
   return (
     <LiquidSlide
@@ -566,14 +570,15 @@ const renderLiquidBriefScene = ({ slide, index, totalSlides, durationInFrames }:
   let type: React.ComponentProps<typeof LiquidBriefSlide>['type'] | null = null;
 
   if (layout === 'hero') type = 'cover';
-  if (layout === 'cta') type = 'cover';
+  if (layout === 'cta') type = 'cta';
   if (layout === 'steps') type = 'steps';
-  if (layout === 'timeline') type = 'steps';
+  if (layout === 'timeline') type = 'timeline';
   if (layout === 'compare') type = 'compare';
   if (layout === 'stats') type = 'stats';
-  if (layout === 'chart') type = 'stats';
+  if (layout === 'chart') type = 'chart';
   if (layout === 'quote') type = 'quote';
-  if (layout === 'list' || layout === 'highlight' || layout === 'default') type = 'cards';
+  if (layout === 'highlight') type = 'highlight';
+  if (layout === 'list' || layout === 'default') type = 'cards';
 
   if (!type) {
     return null;
@@ -589,33 +594,31 @@ const renderLiquidBriefScene = ({ slide, index, totalSlides, durationInFrames }:
             body: item.desc || '',
           }))
         : slide.data?.cards,
-    steps:
-      type === 'steps'
-        ? layout === 'timeline'
-          ? ensureTimeline(slide).map((item) => ({
-              title: `${item.year} ${item.title}`.trim(),
-              description: item.description,
-            }))
-          : ensureSteps(slide)
-        : slide.data?.steps,
+    steps: type === 'steps' ? ensureSteps(slide) : slide.data?.steps,
+    timeline: type === 'timeline' ? ensureTimeline(slide) : slide.data?.timeline,
+    bars: type === 'chart' ? toTechRichBars(slide) : slide.data?.bars,
+    highlights:
+      type === 'highlight' ? ensureHighlightItems(slide) : slide.data?.highlights,
     stats:
       type === 'stats'
-        ? layout === 'chart'
-          ? toTechRichBars(slide).map((item) => ({
-              value: `${item.value}%`,
-              label: item.label,
-              note: '当前进度',
-            }))
-          : ensureStats(slide).map((item) => ({
-              value: `${item.value}${item.suffix || ''}`,
-              label: item.label,
-              note: item.note || '',
-            }))
+        ? ensureStats(slide).map((item) => ({
+            value: `${item.value}${item.suffix || ''}`,
+            label: item.label,
+            note: item.note || '',
+          }))
         : slide.data?.stats,
     insights:
       type === 'stats'
         ? (slide.points || []).slice(0, 3)
         : slide.data?.insights,
+    cta:
+      type === 'cta'
+        ? typeof slide.data?.cta === 'string'
+          ? slide.data.cta
+          : typeof slide.data?.button === 'string'
+            ? slide.data.button
+            : '点赞收藏'
+        : slide.data?.cta,
     ...(type === 'compare' ? ensureCompare(slide) : null),
     ...(type === 'quote' ? ensureQuote(slide) : null),
   };
@@ -627,13 +630,7 @@ const renderLiquidBriefScene = ({ slide, index, totalSlides, durationInFrames }:
       badge={typeof slide.data?.badge === 'string' ? slide.data.badge : undefined}
       items={
         type === 'cover'
-          ? ensureListItems({
-              ...slide,
-              points:
-                layout === 'cta'
-                  ? [...(slide.points || []), ...(typeof slide.data?.cta === 'string' ? [slide.data.cta] : [])]
-                  : slide.points,
-            }).map((item, itemIndex) => ({
+          ? ensureListItems(slide).map((item, itemIndex) => ({
               number: String(itemIndex + 1).padStart(2, '0'),
               title: item.text,
             }))
@@ -693,7 +690,10 @@ const renderTechScene = ({ slide, index, totalSlides, durationInFrames }: Templa
 
   if (layout === 'hero') type = 'title';
   if (layout === 'stats') type = 'stats';
-  if (layout === 'list' || layout === 'highlight' || layout === 'default' || layout === 'steps' || layout === 'timeline') type = 'list';
+  if (layout === 'list' || layout === 'default') type = 'list';
+  if (layout === 'highlight') type = 'highlight';
+  if (layout === 'steps') type = 'steps';
+  if (layout === 'timeline') type = 'timeline';
   if (layout === 'chart') type = 'progress';
   if (layout === 'compare') type = 'compare';
   if (layout === 'quote') type = 'quote';
@@ -712,20 +712,12 @@ const renderTechScene = ({ slide, index, totalSlides, durationInFrames }: Templa
         subtitle: slide.subtitle,
         items:
           type === 'list'
-            ? layout === 'steps'
-              ? ensureSteps(slide).map((item, itemIndex) => ({
-                  icon: String(itemIndex + 1).padStart(2, '0'),
-                  text: item.title,
-                  desc: item.description,
-                }))
-              : layout === 'timeline'
-                ? ensureTimeline(slide).map((item) => ({
-                    icon: item.year,
-                    text: item.title,
-                    desc: item.description,
-                  }))
-                : toTechRichListItems(slide)
-            : slide.data?.items,
+            ? toTechRichListItems(slide)
+            : type === 'highlight'
+              ? ensureHighlightItems(slide)
+              : slide.data?.items,
+        steps: type === 'steps' ? ensureSteps(slide) : slide.data?.steps,
+        timeline: type === 'timeline' ? ensureTimeline(slide) : slide.data?.timeline,
         stats: type === 'stats' ? ensureStats(slide) : slide.data?.stats,
         bars: type === 'progress' ? toTechRichBars(slide) : slide.data?.bars,
         ...(type === 'compare' ? ensureCompare(slide) : null),
@@ -826,15 +818,25 @@ const renderKnowledgeScene = ({ slide, index, totalSlides, durationInFrames }: T
     <KnowledgeSlide
       title={slide.title}
       subtitle={slide.subtitle}
+      type={layout}
+      data={
+        layout === 'compare'
+          ? (ensureCompare(slide) as unknown as Record<string, unknown>) || slide.data
+          : layout === 'quote'
+            ? (ensureQuote(slide) as unknown as Record<string, unknown>)
+            : layout === 'cta'
+              ? slide.data
+              : slide.data
+      }
       points={
         layout === 'default' || layout === 'list'
           ? toCompactPoints(slide)
-          : layout === 'compare'
-            ? comparePoints
-            : layout === 'quote'
-              ? quotePoints
-              : layout === 'cta'
-                ? ctaPoints
+          : layout === 'cta'
+            ? ctaPoints
+            : layout === 'compare'
+              ? comparePoints
+              : layout === 'quote'
+                ? quotePoints
                 : undefined
       }
       highlights={
@@ -858,32 +860,60 @@ const renderKnowledgeScene = ({ slide, index, totalSlides, durationInFrames }: T
   );
 };
 
-const renderMacScene = ({ slide, index, totalSlides, durationInFrames }: TemplateSceneProps) => {
-  const layout = getLayout(slide);
-  const supportedLayouts = new Set([
-    'default',
-    'steps',
-    'timeline',
-    'chart',
-    'highlight',
-    'list',
-    'compare',
-    'stats',
-    'quote',
-    'hero',
-    'cta',
-  ]);
+const LANDSCAPE_SUPPORTED_LAYOUTS = new Set([
+  'default',
+  'steps',
+  'timeline',
+  'chart',
+  'highlight',
+  'list',
+  'compare',
+  'stats',
+  'quote',
+  'hero',
+  'cta',
+]);
 
-  if (!supportedLayouts.has(layout)) {
+const renderLandscapeScene = (
+  { slide, index, totalSlides, durationInFrames }: TemplateSceneProps,
+  Component: typeof MacSlide | typeof StudioSlide | typeof EditorialSlide | typeof InsightSlide,
+) => {
+  const layout = getLayout(slide);
+
+  if (!LANDSCAPE_SUPPORTED_LAYOUTS.has(layout)) {
     return null;
   }
 
   return (
-    <MacSlide
+    <Component
       title={slide.title || ''}
       subtitle={slide.subtitle}
       points={slide.points}
       type={layout as React.ComponentProps<typeof MacSlide>['type']}
+      data={slide.data as Record<string, unknown> | undefined}
+      index={index}
+      totalSlides={totalSlides}
+      durationInFrames={durationInFrames}
+    />
+  );
+};
+
+const renderMacScene = (props: TemplateSceneProps) => renderLandscapeScene(props, MacSlide);
+const renderStudioScene = (props: TemplateSceneProps) => renderLandscapeScene(props, StudioSlide);
+const renderEditorialScene = (props: TemplateSceneProps) => renderLandscapeScene(props, EditorialSlide);
+const renderInsightScene = (props: TemplateSceneProps) => renderLandscapeScene(props, InsightSlide);
+
+const renderStickScene = ({ slide, index, totalSlides, durationInFrames }: TemplateSceneProps) => {
+  const layout = getLayout(slide);
+  if (!LANDSCAPE_SUPPORTED_LAYOUTS.has(layout)) {
+    return null;
+  }
+  return (
+    <StickSlide
+      title={slide.title || ''}
+      subtitle={slide.subtitle}
+      points={slide.points}
+      type={layout as React.ComponentProps<typeof StickSlide>['type']}
       data={slide.data as Record<string, unknown> | undefined}
       index={index}
       totalSlides={totalSlides}
@@ -908,6 +938,14 @@ export const renderTemplateScene = (props: TemplateSceneProps): React.ReactNode 
       return renderKnowledgeScene(props);
     case 'MacShow':
       return renderMacScene(props);
+    case 'StudioShow':
+      return renderStudioScene(props);
+    case 'EditorialShow':
+      return renderEditorialScene(props);
+    case 'InsightShow':
+      return renderInsightScene(props);
+    case 'StickShow':
+      return renderStickScene(props);
     default:
       return null;
   }

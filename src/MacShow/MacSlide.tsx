@@ -28,37 +28,233 @@ type ChartBar = { label: string; value: number };
 type CompareItem = { label: string; value: string; desc?: string };
 type TimelineItem = { year: string; title: string; desc?: string };
 type StepItem = { title: string; desc?: string };
+export type LandscapeVariant = "mac" | "studio" | "editorial" | "insight";
+
+type LandscapeTheme = {
+  rootFont: string;
+  titleFont?: string;
+  colors: {
+    bg: string;
+    text: string;
+    muted: string;
+    panel: string;
+    panelStrong: string;
+    border: string;
+    shadow: string;
+    blue: string;
+    cyan: string;
+    purple: string;
+    pink: string;
+    green: string;
+    red: string;
+    yellow: string;
+    macGreen: string;
+  };
+  accents: string[];
+  chromeBg: string;
+  chromeBorder: string;
+  chromeDotInset: string;
+  contentPadding: string;
+  takeoverSurface: string;
+  takeoverShadow: string;
+  takeoverInset: string;
+  infoWash: string;
+  infoWashBorder: string;
+  vsSurface: string;
+  ctaGradient: string;
+  ctaShadow: string;
+  background: {
+    base: string;
+    orbOne: string;
+    orbTwo: string;
+    grid: string;
+    overlay: string;
+  };
+};
 
 interface Props {
   title?: string;
   subtitle?: string;
   points?: string[];
   type?: SlideType;
+  variant?: LandscapeVariant;
   data?: GenericRecord;
   index: number;
   totalSlides: number;
   durationInFrames: number;
 }
 
-const c = {
-  bg: "#f3f6fb",
-  text: "#111827",
-  muted: "#667085",
-  panel: "rgba(255,255,255,0.78)",
-  panelStrong: "rgba(255,255,255,0.88)",
-  border: "rgba(15,23,42,0.08)",
-  shadow: "rgba(15,23,42,0.08)",
-  blue: "#0a84ff",
-  cyan: "#58c4dc",
-  purple: "#7c3aed",
-  pink: "#f43f8f",
-  green: "#10b981",
-  red: "#ff5f57",
-  yellow: "#febc2e",
-  macGreen: "#28c840",
+const LANDSCAPE_THEMES: Record<LandscapeVariant, LandscapeTheme> = {
+  mac: {
+    rootFont: "'SF Pro Display', 'PingFang SC', sans-serif",
+    colors: {
+      bg: "#f3f6fb",
+      text: "#111827",
+      muted: "#667085",
+      panel: "rgba(255,255,255,0.78)",
+      panelStrong: "rgba(255,255,255,0.88)",
+      border: "rgba(15,23,42,0.08)",
+      shadow: "rgba(15,23,42,0.08)",
+      blue: "#0a84ff",
+      cyan: "#58c4dc",
+      purple: "#7c3aed",
+      pink: "#f43f8f",
+      green: "#10b981",
+      red: "#ff5f57",
+      yellow: "#febc2e",
+      macGreen: "#28c840",
+    },
+    accents: ["#0a84ff", "#7c3aed", "#58c4dc", "#f43f8f", "#10b981"],
+    chromeBg: "rgba(255,255,255,0.58)",
+    chromeBorder: "rgba(15,23,42,0.08)",
+    chromeDotInset: "inset 0 1px 1px rgba(255,255,255,0.65)",
+    contentPadding: "42px 48px 50px",
+    takeoverSurface: "rgba(255,255,255,0.78)",
+    takeoverShadow: "0 30px 70px rgba(15,23,42,0.12)",
+    takeoverInset: "none",
+    infoWash: "rgba(10,132,255,0.08)",
+    infoWashBorder: "rgba(10,132,255,0.12)",
+    vsSurface: "rgba(255,255,255,0.68)",
+    ctaGradient: "linear-gradient(90deg, #0a84ff 0%, #7c3aed 100%)",
+    ctaShadow: "0 18px 36px rgba(10,132,255,0.24)",
+    background: {
+      base:
+        "radial-gradient(circle at 18% 18%, rgba(88,196,220,0.18) 0%, transparent 28%), radial-gradient(circle at 84% 22%, rgba(124,58,237,0.16) 0%, transparent 24%), radial-gradient(circle at 30% 82%, rgba(244,63,143,0.14) 0%, transparent 24%), linear-gradient(180deg, #f8fafc 0%, #eef2f7 100%)",
+      orbOne: "radial-gradient(circle, rgba(10,132,255,0.16) 0%, rgba(10,132,255,0) 68%)",
+      orbTwo: "radial-gradient(circle, rgba(124,58,237,0.12) 0%, rgba(124,58,237,0) 66%)",
+      grid:
+        "linear-gradient(rgba(255,255,255,0.35) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.32) 1px, transparent 1px)",
+      overlay: "linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(148,163,184,0.08) 100%)",
+    },
+  },
+  studio: {
+    rootFont: "'SF Pro Display', 'PingFang SC', sans-serif",
+    colors: {
+      bg: "#05070d",
+      text: "#f8fafc",
+      muted: "rgba(226,232,240,0.72)",
+      panel: "rgba(8,10,18,0.82)",
+      panelStrong: "rgba(12,14,24,0.9)",
+      border: "rgba(94,234,212,0.14)",
+      shadow: "rgba(0,0,0,0.42)",
+      blue: "#22d3ee",
+      cyan: "#67e8f9",
+      purple: "#7c3aed",
+      pink: "#e11d48",
+      green: "#10b981",
+      red: "#fb7185",
+      yellow: "#f59e0b",
+      macGreen: "#34d399",
+    },
+    accents: ["#22d3ee", "#e11d48", "#f59e0b", "#7c3aed", "#10b981"],
+    chromeBg: "rgba(6,8,15,0.92)",
+    chromeBorder: "rgba(148,163,184,0.12)",
+    chromeDotInset: "inset 0 1px 0 rgba(255,255,255,0.18)",
+    contentPadding: "34px 38px 40px",
+    takeoverSurface: "rgba(8,10,18,0.9)",
+    takeoverShadow: "0 34px 90px rgba(0,0,0,0.46)",
+    takeoverInset: "inset 0 1px 0 rgba(255,255,255,0.05)",
+    infoWash: "rgba(225,29,72,0.12)",
+    infoWashBorder: "rgba(225,29,72,0.22)",
+    vsSurface: "rgba(12,14,24,0.92)",
+    ctaGradient: "linear-gradient(90deg, #e11d48 0%, #22d3ee 100%)",
+    ctaShadow: "0 18px 42px rgba(225,29,72,0.28)",
+    background: {
+      base:
+        "radial-gradient(circle at 16% 18%, rgba(34,211,238,0.18) 0%, transparent 28%), radial-gradient(circle at 82% 20%, rgba(225,29,72,0.18) 0%, transparent 24%), radial-gradient(circle at 58% 78%, rgba(245,158,11,0.12) 0%, transparent 24%), linear-gradient(180deg, #02040a 0%, #060914 100%)",
+      orbOne: "radial-gradient(circle, rgba(34,211,238,0.14) 0%, rgba(34,211,238,0) 70%)",
+      orbTwo: "radial-gradient(circle, rgba(225,29,72,0.18) 0%, rgba(225,29,72,0) 72%)",
+      grid:
+        "linear-gradient(rgba(34,211,238,0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(34,211,238,0.06) 1px, transparent 1px)",
+      overlay: "linear-gradient(180deg, rgba(2,4,10,0) 0%, rgba(15,23,42,0.28) 100%)",
+    },
+  },
+  editorial: {
+    rootFont: "'Newsreader', Georgia, 'Times New Roman', serif",
+    titleFont: "'Newsreader', Georgia, 'Times New Roman', serif",
+    colors: {
+      bg: "#f6f0e6",
+      text: "#18181b",
+      muted: "#5f5b55",
+      panel: "rgba(255,250,244,0.84)",
+      panelStrong: "rgba(255,252,248,0.92)",
+      border: "rgba(24,24,27,0.08)",
+      shadow: "rgba(24,24,27,0.09)",
+      blue: "#2f5bd3",
+      cyan: "#0f766e",
+      purple: "#7c3aed",
+      pink: "#ec4899",
+      green: "#15803d",
+      red: "#b91c1c",
+      yellow: "#b45309",
+      macGreen: "#15803d",
+    },
+    accents: ["#18181b", "#ec4899", "#2f5bd3", "#0f766e", "#b45309"],
+    chromeBg: "rgba(255,246,238,0.76)",
+    chromeBorder: "rgba(24,24,27,0.08)",
+    chromeDotInset: "inset 0 1px 1px rgba(255,255,255,0.55)",
+    contentPadding: "44px 50px 52px",
+    takeoverSurface: "rgba(255,250,244,0.9)",
+    takeoverShadow: "0 28px 70px rgba(24,24,27,0.14)",
+    takeoverInset: "inset 0 1px 0 rgba(255,255,255,0.72)",
+    infoWash: "rgba(236,72,153,0.08)",
+    infoWashBorder: "rgba(236,72,153,0.14)",
+    vsSurface: "rgba(255,250,244,0.82)",
+    ctaGradient: "linear-gradient(90deg, #18181b 0%, #ec4899 100%)",
+    ctaShadow: "0 18px 38px rgba(24,24,27,0.14)",
+    background: {
+      base:
+        "radial-gradient(circle at 18% 18%, rgba(236,72,153,0.12) 0%, transparent 28%), radial-gradient(circle at 84% 18%, rgba(47,91,211,0.1) 0%, transparent 22%), radial-gradient(circle at 50% 82%, rgba(180,83,9,0.1) 0%, transparent 28%), linear-gradient(180deg, #fbf7f1 0%, #f2ece2 100%)",
+      orbOne: "radial-gradient(circle, rgba(236,72,153,0.1) 0%, rgba(236,72,153,0) 68%)",
+      orbTwo: "radial-gradient(circle, rgba(47,91,211,0.08) 0%, rgba(47,91,211,0) 66%)",
+      grid:
+        "linear-gradient(rgba(24,24,27,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(24,24,27,0.04) 1px, transparent 1px)",
+      overlay: "linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(24,24,27,0.04) 100%)",
+    },
+  },
+  insight: {
+    rootFont: "'Inter', 'SF Pro Display', 'PingFang SC', sans-serif",
+    colors: {
+      bg: "#0a0f1e",
+      text: "#f1f5f9",
+      muted: "rgba(203,213,225,0.72)",
+      panel: "rgba(15,23,42,0.75)",
+      panelStrong: "rgba(20,30,55,0.85)",
+      border: "rgba(99,102,241,0.18)",
+      shadow: "rgba(0,0,0,0.38)",
+      blue: "#6366f1",
+      cyan: "#38bdf8",
+      purple: "#a78bfa",
+      pink: "#f472b6",
+      green: "#34d399",
+      red: "#f87171",
+      yellow: "#fbbf24",
+      macGreen: "#34d399",
+    },
+    accents: ["#6366f1", "#fbbf24", "#38bdf8", "#a78bfa", "#34d399"],
+    chromeBg: "rgba(10,15,30,0.88)",
+    chromeBorder: "rgba(99,102,241,0.16)",
+    chromeDotInset: "inset 0 1px 0 rgba(255,255,255,0.10)",
+    contentPadding: "38px 44px 44px",
+    takeoverSurface: "rgba(15,23,42,0.82)",
+    takeoverShadow: "0 32px 80px rgba(0,0,0,0.44)",
+    takeoverInset: "inset 0 1px 0 rgba(99,102,241,0.14)",
+    infoWash: "rgba(99,102,241,0.10)",
+    infoWashBorder: "rgba(99,102,241,0.20)",
+    vsSurface: "rgba(15,23,42,0.85)",
+    ctaGradient: "linear-gradient(90deg, #6366f1 0%, #38bdf8 100%)",
+    ctaShadow: "0 18px 42px rgba(99,102,241,0.30)",
+    background: {
+      base:
+        "radial-gradient(circle at 16% 20%, rgba(99,102,241,0.20) 0%, transparent 28%), radial-gradient(circle at 82% 16%, rgba(56,189,248,0.16) 0%, transparent 24%), radial-gradient(circle at 46% 80%, rgba(251,191,36,0.10) 0%, transparent 24%), linear-gradient(180deg, #080d1a 0%, #0a0f1e 100%)",
+      orbOne: "radial-gradient(circle, rgba(99,102,241,0.16) 0%, rgba(99,102,241,0) 70%)",
+      orbTwo: "radial-gradient(circle, rgba(56,189,248,0.12) 0%, rgba(56,189,248,0) 68%)",
+      grid:
+        "linear-gradient(rgba(99,102,241,0.07) 1px, transparent 1px), linear-gradient(90deg, rgba(99,102,241,0.05) 1px, transparent 1px)",
+      overlay: "linear-gradient(180deg, rgba(8,13,26,0) 0%, rgba(15,23,42,0.22) 100%)",
+    },
+  },
 };
-
-const accents = [c.blue, c.purple, c.cyan, c.pink, c.green];
 
 const metricToNumber = (value?: string): number => {
   if (!value) return 0;
@@ -236,7 +432,9 @@ const WindowFrame: React.FC<{
   frame: number;
   index: number;
   totalSlides: number;
-}> = ({ children, frame, index, totalSlides }) => {
+  theme: LandscapeTheme;
+}> = ({ children, frame, index, totalSlides, theme }) => {
+  const c = theme.colors;
   const { fps } = useVideoConfig();
   const progress = spring({ frame, fps, config: { damping: 18, stiffness: 110 } });
   return (
@@ -249,7 +447,7 @@ const WindowFrame: React.FC<{
         border: `1px solid ${c.border}`,
         backdropFilter: "blur(24px) saturate(140%)",
         WebkitBackdropFilter: "blur(24px) saturate(140%)",
-        boxShadow: `0 32px 80px ${c.shadow}, inset 0 1px 0 rgba(255,255,255,0.72)`,
+        boxShadow: `0 32px 80px ${c.shadow}, ${theme.takeoverInset}`,
         overflow: "hidden",
         transform: `translateY(${interpolate(progress, [0, 1], [24, 0])}px) scale(${interpolate(progress, [0, 1], [0.98, 1])})`,
         opacity: progress,
@@ -262,8 +460,8 @@ const WindowFrame: React.FC<{
           alignItems: "center",
           justifyContent: "space-between",
           padding: "0 28px",
-          background: "rgba(255,255,255,0.58)",
-          borderBottom: `1px solid ${c.border}`,
+          background: theme.chromeBg,
+          borderBottom: `1px solid ${theme.chromeBorder}`,
         }}
       >
         <div style={{ display: "flex", gap: 10 }}>
@@ -275,7 +473,7 @@ const WindowFrame: React.FC<{
                 height: 14,
                 borderRadius: "50%",
                 background: color,
-                boxShadow: "inset 0 1px 1px rgba(255,255,255,0.65)",
+                boxShadow: theme.chromeDotInset,
               }}
             />
           ))}
@@ -284,12 +482,12 @@ const WindowFrame: React.FC<{
           {String(index + 1).padStart(2, "0")} / {String(totalSlides).padStart(2, "0")}
         </div>
       </div>
-      <div style={{ padding: "42px 48px 50px" }}>{children}</div>
+      <div style={{ padding: theme.contentPadding }}>{children}</div>
     </div>
   );
 };
 
-const Background: React.FC<{ frame: number }> = ({ frame }) => {
+const Background: React.FC<{ frame: number; theme: LandscapeTheme }> = ({ frame, theme }) => {
   const drift = Math.sin(frame * 0.01) * 3;
   const orbX = Math.sin(frame * 0.012) * 40;
   const orbY = Math.cos(frame * 0.009) * 28;
@@ -297,8 +495,7 @@ const Background: React.FC<{ frame: number }> = ({ frame }) => {
     <>
       <AbsoluteFill
         style={{
-          background:
-            "radial-gradient(circle at 18% 18%, rgba(88,196,220,0.18) 0%, transparent 28%), radial-gradient(circle at 84% 22%, rgba(124,58,237,0.16) 0%, transparent 24%), radial-gradient(circle at 30% 82%, rgba(244,63,143,0.14) 0%, transparent 24%), linear-gradient(180deg, #f8fafc 0%, #eef2f7 100%)",
+          background: theme.background.base,
         }}
       />
       <div
@@ -309,7 +506,7 @@ const Background: React.FC<{ frame: number }> = ({ frame }) => {
           left: 110 + orbX,
           top: 100 + orbY,
           borderRadius: "50%",
-          background: "radial-gradient(circle, rgba(10,132,255,0.16) 0%, rgba(10,132,255,0) 68%)",
+          background: theme.background.orbOne,
           filter: "blur(18px)",
         }}
       />
@@ -321,7 +518,7 @@ const Background: React.FC<{ frame: number }> = ({ frame }) => {
           right: 120 - orbX * 0.6,
           bottom: 90 - orbY * 0.6,
           borderRadius: "50%",
-          background: "radial-gradient(circle, rgba(124,58,237,0.12) 0%, rgba(124,58,237,0) 66%)",
+          background: theme.background.orbTwo,
           filter: "blur(24px)",
         }}
       />
@@ -329,8 +526,7 @@ const Background: React.FC<{ frame: number }> = ({ frame }) => {
         style={{
           position: "absolute",
           inset: 0,
-          backgroundImage:
-            "linear-gradient(rgba(255,255,255,0.35) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.32) 1px, transparent 1px)",
+          backgroundImage: theme.background.grid,
           backgroundSize: "64px 64px",
           opacity: 0.42,
           transform: `translate(${drift}px, ${drift * 0.5}px)`,
@@ -340,7 +536,7 @@ const Background: React.FC<{ frame: number }> = ({ frame }) => {
         style={{
           position: "absolute",
           inset: 0,
-          background: "linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(148,163,184,0.08) 100%)",
+          background: theme.background.overlay,
         }}
       />
     </>
@@ -352,7 +548,9 @@ const SectionHeader: React.FC<{
   subtitle?: string;
   frame: number;
   compact?: boolean;
-}> = ({ title, subtitle, frame, compact = false }) => {
+  theme: LandscapeTheme;
+}> = ({ title, subtitle, frame, compact = false, theme }) => {
+  const c = theme.colors;
   const { fps } = useVideoConfig();
   const titleIn = spring({ frame: frame - 2, fps, config: { damping: 18, stiffness: 120 } });
   const subIn = spring({ frame: frame - 10, fps, config: { damping: 18, stiffness: 110 } });
@@ -367,6 +565,7 @@ const SectionHeader: React.FC<{
             letterSpacing: "-0.05em",
             fontWeight: 900,
             color: c.text,
+            fontFamily: theme.titleFont || theme.rootFont,
             transform: `translateY(${interpolate(titleIn, [0, 1], [18, 0])}px)`,
             opacity: titleIn,
           }}
@@ -382,6 +581,7 @@ const SectionHeader: React.FC<{
             lineHeight: 1.5,
             color: c.muted,
             maxWidth: 920,
+            fontFamily: theme.rootFont,
             transform: `translateY(${interpolate(subIn, [0, 1], [14, 0])}px)`,
             opacity: subIn,
           }}
@@ -399,7 +599,10 @@ const SoftCard: React.FC<{
   delay?: number;
   accent?: string;
   style?: React.CSSProperties;
-}> = ({ children, frame, delay = 0, accent = c.blue, style }) => {
+  theme: LandscapeTheme;
+}> = ({ children, frame, delay = 0, accent, style, theme }) => {
+  const c = theme.colors;
+  const resolvedAccent = accent || theme.accents[0];
   const { fps } = useVideoConfig();
   const progress = spring({ frame: frame - delay, fps, config: { damping: 18, stiffness: 110 } });
   return (
@@ -407,8 +610,8 @@ const SoftCard: React.FC<{
       style={{
         background: c.panelStrong,
         borderRadius: 24,
-        border: "1px solid rgba(255,255,255,0.7)",
-        boxShadow: "0 18px 40px rgba(15,23,42,0.06), inset 0 1px 0 rgba(255,255,255,0.75)",
+        border: `1px solid ${c.border}`,
+        boxShadow: `0 18px 40px ${c.shadow}, ${theme.takeoverInset}`,
         position: "relative",
         overflow: "hidden",
         transform: `translateY(${interpolate(progress, [0, 1], [16, 0])}px) scale(${interpolate(progress, [0, 1], [0.985, 1])})`,
@@ -420,7 +623,7 @@ const SoftCard: React.FC<{
         style={{
           position: "absolute",
           inset: 0,
-          background: `linear-gradient(135deg, ${accent}12 0%, transparent 36%)`,
+          background: `linear-gradient(135deg, ${resolvedAccent}12 0%, transparent 36%)`,
           pointerEvents: "none",
         }}
       />
@@ -434,7 +637,10 @@ const Pill: React.FC<{
   accent?: string;
   frame: number;
   delay?: number;
-}> = ({ text, accent = c.blue, frame, delay = 0 }) => {
+  theme: LandscapeTheme;
+}> = ({ text, accent, frame, delay = 0, theme }) => {
+  const c = theme.colors;
+  const resolvedAccent = accent || theme.accents[0];
   const { fps } = useVideoConfig();
   const progress = spring({ frame: frame - delay, fps, config: { damping: 18, stiffness: 115 } });
   return (
@@ -445,8 +651,8 @@ const Pill: React.FC<{
         gap: 10,
         padding: "12px 18px",
         borderRadius: 999,
-        border: `1px solid ${accent}25`,
-        background: `${accent}14`,
+        border: `1px solid ${resolvedAccent}25`,
+        background: `${resolvedAccent}14`,
         color: c.text,
         fontSize: 18,
         fontWeight: 700,
@@ -459,8 +665,8 @@ const Pill: React.FC<{
           width: 10,
           height: 10,
           borderRadius: "50%",
-          background: accent,
-          boxShadow: `0 0 0 8px ${accent}16`,
+          background: resolvedAccent,
+          boxShadow: `0 0 0 8px ${resolvedAccent}16`,
         }}
       />
       {text}
@@ -472,7 +678,10 @@ const SignalMeter: React.FC<{
   items: Array<{ label: string; value: string }>;
   frame: number;
   delay?: number;
-}> = ({ items, frame, delay = 0 }) => {
+  theme: LandscapeTheme;
+}> = ({ items, frame, delay = 0, theme }) => {
+  const c = theme.colors;
+  const accents = theme.accents;
   const { fps } = useVideoConfig();
   const progress = spring({ frame: frame - delay, fps, config: { damping: 18, stiffness: 110 } });
   return (
@@ -518,11 +727,15 @@ export const MacSlide: React.FC<Props> = ({
   subtitle,
   points,
   type = "default",
+  variant = "mac",
   data,
   index,
   totalSlides,
   durationInFrames,
 }) => {
+  const theme = LANDSCAPE_THEMES[variant];
+  const c = theme.colors;
+  const accents = theme.accents;
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const slideDuration = Math.max(1, durationInFrames);
@@ -587,7 +800,11 @@ export const MacSlide: React.FC<Props> = ({
       ? data.cta
       : typeof data?.button === "string"
         ? data.button
-        : "Start the flow";
+        : variant === "studio"
+          ? "Launch the rundown"
+          : variant === "editorial"
+            ? "Frame the next story"
+            : "Start the flow";
   const quoteText =
     typeof data?.quote === "string"
       ? data.quote
@@ -631,9 +848,9 @@ export const MacSlide: React.FC<Props> = ({
             maxWidth: 1120,
             padding: "30px 40px",
             borderRadius: 30,
-            background: "rgba(255,255,255,0.78)",
+            background: theme.takeoverSurface,
             border: `1px solid ${c.border}`,
-            boxShadow: "0 30px 70px rgba(15,23,42,0.12)",
+            boxShadow: `${theme.takeoverShadow}, ${theme.takeoverInset}`,
             textAlign: "center",
           }}
         >
@@ -652,12 +869,12 @@ export const MacSlide: React.FC<Props> = ({
         }}
       >
         <div>
-          {heroBadge ? <Pill text={heroBadge} frame={frame} /> : null}
-          <SectionHeader title={title} subtitle={subtitle} frame={frame} />
+          {heroBadge ? <Pill text={heroBadge} frame={frame} theme={theme} /> : null}
+          <SectionHeader title={title} subtitle={subtitle} frame={frame} theme={theme} />
         </div>
         <div style={{ display: "grid", gap: 18 }}>
           <div style={{ display: "flex", gap: 16, alignItems: "center", flexWrap: "wrap" }}>
-            <Pill text={heroCta} accent={c.purple} frame={frame} delay={8} />
+            <Pill text={heroCta} accent={c.purple} frame={frame} delay={8} theme={theme} />
             {items.slice(0, 2).map((item, itemIndex) => (
               <Pill
                 key={`${item.title}-${itemIndex}`}
@@ -665,6 +882,7 @@ export const MacSlide: React.FC<Props> = ({
                 accent={accents[(itemIndex + 2) % accents.length]}
                 frame={frame}
                 delay={12 + itemIndex * 5}
+                theme={theme}
               />
             ))}
           </div>
@@ -679,7 +897,7 @@ export const MacSlide: React.FC<Props> = ({
           transform: `translateY(${interpolate(revealProgress, [0, 1], [28, 0])}px) scale(${interpolate(revealProgress, [0, 1], [0.98, 1])})`,
         }}
       >
-        <SoftCard frame={frame} delay={8} accent={c.blue} style={{ padding: 24 }}>
+        <SoftCard frame={frame} delay={8} accent={c.blue} style={{ padding: 24 }} theme={theme}>
           <div style={{ display: "grid", gridTemplateColumns: "1.1fr 0.9fr", gap: 18 }}>
             <div>
               <div style={{ fontSize: 38, fontWeight: 800, color: c.text, lineHeight: 1.08 }}>
@@ -690,7 +908,7 @@ export const MacSlide: React.FC<Props> = ({
               </div>
             </div>
             <div style={{ display: "grid", gap: 14 }}>
-              <SignalMeter items={stats.slice(0, 3)} frame={frame} delay={12} />
+              <SignalMeter items={stats.slice(0, 3)} frame={frame} delay={12} theme={theme} />
             </div>
           </div>
           <div
@@ -698,8 +916,8 @@ export const MacSlide: React.FC<Props> = ({
               marginTop: 20,
               padding: "18px 20px",
               borderRadius: 20,
-              background: "rgba(10,132,255,0.08)",
-              border: "1px solid rgba(10,132,255,0.12)",
+              background: theme.infoWash,
+              border: `1px solid ${theme.infoWashBorder}`,
               opacity: evidenceReveal,
               transform: `translateY(${interpolate(evidenceReveal, [0, 1], [16, 0])}px)`,
             }}
@@ -717,6 +935,7 @@ export const MacSlide: React.FC<Props> = ({
               delay={14 + itemIndex * 6}
               accent={accents[itemIndex % accents.length]}
               style={{ padding: 20 }}
+              theme={theme}
             >
               <div style={{ fontSize: 14, color: c.muted, fontWeight: 700 }}>0{itemIndex + 1}</div>
               <div style={{ marginTop: 14, fontSize: 24, fontWeight: 800, color: c.text, lineHeight: 1.15 }}>
@@ -737,13 +956,13 @@ export const MacSlide: React.FC<Props> = ({
   const renderDefault = () => (
     <div style={{ display: "grid", gridTemplateColumns: "1.15fr 0.85fr", gap: 24, minHeight: 690 }}>
       <div>
-        <SectionHeader title={title} subtitle={subtitle} frame={frame} compact />
+        <SectionHeader title={title} subtitle={subtitle} frame={frame} compact theme={theme} />
         <div style={{ display: "grid", gap: 16 }}>
           {items.map((item, itemIndex) => (
             <SoftCard
               key={`${item.title}-${itemIndex}`}
               frame={frame}
-              delay={8 + itemIndex * 5}
+              delay={14 + itemIndex * 9}
               accent={accents[itemIndex % accents.length]}
               style={{
                 padding: "20px 22px",
@@ -754,9 +973,10 @@ export const MacSlide: React.FC<Props> = ({
                     : `brightness(${interpolate(evidenceReveal, [0, 1], [1, 0.88])})`,
                 boxShadow:
                   itemIndex === activeItemIndex
-                    ? `0 28px 50px ${accents[itemIndex % accents.length]}18, inset 0 1px 0 rgba(255,255,255,0.75)`
+                    ? `0 28px 50px ${accents[itemIndex % accents.length]}18, ${theme.takeoverInset}`
                     : undefined,
               }}
+              theme={theme}
             >
               <div style={{ display: "grid", gridTemplateColumns: "64px 1fr", gap: 18, alignItems: "start" }}>
                 <div
@@ -806,7 +1026,7 @@ export const MacSlide: React.FC<Props> = ({
             )})`,
           }}
         >
-          <SoftCard frame={frame} delay={14} accent={c.cyan} style={{ padding: 22 }}>
+          <SoftCard frame={frame} delay={14} accent={c.cyan} style={{ padding: 22 }} theme={theme}>
             <div style={{ fontSize: 28, lineHeight: 1.22, color: c.text, fontWeight: 800 }}>
               {items[activeItemIndex]?.title || title || "Main takeaway"}
             </div>
@@ -816,7 +1036,7 @@ export const MacSlide: React.FC<Props> = ({
               </div>
             ) : null}
             <div style={{ marginTop: 16 }}>
-              <SignalMeter items={stats.slice(0, 3)} frame={frame} delay={18} />
+              <SignalMeter items={stats.slice(0, 3)} frame={frame} delay={18} theme={theme} />
             </div>
           </SoftCard>
         </div>
@@ -826,7 +1046,7 @@ export const MacSlide: React.FC<Props> = ({
             transform: `translateY(${interpolate(evidenceReveal, [0, 1], [36, 0])}px)`,
           }}
         >
-          <SoftCard frame={frame} delay={22} accent={c.pink} style={{ padding: 22 }}>
+          <SoftCard frame={frame} delay={22} accent={c.pink} style={{ padding: 22 }} theme={theme}>
             <div style={{ fontSize: 18, lineHeight: 1.7, color: c.muted }}>
               {subtitle || "Keep one main takeaway on screen and let narration carry the detail."}
             </div>
@@ -838,7 +1058,7 @@ export const MacSlide: React.FC<Props> = ({
 
   const renderStats = () => (
     <div>
-      <SectionHeader title={title} subtitle={subtitle} frame={frame} compact />
+      <SectionHeader title={title} subtitle={subtitle} frame={frame} compact theme={theme} />
       {mainStat ? (
         <div
           style={{
@@ -847,7 +1067,7 @@ export const MacSlide: React.FC<Props> = ({
             transformOrigin: "center center",
           }}
         >
-          <SoftCard frame={frame} delay={6} accent={c.blue} style={{ padding: "28px 30px" }}>
+          <SoftCard frame={frame} delay={6} accent={c.blue} style={{ padding: "28px 30px" }} theme={theme}>
             <div style={{ display: "grid", gridTemplateColumns: "0.9fr 1.1fr", gap: 24, alignItems: "center" }}>
               <div>
                 <div
@@ -888,6 +1108,7 @@ export const MacSlide: React.FC<Props> = ({
             delay={12 + itemIndex * 5}
             accent={accents[itemIndex % accents.length]}
             style={{ padding: 24, minHeight: 220 }}
+            theme={theme}
           >
             <div style={{ fontSize: 16, color: c.muted, fontWeight: 700 }}>{item.label}</div>
             <div style={{ marginTop: 18, fontSize: 54, lineHeight: 1, color: c.text, fontWeight: 900 }}>
@@ -904,7 +1125,7 @@ export const MacSlide: React.FC<Props> = ({
 
   const renderCompare = () => (
     <div>
-      <SectionHeader title={title} subtitle={subtitle} frame={frame} compact />
+      <SectionHeader title={title} subtitle={subtitle} frame={frame} compact theme={theme} />
       <div
         style={{
           marginBottom: 18,
@@ -916,7 +1137,7 @@ export const MacSlide: React.FC<Props> = ({
           )})`,
         }}
       >
-        <SoftCard frame={frame} delay={6} accent={compareWinner.side === "right" ? c.green : c.pink} style={{ padding: "18px 22px" }}>
+        <SoftCard frame={frame} delay={6} accent={compareWinner.side === "right" ? c.green : c.pink} style={{ padding: "18px 22px" }} theme={theme}>
           <div style={{ fontSize: 28, lineHeight: 1.2, color: c.text, fontWeight: 800 }}>
             {compareWinner.label} wins attention with {compareWinner.value}
           </div>
@@ -936,7 +1157,7 @@ export const MacSlide: React.FC<Props> = ({
             })`,
           }}
         >
-          <SoftCard frame={frame} delay={8} accent={c.pink} style={{ padding: 28 }}>
+          <SoftCard frame={frame} delay={8} accent={c.pink} style={{ padding: 28 }} theme={theme}>
             <div style={{ fontSize: 16, color: c.muted, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em" }}>
               {compare.left.label}
             </div>
@@ -955,9 +1176,9 @@ export const MacSlide: React.FC<Props> = ({
                 width: 110,
                 height: 110,
                 borderRadius: "50%",
-                background: "rgba(255,255,255,0.68)",
+                background: theme.vsSurface,
                 border: `1px solid ${c.border}`,
-                boxShadow: "0 18px 36px rgba(15,23,42,0.08)",
+                boxShadow: `0 18px 36px ${c.shadow}`,
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -984,7 +1205,7 @@ export const MacSlide: React.FC<Props> = ({
             })`,
           }}
         >
-          <SoftCard frame={frame} delay={14} accent={c.green} style={{ padding: 28 }}>
+          <SoftCard frame={frame} delay={14} accent={c.green} style={{ padding: 28 }} theme={theme}>
             <div style={{ fontSize: 16, color: c.muted, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em" }}>
               {compare.right.label}
             </div>
@@ -1002,15 +1223,16 @@ export const MacSlide: React.FC<Props> = ({
 
   const renderSteps = () => (
     <div>
-      <SectionHeader title={title} subtitle={subtitle} frame={frame} compact />
+      <SectionHeader title={title} subtitle={subtitle} frame={frame} compact theme={theme} />
       <div style={{ display: "grid", gridTemplateColumns: `repeat(${Math.max(3, Math.min(4, items.length || 3))}, 1fr)`, gap: 18 }}>
         {steps.map((item, itemIndex) => (
           <SoftCard
             key={`${item.title}-${itemIndex}`}
             frame={frame}
-            delay={8 + itemIndex * 5}
+            delay={14 + itemIndex * 9}
             accent={accents[itemIndex % accents.length]}
             style={{ padding: 24, minHeight: 260 }}
+            theme={theme}
           >
             <div
               style={{
@@ -1040,8 +1262,8 @@ export const MacSlide: React.FC<Props> = ({
 
   const renderChart = () => (
     <div>
-      <SectionHeader title={title} subtitle={subtitle} frame={frame} compact />
-      <SoftCard frame={frame} delay={8} accent={c.cyan} style={{ padding: 28 }}>
+      <SectionHeader title={title} subtitle={subtitle} frame={frame} compact theme={theme} />
+      <SoftCard frame={frame} delay={8} accent={c.cyan} style={{ padding: 28 }} theme={theme}>
         <div style={{ display: "grid", gap: 20 }}>
           {bars.map((item, itemIndex) => (
             <div key={`${item.label}-${itemIndex}`} style={{ display: "grid", gridTemplateColumns: "220px 1fr 70px", gap: 16, alignItems: "center" }}>
@@ -1066,15 +1288,16 @@ export const MacSlide: React.FC<Props> = ({
 
   const renderTimeline = () => (
     <div>
-      <SectionHeader title={title} subtitle={subtitle} frame={frame} compact />
+      <SectionHeader title={title} subtitle={subtitle} frame={frame} compact theme={theme} />
       <div style={{ display: "grid", gridTemplateColumns: `repeat(${Math.max(3, Math.min(4, timeline.length))}, 1fr)`, gap: 18 }}>
         {timeline.map((item, itemIndex) => (
           <SoftCard
             key={`${item.year}-${item.title}-${itemIndex}`}
             frame={frame}
-            delay={8 + itemIndex * 5}
+            delay={14 + itemIndex * 9}
             accent={accents[itemIndex % accents.length]}
             style={{ padding: 22, minHeight: 250 }}
+            theme={theme}
           >
             <div style={{ fontSize: 16, color: accents[itemIndex % accents.length], fontWeight: 800 }}>{item.year}</div>
             <div style={{ marginTop: 16, fontSize: 28, lineHeight: 1.22, color: c.text, fontWeight: 800 }}>{item.title}</div>
@@ -1089,7 +1312,7 @@ export const MacSlide: React.FC<Props> = ({
 
   const renderHighlight = () => (
     <div style={{ minHeight: 690, display: "flex", flexDirection: "column", justifyContent: "center" }}>
-      <SectionHeader title={title} subtitle={subtitle} frame={frame} compact />
+      <SectionHeader title={title} subtitle={subtitle} frame={frame} compact theme={theme} />
       <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
         {highlightItems.map((item, itemIndex) => (
           <Pill
@@ -1097,7 +1320,8 @@ export const MacSlide: React.FC<Props> = ({
             text={item}
             accent={accents[itemIndex % accents.length]}
             frame={frame}
-            delay={8 + itemIndex * 4}
+            delay={12 + itemIndex * 7}
+            theme={theme}
           />
         ))}
       </div>
@@ -1106,7 +1330,7 @@ export const MacSlide: React.FC<Props> = ({
 
   const renderQuote = () => (
     <div style={{ minHeight: 690, display: "flex", alignItems: "center" }}>
-      <SoftCard frame={frame} delay={8} accent={c.purple} style={{ padding: "42px 48px", width: "100%" }}>
+      <SoftCard frame={frame} delay={8} accent={c.purple} style={{ padding: "42px 48px", width: "100%" }} theme={theme}>
         <div style={{ fontSize: 76, lineHeight: 0.8, color: c.blue, fontWeight: 800 }}>“</div>
         <div style={{ marginTop: 14, fontSize: 46, lineHeight: 1.22, color: c.text, fontWeight: 800, maxWidth: 1180 }}>
           {quoteText}
@@ -1121,14 +1345,14 @@ export const MacSlide: React.FC<Props> = ({
   const renderCta = () => (
     <div style={{ minHeight: 690, display: "grid", gridTemplateColumns: "1.15fr 0.85fr", gap: 24, alignItems: "center" }}>
       <div>
-        <SectionHeader title={title} subtitle={subtitle} frame={frame} />
+        <SectionHeader title={title} subtitle={subtitle} frame={frame} theme={theme} />
         <div style={{ display: "flex", gap: 14, marginTop: 12, flexWrap: "wrap" }}>
           {highlightItems.slice(0, 3).map((item, itemIndex) => (
-            <Pill key={`${item}-${itemIndex}`} text={item} accent={accents[itemIndex % accents.length]} frame={frame} delay={10 + itemIndex * 4} />
+            <Pill key={`${item}-${itemIndex}`} text={item} accent={accents[itemIndex % accents.length]} frame={frame} delay={10 + itemIndex * 4} theme={theme} />
           ))}
         </div>
       </div>
-      <SoftCard frame={frame} delay={12} accent={c.blue} style={{ padding: 28 }}>
+      <SoftCard frame={frame} delay={12} accent={c.blue} style={{ padding: 28 }} theme={theme}>
         <div style={{ fontSize: 34, lineHeight: 1.15, color: c.text, fontWeight: 900 }}>
           {heroCta}
         </div>
@@ -1143,11 +1367,11 @@ export const MacSlide: React.FC<Props> = ({
             gap: 12,
             padding: "16px 24px",
             borderRadius: 999,
-            background: "linear-gradient(90deg, #0a84ff 0%, #7c3aed 100%)",
+            background: theme.ctaGradient,
             color: "white",
             fontSize: 20,
             fontWeight: 800,
-            boxShadow: "0 18px 36px rgba(10,132,255,0.24)",
+            boxShadow: theme.ctaShadow,
             transform: `scale(${interpolate(endingPulse, [0, 1], [1, 1.08])})`,
             transformOrigin: "left center",
           }}
@@ -1206,10 +1430,10 @@ export const MacSlide: React.FC<Props> = ({
   };
 
   return (
-    <AbsoluteFill style={{ fontFamily: "'SF Pro Display', 'PingFang SC', sans-serif", color: c.text }}>
-      <Background frame={frame} />
+    <AbsoluteFill style={{ fontFamily: theme.rootFont, color: c.text }}>
+      <Background frame={frame} theme={theme} />
       <AbsoluteFill style={{ alignItems: "center", justifyContent: "center", padding: 42 }}>
-        <WindowFrame frame={frame} index={index} totalSlides={totalSlides}>
+        <WindowFrame frame={frame} index={index} totalSlides={totalSlides} theme={theme}>
           {renderBody()}
         </WindowFrame>
       </AbsoluteFill>

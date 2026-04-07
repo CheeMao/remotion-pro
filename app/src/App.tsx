@@ -2,6 +2,7 @@ import React from 'react';
 import { Link, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import { EmbeddedPreview, PreviewProjectData } from './remotion-preview/EmbeddedPreview';
 import { prepareSlidesForRender } from '@remotion-root/templates/autoLayout';
+import { getTemplateOrientation, type TemplateOrientation } from '@remotion-root/templates/templateSpecs';
 import type { ContentSlide, ElementTiming } from '@remotion-root/templates/types';
 
 type SimpleSlide = {
@@ -304,14 +305,22 @@ const TEMPLATE_OPTIONS = [
 ] as const;
 
 const ACTIVE_TEMPLATE_OPTIONS = [
-  { label: '玻璃风', value: 'GlassShow' },
-  { label: '液态玻璃', value: 'LiquidShow' },
-  { label: '液态简报', value: 'LiquidBriefShow' },
-  { label: 'Mac 横屏', value: 'MacShow' },
-  { label: '科技信息流', value: 'TechShow' },
-  { label: '富效果', value: 'RichShow' },
-  { label: '知识讲解', value: 'KnowledgeShow' },
+  { label: '玻璃风 · Glass', value: 'GlassShow', orientation: 'portrait' },
+  { label: '液态玻璃 · Liquid', value: 'LiquidShow', orientation: 'portrait' },
+  { label: '液态简报 · LiquidBrief', value: 'LiquidBriefShow', orientation: 'portrait' },
+  { label: '科技信息流 · Tech', value: 'TechShow', orientation: 'portrait' },
+  { label: '知识讲解 · Knowledge', value: 'KnowledgeShow', orientation: 'portrait' },
+  { label: '火柴人 · Stick', value: 'StickShow', orientation: 'portrait' },
+  { label: 'Mac 风 · Mac', value: 'MacShow', orientation: 'landscape' },
+  { label: '演播室 · Studio Terminal', value: 'StudioShow', orientation: 'landscape' },
+  { label: '杂志风 · Editorial Magazine', value: 'EditorialShow', orientation: 'landscape' },
+  { label: '知识洞察 · Insight', value: 'InsightShow', orientation: 'landscape' },
 ] as const;
+
+const TEMPLATE_ORIENTATION_OPTIONS: Array<{ label: string; value: TemplateOrientation }> = [
+  { label: '竖屏', value: 'portrait' },
+  { label: '横屏', value: 'landscape' },
+];
 
 const DEFAULT_TEMPLATE = 'GlassShow';
 const ACTIVE_TEMPLATES: Set<string> = new Set(
@@ -325,6 +334,13 @@ function normalizeTemplate(template?: string): string {
   }
 
   return ACTIVE_TEMPLATES.has(template) ? template : DEFAULT_TEMPLATE;
+}
+
+function getDefaultTemplateForOrientation(orientation: TemplateOrientation): string {
+  return (
+    ACTIVE_TEMPLATE_OPTIONS.find((option) => option.orientation === orientation)?.value ||
+    DEFAULT_TEMPLATE
+  );
 }
 
 const DEFAULT_REWRITE_STYLES: RewriteStyle[] = [
@@ -770,7 +786,10 @@ function isStructuredTemplate(template: string): boolean {
     template === 'LiquidShow' ||
     template === 'LiquidBriefShow' ||
     template === 'MacShow' ||
-    template === 'RichShow' ||
+    template === 'StudioShow' ||
+    template === 'EditorialShow' ||
+    template === 'InsightShow' ||
+    template === 'StickShow' ||
     template === 'TechShow' ||
     template === 'KnowledgeShow'
   );
@@ -1733,16 +1752,15 @@ function getPrompt(
 ): string {
   const plan = getPagePlan(timeline.duration, template);
   const legacyPrompt =
-    template === 'RichShow'
-      ? RICH_PROMPT
-      : template === 'TechShow'
-        ? TECH_PROMPT
-        : template === 'GlassShow'
-          ? GLASS_PROMPT
-          : template === 'LiquidShow' || template === 'LiquidBriefShow'
-            ? LIQUID_PROMPT
-            : SIMPLE_PROMPT;
+    template === 'TechShow'
+      ? TECH_PROMPT
+      : template === 'GlassShow'
+        ? GLASS_PROMPT
+        : template === 'LiquidShow' || template === 'LiquidBriefShow'
+          ? LIQUID_PROMPT
+          : SIMPLE_PROMPT;
   void legacyPrompt;
+  void RICH_PROMPT;
 
   const legacyDirectorBrief =
     template === 'TechShow'
@@ -1751,8 +1769,11 @@ function getPrompt(
         ? getGlassShowDirectorBrief(plan.targetPages)
         : template === 'LiquidShow' || template === 'LiquidBriefShow'
           ? getLiquidShowDirectorBrief(plan.targetPages)
-          : template === 'MacShow'
-            ? getMacShowDirectorBrief(plan.targetPages)
+        : template === 'MacShow' ||
+            template === 'StudioShow' ||
+            template === 'EditorialShow' ||
+            template === 'InsightShow'
+          ? getMacShowDirectorBrief(plan.targetPages)
           : '';
   void legacyDirectorBrief;
   void MACSHOW_PROMPT;
@@ -2407,7 +2428,11 @@ async function generateSlidesWithAi(
       (template === 'GlassShow' && shouldRetryGlassShowSlides(slides)) ||
       ((template === 'LiquidShow' || template === 'LiquidBriefShow') &&
         shouldRetryLiquidShowSlides(slides)) ||
-      (template === 'MacShow' && shouldRetryMacShowSlides(slides));
+      ((template === 'MacShow' ||
+        template === 'StudioShow' ||
+        template === 'EditorialShow' ||
+        template === 'InsightShow') &&
+        shouldRetryMacShowSlides(slides));
 
     const layouts = slides
       .map((slide) => ('layout' in slide ? slide.layout : slide.type))
@@ -2692,6 +2717,9 @@ function HomePage(props: {
   const [template, setTemplate] = React.useState(
     normalizeTemplate(homeDraft?.template || props.project?.template || DEFAULT_TEMPLATE)
   );
+  const [templateOrientation, setTemplateOrientation] = React.useState<TemplateOrientation>(() =>
+    getTemplateOrientation(homeDraft?.template || props.project?.template || DEFAULT_TEMPLATE)
+  );
   const [loading, setLoading] = React.useState(false);
   const [status, setStatus] = React.useState('');
   const [error, setError] = React.useState('');
@@ -2710,6 +2738,28 @@ function HomePage(props: {
       setSelectedRewriteStyleId(loadSettings().defaultRewriteStyleId);
     }
   }, [rewriteStyles, selectedRewriteStyleId]);
+
+  const filteredTemplateOptions = React.useMemo(
+    () => ACTIVE_TEMPLATE_OPTIONS.filter((option) => option.orientation === templateOrientation),
+    [templateOrientation]
+  );
+
+  const handleTemplateOrientationChange = React.useCallback((nextOrientation: TemplateOrientation) => {
+    setTemplateOrientation(nextOrientation);
+
+    const hasMatchingTemplate = ACTIVE_TEMPLATE_OPTIONS.some(
+      (option) => option.value === template && option.orientation === nextOrientation
+    );
+
+    if (!hasMatchingTemplate) {
+      setTemplate(getDefaultTemplateForOrientation(nextOrientation));
+    }
+  }, [template]);
+
+  const handleTemplateChange = React.useCallback((nextTemplate: string) => {
+    setTemplate(nextTemplate);
+    setTemplateOrientation(getTemplateOrientation(nextTemplate));
+  }, []);
 
   React.useEffect(() => {
     saveHomeDraft({
@@ -3028,13 +3078,25 @@ function HomePage(props: {
               flex: 1,
             }}
           >
+            <label style={{ fontWeight: 600, color: '#1d2129', whiteSpace: 'nowrap', flexShrink: 0 }}>画幅</label>
+            <select
+              value={templateOrientation}
+              onChange={(event) => handleTemplateOrientationChange(event.target.value as TemplateOrientation)}
+              style={{ ...SOFT_INPUT_STYLE, width: 120, maxWidth: '100%', flexShrink: 0 }}
+            >
+              {TEMPLATE_ORIENTATION_OPTIONS.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
             <label style={{ fontWeight: 600, color: '#1d2129', whiteSpace: 'nowrap', flexShrink: 0 }}>模板</label>
             <select
               value={template}
-              onChange={(event) => setTemplate(event.target.value)}
+              onChange={(event) => handleTemplateChange(event.target.value)}
               style={{ ...SOFT_INPUT_STYLE, width: 260, maxWidth: '100%', flexShrink: 0 }}
             >
-                {ACTIVE_TEMPLATE_OPTIONS.map((option) => (
+              {filteredTemplateOptions.map((option) => (
                 <option key={option.value} value={option.value}>
                   {option.label}
                 </option>

@@ -322,6 +322,8 @@ export const KnowledgeSlide: React.FC<{
   chart?: ChartData;
   elementTimings?: ElementTiming[];
   slideAudioStart?: number;
+  type?: string;
+  data?: Record<string, unknown>;
   index: number;
   totalSlides: number;
   durationInFrames: number;
@@ -335,6 +337,8 @@ export const KnowledgeSlide: React.FC<{
   chart,
   elementTimings,
   slideAudioStart,
+  type,
+  data,
   index,
   totalSlides,
   durationInFrames,
@@ -444,7 +448,182 @@ export const KnowledgeSlide: React.FC<{
         ) : null}
 
         <InfoCard frame={frame} delay={10}>
-          {highlights && highlights.length > 0 ? (
+          {/* ===== compare ===== */}
+          {type === 'compare' && data?.left && data?.right ? (
+            (() => {
+              const left = data.left as { label?: string; value?: string; desc?: string };
+              const right = data.right as { label?: string; value?: string; desc?: string };
+              const lp = spring({ frame: frame - 18, fps: 30, config: { damping: 14 } });
+              const rp = spring({ frame: frame - 28, fps: 30, config: { damping: 14 } });
+              return (
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 60px 1fr', gap: 0, alignItems: 'stretch' }}>
+                  <div
+                    style={{
+                      padding: '24px 24px 28px 0',
+                      borderRight: `1px solid ${colors.border}`,
+                      opacity: lp,
+                      transform: `translateX(${interpolate(lp, [0, 1], [-18, 0])}px)`,
+                    }}
+                  >
+                    <div style={{ fontSize: 18, color: colors.accent3, fontWeight: 800, letterSpacing: '0.16em', textTransform: 'uppercase' }}>
+                      ◇ {left.label || 'Before'}
+                    </div>
+                    <div style={{ marginTop: 14, fontSize: 38, fontWeight: 900, color: colors.text, lineHeight: 1.18, letterSpacing: '-0.02em' }}>
+                      {left.value}
+                    </div>
+                    {left.desc ? (
+                      <div style={{ marginTop: 12, fontSize: 20, color: colors.muted, lineHeight: 1.5 }}>{left.desc}</div>
+                    ) : null}
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, fontWeight: 900, color: colors.accent5, opacity: spring({ frame: frame - 32, fps: 30 }) }}>
+                    VS
+                  </div>
+                  <div
+                    style={{
+                      padding: '24px 0 28px 24px',
+                      opacity: rp,
+                      transform: `translateX(${interpolate(rp, [0, 1], [18, 0])}px)`,
+                    }}
+                  >
+                    <div style={{ fontSize: 18, color: colors.accent2, fontWeight: 800, letterSpacing: '0.16em', textTransform: 'uppercase' }}>
+                      ◆ {right.label || 'After'}
+                    </div>
+                    <div style={{ marginTop: 14, fontSize: 38, fontWeight: 900, color: colors.text, lineHeight: 1.18, letterSpacing: '-0.02em' }}>
+                      {right.value}
+                    </div>
+                    {right.desc ? (
+                      <div style={{ marginTop: 12, fontSize: 20, color: colors.muted, lineHeight: 1.5 }}>{right.desc}</div>
+                    ) : null}
+                  </div>
+                </div>
+              );
+            })()
+          ) : null}
+
+          {/* ===== quote ===== */}
+          {type === 'quote' && (typeof data?.quote === 'string' || (points && points.length > 0)) ? (
+            (() => {
+              const quoteText = (typeof data?.quote === 'string' ? data.quote : points?.[0]) || '';
+              const author = typeof data?.author === 'string' ? data.author : undefined;
+              const qp = spring({ frame: frame - 18, fps: 30, config: { damping: 16 } });
+              return (
+                <div style={{ position: 'relative', padding: '20px 12px' }}>
+                  <div
+                    style={{
+                      position: 'absolute',
+                      top: -30,
+                      left: -8,
+                      fontSize: 200,
+                      fontFamily: 'Georgia, serif',
+                      fontWeight: 900,
+                      color: colors.accent2,
+                      opacity: 0.18 * qp,
+                      lineHeight: 0.7,
+                    }}
+                  >
+                    "
+                  </div>
+                  <div
+                    style={{
+                      position: 'relative',
+                      fontSize: 38,
+                      fontWeight: 800,
+                      lineHeight: 1.3,
+                      color: colors.text,
+                      letterSpacing: '-0.02em',
+                      opacity: qp,
+                      transform: `translateY(${interpolate(qp, [0, 1], [16, 0])}px)`,
+                      paddingLeft: 12,
+                    }}
+                  >
+                    {quoteText}
+                  </div>
+                  {author ? (
+                    <div
+                      style={{
+                        marginTop: 24,
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 14,
+                        opacity: spring({ frame: frame - 36, fps: 30 }),
+                        paddingLeft: 12,
+                      }}
+                    >
+                      <div style={{ width: 40, height: 2, background: colors.accent2 }} />
+                      <div style={{ fontSize: 20, color: colors.accent2, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase' }}>
+                        {author}
+                      </div>
+                    </div>
+                  ) : null}
+                </div>
+              );
+            })()
+          ) : null}
+
+          {/* ===== cta ===== */}
+          {type === 'cta' ? (
+            (() => {
+              const ctaText =
+                (typeof data?.cta === 'string' && data.cta) ||
+                (typeof data?.button === 'string' && data.button) ||
+                '点赞收藏';
+              const tags = points || [];
+              const cp = spring({ frame: frame - 22, fps: 30, config: { damping: 13, stiffness: 110 } });
+              const pulse = 1 + Math.sin(frame * 0.12) * 0.04;
+              return (
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 26, padding: '8px 0' }}>
+                  <div
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: 14,
+                      padding: '24px 52px',
+                      borderRadius: 999,
+                      background: `linear-gradient(135deg, ${colors.accent1} 0%, ${colors.accent2} 100%)`,
+                      fontSize: 30,
+                      fontWeight: 800,
+                      color: 'white',
+                      boxShadow: `0 24px 56px ${colors.accent1}55, inset 0 1px 0 rgba(255,255,255,0.4)`,
+                      transform: `scale(${pulse * interpolate(cp, [0, 1], [0.86, 1])})`,
+                      opacity: cp,
+                      letterSpacing: '-0.01em',
+                    }}
+                  >
+                    <span style={{ fontSize: 28 }}>→</span>
+                    {String(ctaText)}
+                  </div>
+                  {tags.length > 0 ? (
+                    <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', justifyContent: 'center', opacity: cp }}>
+                      {tags.slice(0, 4).map((tag, i) => {
+                        const tagColor = chipPalette[i % chipPalette.length];
+                        return (
+                          <span
+                            key={`${tag}-${i}`}
+                            style={{
+                              padding: '10px 18px',
+                              borderRadius: 999,
+                              background: `${tagColor}18`,
+                              border: `1px solid ${tagColor}45`,
+                              fontSize: 17,
+                              fontWeight: 700,
+                              color: colors.text,
+                              letterSpacing: '0.02em',
+                            }}
+                          >
+                            #{tag}
+                          </span>
+                        );
+                      })}
+                    </div>
+                  ) : null}
+                </div>
+              );
+            })()
+          ) : null}
+
+          {/* ===== highlights / hero ===== */}
+          {(type === 'highlight' || type === 'hero' || type === 'stats' || !type) &&
+          highlights && highlights.length > 0 ? (
             <HighlightText
               highlights={highlights}
               frame={frame}
@@ -477,7 +656,8 @@ export const KnowledgeSlide: React.FC<{
             />
           ) : null}
 
-          {points && points.length > 0 && !highlights && !steps && !timeline && !chart ? (
+          {points && points.length > 0 && !highlights && !steps && !timeline && !chart &&
+          type !== 'compare' && type !== 'quote' && type !== 'cta' ? (
             <div style={{ display: "grid", gap: 14 }}>
               {points.map((point, i) => {
                 const progress = resolveProgress(

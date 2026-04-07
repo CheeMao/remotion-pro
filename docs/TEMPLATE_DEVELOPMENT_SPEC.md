@@ -25,6 +25,9 @@
 - `TechShow`
 - `RichShow`
 - `KnowledgeShow`
+- `MacShow`
+- `StudioShow`
+- `EditorialShow`
 
 ## 2. 模板必须支持的 layout 集合
 

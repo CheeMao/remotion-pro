@@ -3,6 +3,8 @@ export interface TemplateDimensions {
   height: number;
 }
 
+export type TemplateOrientation = 'portrait' | 'landscape';
+
 export const PORTRAIT_DIMENSIONS: TemplateDimensions = {
   width: 1080,
   height: 1920,
@@ -13,10 +15,14 @@ export const LANDSCAPE_DIMENSIONS: TemplateDimensions = {
   height: 1080,
 };
 
-const LANDSCAPE_TEMPLATES = new Set<string>(['MacShow']);
+const LANDSCAPE_TEMPLATES = new Set<string>(['MacShow', 'StudioShow', 'EditorialShow', 'InsightShow']);
 
 export const isLandscapeTemplate = (template?: string): boolean => {
   return !!template && LANDSCAPE_TEMPLATES.has(template);
+};
+
+export const getTemplateOrientation = (template?: string): TemplateOrientation => {
+  return isLandscapeTemplate(template) ? 'landscape' : 'portrait';
 };
 
 export const getTemplateDimensions = (template?: string): TemplateDimensions => {

@@ -520,6 +520,218 @@ export const TechSlide: React.FC<{
           </HoloFrame>
         );
 
+      // ===== 步骤页 (steps) =====
+      case "steps": {
+        const steps = (data.steps as Array<{ title: string; description?: string }>) || [];
+        return (
+          <div style={{ width: 880 }}>
+            <TerminalText text={String(data.title ?? "").toUpperCase()} delay={0} frame={frame} />
+            <div style={{ marginTop: 40, display: "flex", flexDirection: "column", gap: 18 }}>
+              {steps.map((step, i) => {
+                const stepProgress = spring({
+                  frame: frame - 18 - i * 10,
+                  fps,
+                  config: { damping: 14 },
+                });
+                const colorSet = [colors.primary, colors.secondary, colors.accent, colors.warning];
+                const accent = colorSet[i % colorSet.length];
+                return (
+                  <div
+                    key={i}
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "100px 1fr",
+                      gap: 22,
+                      alignItems: "center",
+                      padding: "18px 22px",
+                      border: `1px solid ${accent}55`,
+                      background: `linear-gradient(90deg, ${accent}10 0%, transparent 80%)`,
+                      opacity: stepProgress,
+                      transform: `translateX(${interpolate(stepProgress, [0, 1], [-40, 0])}px)`,
+                      position: "relative",
+                    }}
+                  >
+                    <div
+                      style={{
+                        position: "absolute",
+                        left: 0,
+                        top: 0,
+                        bottom: 0,
+                        width: 4,
+                        background: accent,
+                        boxShadow: `0 0 12px ${accent}`,
+                      }}
+                    />
+                    <div
+                      style={{
+                        fontFamily: "'JetBrains Mono', monospace",
+                        fontSize: 42,
+                        fontWeight: 900,
+                        color: accent,
+                        textShadow: `0 0 14px ${accent}90`,
+                        letterSpacing: "-0.02em",
+                      }}
+                    >
+                      {`STEP_${String(i + 1).padStart(2, "0")}`.slice(5)}
+                    </div>
+                    <div>
+                      <div style={{ fontSize: 28, fontWeight: 800, color: colors.text }}>
+                        {step.title}
+                      </div>
+                      {step.description && (
+                        <div style={{ fontSize: 19, color: colors.muted, marginTop: 4 }}>
+                          {step.description}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        );
+      }
+
+      // ===== 时间线页 (timeline) =====
+      case "timeline": {
+        const timeline = (data.timeline as Array<{ year: string; title: string; description?: string }>) || [];
+        return (
+          <div style={{ width: 900 }}>
+            <TerminalText text={String(data.title ?? "").toUpperCase()} delay={0} frame={frame} />
+            <div style={{ marginTop: 50, position: "relative", paddingLeft: 50 }}>
+              <div
+                style={{
+                  position: "absolute",
+                  left: 24,
+                  top: 16,
+                  bottom: 16,
+                  width: 2,
+                  background: `linear-gradient(180deg, ${colors.primary} 0%, ${colors.accent} 100%)`,
+                  boxShadow: `0 0 12px ${colors.primary}80`,
+                  transform: `scaleY(${spring({ frame: frame - 12, fps, config: { damping: 18 } })})`,
+                  transformOrigin: "top",
+                }}
+              />
+              <div style={{ display: "flex", flexDirection: "column", gap: 22 }}>
+                {timeline.map((item, i) => {
+                  const itemProgress = spring({
+                    frame: frame - 22 - i * 12,
+                    fps,
+                    config: { damping: 14 },
+                  });
+                  const colorSet = [colors.primary, colors.secondary, colors.accent, colors.warning];
+                  const accent = colorSet[i % colorSet.length];
+                  return (
+                    <div
+                      key={i}
+                      style={{
+                        position: "relative",
+                        opacity: itemProgress,
+                        transform: `translateX(${interpolate(itemProgress, [0, 1], [-20, 0])}px)`,
+                      }}
+                    >
+                      <div
+                        style={{
+                          position: "absolute",
+                          left: -34,
+                          top: 14,
+                          width: 14,
+                          height: 14,
+                          borderRadius: "50%",
+                          background: accent,
+                          boxShadow: `0 0 14px ${accent}, 0 0 0 4px ${accent}30`,
+                        }}
+                      />
+                      <div
+                        style={{
+                          fontFamily: "'JetBrains Mono', monospace",
+                          fontSize: 22,
+                          color: accent,
+                          letterSpacing: "0.08em",
+                          textTransform: "uppercase",
+                          fontWeight: 800,
+                        }}
+                      >
+                        {`> ${item.year}`}
+                      </div>
+                      <div style={{ fontSize: 28, fontWeight: 800, color: colors.text, marginTop: 2 }}>
+                        {item.title}
+                      </div>
+                      {item.description && (
+                        <div style={{ fontSize: 19, color: colors.muted, marginTop: 4 }}>
+                          {item.description}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        );
+      }
+
+      // ===== 关键词页 (highlight) =====
+      case "highlight": {
+        const items = ((data.items as unknown[]) || []).map((it) =>
+          typeof it === "string" ? it : (it as { text?: string }).text || ""
+        );
+        return (
+          <div style={{ width: 900 }}>
+            <TerminalText text={String(data.title ?? "").toUpperCase()} delay={0} frame={frame} />
+            <div
+              style={{
+                marginTop: 50,
+                display: "flex",
+                flexWrap: "wrap",
+                gap: 16,
+                justifyContent: "center",
+              }}
+            >
+              {items.map((it, i) => {
+                const tagProgress = spring({
+                  frame: frame - 20 - i * 8,
+                  fps,
+                  config: { damping: 12 },
+                });
+                const colorSet = [colors.primary, colors.secondary, colors.accent, colors.warning];
+                const accent = colorSet[i % colorSet.length];
+                return (
+                  <div
+                    key={i}
+                    style={{
+                      padding: "20px 30px",
+                      border: `1px solid ${accent}`,
+                      background: `${accent}12`,
+                      boxShadow: `0 0 24px ${accent}30, inset 0 0 14px ${accent}10`,
+                      fontSize: 30,
+                      fontWeight: 800,
+                      color: colors.text,
+                      letterSpacing: "0.04em",
+                      opacity: tagProgress,
+                      transform: `scale(${interpolate(tagProgress, [0, 1], [0.86, 1])})`,
+                      position: "relative",
+                    }}
+                  >
+                    <span
+                      style={{
+                        color: accent,
+                        marginRight: 12,
+                        fontFamily: "'JetBrains Mono', monospace",
+                        fontSize: 22,
+                      }}
+                    >
+                      [{String(i + 1).padStart(2, "0")}]
+                    </span>
+                    {it}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        );
+      }
+
       // ===== 进度页 =====
       case "progress":
         return (

@@ -2,7 +2,7 @@ import {AbsoluteFill,interpolate,spring,useCurrentFrame,useVideoConfig} from 're
 import React from 'react';
 import {getSlideMotionTiming} from '../templates/animationTiming';
 
-type SlideType='cover'|'cards'|'steps'|'compare'|'stats'|'quote';
+type SlideType='cover'|'cards'|'steps'|'compare'|'stats'|'quote'|'timeline'|'chart'|'highlight'|'cta';
 
 type Item={number:string;title:string;color?:string};
 type SlideData=Record<string,unknown>;
@@ -315,6 +315,140 @@ export const LiquidBriefSlide:React.FC<Props>=({
               })}
             </div>
           </div>
+        </div>
+      );
+    }
+
+    if(type==='timeline'){
+      const timeline=(data?.timeline as Array<{year:string;title:string;description?:string}>)||[];
+      return (
+        <div style={{position:'relative',display:'flex',flexDirection:'column',gap:14}}>
+          <div style={{position:'absolute',left:30,top:48,bottom:48,width:2,background:'linear-gradient(180deg, rgba(255,142,200,0.5) 0%, rgba(124,230,236,0.5) 50%, rgba(255,200,146,0.5) 100%)'}} />
+          {timeline.map((item,i)=>{
+            const p=spring({frame:frame-t.pointsStart-i*t.pointStagger,fps,config:{damping:15,stiffness:100}});
+            const color=[c.pink,c.aqua,c.apricot,c.lavender][i%4];
+            return (
+              <div key={`${item.year}-${i}`} style={{display:'flex',gap:18,alignItems:'flex-start',opacity:p,transform:rise(p,16)}}>
+                <div style={{width:62,paddingTop:14,display:'flex',justifyContent:'center',position:'relative',zIndex:1,flexShrink:0}}>
+                  <div style={{width:18,height:18,borderRadius:'50%',background:color,boxShadow:`0 0 0 5px ${color}25, 0 0 18px ${color}90`}} />
+                </div>
+                <div style={{...panelShell(color),flex:1,padding:'18px 22px 20px'}}>
+                  <div style={{fontSize:20,fontWeight:800,color:color,letterSpacing:'0.02em'}}>{item.year}</div>
+                  <div style={{marginTop:6,fontSize:26,fontWeight:800,color:c.ink,letterSpacing:'-0.025em',lineHeight:1.22}}>{item.title}</div>
+                  {item.description?(
+                    <div style={{marginTop:8,fontSize:20,lineHeight:1.55,color:c.muted,fontWeight:500}}>{item.description}</div>
+                  ):null}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      );
+    }
+
+    if(type==='chart'){
+      const bars=(data?.bars as Array<{label:string;value:number;percent?:number;color?:string}>)||[];
+      return (
+        <div style={{display:'flex',flexDirection:'column',gap:18}}>
+          {bars.map((bar,i)=>{
+            const p=spring({frame:frame-t.pointsStart-i*t.pointStagger,fps,config:{damping:16,stiffness:100}});
+            const value=Math.max(0,Math.min(100,bar.percent??bar.value));
+            const fillP=spring({frame:frame-t.pointsStart-i*t.pointStagger-4,fps,config:{damping:18,stiffness:80}});
+            const color=bar.color||[c.pink,c.aqua,c.apricot,c.lavender][i%4];
+            return (
+              <div key={`${bar.label}-${i}`} style={{...panelShell(color),padding:'20px 24px 22px',opacity:p,transform:rise(p,14)}}>
+                <div style={{display:'flex',justifyContent:'space-between',alignItems:'baseline',marginBottom:14}}>
+                  <div style={{fontSize:24,fontWeight:800,color:c.ink,letterSpacing:'-0.02em'}}>{bar.label}</div>
+                  <div style={{fontSize:36,fontWeight:900,color:color,letterSpacing:'-0.04em'}}>{Math.floor(value*fillP)}<span style={{fontSize:22,marginLeft:2}}>%</span></div>
+                </div>
+                <div style={{height:14,borderRadius:999,background:'rgba(124,138,160,0.14)',overflow:'hidden',position:'relative'}}>
+                  <div style={{height:'100%',width:`${value*fillP}%`,borderRadius:999,background:`linear-gradient(90deg, ${color} 0%, rgba(255,255,255,0.92) 100%)`,boxShadow:`0 0 18px ${color}65`}} />
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      );
+    }
+
+    if(type==='highlight'){
+      const items=(data?.highlights as string[])||[];
+      return (
+        <div style={{display:'flex',flexWrap:'wrap',gap:14,justifyContent:'center',alignItems:'center',minHeight:300}}>
+          {items.map((it,i)=>{
+            const p=spring({frame:frame-t.pointsStart-i*t.pointStagger,fps,config:{damping:14,stiffness:100}});
+            const color=[c.pink,c.aqua,c.apricot,c.lavender][i%4];
+            return (
+              <div
+                key={`${it}-${i}`}
+                style={{
+                  ...glassBase,
+                  borderRadius:24,
+                  padding:'18px 26px',
+                  border:`1px solid ${color}50`,
+                  background:`linear-gradient(135deg, ${color}20 0%, rgba(255,255,255,0.85) 100%)`,
+                  fontSize:26,
+                  fontWeight:800,
+                  color:c.ink,
+                  letterSpacing:'-0.02em',
+                  opacity:p,
+                  transform:`scale(${interpolate(p,[0,1],[0.86,1])}) ${rise(p,10)}`,
+                  display:'inline-flex',
+                  alignItems:'center',
+                  gap:12,
+                }}
+              >
+                <span style={{width:8,height:8,borderRadius:'50%',background:color,boxShadow:`0 0 14px ${color}`}} />
+                {it}
+              </div>
+            );
+          })}
+        </div>
+      );
+    }
+
+    if(type==='cta'){
+      const ctaText=typeof data?.cta==='string'?data.cta:'点赞收藏';
+      const cards=(data?.cards as Array<{eyebrow?:string;title:string;body:string}>)||[];
+      const tags=cards.map(c=>c.title).slice(0,4);
+      const pulse=1+Math.sin(frame*0.12)*0.04;
+      const ctaP=spring({frame:frame-t.pointsStart-4,fps,config:{damping:13,stiffness:110}});
+      return (
+        <div style={{display:'flex',flexDirection:'column',alignItems:'center',gap:32,padding:'20px 0'}}>
+          <div style={{...glassBase,borderRadius:32,padding:'30px 44px 34px',position:'relative',overflow:'hidden',textAlign:'center'}}>
+            <div style={{position:'absolute',inset:0,background:'radial-gradient(circle at 50% 0%, rgba(255,142,200,0.30) 0%, transparent 60%)',pointerEvents:'none'}} />
+            <div style={{position:'relative',zIndex:1}}>
+              <div
+                style={{
+                  display:'inline-flex',
+                  alignItems:'center',
+                  gap:14,
+                  padding:'24px 56px',
+                  borderRadius:999,
+                  background:'linear-gradient(135deg, #ff64bf 0%, #7de5ef 100%)',
+                  fontSize:32,
+                  fontWeight:800,
+                  color:'white',
+                  boxShadow:'0 24px 56px rgba(255,100,191,0.40), inset 0 1px 0 rgba(255,255,255,0.45)',
+                  transform:`scale(${pulse*interpolate(ctaP,[0,1],[0.86,1])})`,
+                  opacity:ctaP,
+                  letterSpacing:'-0.01em',
+                }}
+              >
+                <span style={{fontSize:28}}>→</span>
+                {ctaText}
+              </div>
+            </div>
+          </div>
+          {tags.length>0?(
+            <div style={{display:'flex',gap:12,flexWrap:'wrap',justifyContent:'center'}}>
+              {tags.map((tg,i)=>{
+                const color=[c.pink,c.aqua,c.apricot,c.lavender][i%4];
+                const tp=spring({frame:frame-t.pointsStart-12-i*4,fps,config:{damping:16}});
+                return <div key={`${tg}-${i}`} style={{opacity:tp}}><div style={tagStyle(color)}>#{tg}</div></div>;
+              })}
+            </div>
+          ):null}
         </div>
       );
     }

@@ -32,6 +32,93 @@ export interface TemplateSpec {
   supportedLayouts: LayoutType[];
 }
 
+const FULL_STRUCTURED_LAYOUTS: LayoutType[] = [
+  {
+    name: 'hero',
+    description: '开场页，突出主题、标题与行动指向',
+    whenToUse: '视频开场、章节切换、建立主结论时使用',
+    requiredFields: ['title'],
+    optionalFields: ['subtitle', 'data'],
+  },
+  {
+    name: 'default',
+    description: '通用说明页，适合展开一段解释或结论',
+    whenToUse: '普通解释、补充说明、轻量总结时使用',
+    requiredFields: ['title'],
+    optionalFields: ['subtitle', 'points', 'data'],
+  },
+  {
+    name: 'steps',
+    description: '步骤流程页，强调顺序和执行路径',
+    whenToUse: '教程、操作、方法拆解、阶段推进时使用',
+    requiredFields: ['title', 'data'],
+    optionalFields: ['subtitle', 'points'],
+  },
+  {
+    name: 'compare',
+    description: '对比页，突出前后差异或两种方案',
+    whenToUse: '前后反差、方案比较、错误与正确做法时使用',
+    requiredFields: ['title', 'data'],
+    optionalFields: ['subtitle', 'points'],
+  },
+  {
+    name: 'stats',
+    description: '数据页，展示关键指标和结果',
+    whenToUse: '核心数字、指标成果、量化证据时使用',
+    requiredFields: ['title', 'data'],
+    optionalFields: ['subtitle', 'points'],
+  },
+  {
+    name: 'quote',
+    description: '引用页，强化一句结论或金句',
+    whenToUse: '收束、观点强调、引用原话时使用',
+    requiredFields: ['title', 'data'],
+    optionalFields: ['subtitle', 'points'],
+  },
+  {
+    name: 'list',
+    description: '列表页，适合并列拆分多个要点',
+    whenToUse: '功能总结、并列观点、要点归纳时使用',
+    requiredFields: ['title', 'data'],
+    optionalFields: ['subtitle', 'points'],
+  },
+  {
+    name: 'chart',
+    description: '图表页，适合表现比例、柱状或进度数据',
+    whenToUse: '可视化数字、评分、占比、趋势切面时使用',
+    requiredFields: ['title', 'data'],
+    optionalFields: ['subtitle', 'points'],
+  },
+  {
+    name: 'timeline',
+    description: '时间线页，适合阶段或历史脉络',
+    whenToUse: '发展过程、演进路径、版本迭代时使用',
+    requiredFields: ['title', 'data'],
+    optionalFields: ['subtitle', 'points'],
+  },
+  {
+    name: 'highlight',
+    description: '高亮页，突出关键词或重点短句',
+    whenToUse: '记忆点强化、关键词总结、概念聚焦时使用',
+    requiredFields: ['title', 'data'],
+    optionalFields: ['subtitle', 'points'],
+  },
+  {
+    name: 'cta',
+    description: '行动页，适合结尾给动作或下一步',
+    whenToUse: '视频结尾、行动引导、明确下一步时使用',
+    requiredFields: ['title', 'data'],
+    optionalFields: ['subtitle', 'points'],
+  },
+];
+
+const createFullStructuredLayouts = (): LayoutType[] =>
+  FULL_STRUCTURED_LAYOUTS.map((layout) => ({
+    ...layout,
+    requiredFields: [...layout.requiredFields],
+    optionalFields: layout.optionalFields ? [...layout.optionalFields] : undefined,
+  }));
+
 /**
  * 模板注册表
  * 记录所有可用模板及其支持的布局类型
@@ -390,6 +477,30 @@ export const TEMPLATE_REGISTRY: Record<string, TemplateSpec> = {
         optionalFields: ['subtitle', 'points'],
       },
     ],
+  },
+
+  MacShow: {
+    id: 'MacShow',
+    name: 'Mac 横屏风格',
+    description: '轻产品感横屏模板，适合教程、演示、复盘和知识讲解',
+    style: ['横屏', '产品感', '轻玻璃', '清爽'],
+    supportedLayouts: createFullStructuredLayouts(),
+  },
+
+  StudioShow: {
+    id: 'StudioShow',
+    name: '演播室横屏风格',
+    description: '深色信息墙横屏模板，适合复盘、汇报、策略拆解和数据讲解',
+    style: ['横屏', '演播室', '深色', '数据墙'],
+    supportedLayouts: createFullStructuredLayouts(),
+  },
+
+  EditorialShow: {
+    id: 'EditorialShow',
+    name: '编辑感横屏风格',
+    description: '版面化横屏模板，适合观点表达、案例拆解、品牌故事和内容讲述',
+    style: ['横屏', '编辑感', '留白', '版面'],
+    supportedLayouts: createFullStructuredLayouts(),
   },
 };
 

@@ -10,10 +10,11 @@ import type {
 
 const NUMERIC_POINT_PATTERN = /\d+(?:[.,]\d+)?\s*(%|x|X|倍|个|项|天|年|小时|分钟|万|亿|k|K|m|M)?/;
 const STEP_HINT_PATTERN = /^(?:\d+[.)、:\-\s]|step\s*\d+|第[一二三四五六七八九十\d]+步)/i;
-const COMPARE_HINT_PATTERN = /\b(vs|versus)\b|对比|比较|区别|差异|before|after|前后/i;
-const STEP_TITLE_PATTERN = /步骤|流程|方法|打法|路线|指南|方案|how to|framework|checklist/i;
-const CTA_HINT_PATTERN = /立即|马上|现在|行动|关注|订阅|了解更多|开始|加入|领取|预约/i;
-const HERO_HINT_PATTERN = /为什么|秘诀|核心|关键|趋势|方法|公式|指南|框架|玩法|模板/i;
+const STEP_TITLE_PATTERN = /步骤|流程|方法|打法|路线|指南|方案|how to|framework|checklist|做法|实践|练这|基本功/i;
+const CTA_HINT_PATTERN = /立即|马上|现在|行动|关注|订阅|了解更多|开始|加入|领取|预约|点赞|收藏|评论|分享|下一条|下条|下次|今天就/i;
+const HERO_HINT_PATTERN = /为什么|秘诀|核心|关键|趋势|方法|公式|指南|框架|玩法|模板|真相|真正|其实|你以为|其实是/i;
+const QUOTE_MARK_PATTERN = /[「」『』""]/;
+const TIMELINE_HINT_PATTERN = /(\d{4}\s*年|过去|未来|演进|发展|历程|阶段)/i;
 
 const GENERIC_HERO_BADGE_PATTERN =
   /^(先抛问题|抛问题|提出问题|关键反转|反转|核心问题|关键问题|先给结论|给结论|抛结论|先讲结论|开场钩子|钩子|破题|收束|行动引导|行动建议|证据页|反差页|重点来了|继续往下看|往下看答案|看答案|call to action|cta|hook|verdict|signal|preview)$/i;
@@ -275,35 +276,48 @@ const normalizeStructuredSlide = (
   let inferredLayout: SharedLayout = 'default';
   let data = normalized.data;
 
-  if (index === 0 && total > 1 && points.length > 0 && points.length <= 3) {
+  const isFirstSlide = index === 0 && total > 1;
+  const isLastSlide = index === total - 1 && total > 1;
+  const subtitleHasQuote =
+    isNonEmptyString(normalized.subtitle) && QUOTE_MARK_PATTERN.test(normalized.subtitle);
+  const titleHasQuote =
+    isNonEmptyString(normalized.title) && QUOTE_MARK_PATTERN.test(normalized.title);
+
+  if (isFirstSlide && points.length > 0 && points.length <= 3) {
     inferredLayout = 'hero';
     data = {
       ...(normalized.data || {}),
       badge: sanitizeHeroBadge(normalized.data?.badge),
     };
   } else if (points.length === 0) {
-    if (isNonEmptyString(normalized.subtitle) && normalized.subtitle.length <= 88) {
-      inferredLayout = /总结|记住|一句话|金句|结论|quote/i.test(text)
-        ? 'quote'
-        : index === total - 1 || CTA_HINT_PATTERN.test(text)
-          ? 'cta'
-          : index === 0 || HERO_HINT_PATTERN.test(text)
-            ? 'hero'
-            : 'default';
-      if (inferredLayout === 'quote') {
-        data = {
-          quote: normalized.subtitle || normalized.title,
-          author: normalized.title && normalized.subtitle ? normalized.title : undefined,
-        };
-      } else if (inferredLayout === 'cta') {
-        data = { cta: sanitizeCtaText(normalized.data?.cta) || '立即开始' };
-      }
+    if (subtitleHasQuote || titleHasQuote || /总结|记住|一句话|金句|结论|quote/i.test(text)) {
+      inferredLayout = 'quote';
+      data = {
+        quote: normalized.subtitle || normalized.title,
+        author: normalized.title && normalized.subtitle ? normalized.title : undefined,
+      };
+    } else if (isLastSlide || CTA_HINT_PATTERN.test(text)) {
+      inferredLayout = 'cta';
+      data = { cta: sanitizeCtaText(normalized.data?.cta) || sanitizeCtaText(normalized.data?.button) || '点赞收藏' };
+    } else if (isFirstSlide || HERO_HINT_PATTERN.test(text)) {
+      inferredLayout = 'hero';
+    } else if (isNonEmptyString(normalized.subtitle) && normalized.subtitle.length <= 60) {
+      // 短副标题但无 points → 当作 highlight 单卡片，而不是退化成 default
+      inferredLayout = 'highlight';
+      data = toHighlightData([normalized.subtitle]);
     } else {
-      inferredLayout = index === 0 ? 'hero' : 'default';
+      inferredLayout = isFirstSlide ? 'hero' : 'highlight';
+      if (inferredLayout === 'highlight' && normalized.title) {
+        data = toHighlightData([normalized.title]);
+      }
     }
-  } else if (points.length === 2 && COMPARE_HINT_PATTERN.test(text)) {
-    inferredLayout = 'compare';
-    data = toCompareData(points);
+  } else if (
+    points.length >= 2 &&
+    points.length <= 4 &&
+    points.filter((point) => NUMERIC_POINT_PATTERN.test(point)).length >= Math.max(2, points.length - 1)
+  ) {
+    inferredLayout = 'stats';
+    data = toStatsData(points);
   } else if (
     points.length >= 3 &&
     points.length <= 6 &&
@@ -313,29 +327,48 @@ const normalizeStructuredSlide = (
     data = toStepData(points);
   } else if (
     points.length >= 2 &&
-    points.length <= 4 &&
-    points.filter((point) => NUMERIC_POINT_PATTERN.test(point)).length >= Math.max(2, points.length - 1)
+    points.length <= 5 &&
+    TIMELINE_HINT_PATTERN.test(text)
   ) {
-    inferredLayout = 'stats';
-    data = toStatsData(points);
+    // 时间相关 → timeline
+    inferredLayout = 'timeline';
+    data = {
+      timeline: points.map((point, idx) => {
+        const split = splitPoint(point);
+        const yearMatch = point.match(/\d{4}/);
+        return {
+          year: yearMatch ? yearMatch[0] : String(idx + 1).padStart(2, '0'),
+          title: split.title,
+          description: split.description,
+        };
+      }),
+    };
   } else if (points.length === 2) {
-    inferredLayout = 'default';
+    // 2 points 默认就尝试 compare（不再退化为 default）
+    inferredLayout = 'compare';
+    data = toCompareData(points);
   } else if (
     points.length >= 3 &&
-    points.length <= 5 &&
-    points.every((point) => point.length <= 16) &&
-    (!isNonEmptyString(normalized.subtitle) || normalized.subtitle.length <= 36)
+    points.length <= 6 &&
+    points.every((point) => point.length <= 18) &&
+    (!isNonEmptyString(normalized.subtitle) || normalized.subtitle.length <= 50)
   ) {
+    // 放宽 highlight 条件：3-6 个短 points 都算
     inferredLayout = 'highlight';
     data = toHighlightData(points);
-  } else if (index === total - 1 && CTA_HINT_PATTERN.test(text)) {
+  } else if (isLastSlide) {
     inferredLayout = 'cta';
-    data = { cta: sanitizeCtaText(normalized.data?.cta) || '立即开始' };
-  } else if (index === 0 && HERO_HINT_PATTERN.test(text)) {
+    data = { cta: sanitizeCtaText(normalized.data?.cta) || '点赞收藏' };
+  } else if (isFirstSlide) {
     inferredLayout = 'hero';
-  } else {
+  } else if (points.length >= 3 && points.length <= 5) {
+    // 中等长度 points → list（保留作为有限兜底）
     inferredLayout = 'list';
     data = toListData(points);
+  } else {
+    // 最终兜底：退化成 highlight 而不是 list/default，避免出现"通用页"
+    inferredLayout = 'highlight';
+    data = toHighlightData(points);
   }
 
   return {

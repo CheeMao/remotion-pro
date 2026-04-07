@@ -68,6 +68,9 @@ Only these templates should be treated as active:
 - `TechShow`
 - `RichShow`
 - `KnowledgeShow`
+- `MacShow`
+- `StudioShow`
+- `EditorialShow`
 
 ## Required Layout Set
 

@@ -355,7 +355,7 @@ export const LiquidSlide: React.FC<{
   title: string;
   subtitle?: string;
   points?: string[];
-  type?: 'default' | 'steps' | 'timeline' | 'chart' | 'highlight' | 'list' | 'compare' | 'stats' | 'quote' | 'hero';
+  type?: 'default' | 'steps' | 'timeline' | 'chart' | 'highlight' | 'list' | 'compare' | 'stats' | 'quote' | 'hero' | 'cta';
   data?: Record<string, unknown>;
   index: number;
   totalSlides: number;
@@ -927,6 +927,119 @@ export const LiquidSlide: React.FC<{
                 }}
               >
                 {heroData.cta}
+              </div>
+            )}
+          </div>
+        );
+      }
+
+      // ===== CTA (行动收束页) =====
+      case 'cta': {
+        const ctaData = data as { cta?: string; button?: string; items?: string[] };
+        const ctaText = ctaData?.cta || ctaData?.button || '点赞收藏';
+        const tags = Array.isArray(ctaData?.items) ? ctaData.items : [];
+        const pulseScale = 1 + Math.sin(frame * 0.12) * 0.04;
+        const titleA = spring({ frame: frame - 6, fps, config: { damping: 14 } });
+        const ctaA = spring({ frame: frame - 24, fps, config: { damping: 12, stiffness: 110 } });
+        return (
+          <div style={{ textAlign: 'center', maxWidth: 820 }}>
+            <div
+              style={{
+                display: 'inline-block',
+                padding: '10px 22px',
+                borderRadius: 999,
+                background: 'rgba(255,255,255,0.7)',
+                backdropFilter: 'blur(14px)',
+                border: `1px solid ${colors.blob2}45`,
+                fontSize: 18,
+                fontWeight: 700,
+                color: colors.blob2,
+                letterSpacing: '0.16em',
+                textTransform: 'uppercase',
+                marginBottom: 26,
+                boxShadow: '0 14px 30px rgba(180,200,230,0.18)',
+                opacity: titleA,
+              }}
+            >
+              ◆ FIN
+            </div>
+            <h1
+              style={{
+                fontSize: 64,
+                fontWeight: 800,
+                color: colors.text,
+                margin: 0,
+                marginBottom: 18,
+                lineHeight: 1.12,
+                letterSpacing: '-1.2px',
+                opacity: titleA,
+                transform: `translateY(${interpolate(titleA, [0, 1], [22, 0])}px)`,
+              }}
+            >
+              {title}
+            </h1>
+            {subtitle && (
+              <p
+                style={{
+                  fontSize: 26,
+                  color: colors.muted,
+                  margin: '0 0 36px',
+                  opacity: titleA,
+                }}
+              >
+                {subtitle}
+              </p>
+            )}
+            <div
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 12,
+                padding: '24px 52px',
+                background: `linear-gradient(135deg, ${colors.blob1}, ${colors.blob2})`,
+                borderRadius: 999,
+                fontSize: 30,
+                fontWeight: 700,
+                color: 'white',
+                boxShadow: `0 22px 60px ${colors.blob1}55, inset 0 1px 0 rgba(255,255,255,0.45)`,
+                transform: `scale(${pulseScale * interpolate(ctaA, [0, 1], [0.85, 1])})`,
+                opacity: ctaA,
+              }}
+            >
+              <span style={{ fontSize: 26 }}>→</span>
+              {ctaText}
+            </div>
+            {tags.length > 0 && (
+              <div
+                style={{
+                  marginTop: 30,
+                  display: 'flex',
+                  gap: 12,
+                  justifyContent: 'center',
+                  flexWrap: 'wrap',
+                  opacity: ctaA,
+                }}
+              >
+                {tags.slice(0, 4).map((t, i) => {
+                  const tagColor = [colors.blob1, colors.blob2, colors.blob3, colors.blob4][i % 4];
+                  return (
+                    <span
+                      key={i}
+                      style={{
+                        padding: '10px 18px',
+                        borderRadius: 999,
+                        background: 'rgba(255,255,255,0.65)',
+                        backdropFilter: 'blur(10px)',
+                        border: `1px solid ${tagColor}45`,
+                        fontSize: 17,
+                        fontWeight: 700,
+                        color: colors.text,
+                      }}
+                    >
+                      #{t}
+                    </span>
+                  );
+                })}
               </div>
             )}
           </div>

@@ -1,11 +1,14 @@
 import { Composition, continueRender, delayRender } from "remotion";
 import { useEffect, useState } from "react";
 import { GlassShow } from "./GlassShow";
+import { EditorialShow } from "./EditorialShow";
+import { InsightShow } from "./InsightShow";
 import { KnowledgeShow } from "./KnowledgeShow";
 import { LiquidBriefShow } from "./LiquidBriefShow";
 import { LiquidShow } from "./LiquidShow";
 import { MacShow } from "./MacShow";
-import { RichShow } from "./RichShow";
+import { StickShow } from "./StickShow";
+import { StudioShow } from "./StudioShow";
 import { TechShow } from "./TechShow";
 import { calculateTotalFrames } from "./templates/DynamicSlideShow";
 import { prepareSlidesForRender } from "./templates/autoLayout";
@@ -167,7 +170,7 @@ const loadSlidesFromJson = async (
   } catch {
     return {
       slides: prepareSlidesForRender(
-        defaultSlides as unknown as ContentSlide[]
+        defaultSlides as unknown as ContentSlide[],
       ),
       template: DEFAULT_TEMPLATE,
     };
@@ -326,14 +329,42 @@ export const RemotionRoot: React.FC = () => {
         calculateMetadata={getTemplateMetadata("MacShow")}
       />
       <Composition
-        id="RichShow"
-        component={RichShow}
+        id="StudioShow"
+        component={StudioShow}
+        durationInFrames={FALLBACK_COMPOSITION_DURATION}
+        fps={30}
+        width={1920}
+        height={1080}
+        calculateMetadata={getTemplateMetadata("StudioShow")}
+      />
+      <Composition
+        id="EditorialShow"
+        component={EditorialShow}
+        durationInFrames={FALLBACK_COMPOSITION_DURATION}
+        fps={30}
+        width={1920}
+        height={1080}
+        calculateMetadata={getTemplateMetadata("EditorialShow")}
+      />
+      <Composition
+        id="InsightShow"
+        component={InsightShow}
+        durationInFrames={FALLBACK_COMPOSITION_DURATION}
+        fps={30}
+        width={1920}
+        height={1080}
+        calculateMetadata={getTemplateMetadata("InsightShow")}
+      />
+      <Composition
+        id="StickShow"
+        component={StickShow}
         durationInFrames={FALLBACK_COMPOSITION_DURATION}
         fps={30}
         width={1080}
         height={1920}
-        calculateMetadata={getTemplateMetadata("RichShow")}
+        calculateMetadata={getTemplateMetadata("StickShow")}
       />
+
       <Composition
         id="TechShow"
         component={TechShow}
