@@ -37,6 +37,11 @@ import {
 // 黑板感深底 + 粉笔/黄色重点 + 手绘抖动
 // ===================================================================
 
+// ===== 安全区 (避开抖音/视频号 UI 遮挡) =====
+// 顶部 240 (用户名/时间) / 底部 1620 (操作按钮+文案) / 两侧 100
+const SAFE_TOP = 240;
+const SAFE_LEFT = 100;
+
 const STICK = {
   bg: '#1a1814',
   bgGradient: 'radial-gradient(ellipse 1200px 1800px at 50% 30%, #2a2520 0%, #0e0c0a 80%)',
@@ -82,13 +87,13 @@ const StickBg: React.FC<{ frame: number }> = ({ frame }) => {
           opacity: 0.7,
         }}
       />
-      {/* 地面线 */}
+      {/* 地面线 — 提到安全底部之上 */}
       <div
         style={{
           position: 'absolute',
-          left: 60,
-          right: 60,
-          bottom: 230,
+          left: SAFE_LEFT,
+          right: SAFE_LEFT,
+          top: 1560,
           height: 3,
           background: STICK.rule,
           borderRadius: 2,
@@ -272,14 +277,14 @@ export const StickSlide: React.FC<Props> = ({
 
   const pose = choosePose();
 
-  // ----- HEADER (页码) -----
+  // ----- HEADER (页码) — 在安全区顶部 -----
   const renderHeader = () => (
     <div
       style={{
         position: 'absolute',
-        top: 60,
-        left: 60,
-        right: 60,
+        top: SAFE_TOP,
+        left: SAFE_LEFT,
+        right: SAFE_LEFT,
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
@@ -330,9 +335,9 @@ export const StickSlide: React.FC<Props> = ({
     <div
       style={{
         position: 'absolute',
-        top: 220,
-        left: 60,
-        right: 60,
+        top: SAFE_TOP + 80,
+        left: SAFE_LEFT,
+        right: SAFE_LEFT,
         textAlign: 'center',
         fontFamily: STICK.fontHeading,
         color: STICK.ink,
@@ -351,10 +356,10 @@ export const StickSlide: React.FC<Props> = ({
       </div>
       <div
         style={{
-          fontSize: 96,
+          fontSize: 88,
           fontWeight: 800,
           lineHeight: 1.1,
-          marginTop: 26,
+          marginTop: 22,
           letterSpacing: '-0.01em',
           opacity: ease(frame, 24, 50),
           transform: `translateY(${(1 - ease(frame, 24, 50)) * 24}px)`,
@@ -365,9 +370,9 @@ export const StickSlide: React.FC<Props> = ({
       {subtitle ? (
         <div
           style={{
-            fontSize: 38,
+            fontSize: 36,
             color: STICK.inkDim,
-            marginTop: 20,
+            marginTop: 18,
             fontWeight: 600,
             opacity: ease(frame, 40, 60),
           }}
@@ -385,16 +390,16 @@ export const StickSlide: React.FC<Props> = ({
         <div
           style={{
             position: 'absolute',
-            top: 130,
-            left: 60,
-            right: 60,
+            top: SAFE_TOP + 60,
+            left: SAFE_LEFT,
+            right: SAFE_LEFT,
             fontFamily: STICK.fontHeading,
             color: STICK.ink,
           }}
         >
           <div
             style={{
-              fontSize: 56,
+              fontSize: 54,
               fontWeight: 800,
               lineHeight: 1.12,
               opacity: ease(frame, 8, 28),
@@ -407,7 +412,7 @@ export const StickSlide: React.FC<Props> = ({
               style={{
                 fontSize: 28,
                 color: STICK.inkDim,
-                marginTop: 14,
+                marginTop: 12,
                 opacity: ease(frame, 18, 36),
               }}
             >
@@ -418,12 +423,12 @@ export const StickSlide: React.FC<Props> = ({
         <div
           style={{
             position: 'absolute',
-            top: 460,
-            right: 60,
+            top: 540,
+            right: SAFE_LEFT,
             display: 'flex',
             flexDirection: 'column',
-            gap: 36,
-            width: 580,
+            gap: 28,
+            width: 540,
           }}
         >
           {stats.map((s, i) => {
@@ -445,7 +450,7 @@ export const StickSlide: React.FC<Props> = ({
                 <div
                   style={{
                     fontFamily: STICK.fontHeading,
-                    fontSize: 132,
+                    fontSize: 110,
                     fontWeight: 900,
                     lineHeight: 0.92,
                     color: STICK.yellow,
@@ -455,12 +460,12 @@ export const StickSlide: React.FC<Props> = ({
                   {s.rawValue % 1 !== 0
                     ? (s.rawValue * numProgress).toFixed(1)
                     : Math.floor(s.rawValue * numProgress)}
-                  <span style={{ fontSize: 60, color: STICK.pink }}>{s.suffix}</span>
+                  <span style={{ fontSize: 50, color: STICK.pink }}>{s.suffix}</span>
                 </div>
                 <div
                   style={{
                     fontFamily: STICK.fontHeading,
-                    fontSize: 32,
+                    fontSize: 30,
                     color: STICK.ink,
                     fontWeight: 700,
                   }}
@@ -482,16 +487,16 @@ export const StickSlide: React.FC<Props> = ({
         <div
           style={{
             position: 'absolute',
-            top: 130,
-            left: 60,
-            right: 60,
+            top: SAFE_TOP + 60,
+            left: SAFE_LEFT,
+            right: SAFE_LEFT,
             fontFamily: STICK.fontHeading,
             color: STICK.ink,
           }}
         >
           <div
             style={{
-              fontSize: 56,
+              fontSize: 52,
               fontWeight: 800,
               lineHeight: 1.12,
               opacity: ease(frame, 6, 26),
@@ -516,10 +521,10 @@ export const StickSlide: React.FC<Props> = ({
         <div
           style={{
             position: 'absolute',
-            top: 360,
-            left: 80,
-            width: 460,
-            padding: '24px 26px 28px',
+            top: 460,
+            left: SAFE_LEFT + 20,
+            width: 380,
+            padding: '22px 24px 26px',
             border: `4px solid ${STICK.cyan}`,
             borderRadius: 18,
             opacity: ease(frame, 26, 50),
@@ -560,10 +565,10 @@ export const StickSlide: React.FC<Props> = ({
         <div
           style={{
             position: 'absolute',
-            top: 360,
-            right: 80,
-            width: 460,
-            padding: '24px 26px 28px',
+            top: 460,
+            right: SAFE_LEFT + 20,
+            width: 380,
+            padding: '22px 24px 26px',
             border: `4px solid ${STICK.yellow}`,
             borderRadius: 18,
             opacity: ease(frame, 78, 100),
@@ -604,11 +609,11 @@ export const StickSlide: React.FC<Props> = ({
         <div
           style={{
             position: 'absolute',
-            top: 460,
+            top: 560,
             left: '50%',
             transform: `translateX(-50%) scale(${ease(frame, 60, 80)})`,
             fontFamily: STICK.fontHeading,
-            fontSize: 70,
+            fontSize: 64,
             color: STICK.red,
             fontWeight: 900,
           }}
@@ -626,14 +631,14 @@ export const StickSlide: React.FC<Props> = ({
         <div
           style={{
             position: 'absolute',
-            top: 130,
-            left: 60,
-            right: 60,
+            top: SAFE_TOP + 60,
+            left: SAFE_LEFT,
+            right: SAFE_LEFT,
             fontFamily: STICK.fontHeading,
             color: STICK.ink,
           }}
         >
-          <div style={{ fontSize: 56, fontWeight: 800, opacity: ease(frame, 8, 28) }}>{title}</div>
+          <div style={{ fontSize: 52, fontWeight: 800, opacity: ease(frame, 8, 28) }}>{title}</div>
           {subtitle ? (
             <div style={{ fontSize: 26, color: STICK.inkDim, marginTop: 12, opacity: ease(frame, 16, 34) }}>
               {subtitle}
@@ -643,12 +648,12 @@ export const StickSlide: React.FC<Props> = ({
         <div
           style={{
             position: 'absolute',
-            top: 380,
-            right: 60,
-            width: 600,
+            top: 520,
+            right: SAFE_LEFT,
+            width: 540,
             display: 'flex',
             flexDirection: 'column',
-            gap: 24,
+            gap: 22,
           }}
         >
           {bars.map((b, i) => {
@@ -707,13 +712,13 @@ export const StickSlide: React.FC<Props> = ({
         <div
           style={{
             position: 'absolute',
-            top: 130,
-            left: 60,
-            right: 60,
+            top: SAFE_TOP + 60,
+            left: SAFE_LEFT,
+            right: SAFE_LEFT,
             fontFamily: STICK.fontHeading,
           }}
         >
-          <div style={{ fontSize: 56, fontWeight: 800, color: STICK.ink, opacity: ease(frame, 6, 26) }}>
+          <div style={{ fontSize: 52, fontWeight: 800, color: STICK.ink, opacity: ease(frame, 6, 26) }}>
             {title}
           </div>
           {subtitle ? (
@@ -725,12 +730,12 @@ export const StickSlide: React.FC<Props> = ({
         <div
           style={{
             position: 'absolute',
-            top: 350,
-            left: 60,
-            right: 60,
+            top: 460,
+            left: SAFE_LEFT,
+            right: SAFE_LEFT,
             display: 'grid',
             gridTemplateColumns: `repeat(${Math.min(steps.length, 4)}, 1fr)`,
-            gap: 24,
+            gap: 16,
           }}
         >
           {steps.map((step, i) => {
@@ -788,8 +793,8 @@ export const StickSlide: React.FC<Props> = ({
     const timeline = toTimeline(points, data).slice(0, 4);
     return (
       <>
-        <div style={{ position: 'absolute', top: 130, left: 60, right: 60, fontFamily: STICK.fontHeading }}>
-          <div style={{ fontSize: 54, fontWeight: 800, color: STICK.ink, opacity: ease(frame, 6, 26) }}>
+        <div style={{ position: 'absolute', top: SAFE_TOP + 60, left: SAFE_LEFT, right: SAFE_LEFT, fontFamily: STICK.fontHeading }}>
+          <div style={{ fontSize: 50, fontWeight: 800, color: STICK.ink, opacity: ease(frame, 6, 26) }}>
             {title}
           </div>
           {subtitle ? (
@@ -801,12 +806,12 @@ export const StickSlide: React.FC<Props> = ({
         <div
           style={{
             position: 'absolute',
-            top: 360,
-            left: 60,
-            right: 60,
+            top: 460,
+            left: SAFE_LEFT,
+            right: SAFE_LEFT,
             display: 'grid',
             gridTemplateColumns: `repeat(${Math.min(timeline.length, 4)}, 1fr)`,
-            gap: 18,
+            gap: 14,
           }}
         >
           {timeline.map((t, i) => {
@@ -846,12 +851,12 @@ export const StickSlide: React.FC<Props> = ({
     const items = toList(points, data).slice(0, 5);
     return (
       <>
-        <div style={{ position: 'absolute', top: 130, left: 60, right: 60, fontFamily: STICK.fontHeading }}>
-          <div style={{ fontSize: 60, fontWeight: 800, color: STICK.ink, opacity: ease(frame, 6, 26) }}>
+        <div style={{ position: 'absolute', top: SAFE_TOP + 60, left: SAFE_LEFT, right: SAFE_LEFT, fontFamily: STICK.fontHeading }}>
+          <div style={{ fontSize: 56, fontWeight: 800, color: STICK.ink, opacity: ease(frame, 6, 26) }}>
             {title}
           </div>
           {subtitle ? (
-            <div style={{ fontSize: 28, color: STICK.inkDim, marginTop: 12, opacity: ease(frame, 14, 32) }}>
+            <div style={{ fontSize: 26, color: STICK.inkDim, marginTop: 12, opacity: ease(frame, 14, 32) }}>
               {subtitle}
             </div>
           ) : null}
@@ -859,12 +864,12 @@ export const StickSlide: React.FC<Props> = ({
         <div
           style={{
             position: 'absolute',
-            top: 360,
-            left: 60,
-            right: 460,
+            top: 480,
+            left: SAFE_LEFT,
+            right: 380,
             display: 'flex',
             flexDirection: 'column',
-            gap: 14,
+            gap: 12,
           }}
         >
           {items.map((it, i) => {
@@ -910,20 +915,20 @@ export const StickSlide: React.FC<Props> = ({
     const items = toHighlights(points, data).slice(0, 4);
     return (
       <>
-        <div style={{ position: 'absolute', top: 130, left: 60, right: 60, fontFamily: STICK.fontHeading }}>
-          <div style={{ fontSize: 56, fontWeight: 800, color: STICK.ink, opacity: ease(frame, 6, 26) }}>
+        <div style={{ position: 'absolute', top: SAFE_TOP + 60, left: SAFE_LEFT, right: SAFE_LEFT, fontFamily: STICK.fontHeading }}>
+          <div style={{ fontSize: 52, fontWeight: 800, color: STICK.ink, opacity: ease(frame, 6, 26) }}>
             {title}
           </div>
         </div>
         <div
           style={{
             position: 'absolute',
-            top: 320,
-            left: 60,
-            right: 60,
+            top: 460,
+            left: SAFE_LEFT + 40,
+            right: SAFE_LEFT,
             display: 'flex',
             flexDirection: 'column',
-            gap: 22,
+            gap: 18,
             alignItems: 'flex-start',
           }}
         >
@@ -988,9 +993,9 @@ export const StickSlide: React.FC<Props> = ({
         <div
           style={{
             position: 'absolute',
-            top: 280,
-            left: 60,
-            right: 460,
+            top: SAFE_TOP + 100,
+            left: SAFE_LEFT,
+            right: 380,
             fontFamily: STICK.fontHeading,
           }}
         >
@@ -1048,9 +1053,9 @@ export const StickSlide: React.FC<Props> = ({
         <div
           style={{
             position: 'absolute',
-            top: 200,
-            left: 60,
-            right: 60,
+            top: SAFE_TOP + 60,
+            left: SAFE_LEFT,
+            right: SAFE_LEFT,
             textAlign: 'center',
             fontFamily: STICK.fontHeading,
           }}
@@ -1095,7 +1100,7 @@ export const StickSlide: React.FC<Props> = ({
         <div
           style={{
             position: 'absolute',
-            top: 540,
+            top: 720,
             left: 0,
             right: 0,
             display: 'flex',
@@ -1105,12 +1110,12 @@ export const StickSlide: React.FC<Props> = ({
         >
           <div
             style={{
-              padding: '28px 64px',
+              padding: '24px 56px',
               border: `6px solid ${STICK.yellow}`,
               borderRadius: 999,
               background: 'rgba(251,191,36,0.10)',
               fontFamily: STICK.fontHeading,
-              fontSize: 48,
+              fontSize: 44,
               fontWeight: 800,
               color: STICK.yellow,
               transform: `scale(${pulse})`,
@@ -1123,11 +1128,11 @@ export const StickSlide: React.FC<Props> = ({
           <div
             style={{
               position: 'absolute',
-              top: 680,
-              left: 0,
-              right: 0,
+              top: 850,
+              left: SAFE_LEFT,
+              right: SAFE_LEFT,
               display: 'flex',
-              gap: 14,
+              gap: 12,
               justifyContent: 'center',
               flexWrap: 'wrap',
               fontFamily: STICK.fontHeading,

@@ -70,8 +70,8 @@ const breathe = (pose: Pose, frame: number, intensity = 6): Pose => {
 
 // HERO: 走入场 → 挥手 → 指向上方标题
 export const heroChoreo = (frame: number): Pose => {
-  const baseY = 1450;
-  const baseScale = 0.85;
+  const baseY = 1380;
+  const baseScale = 0.78;
   if (frame < 30) {
     const t = easeT(frame, 0, 30);
     return walkCycle(frame, lerp(-200, 540, t), baseY, baseScale);
@@ -95,9 +95,9 @@ export const heroChoreo = (frame: number): Pose => {
 
 // STATS: 站立 → 每个数字弹出时跳起惊讶
 export const statsChoreo = (frame: number): Pose => {
-  const baseX = 220;
-  const baseY = 1550;
-  const baseScale = 0.7;
+  const baseX = 200;
+  const baseY = 1420;
+  const baseScale = 0.62;
   // 在 30, 70, 110 时各跳一次
   const triggers = [30, 70, 110];
   for (const t of triggers) {
@@ -121,8 +121,8 @@ export const statsChoreo = (frame: number): Pose => {
 
 // COMPARE: 走到左 → 指左 → 走到右 → 指右
 export const compareChoreo = (frame: number): Pose => {
-  const baseY = 1620;
-  const scale = 0.6;
+  const baseY = 1480;
+  const scale = 0.52;
   if (frame < 25) {
     const t = easeT(frame, 0, 25);
     return walkCycle(frame, lerp(540, 270, t), baseY, scale);
@@ -147,9 +147,9 @@ export const compareChoreo = (frame: number): Pose => {
 
 // CHART: 跟着进度条往上跳 → 末了欢呼
 export const chartChoreo = (frame: number): Pose => {
-  const baseX = 200;
-  const baseY = 1620;
-  const scale = 0.65;
+  const baseX = 180;
+  const baseY = 1480;
+  const scale = 0.55;
   const beats = [25, 55, 85];
   for (const t of beats) {
     if (frame >= t && frame < t + 14) {
@@ -172,8 +172,8 @@ export const chartChoreo = (frame: number): Pose => {
 
 // STEPS: 横向走动，停在每个步骤旁
 export const stepsChoreo = (frame: number, stepCount = 4): Pose => {
-  const baseY = 1620;
-  const scale = 0.55;
+  const baseY = 1480;
+  const scale = 0.48;
   const positions: number[] = [];
   for (let i = 0; i < stepCount; i++) {
     positions.push(180 + (720 / Math.max(1, stepCount - 1)) * i);
@@ -199,8 +199,8 @@ export const stepsChoreo = (frame: number, stepCount = 4): Pose => {
 
 // TIMELINE: 沿时间线走，每年份停一下
 export const timelineChoreo = (frame: number, count = 4): Pose => {
-  const baseY = 1620;
-  const scale = 0.55;
+  const baseY = 1480;
+  const scale = 0.48;
   const positions: number[] = [];
   for (let i = 0; i < count; i++) {
     positions.push(180 + (720 / Math.max(1, count - 1)) * i);
@@ -223,8 +223,8 @@ export const timelineChoreo = (frame: number, count = 4): Pose => {
 // LIST: 右下盘腿坐着听
 export const listChoreo = (frame: number): Pose => {
   const baseX = 880;
-  const baseY = 1620;
-  const scale = 0.55;
+  const baseY = 1490;
+  const scale = 0.5;
   if (frame < 20) {
     const t = easeT(frame, 0, 20);
     return interpolatePose(
@@ -241,8 +241,8 @@ export const listChoreo = (frame: number): Pose => {
 // HIGHLIGHT: 中下，每个关键词冒出时惊讶
 export const highlightChoreo = (frame: number): Pose => {
   const baseX = 540;
-  const baseY = 1620;
-  const scale = 0.6;
+  const baseY = 1490;
+  const scale = 0.5;
   const triggers = [25, 55, 85, 115];
   for (const t of triggers) {
     if (frame >= t && frame < t + 16) {
@@ -259,8 +259,8 @@ export const highlightChoreo = (frame: number): Pose => {
 // QUOTE: 右下，举着引号牌沉思
 export const quoteChoreo = (frame: number): Pose => {
   const baseX = 850;
-  const baseY = 1600;
-  const scale = 0.6;
+  const baseY = 1480;
+  const scale = 0.55;
   if (frame < 25) {
     const t = easeT(frame, 0, 25);
     return interpolatePose(
@@ -274,8 +274,8 @@ export const quoteChoreo = (frame: number): Pose => {
 
 // CTA: 中央，挥手 → 跳 → 指向按钮 → 持续跳
 export const ctaChoreo = (frame: number): Pose => {
-  const baseY = 1550;
-  const scale = 0.78;
+  const baseY = 1430;
+  const scale = 0.7;
   if (frame < 25) {
     return interpolatePose(
       withPos(POSE_IDLE, { bodyX: 540, bodyY: baseY, bodyScale: scale }),

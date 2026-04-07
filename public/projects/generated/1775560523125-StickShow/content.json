@@ -1,0 +1,241 @@
+{
+  "meta": {
+    "title": "Generated Video",
+    "template": "StickShow",
+    "voice_id": "S_PlTK120R1",
+    "full_narration": "Gemini 的口碑一直很能打，但它到底好在哪里？不亲自试一试确实很难真正体会。有没有什么办法能让我们一分钱不花直接体验到它的满血版模型？今天这期视频就跟大家扒一扒少有人知道的官方免费渠道 ——Google AI Studio，只要你有谷歌账号就能免费使用。",
+    "soundtrack_path": "projects/generated/1775560523125-StickShow/audio/narration.mp3",
+    "soundtrack_duration": 20.352,
+    "voiceId": "S_PlTK120R1",
+    "fullNarration": "Gemini 的口碑一直很能打，但它到底好在哪里？不亲自试一试确实很难真正体会。有没有什么办法能让我们一分钱不花直接体验到它的满血版模型？今天这期视频就跟大家扒一扒少有人知道的官方免费渠道 ——Google AI Studio，只要你有谷歌账号就能免费使用。",
+    "soundtrackPath": "projects/generated/1775560523125-StickShow/audio/narration.mp3",
+    "soundtrackDuration": 20.352
+  },
+  "slides": [
+    {
+      "audioDuration": 4.128,
+      "audioEnd": 4.128,
+      "audioStart": 0,
+      "data": {},
+      "durationInFrames": 124,
+      "elementTimings": [
+        {
+          "audioEnd": 0.6192,
+          "audioStart": 0,
+          "cue": "Gemini口碑为何炸裂？",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 2.4616800000000003,
+          "audioStart": 0.7953600000000001,
+          "cue": "广受好评，口碑爆棚",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-0",
+          "index": 0,
+          "type": "custom"
+        },
+        {
+          "audioEnd": 4.128,
+          "audioStart": 3.219098181818182,
+          "cue": "到底好在哪里？",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-1",
+          "index": 1,
+          "type": "custom"
+        }
+      ],
+      "layout": "hero",
+      "narration": "Gemini 的口碑一直都很棒，但它到底好在哪里？",
+      "points": [
+        "广受好评，口碑爆棚",
+        "到底好在哪里？"
+      ],
+      "segmentIds": [
+        "segment-1"
+      ],
+      "subtitle": "",
+      "title": "Gemini口碑为何炸裂？",
+      "type": "hero",
+      "audioPath": "projects/generated/1775560523125-StickShow/audio/slides/slide-001.mp3"
+    },
+    {
+      "audioDuration": 2.856,
+      "audioEnd": 6.984,
+      "audioStart": 4.128,
+      "durationInFrames": 86,
+      "elementTimings": [
+        {
+          "audioEnd": 4.5564,
+          "audioStart": 4.128,
+          "cue": "尝试才能真感受",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 5.8773599999999995,
+          "audioStart": 4.77072,
+          "cue": "听别人讲不如亲自试",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-0",
+          "index": 0,
+          "type": "custom"
+        },
+        {
+          "audioEnd": 6.984,
+          "audioStart": 5.8773599999999995,
+          "cue": "实际体验才知优劣",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-1",
+          "index": 1,
+          "type": "custom"
+        }
+      ],
+      "layout": "default",
+      "narration": "不亲自试一试，确实很难真正体会。",
+      "points": [
+        "听别人讲不如亲自试",
+        "实际体验才知优劣"
+      ],
+      "segmentIds": [
+        "segment-2"
+      ],
+      "subtitle": "",
+      "title": "尝试才能真感受",
+      "type": "default",
+      "audioPath": "projects/generated/1775560523125-StickShow/audio/slides/slide-002.mp3"
+    },
+    {
+      "audioDuration": 4.68,
+      "audioEnd": 11.664,
+      "audioStart": 6.984,
+      "data": {},
+      "durationInFrames": 140,
+      "elementTimings": [
+        {
+          "audioEnd": 7.686,
+          "audioStart": 6.984,
+          "cue": "怎么零成本体验满血版？",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 9.7548,
+          "audioStart": 7.8456,
+          "cue": "直接用满功能模型不花钱？",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-0",
+          "index": 0,
+          "type": "custom"
+        },
+        {
+          "audioEnd": 11.664,
+          "audioStart": 9.7548,
+          "cue": "方法真的存在吗？",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-1",
+          "index": 1,
+          "type": "custom"
+        }
+      ],
+      "layout": "hero",
+      "narration": "有没有什么办法能让我们一分钱不花，直接体验到它的满血版模型？",
+      "points": [
+        "直接用满功能模型不花钱？",
+        "方法真的存在吗？"
+      ],
+      "segmentIds": [
+        "segment-3"
+      ],
+      "subtitle": "",
+      "title": "怎么零成本体验满血版？",
+      "type": "hero",
+      "audioPath": "projects/generated/1775560523125-StickShow/audio/slides/slide-003.mp3"
+    },
+    {
+      "audioDuration": 8.688,
+      "audioEnd": 20.352,
+      "audioStart": 11.664,
+      "data": {
+        "steps": [
+          {
+            "title": "挖掘少有人知的官方免费入口"
+          },
+          {
+            "title": "用Google AI Studio体验Gemini"
+          },
+          {
+            "title": "无门槛试用满功能版本"
+          }
+        ]
+      },
+      "durationInFrames": 261,
+      "elementTimings": [
+        {
+          "audioEnd": 12.864,
+          "audioStart": 11.664,
+          "cue": "Google AI Studio 免费渠道揭秘",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 15.4,
+          "audioStart": 12.924,
+          "cue": "挖掘少有人知的官方免费入口",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "step-0",
+          "index": 0,
+          "type": "step"
+        },
+        {
+          "audioEnd": 17.876,
+          "audioStart": 15.4,
+          "cue": "用Google AI Studio体验Gemini",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "step-1",
+          "index": 1,
+          "type": "step"
+        },
+        {
+          "audioEnd": 20.352,
+          "audioStart": 17.876,
+          "cue": "无门槛试用满功能版本",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "step-2",
+          "index": 2,
+          "type": "step"
+        }
+      ],
+      "layout": "steps",
+      "narration": "今天这期视频就跟大家扒一扒少有人知道的官方免费渠道 ——Google AI Studio，带你零成本体验Gemini满血版。",
+      "points": [
+        "官方免费渠道藏得深",
+        "一步步教你开启体验之旅"
+      ],
+      "segmentIds": [
+        "segment-4"
+      ],
+      "subtitle": "",
+      "title": "Google AI Studio 免费渠道揭秘",
+      "type": "steps",
+      "audioPath": "projects/generated/1775560523125-StickShow/audio/slides/slide-004.mp3"
+    }
+  ]
+}

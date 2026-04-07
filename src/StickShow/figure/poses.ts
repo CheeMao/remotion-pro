@@ -30,9 +30,11 @@ export interface Pose {
   expression: ExpressionType;
 }
 
+// 安全区: 顶部 240, 底部 1600 (避开抖音/视频号 UI 遮挡)
+// 火柴人 hip 默认放在 1350，缩放后 feet 大约在 1550
 const base = {
   bodyX: 540,
-  bodyY: 1450,
+  bodyY: 1350,
   bodyTilt: 0,
   bodyScale: 1,
 };
@@ -180,7 +182,7 @@ export const POSE_JUMP: Pose = {
   leftShin: 130,
   rightHip: 115,
   rightShin: 50,
-  bodyY: 1370,
+  bodyY: 1280,
   expression: 'happy',
 };
 
@@ -207,7 +209,7 @@ export const POSE_SIT: Pose = {
   leftShin: 155,
   rightHip: 155,
   rightShin: 25,
-  bodyY: 1500,
+  bodyY: 1430,
   expression: 'neutral',
 };
 
