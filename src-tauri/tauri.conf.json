@@ -13,10 +13,10 @@
     "windows": [
       {
         "title": "AI 视频生成器",
-        "width": 1120,
-        "height": 780,
-        "minWidth": 980,
-        "minHeight": 680,
+        "width": 980,
+        "height": 700,
+        "minWidth": 860,
+        "minHeight": 620,
         "resizable": true,
         "fullscreen": false,
         "center": true

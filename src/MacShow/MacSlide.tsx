@@ -581,7 +581,7 @@ export const MacSlide: React.FC<Props> = ({
           ),
         )
       : 0;
-  const heroBadge = typeof data?.badge === "string" ? data.badge : items[0]?.title || "macOS workflow";
+  const heroBadge = typeof data?.badge === "string" && data.badge.trim().length > 0 ? data.badge : undefined;
   const heroCta =
     typeof data?.cta === "string"
       ? data.cta
@@ -652,7 +652,7 @@ export const MacSlide: React.FC<Props> = ({
         }}
       >
         <div>
-          <Pill text={heroBadge} frame={frame} />
+          {heroBadge ? <Pill text={heroBadge} frame={frame} /> : null}
           <SectionHeader title={title} subtitle={subtitle} frame={frame} />
         </div>
         <div style={{ display: "grid", gap: 18 }}>

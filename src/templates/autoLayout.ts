@@ -15,6 +15,9 @@ const STEP_TITLE_PATTERN = /步骤|流程|方法|打法|路线|指南|方案|how
 const CTA_HINT_PATTERN = /立即|马上|现在|行动|关注|订阅|了解更多|开始|加入|领取|预约/i;
 const HERO_HINT_PATTERN = /为什么|秘诀|核心|关键|趋势|方法|公式|指南|框架|玩法|模板/i;
 
+const GENERIC_HERO_BADGE_PATTERN =
+  /^(先抛问题|抛问题|提出问题|关键反转|反转|核心问题|关键问题|先给结论|给结论|抛结论|先讲结论|开场钩子|钩子|破题|收束|行动引导|行动建议|证据页|反差页|重点来了|继续往下看|往下看答案|看答案|call to action|cta|hook|verdict|signal|preview)$/i;
+
 type SharedLayout =
   | 'hero'
   | 'default'
@@ -30,6 +33,27 @@ type SharedLayout =
 
 const isNonEmptyString = (value: unknown): value is string => {
   return typeof value === 'string' && value.trim().length > 0;
+};
+
+const sanitizeHeroBadge = (value: unknown): string | undefined => {
+  if (!isNonEmptyString(value)) return undefined;
+  const trimmed = value.trim();
+  if (!trimmed || GENERIC_HERO_BADGE_PATTERN.test(trimmed)) {
+    return undefined;
+  }
+  return trimmed;
+};
+
+const GENERIC_CTA_PATTERN =
+  /^(答案在下一页|往下看答案|继续往下看|继续看答案|下页见|下一页见|下一页告诉你|往下看|继续看|接着看|马上揭晓|马上告诉你|继续看下去|看下去|call to action|cta)$/i;
+
+const sanitizeCtaText = (value: unknown): string | undefined => {
+  if (!isNonEmptyString(value)) return undefined;
+  const trimmed = value.trim();
+  if (!trimmed || GENERIC_CTA_PATTERN.test(trimmed)) {
+    return undefined;
+  }
+  return trimmed;
 };
 
 const splitPoint = (point: string): { title: string; description?: string } => {
@@ -218,11 +242,26 @@ const normalizeStructuredSlide = (
     const mergedData = directData
       ? { ...(normalized.data || {}), ...directData }
       : normalized.data;
+    const sanitizedData =
+      directLayout === 'hero' && mergedData
+        ? {
+            ...mergedData,
+            badge: sanitizeHeroBadge(mergedData.badge),
+            cta: sanitizeCtaText(mergedData.cta),
+            button: sanitizeCtaText(mergedData.button),
+          }
+        : directLayout === 'cta' && mergedData
+          ? {
+              ...mergedData,
+              cta: sanitizeCtaText(mergedData.cta) || sanitizeCtaText(mergedData.button) || '立即开始',
+              button: sanitizeCtaText(mergedData.button) || sanitizeCtaText(mergedData.cta) || '立即开始',
+            }
+        : mergedData;
     return {
       ...normalized,
       layout: directLayout,
       type: directLayout,
-      data: mergedData,
+      data: sanitizedData,
     };
   }
 
@@ -240,10 +279,7 @@ const normalizeStructuredSlide = (
     inferredLayout = 'hero';
     data = {
       ...(normalized.data || {}),
-      badge:
-        typeof normalized.data?.badge === 'string'
-          ? normalized.data.badge
-          : points[0],
+      badge: sanitizeHeroBadge(normalized.data?.badge),
     };
   } else if (points.length === 0) {
     if (isNonEmptyString(normalized.subtitle) && normalized.subtitle.length <= 88) {
@@ -260,7 +296,7 @@ const normalizeStructuredSlide = (
           author: normalized.title && normalized.subtitle ? normalized.title : undefined,
         };
       } else if (inferredLayout === 'cta') {
-        data = { cta: normalized.data?.cta || '立即开始' };
+        data = { cta: sanitizeCtaText(normalized.data?.cta) || '立即开始' };
       }
     } else {
       inferredLayout = index === 0 ? 'hero' : 'default';
@@ -294,7 +330,7 @@ const normalizeStructuredSlide = (
     data = toHighlightData(points);
   } else if (index === total - 1 && CTA_HINT_PATTERN.test(text)) {
     inferredLayout = 'cta';
-    data = { cta: normalized.data?.cta || '立即开始' };
+    data = { cta: sanitizeCtaText(normalized.data?.cta) || '立即开始' };
   } else if (index === 0 && HERO_HINT_PATTERN.test(text)) {
     inferredLayout = 'hero';
   } else {
@@ -306,7 +342,21 @@ const normalizeStructuredSlide = (
     ...normalized,
     layout: inferredLayout,
     type: inferredLayout,
-    data,
+    data:
+      inferredLayout === 'hero' && data
+        ? {
+            ...data,
+            badge: sanitizeHeroBadge(data.badge),
+            cta: sanitizeCtaText(data.cta),
+            button: sanitizeCtaText(data.button),
+          }
+        : inferredLayout === 'cta' && data
+          ? {
+              ...data,
+              cta: sanitizeCtaText(data.cta) || sanitizeCtaText(data.button) || '立即开始',
+              button: sanitizeCtaText(data.button) || sanitizeCtaText(data.cta) || '立即开始',
+            }
+        : data,
   };
 };
 

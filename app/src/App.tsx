@@ -64,6 +64,93 @@ type SettingsData = {
   defaultRewriteStyleId: string;
 };
 
+type AuthContext = {
+  hwid: string;
+  deviceName: string;
+};
+
+type AuthSession = {
+  token: string;
+  username: string;
+  hwid: string;
+  deviceName: string;
+  isValid: boolean;
+  expireTime?: string | null;
+  validMessage: string;
+  heartInterval: number;
+  heartbeatTimeout: number;
+};
+
+type AuthStatus = {
+  username: string;
+  isValid: boolean;
+  isActive: boolean;
+  expireTime?: string | null;
+  expireTimestamp?: number | null;
+  remainingSeconds: number;
+  validMessage: string;
+  hwid: string;
+  deviceName: string;
+};
+
+type AuthHeartbeat = {
+  username: string;
+  isValid: boolean;
+  isActive: boolean;
+  expireTime?: string | null;
+  validMessage: string;
+  hwid: string;
+  deviceName: string;
+  interval: number;
+  heartbeatTimeout: number;
+  maxDevices: number;
+  boundDevices: number;
+  commands: string[];
+};
+
+type AuthRegisterResult = {
+  id: number;
+  username: string;
+  appId: number;
+  createdAt?: string;
+};
+
+type AuthTrialResult = {
+  success: boolean;
+  message?: string;
+  addedSeconds?: number;
+  expireTime?: string;
+  maxDevices?: number;
+  isTrial?: boolean;
+};
+
+type AuthRechargeResult = {
+  success: boolean;
+  message?: string;
+  addedSeconds?: number;
+  newExpireTime?: string;
+  cardType?: string;
+};
+
+type AuthAppInfo = {
+  currentVersion: string;
+  latestVersion?: string | null;
+  downloadUrl?: string | null;
+  forceUpdate: boolean;
+  hasUpdate: boolean;
+  heartInterval?: number | null;
+  heartbeatTimeoutMultiplier?: number | null;
+  trialEnabled: boolean;
+  isActive: boolean;
+};
+
+type AuthPreferences = {
+  rememberPassword: boolean;
+  autoLogin: boolean;
+  username: string;
+  password: string;
+};
+
 type NarrationSegment = {
   id: string;
   text: string;
@@ -103,11 +190,19 @@ type HomeDraft = {
 
 const FPS = 30;
 const MAX_SLIDE_DURATION_SECONDS = 8;
+const DEFAULT_AUTH_PREFERENCES: AuthPreferences = {
+  rememberPassword: true,
+  autoLogin: true,
+  username: '',
+  password: '',
+};
 
 const STORAGE_KEYS = {
   project: 'videomaker-project',
   settings: 'videomaker-settings',
   homeDraft: 'videomaker-home-draft',
+  authToken: 'videomaker-auth-token',
+  authPreferences: 'videomaker-auth-preferences',
 } as const;
 
 const SPACING = {
@@ -379,6 +474,8 @@ layout 使用原则：
 3. points 和 data 都要服务视觉表达，不要把 narration 原文大段搬上屏幕。
 4. narration 可以自然口语化，但屏幕文字必须更短、更干、更像镜头文案。
 5. 如果一页没有明显主重点、没有新推进、没有新价值，就说明这页不够吸引人，应当重新组织。
+6. hero 的 data.badge 默认留空；只有在它是用户一眼能理解且确实有价值的短词时才写，绝不要写“先抛问题”“关键反转”“Hook”这类导演提示词。
+7. 不要使用“答案在下一页”“往下看答案”“继续往下看”这类廉价悬念引导词；如果要引导继续看，请用更具体的利益点、结果点或问题本身来吸引。
 
 输入信息：
 - 风格：{template_name}
@@ -1393,6 +1490,146 @@ function loadHomeDraft(): HomeDraft | null {
 
 function saveHomeDraft(draft: HomeDraft) {
   localStorage.setItem(STORAGE_KEYS.homeDraft, JSON.stringify(draft));
+}
+
+function loadAuthToken(): string | null {
+  const raw = localStorage.getItem(STORAGE_KEYS.authToken);
+  if (!raw) {
+    return null;
+  }
+
+  const token = raw.trim();
+  return token ? token : null;
+}
+
+function saveAuthToken(token: string) {
+  localStorage.setItem(STORAGE_KEYS.authToken, token);
+}
+
+function clearAuthToken() {
+  localStorage.removeItem(STORAGE_KEYS.authToken);
+}
+
+function normalizeAuthPreferences(value: Partial<AuthPreferences> | null | undefined): AuthPreferences {
+  const rememberPassword = value?.rememberPassword ?? DEFAULT_AUTH_PREFERENCES.rememberPassword;
+  const requestedAutoLogin = value?.autoLogin ?? DEFAULT_AUTH_PREFERENCES.autoLogin;
+  const username = typeof value?.username === 'string' ? value.username : '';
+  const password = rememberPassword && typeof value?.password === 'string' ? value.password : '';
+  const autoLogin = rememberPassword ? requestedAutoLogin : false;
+
+  return {
+    rememberPassword,
+    autoLogin,
+    username,
+    password,
+  };
+}
+
+function loadAuthPreferences(): AuthPreferences {
+  const raw = localStorage.getItem(STORAGE_KEYS.authPreferences);
+  if (!raw) {
+    return DEFAULT_AUTH_PREFERENCES;
+  }
+
+  try {
+    const parsed = JSON.parse(raw) as Partial<AuthPreferences>;
+    return normalizeAuthPreferences(parsed);
+  } catch {
+    return DEFAULT_AUTH_PREFERENCES;
+  }
+}
+
+function saveAuthPreferences(preferences: AuthPreferences) {
+  localStorage.setItem(STORAGE_KEYS.authPreferences, JSON.stringify(normalizeAuthPreferences(preferences)));
+}
+
+function formatRemainingSeconds(seconds: number): string {
+  if (!Number.isFinite(seconds) || seconds <= 0) {
+    return '已过期';
+  }
+
+  const days = Math.floor(seconds / 86400);
+  const hours = Math.floor((seconds % 86400) / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+
+  if (days > 0) {
+    return `${days} 天 ${hours} 小时`;
+  }
+  if (hours > 0) {
+    return `${hours} 小时 ${minutes} 分钟`;
+  }
+  return `${Math.max(1, minutes)} 分钟`;
+}
+
+function formatAuthExpireTime(value?: string | null): string {
+  if (!value) {
+    return '-';
+  }
+
+  const normalized = value.trim();
+  if (!normalized) {
+    return '-';
+  }
+
+  const date = new Date(normalized);
+  if (!Number.isNaN(date.getTime())) {
+    const pad = (input: number) => String(input).padStart(2, '0');
+    return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
+  }
+
+  return normalized
+    .replace('T', ' ')
+    .replace(/\.\d+Z?$/, '')
+    .replace(/Z$/, '')
+    .trim();
+}
+
+function validateAuthUsername(username: string) {
+  const trimmed = username.trim();
+  if (!trimmed) {
+    throw new Error('请输入用户名');
+  }
+  if (trimmed.length < 3 || trimmed.length > 50) {
+    throw new Error('用户名长度需为 3-50 个字符');
+  }
+  if (/\s/.test(trimmed)) {
+    throw new Error('用户名不能包含空格或换行');
+  }
+  return trimmed;
+}
+
+function validateAuthPassword(password: string) {
+  if (!password) {
+    throw new Error('请输入密码');
+  }
+  if (password.length < 6) {
+    throw new Error('密码至少 6 个字符');
+  }
+  if (password.length > 128) {
+    throw new Error('密码不能超过 128 个字符');
+  }
+  if (/[\u0000-\u001f]/.test(password)) {
+    throw new Error('密码不能包含控制字符');
+  }
+  return password;
+}
+
+function validateCardCode(code: string) {
+  const trimmed = code.trim();
+  if (!trimmed) {
+    throw new Error('请输入卡密');
+  }
+  if (trimmed.length < 6 || trimmed.length > 64) {
+    throw new Error('卡密长度需为 6-64 个字符');
+  }
+  if (!/^[A-Za-z0-9_-]+$/.test(trimmed)) {
+    throw new Error('卡密只能包含字母、数字、下划线或短横线');
+  }
+  return trimmed;
+}
+
+function getErrorMessage(cause: unknown): string {
+  return cause instanceof Error ? cause.message : String(cause);
 }
 
 function getPagePlan(durationSeconds: number, template: string) {
@@ -3422,11 +3659,23 @@ function EditorPage(props: {
     </div>
   );
 }
-function SettingsPage() {
+type SettingsPageProps = {
+  appInfo: AuthAppInfo | null;
+  authContext: AuthContext | null;
+  authSession: AuthSession | null;
+  authStatus: AuthStatus | null;
+  updateBusy: boolean;
+  updateError: string;
+  onCheckUpdate: () => Promise<AuthAppInfo | null>;
+  onOpenUpdate: () => Promise<void>;
+};
+
+function SettingsPage(props: SettingsPageProps) {
   const [settings, setSettings] = React.useState<SettingsData>(loadSettings());
   const [saved, setSaved] = React.useState(false);
-  const [activeTab, setActiveTab] = React.useState<'voice' | 'ai' | 'rewrite'>('voice');
+  const [activeTab, setActiveTab] = React.useState<'voice' | 'ai' | 'rewrite' | 'about'>('voice');
   const [editingRewriteStyleId, setEditingRewriteStyleId] = React.useState<string | null>(null);
+  const [aboutMessage, setAboutMessage] = React.useState('');
 
   const updateField = <K extends keyof SettingsData>(key: K, value: SettingsData[K]) => {
     setSettings((current) => ({ ...current, [key]: value }));
@@ -3491,6 +3740,39 @@ function SettingsPage() {
     cursor: 'pointer',
   });
 
+  const handleCheckUpdate = async () => {
+    setAboutMessage('');
+    try {
+      const info = await props.onCheckUpdate();
+      if (!info) {
+        setAboutMessage('暂时没有拿到版本信息。');
+        return;
+      }
+
+      setAboutMessage(info.hasUpdate ? `发现新版本 ${info.latestVersion || ''}`.trim() : '当前已经是最新版本。');
+    } catch (cause) {
+      setAboutMessage(getErrorMessage(cause));
+    }
+  };
+
+  const licenseStatusText = props.authStatus
+    ? props.authStatus.isValid
+      ? '已授权'
+      : '未授权'
+    : props.authSession
+      ? '待验证'
+      : '未登录';
+  const licenseStatusColor = props.authStatus
+    ? props.authStatus.isValid
+      ? '#047857'
+      : '#b91c1c'
+    : '#64748b';
+  const licenseUsername = props.authStatus?.username || props.authSession?.username || '-';
+  const licenseExpireTime = formatAuthExpireTime(props.authStatus?.expireTime || props.authSession?.expireTime || null);
+  const licenseRemaining = props.authStatus ? formatRemainingSeconds(props.authStatus.remainingSeconds) : '-';
+  const licenseDeviceName = props.authStatus?.deviceName || props.authSession?.deviceName || props.authContext?.deviceName || '-';
+
+
   return (
     <div style={PAGE_FRAME_STYLE}>
       <div style={{ width: '100%', maxWidth: 760, margin: '0 auto' }}>
@@ -3506,6 +3788,7 @@ function SettingsPage() {
               background: 'rgba(243, 247, 252, 0.88)',
               border: '1px solid rgba(223, 230, 240, 0.92)',
               alignSelf: 'flex-start',
+              flexWrap: 'wrap',
             }}
           >
             <button type="button" onClick={() => setActiveTab('voice')} style={settingsTabStyle(activeTab === 'voice')}>
@@ -3516,6 +3799,9 @@ function SettingsPage() {
             </button>
             <button type="button" onClick={() => setActiveTab('rewrite')} style={settingsTabStyle(activeTab === 'rewrite')}>
               改写风格
+            </button>
+            <button type="button" onClick={() => setActiveTab('about')} style={settingsTabStyle(activeTab === 'about')}>
+              关于
             </button>
           </div>
 
@@ -3614,7 +3900,7 @@ function SettingsPage() {
                 />
               </div>
             </>
-          ) : (
+          ) : activeTab === 'rewrite' ? (
             <>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: SPACING.md, flexWrap: 'wrap' }}>
                 <div>
@@ -3717,22 +4003,964 @@ function SettingsPage() {
                 })}
               </div>
             </>
-          )}
+          ) : (
+            <>
+              <div style={{ display: 'grid', gap: 18 }}>
+                <div
+                  style={{
+                    borderRadius: 20,
+                    border: '1px solid rgba(226, 232, 240, 0.9)',
+                    background: 'linear-gradient(180deg, rgba(248,250,252,0.96) 0%, rgba(255,255,255,0.98) 100%)',
+                    padding: 20,
+                    display: 'grid',
+                    gap: 14,
+                  }}
+                >
+                  <div>
+                    <h3 style={{ ...SECTION_TITLE_STYLE, marginTop: 0, marginBottom: 6 }}>关于软件</h3>
+                    <p style={{ margin: 0, color: '#64748b', fontSize: 13, lineHeight: 1.7 }}>
+                      这里可以查看当前软件信息，并手动检查是否有新版本。
+                    </p>
+                  </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, paddingTop: 4 }}>
+                  <div style={{ display: 'grid', gap: 10 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
+                      <span style={{ color: '#64748b', fontSize: 13 }}>软件名称</span>
+                      <strong style={{ color: '#0f172a', fontSize: 14 }}>AI Remotion</strong>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
+                      <span style={{ color: '#64748b', fontSize: 13 }}>当前版本</span>
+                      <strong style={{ color: '#0f172a', fontSize: 14 }}>{props.appInfo?.currentVersion || '-'}</strong>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
+                      <span style={{ color: '#64748b', fontSize: 13 }}>最新版本</span>
+                      <strong style={{ color: '#0f172a', fontSize: 14 }}>{props.appInfo?.latestVersion || '未检查'}</strong>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
+                      <span style={{ color: '#64748b', fontSize: 13 }}>更新状态</span>
+                      <strong style={{ color: props.appInfo?.hasUpdate ? '#b45309' : '#047857', fontSize: 14 }}>
+                        {props.appInfo?.hasUpdate ? '有可用更新' : '当前已是最新'}
+                      </strong>
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+                    <button
+                      type="button"
+                      onClick={() => void handleCheckUpdate()}
+                      disabled={props.updateBusy}
+                      style={{
+                        ...SECONDARY_BUTTON_STYLE,
+                        minWidth: 120,
+                        minHeight: 42,
+                        cursor: props.updateBusy ? 'wait' : 'pointer',
+                      }}
+                    >
+                      {props.updateBusy ? '检查中...' : '检查更新'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => void props.onOpenUpdate()}
+                      disabled={!props.appInfo?.hasUpdate || props.updateBusy || !props.appInfo?.downloadUrl}
+                      style={{
+                        ...PRIMARY_BUTTON_STYLE,
+                        minWidth: 120,
+                        minHeight: 42,
+                        cursor:
+                          !props.appInfo?.hasUpdate || props.updateBusy || !props.appInfo?.downloadUrl
+                            ? 'not-allowed'
+                            : 'pointer',
+                        opacity: !props.appInfo?.hasUpdate || !props.appInfo?.downloadUrl ? 0.6 : 1,
+                      }}
+                    >
+                      立即更新
+                    </button>
+                  </div>
+
+                  {aboutMessage ? (
+                    <div style={{ padding: '12px 14px', borderRadius: 16, background: 'rgba(37,99,235,0.08)', color: '#1d4ed8', fontSize: 13, lineHeight: 1.6 }}>
+                      {aboutMessage}
+                    </div>
+                  ) : null}
+
+                  {props.updateError ? (
+                    <div style={{ padding: '12px 14px', borderRadius: 16, background: 'rgba(239,68,68,0.1)', color: '#b91c1c', fontSize: 13, lineHeight: 1.6 }}>
+                      {props.updateError}
+                    </div>
+                  ) : null}
+
+                  <div
+                    style={{
+                      borderRadius: 18,
+                      border: '1px solid rgba(226, 232, 240, 0.92)',
+                      background: 'rgba(255,255,255,0.82)',
+                      padding: 16,
+                      display: 'grid',
+                      gap: 10,
+                    }}
+                  >
+                    <div>
+                      <h4 style={{ margin: 0, color: '#0f172a', fontSize: 16, lineHeight: 1.3 }}>授权信息</h4>
+                      <p style={{ margin: '6px 0 0 0', color: '#64748b', fontSize: 13, lineHeight: 1.7 }}>
+                        当前账号、授权有效期和设备绑定信息。
+                      </p>
+                    </div>
+
+                    <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
+                      <span style={{ color: '#64748b', fontSize: 13 }}>授权状态</span>
+                      <strong style={{ color: licenseStatusColor, fontSize: 14 }}>{licenseStatusText}</strong>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
+                      <span style={{ color: '#64748b', fontSize: 13 }}>当前账号</span>
+                      <strong style={{ color: '#0f172a', fontSize: 14 }}>{licenseUsername}</strong>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
+                      <span style={{ color: '#64748b', fontSize: 13 }}>到期时间</span>
+                      <strong style={{ color: '#0f172a', fontSize: 14 }}>{licenseExpireTime}</strong>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
+                      <span style={{ color: '#64748b', fontSize: 13 }}>剩余时长</span>
+                      <strong style={{ color: '#0f172a', fontSize: 14 }}>{licenseRemaining}</strong>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
+                      <span style={{ color: '#64748b', fontSize: 13 }}>当前设备</span>
+                      <strong style={{ color: '#0f172a', fontSize: 14 }}>{licenseDeviceName}</strong>
+                    </div>
+                    {props.authStatus?.validMessage ? (
+                      <div style={{ padding: '12px 14px', borderRadius: 14, background: 'rgba(15,23,42,0.04)', color: '#475569', fontSize: 13, lineHeight: 1.6 }}>
+                        {props.authStatus.validMessage}
+                      </div>
+                    ) : null}
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
+          {activeTab !== 'about' ? (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, paddingTop: 4 }}>
+              <button
+                onClick={handleSave}
+                style={{ ...PRIMARY_BUTTON_STYLE, minWidth: 160, cursor: 'pointer' }}
+              >
+                保存设置
+              </button>
+              {saved ? <span style={{ color: '#00b42a', fontSize: 12 }}>已保存</span> : null}
+            </div>
+          ) : null}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+type AuthScreenProps = {
+  authContext: AuthContext | null;
+  authPreferences: AuthPreferences;
+  authSession: AuthSession | null;
+  authStatus: AuthStatus | null;
+  authBooting: boolean;
+  message: string;
+  error: string;
+  busyAction: string | null;
+  onAuthPreferencesChange: (patch: Partial<AuthPreferences>) => void;
+  onLogin: (username: string, password: string) => Promise<void>;
+  onRegister: (username: string, password: string) => Promise<void>;
+  onTrial: () => Promise<void>;
+  onRecharge: (code: string) => Promise<void>;
+  onLogout: () => Promise<void>;
+};
+
+function AuthScreen(props: AuthScreenProps) {
+  const [username, setUsername] = React.useState(props.authPreferences.username);
+  const [password, setPassword] = React.useState(props.authPreferences.password);
+  const [cardCode, setCardCode] = React.useState('');
+  const [showRegister, setShowRegister] = React.useState(false);
+  const [registerUsername, setRegisterUsername] = React.useState('');
+  const [registerPassword, setRegisterPassword] = React.useState('');
+  const [registerConfirmPassword, setRegisterConfirmPassword] = React.useState('');
+  const [rechargeModal, setRechargeModal] = React.useState<'hidden' | 'reminder' | 'expired' | 'form'>('hidden');
+  const [lastReminderKey, setLastReminderKey] = React.useState('');
+  const [lastExpiredKey, setLastExpiredKey] = React.useState('');
+
+  React.useEffect(() => {
+    setUsername(props.authPreferences.username);
+  }, [props.authPreferences.username]);
+
+  React.useEffect(() => {
+    setPassword(props.authPreferences.password);
+  }, [props.authPreferences.password]);
+
+  const submitLogin = async () => {
+    try {
+      const nextUsername = validateAuthUsername(username);
+      const nextPassword = validateAuthPassword(password);
+      await props.onLogin(nextUsername, nextPassword);
+    } catch (cause) {
+      alert(cause instanceof Error ? cause.message : String(cause));
+    }
+  };
+
+  const openRegister = () => {
+    setRegisterUsername(username.trim());
+    setRegisterPassword('');
+    setRegisterConfirmPassword('');
+    setShowRegister(true);
+  };
+
+  const closeRegister = () => {
+    if (props.busyAction === 'register') {
+      return;
+    }
+    setShowRegister(false);
+  };
+
+  const submitRegister = async () => {
+    try {
+      const nextUsername = validateAuthUsername(registerUsername);
+      const nextPassword = validateAuthPassword(registerPassword);
+      const nextConfirmPassword = validateAuthPassword(registerConfirmPassword);
+      if (nextPassword !== nextConfirmPassword) {
+        throw new Error('两次输入的密码不一致');
+      }
+
+      await props.onRegister(nextUsername, nextPassword);
+      setUsername(nextUsername);
+      setPassword(nextPassword);
+      setShowRegister(false);
+    } catch (cause) {
+      alert(cause instanceof Error ? cause.message : String(cause));
+    }
+  };
+
+  const submitRecharge = async () => {
+    try {
+      await props.onRecharge(validateCardCode(cardCode));
+      setCardCode('');
+      setRechargeModal('hidden');
+    } catch (cause) {
+      alert(cause instanceof Error ? cause.message : String(cause));
+    }
+  };
+
+  const remainingText = props.authStatus
+    ? formatRemainingSeconds(props.authStatus.remainingSeconds)
+    : '未登录';
+  const expireTime = props.authStatus?.expireTime || props.authSession?.expireTime || '未激活';
+  const THIRTY_DAYS_SECONDS = 30 * 24 * 60 * 60;
+
+  React.useEffect(() => {
+    if (!props.authSession || !props.authStatus || props.authBooting || props.busyAction === 'recharge') {
+      return;
+    }
+
+    const statusKey = [
+      props.authStatus.username,
+      props.authStatus.expireTime || '',
+      props.authStatus.remainingSeconds,
+      props.authStatus.isValid ? 'valid' : 'invalid',
+    ].join('|');
+
+    if (props.authStatus.isValid && props.authStatus.remainingSeconds > 0 && props.authStatus.remainingSeconds <= THIRTY_DAYS_SECONDS) {
+      if (lastReminderKey !== statusKey) {
+        setLastReminderKey(statusKey);
+        setRechargeModal('reminder');
+      }
+      return;
+    }
+
+    if (props.authStatus.remainingSeconds <= 0 || !props.authStatus.isValid) {
+      if (lastExpiredKey !== statusKey) {
+        setLastExpiredKey(statusKey);
+        setRechargeModal('expired');
+      }
+    }
+  }, [
+    THIRTY_DAYS_SECONDS,
+    lastExpiredKey,
+    lastReminderKey,
+    props.authBooting,
+    props.authSession,
+    props.authStatus,
+    props.busyAction,
+  ]);
+
+  const cardStyle: React.CSSProperties = {
+    borderRadius: 28,
+    border: '1px solid rgba(15, 23, 42, 0.08)',
+    background: 'linear-gradient(180deg, rgba(255,255,255,0.96) 0%, rgba(250,250,248,0.92) 100%)',
+    boxShadow: '0 24px 64px rgba(15,23,42,0.12), inset 0 1px 0 rgba(255,255,255,0.88)',
+    padding: 24,
+  };
+  const inputStyle: React.CSSProperties = {
+    ...SOFT_INPUT_STYLE,
+    minHeight: 50,
+    borderRadius: 16,
+    border: '1px solid rgba(15,23,42,0.08)',
+    background: 'rgba(255,255,255,0.88)',
+    color: '#0f172a',
+  };
+
+  return (
+    <div
+      style={{
+        minHeight: '100vh',
+        display: 'grid',
+        placeItems: 'center',
+        padding: '24px 18px',
+        position: 'relative',
+        background:
+          'radial-gradient(circle at 18% 18%, rgba(214,228,255,0.82) 0%, rgba(214,228,255,0) 34%), radial-gradient(circle at 82% 12%, rgba(245,214,120,0.14) 0%, rgba(245,214,120,0) 28%), linear-gradient(180deg, #f7f8fb 0%, #edf2f7 100%)',
+      }}
+    >
+      <div
+        style={{
+          width: '100%',
+          maxWidth: 460,
+        }}
+      >
+        <div style={{ ...cardStyle, padding: 28 }}>
+          <div style={{ display: 'grid', gap: 18 }}>
+            <div style={{ display: 'grid', gap: 10 }}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: '#9a7b34', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
+                License Access
+              </div>
+              <h1 style={{ margin: 0, fontSize: 30, lineHeight: 1.1, color: '#0f172a', letterSpacing: '-0.03em' }}>
+                账号登录
+              </h1>
+            </div>
+
+            {props.message ? (
+              <div style={{ padding: '12px 14px', borderRadius: 16, background: 'rgba(17,185,129,0.1)', color: '#047857', fontSize: 14, lineHeight: 1.6 }}>
+                {props.message}
+              </div>
+            ) : null}
+
+            {props.error ? (
+              <div style={{ padding: '12px 14px', borderRadius: 16, background: 'rgba(239,68,68,0.1)', color: '#b91c1c', fontSize: 14, lineHeight: 1.6 }}>
+                {props.error}
+              </div>
+            ) : null}
+
+            {props.authStatus && !props.authStatus.isValid && props.authStatus.validMessage ? (
+              <div style={{ padding: '12px 14px', borderRadius: 16, background: 'rgba(244,63,94,0.06)', color: '#be123c', fontSize: 13, lineHeight: 1.6 }}>
+                当前授权不可用。{props.authStatus.validMessage}
+              </div>
+            ) : null}
+
+            <div style={FIELD_GROUP_STYLE}>
+              <label style={FIELD_LABEL_STYLE}>用户名</label>
+              <input value={username} onChange={(event) => setUsername(event.target.value)} style={inputStyle} />
+            </div>
+
+            <div style={FIELD_GROUP_STYLE}>
+              <label style={FIELD_LABEL_STYLE}>密码</label>
+              <input
+                type="password"
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
+                style={inputStyle}
+              />
+            </div>
+
+            <div style={{ display: 'flex', gap: 18, flexWrap: 'wrap', alignItems: 'center' }}>
+              <label
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 8,
+                  fontSize: 13,
+                  color: '#475569',
+                  cursor: props.authBooting || !!props.busyAction ? 'not-allowed' : 'pointer',
+                }}
+              >
+                <input
+                  type="checkbox"
+                  checked={props.authPreferences.rememberPassword}
+                  disabled={props.authBooting || !!props.busyAction}
+                  onChange={(event) => {
+                    const checked = event.target.checked;
+                    props.onAuthPreferencesChange({
+                      rememberPassword: checked,
+                      autoLogin: checked ? props.authPreferences.autoLogin : false,
+                      username,
+                      password,
+                    });
+                  }}
+                  style={{ width: 16, height: 16, accentColor: '#2563eb' }}
+                />
+                记住密码
+              </label>
+
+              <label
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 8,
+                  fontSize: 13,
+                  color: props.authPreferences.rememberPassword ? '#475569' : '#94a3b8',
+                  cursor:
+                    props.authBooting || !!props.busyAction || !props.authPreferences.rememberPassword
+                      ? 'not-allowed'
+                      : 'pointer',
+                }}
+              >
+                <input
+                  type="checkbox"
+                  checked={props.authPreferences.autoLogin}
+                  disabled={props.authBooting || !!props.busyAction || !props.authPreferences.rememberPassword}
+                  onChange={(event) => {
+                    props.onAuthPreferencesChange({
+                      autoLogin: event.target.checked,
+                      username,
+                      password,
+                    });
+                  }}
+                  style={{ width: 16, height: 16, accentColor: '#2563eb' }}
+                />
+                自动登录
+              </label>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 12 }}>
+              <button
+                type="button"
+                onClick={() => void submitLogin()}
+                disabled={props.authBooting || !!props.busyAction}
+                style={{
+                  ...PRIMARY_BUTTON_STYLE,
+                  minHeight: 48,
+                  borderRadius: 16,
+                  cursor: props.authBooting || props.busyAction ? 'wait' : 'pointer',
+                }}
+              >
+                {props.busyAction === 'login' ? '登录中...' : '登录'}
+              </button>
+              <button
+                type="button"
+                onClick={openRegister}
+                disabled={props.authBooting || !!props.busyAction}
+                style={{
+                  ...SECONDARY_BUTTON_STYLE,
+                  minHeight: 48,
+                  borderRadius: 16,
+                  cursor: props.authBooting || props.busyAction ? 'wait' : 'pointer',
+                }}
+              >
+                {props.busyAction === 'register' ? '注册中...' : '注册'}
+              </button>
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
+              <div style={{ fontSize: 13, color: '#64748b' }}>
+                没有账号时，请先注册再登录。
+              </div>
+              {props.authSession ? (
+                <button
+                  type="button"
+                  onClick={() => void props.onLogout()}
+                  disabled={!!props.busyAction}
+                  style={{
+                    ...QUIET_DANGER_BUTTON_STYLE,
+                    minHeight: 36,
+                    padding: '0 12px',
+                    borderRadius: 12,
+                    cursor: props.busyAction ? 'wait' : 'pointer',
+                  }}
+                >
+                  退出登录
+                </button>
+                ) : null}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {showRegister ? (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(15, 23, 42, 0.34)',
+            backdropFilter: 'blur(8px)',
+            WebkitBackdropFilter: 'blur(8px)',
+            display: 'grid',
+            placeItems: 'center',
+            padding: 20,
+            zIndex: 40,
+          }}
+          onClick={closeRegister}
+        >
+          <div
+            style={{
+              width: '100%',
+              maxWidth: 440,
+              ...cardStyle,
+              padding: 22,
+              boxShadow: '0 30px 80px rgba(15,23,42,0.2), inset 0 1px 0 rgba(255,255,255,0.88)',
+            }}
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div style={{ display: 'grid', gap: 16 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'flex-start' }}>
+                <div>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: '#9a7b34', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
+                    Create Account
+                  </div>
+                  <h2 style={{ margin: '10px 0 0', fontSize: 26, lineHeight: 1.12, color: '#0f172a', letterSpacing: '-0.03em' }}>
+                    注册账号
+                  </h2>
+                </div>
+                <button
+                  type="button"
+                  onClick={closeRegister}
+                  disabled={props.busyAction === 'register'}
+                  style={{
+                    ...SECONDARY_BUTTON_STYLE,
+                    minWidth: 44,
+                    minHeight: 44,
+                    borderRadius: 14,
+                    padding: 0,
+                    boxShadow: 'none',
+                    cursor: props.busyAction === 'register' ? 'wait' : 'pointer',
+                  }}
+                >
+                  ×
+                </button>
+              </div>
+
+              <div style={FIELD_GROUP_STYLE}>
+                <label style={FIELD_LABEL_STYLE}>用户名</label>
+                <input
+                  value={registerUsername}
+                  onChange={(event) => setRegisterUsername(event.target.value)}
+                  style={inputStyle}
+                  placeholder="3-50 个字符，不能包含空格"
+                />
+              </div>
+
+              <div style={FIELD_GROUP_STYLE}>
+                <label style={FIELD_LABEL_STYLE}>密码</label>
+                <input
+                  type="password"
+                  value={registerPassword}
+                  onChange={(event) => setRegisterPassword(event.target.value)}
+                  style={inputStyle}
+                  placeholder="至少 6 个字符"
+                />
+              </div>
+
+              <div style={FIELD_GROUP_STYLE}>
+                <label style={FIELD_LABEL_STYLE}>确认密码</label>
+                <input
+                  type="password"
+                  value={registerConfirmPassword}
+                  onChange={(event) => setRegisterConfirmPassword(event.target.value)}
+                  style={inputStyle}
+                  placeholder="再次输入密码"
+                />
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 12 }}>
+                <button
+                  type="button"
+                  onClick={closeRegister}
+                  disabled={props.busyAction === 'register'}
+                  style={{
+                    ...SECONDARY_BUTTON_STYLE,
+                    minHeight: 46,
+                    borderRadius: 16,
+                    boxShadow: 'none',
+                    cursor: props.busyAction === 'register' ? 'wait' : 'pointer',
+                  }}
+                >
+                  取消
+                </button>
+                <button
+                  type="button"
+                  onClick={() => void submitRegister()}
+                  disabled={props.authBooting || !!props.busyAction}
+                  style={{
+                    ...PRIMARY_BUTTON_STYLE,
+                    minHeight: 46,
+                    borderRadius: 16,
+                    cursor: props.authBooting || props.busyAction ? 'wait' : 'pointer',
+                  }}
+                >
+                  {props.busyAction === 'register' ? '注册中...' : '确认注册'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      {rechargeModal === 'reminder' ? (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(15, 23, 42, 0.28)',
+            backdropFilter: 'blur(8px)',
+            WebkitBackdropFilter: 'blur(8px)',
+            display: 'grid',
+            placeItems: 'center',
+            padding: 20,
+            zIndex: 38,
+          }}
+        >
+          <div
+            style={{
+              width: '100%',
+              maxWidth: 420,
+              ...cardStyle,
+              padding: 22,
+            }}
+          >
+            <div style={{ display: 'grid', gap: 16 }}>
+              <div>
+                <div style={{ fontSize: 12, fontWeight: 700, color: '#9a7b34', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
+                  Renewal Reminder
+                </div>
+                <h2 style={{ margin: '10px 0 0', fontSize: 24, lineHeight: 1.15, color: '#0f172a', letterSpacing: '-0.03em' }}>
+                  授权即将到期
+                </h2>
+                <p style={{ margin: '10px 0 0', color: '#64748b', lineHeight: 1.7, fontSize: 14 }}>
+                  当前授权剩余 {remainingText}，到期时间 {expireTime}。是否现在充值续费？
+                </p>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 12 }}>
+                <button
+                  type="button"
+                  onClick={() => setRechargeModal('hidden')}
+                  style={{
+                    ...SECONDARY_BUTTON_STYLE,
+                    minHeight: 44,
+                    borderRadius: 16,
+                    boxShadow: 'none',
+                    cursor: 'pointer',
+                  }}
+                >
+                  稍后再说
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setRechargeModal('form')}
+                  style={{
+                    ...PRIMARY_BUTTON_STYLE,
+                    minHeight: 44,
+                    borderRadius: 16,
+                    cursor: 'pointer',
+                  }}
+                >
+                  去充值
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      {rechargeModal === 'expired' ? (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(15, 23, 42, 0.28)',
+            backdropFilter: 'blur(8px)',
+            WebkitBackdropFilter: 'blur(8px)',
+            display: 'grid',
+            placeItems: 'center',
+            padding: 20,
+            zIndex: 38,
+          }}
+        >
+          <div
+            style={{
+              width: '100%',
+              maxWidth: 420,
+              ...cardStyle,
+              padding: 22,
+            }}
+          >
+            <div style={{ display: 'grid', gap: 16 }}>
+              <div>
+                <div style={{ fontSize: 12, fontWeight: 700, color: '#9a7b34', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
+                  Renewal Required
+                </div>
+                <h2 style={{ margin: '10px 0 0', fontSize: 24, lineHeight: 1.15, color: '#0f172a', letterSpacing: '-0.03em' }}>
+                  授权已到期
+                </h2>
+                <p style={{ margin: '10px 0 0', color: '#64748b', lineHeight: 1.7, fontSize: 14 }}>
+                  当前账号授权已到期，请充值后继续使用。到期时间 {expireTime}。
+                </p>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 12 }}>
+                <button
+                  type="button"
+                  onClick={() => setRechargeModal('hidden')}
+                  style={{
+                    ...SECONDARY_BUTTON_STYLE,
+                    minHeight: 44,
+                    borderRadius: 16,
+                    boxShadow: 'none',
+                    cursor: 'pointer',
+                  }}
+                >
+                  暂不充值
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setRechargeModal('form')}
+                  style={{
+                    ...PRIMARY_BUTTON_STYLE,
+                    minHeight: 44,
+                    borderRadius: 16,
+                    cursor: 'pointer',
+                  }}
+                >
+                  立即充值
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      {rechargeModal === 'form' ? (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(15, 23, 42, 0.34)',
+            backdropFilter: 'blur(8px)',
+            WebkitBackdropFilter: 'blur(8px)',
+            display: 'grid',
+            placeItems: 'center',
+            padding: 20,
+            zIndex: 40,
+          }}
+          onClick={() => {
+            if (props.busyAction !== 'recharge') {
+              setRechargeModal('hidden');
+            }
+          }}
+        >
+          <div
+            style={{
+              width: '100%',
+              maxWidth: 420,
+              ...cardStyle,
+              padding: 22,
+            }}
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div style={{ display: 'grid', gap: 16 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'flex-start' }}>
+                <div>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: '#9a7b34', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
+                    Recharge License
+                  </div>
+                  <h2 style={{ margin: '10px 0 0', fontSize: 24, lineHeight: 1.15, color: '#0f172a', letterSpacing: '-0.03em' }}>
+                    充值续费
+                  </h2>
+                  <p style={{ margin: '8px 0 0', color: '#64748b', lineHeight: 1.6, fontSize: 14 }}>
+                    {props.authSession ? `当前到期时间 ${expireTime}，剩余 ${remainingText}` : '请先登录账号，再进行充值。'}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setRechargeModal('hidden')}
+                  disabled={props.busyAction === 'recharge'}
+                  style={{
+                    ...SECONDARY_BUTTON_STYLE,
+                    minWidth: 44,
+                    minHeight: 44,
+                    borderRadius: 14,
+                    padding: 0,
+                    boxShadow: 'none',
+                    cursor: props.busyAction === 'recharge' ? 'wait' : 'pointer',
+                  }}
+                >
+                  ×
+                </button>
+              </div>
+
+              <div style={FIELD_GROUP_STYLE}>
+                <label style={FIELD_LABEL_STYLE}>充值卡密</label>
+                <input
+                  value={cardCode}
+                  onChange={(event) => setCardCode(event.target.value)}
+                  placeholder={props.authSession ? '输入卡密后为当前账号续费' : '请先登录后再充值'}
+                  style={inputStyle}
+                  disabled={!props.authSession}
+                />
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 12 }}>
+                <button
+                  type="button"
+                  onClick={() => setRechargeModal('hidden')}
+                  disabled={props.busyAction === 'recharge'}
+                  style={{
+                    ...SECONDARY_BUTTON_STYLE,
+                    minHeight: 46,
+                    borderRadius: 16,
+                    boxShadow: 'none',
+                    cursor: props.busyAction === 'recharge' ? 'wait' : 'pointer',
+                  }}
+                >
+                  取消
+                </button>
+                <button
+                  type="button"
+                  onClick={() => void submitRecharge()}
+                  disabled={!props.authSession || props.authBooting || !!props.busyAction}
+                  style={{
+                    ...PRIMARY_BUTTON_STYLE,
+                    minHeight: 46,
+                    borderRadius: 16,
+                    cursor: !props.authSession || props.authBooting || props.busyAction ? 'not-allowed' : 'pointer',
+                  }}
+                >
+                  {props.busyAction === 'recharge' ? '充值中...' : '确认充值'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+type UpdateNoticeModalProps = {
+  appInfo: AuthAppInfo;
+  busy: boolean;
+  error: string;
+  onUpdateNow: () => Promise<void>;
+  onDismiss: () => void;
+};
+
+function UpdateNoticeModal(props: UpdateNoticeModalProps) {
+  const latestVersion = props.appInfo.latestVersion || '最新版本';
+  const isForceUpdate = props.appInfo.forceUpdate;
+  const hasDownloadUrl = Boolean(props.appInfo.downloadUrl);
+
+  return (
+    <div
+      style={{
+        position: 'fixed',
+        inset: 0,
+        background: 'rgba(15, 23, 42, 0.28)',
+        backdropFilter: 'blur(8px)',
+        WebkitBackdropFilter: 'blur(8px)',
+        display: 'grid',
+        placeItems: 'center',
+        padding: 20,
+        zIndex: 80,
+      }}
+    >
+      <div
+        style={{
+          width: '100%',
+          maxWidth: 430,
+          borderRadius: 28,
+          border: '1px solid rgba(15, 23, 42, 0.08)',
+          background: 'linear-gradient(180deg, rgba(255,255,255,0.97) 0%, rgba(250,250,248,0.95) 100%)',
+          boxShadow: '0 28px 70px rgba(15,23,42,0.16), inset 0 1px 0 rgba(255,255,255,0.92)',
+          padding: 24,
+        }}
+      >
+        <div style={{ display: 'grid', gap: 16 }}>
+          <div style={{ display: 'grid', gap: 10 }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: '#9a7b34', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
+              Version Update
+            </div>
+            <h2 style={{ margin: 0, fontSize: 26, lineHeight: 1.14, color: '#0f172a', letterSpacing: '-0.03em' }}>
+              {isForceUpdate ? '请先更新到新版本' : '发现新版本'}
+            </h2>
+            <p style={{ margin: 0, fontSize: 14, lineHeight: 1.7, color: '#64748b' }}>
+              当前版本 {props.appInfo.currentVersion}，最新版本 {latestVersion}。
+              {isForceUpdate ? ' 当前版本已被标记为必须更新。' : ' 你可以现在更新，也可以稍后处理。'}
+            </p>
+          </div>
+
+          <div
+            style={{
+              borderRadius: 18,
+              border: '1px solid rgba(148, 163, 184, 0.18)',
+              background: 'rgba(248, 250, 252, 0.9)',
+              padding: '14px 16px',
+              display: 'grid',
+              gap: 6,
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, fontSize: 13, color: '#475569' }}>
+              <span>当前版本</span>
+              <strong style={{ color: '#0f172a' }}>{props.appInfo.currentVersion}</strong>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, fontSize: 13, color: '#475569' }}>
+              <span>最新版本</span>
+              <strong style={{ color: '#0f172a' }}>{latestVersion}</strong>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, fontSize: 13, color: '#475569' }}>
+              <span>更新方式</span>
+              <strong style={{ color: '#0f172a' }}>{hasDownloadUrl ? '打开下载地址' : '暂未提供下载地址'}</strong>
+            </div>
+          </div>
+
+          {props.error ? (
+            <div style={{ padding: '12px 14px', borderRadius: 16, background: 'rgba(239,68,68,0.1)', color: '#b91c1c', fontSize: 13, lineHeight: 1.6 }}>
+              {props.error}
+            </div>
+          ) : null}
+
+          {!hasDownloadUrl ? (
+            <div style={{ padding: '12px 14px', borderRadius: 16, background: 'rgba(245,158,11,0.12)', color: '#b45309', fontSize: 13, lineHeight: 1.6 }}>
+              服务端还没有返回下载地址，暂时无法直接跳转更新。
+            </div>
+          ) : null}
+
+          <div style={{ display: 'grid', gridTemplateColumns: isForceUpdate ? '1fr' : 'repeat(2, minmax(0, 1fr))', gap: 12 }}>
+            {!isForceUpdate ? (
+              <button
+                type="button"
+                onClick={props.onDismiss}
+                disabled={props.busy}
+                style={{
+                  ...SECONDARY_BUTTON_STYLE,
+                  minHeight: 46,
+                  borderRadius: 16,
+                  boxShadow: 'none',
+                  cursor: props.busy ? 'wait' : 'pointer',
+                }}
+              >
+                稍后提醒
+              </button>
+            ) : null}
             <button
-              onClick={handleSave}
-              style={{ ...PRIMARY_BUTTON_STYLE, minWidth: 160, cursor: 'pointer' }}
+              type="button"
+              onClick={() => void props.onUpdateNow()}
+              disabled={props.busy || !hasDownloadUrl}
+              style={{
+                ...PRIMARY_BUTTON_STYLE,
+                minHeight: 46,
+                borderRadius: 16,
+                cursor: props.busy ? 'wait' : !hasDownloadUrl ? 'not-allowed' : 'pointer',
+                opacity: !hasDownloadUrl ? 0.6 : 1,
+              }}
             >
-              保存设置
+              {props.busy ? '正在打开下载地址...' : '立即更新'}
             </button>
-            {saved ? <span style={{ color: '#00b42a', fontSize: 12 }}>已保存</span> : null}
           </div>
         </div>
       </div>
     </div>
   );
 }
+
 function Layout(props: { children: React.ReactNode }) {
   const location = useLocation();
 
@@ -3866,20 +5094,472 @@ class ErrorBoundary extends React.Component<
 
 export default function App() {
   const [project, setProject] = React.useState<Project | null>(() => loadProject());
+  const [authPreferences, setAuthPreferences] = React.useState<AuthPreferences>(loadAuthPreferences());
+  const [authContext, setAuthContext] = React.useState<AuthContext | null>(null);
+  const [authSession, setAuthSession] = React.useState<AuthSession | null>(null);
+  const [authStatus, setAuthStatus] = React.useState<AuthStatus | null>(null);
+  const [authAppInfo, setAuthAppInfo] = React.useState<AuthAppInfo | null>(null);
+  const [authBooting, setAuthBooting] = React.useState(true);
+  const [authMessage, setAuthMessage] = React.useState('');
+  const [authError, setAuthError] = React.useState('');
+  const [authBusyAction, setAuthBusyAction] = React.useState<string | null>(null);
+  const [updateBusy, setUpdateBusy] = React.useState(false);
+  const [updateError, setUpdateError] = React.useState('');
+  const [dismissedUpdateVersion, setDismissedUpdateVersion] = React.useState<string | null>(null);
 
   React.useEffect(() => {
     saveProject(project);
   }, [project]);
 
+  React.useEffect(() => {
+    saveAuthPreferences(authPreferences);
+  }, [authPreferences]);
+
+  React.useEffect(() => {
+    let cancelled = false;
+
+    const loadAppInfo = async () => {
+      try {
+        const info = await invokeTauri<AuthAppInfo>('auth_get_app_info', {});
+        if (cancelled) {
+          return;
+        }
+        setAuthAppInfo(info);
+      } catch (cause) {
+        if (!cancelled) {
+          console.warn('Failed to load app update info:', cause);
+        }
+      }
+    };
+
+    void loadAppInfo();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  React.useEffect(() => {
+    let cancelled = false;
+
+    const bootstrapAuth = async () => {
+      setAuthBooting(true);
+      setAuthError('');
+
+      try {
+        const storedAuthPreferences = loadAuthPreferences();
+        const context = await invokeTauri<AuthContext>('auth_get_context', {});
+        if (cancelled) {
+          return;
+        }
+        setAuthContext(context);
+
+        const token = loadAuthToken();
+        if (!token) {
+          setAuthSession(null);
+          setAuthStatus(null);
+
+          if (
+            storedAuthPreferences.autoLogin &&
+            storedAuthPreferences.rememberPassword &&
+            storedAuthPreferences.username.trim() &&
+            storedAuthPreferences.password
+          ) {
+            const session = await invokeTauri<AuthSession>('auth_login', {
+              username: storedAuthPreferences.username.trim(),
+              password: storedAuthPreferences.password,
+            });
+            if (cancelled) {
+              return;
+            }
+
+            saveAuthToken(session.token);
+            const status = await invokeTauri<AuthStatus>('auth_get_status', {});
+            if (cancelled) {
+              return;
+            }
+
+            setAuthSession(session);
+            setAuthStatus(status);
+            setAuthMessage(`已自动登录 ${status.username}`);
+          }
+          return;
+        }
+
+        const session = await invokeTauri<AuthSession>('auth_restore_session', { token });
+        if (cancelled) {
+          return;
+        }
+
+        const status = await invokeTauri<AuthStatus>('auth_get_status', {});
+        if (cancelled) {
+          return;
+        }
+
+        setAuthSession(session);
+        setAuthStatus(status);
+      } catch (cause) {
+        if (cancelled) {
+          return;
+        }
+        clearAuthToken();
+        setAuthSession(null);
+        setAuthStatus(null);
+        setAuthError(getErrorMessage(cause));
+      } finally {
+        if (!cancelled) {
+          setAuthBooting(false);
+        }
+      }
+    };
+
+    void bootstrapAuth();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const completeLogin = React.useCallback(async (session: AuthSession) => {
+    saveAuthToken(session.token);
+    setAuthSession(session);
+    const status = await invokeTauri<AuthStatus>('auth_get_status', {});
+    setAuthStatus(status);
+    return status;
+  }, []);
+
+  const updateAuthPreferencesState = React.useCallback((patch: Partial<AuthPreferences>) => {
+    setAuthPreferences((current) => normalizeAuthPreferences({ ...current, ...patch }));
+  }, []);
+
+  const handleLogin = React.useCallback(
+    async (username: string, password: string) => {
+      setAuthBusyAction('login');
+      setAuthError('');
+      setAuthMessage('');
+
+      try {
+        const session = await invokeTauri<AuthSession>('auth_login', { username, password });
+        const status = await completeLogin(session);
+        setAuthPreferences((current) =>
+          normalizeAuthPreferences({
+            ...current,
+            username,
+            password,
+          })
+        );
+        setAuthMessage(
+          status.isValid
+            ? `登录成功，欢迎回来 ${status.username}`
+            : `登录成功，但当前授权无效${status.validMessage ? `：${status.validMessage}` : ''}`
+        );
+      } catch (cause) {
+        const message = getErrorMessage(cause);
+        setAuthError(message);
+        throw new Error(message);
+      } finally {
+        setAuthBusyAction(null);
+      }
+    },
+    [completeLogin]
+  );
+
+  const handleRegister = React.useCallback(async (username: string, password: string) => {
+    setAuthBusyAction('register');
+    setAuthError('');
+    setAuthMessage('');
+
+    try {
+      const result = await invokeTauri<AuthRegisterResult>('auth_register', { username, password });
+      setAuthMessage(`注册成功，用户 ${result.username} 已创建，请直接登录`);
+    } catch (cause) {
+      const message = getErrorMessage(cause);
+      setAuthError(message);
+      throw new Error(message);
+    } finally {
+      setAuthBusyAction(null);
+    }
+  }, []);
+
+  const handleTrial = React.useCallback(async () => {
+    setAuthBusyAction('trial');
+    setAuthError('');
+    setAuthMessage('');
+
+    try {
+      const result = await invokeTauri<AuthTrialResult>('auth_trial', {});
+      const hours = Math.floor((result.addedSeconds || 0) / 3600);
+      setAuthMessage(
+        result.expireTime
+          ? `试用申请成功，可用时长约 ${hours} 小时，到期时间 ${result.expireTime}`
+          : result.message || '试用申请成功，请登录后继续使用'
+      );
+    } catch (cause) {
+      const message = getErrorMessage(cause);
+      setAuthError(message);
+      throw new Error(message);
+    } finally {
+      setAuthBusyAction(null);
+    }
+  }, []);
+
+  const handleRecharge = React.useCallback(async (code: string) => {
+    if (!authSession) {
+      throw new Error('请先登录后再续费');
+    }
+
+    setAuthBusyAction('recharge');
+    setAuthError('');
+    setAuthMessage('');
+
+    try {
+      const result = await invokeTauri<AuthRechargeResult>('auth_recharge', { code });
+      const status = await invokeTauri<AuthStatus>('auth_get_status', {});
+      setAuthStatus(status);
+      setAuthSession((current) =>
+        current
+          ? {
+              ...current,
+              isValid: status.isValid,
+              expireTime: status.expireTime,
+              validMessage: status.validMessage,
+              username: status.username,
+            }
+          : current
+      );
+      setAuthMessage(
+        result.newExpireTime
+          ? `续费成功，新到期时间 ${result.newExpireTime}`
+          : result.message || '续费成功'
+      );
+    } catch (cause) {
+      const message = getErrorMessage(cause);
+      setAuthError(message);
+      throw new Error(message);
+    } finally {
+      setAuthBusyAction(null);
+    }
+  }, [authSession]);
+
+  const handleLogout = React.useCallback(async () => {
+    setAuthBusyAction('logout');
+    setAuthError('');
+
+    try {
+      await invokeTauri<void>('auth_logout', {});
+    } catch {
+      // Ignore logout cleanup errors and still clear local session.
+    } finally {
+      clearAuthToken();
+      setAuthSession(null);
+      setAuthStatus(null);
+      setAuthMessage('已退出登录');
+      setAuthBusyAction(null);
+    }
+  }, []);
+
+  React.useEffect(() => {
+    if (!authSession || !authStatus?.isValid) {
+      return;
+    }
+
+    let cancelled = false;
+    let timer: number | null = null;
+
+    const scheduleNext = (ms: number) => {
+      if (cancelled) {
+        return;
+      }
+      timer = window.setTimeout(() => {
+        void runHeartbeat();
+      }, ms);
+    };
+
+    const runHeartbeat = async () => {
+      try {
+        const heartbeat = await invokeTauri<AuthHeartbeat>('auth_heartbeat', {});
+        if (cancelled) {
+          return;
+        }
+
+        if (heartbeat.commands.includes('force_logout')) {
+          void invokeTauri<void>('auth_logout', {});
+          clearAuthToken();
+          setAuthSession(null);
+          setAuthStatus(null);
+          setAuthError('授权被服务器强制下线，请重新登录');
+          return;
+        }
+
+        setAuthSession((current) =>
+          current
+            ? {
+                ...current,
+                username: heartbeat.username,
+                isValid: heartbeat.isValid,
+                expireTime: heartbeat.expireTime,
+                validMessage: heartbeat.validMessage,
+                heartInterval: heartbeat.interval,
+                heartbeatTimeout: heartbeat.heartbeatTimeout,
+              }
+            : current
+        );
+        setAuthStatus((current) =>
+          current
+            ? {
+                ...current,
+                username: heartbeat.username,
+                isValid: heartbeat.isValid,
+                isActive: heartbeat.isActive,
+                expireTime: heartbeat.expireTime,
+                validMessage: heartbeat.validMessage,
+                hwid: heartbeat.hwid,
+                deviceName: heartbeat.deviceName,
+              }
+            : {
+                username: heartbeat.username,
+                isValid: heartbeat.isValid,
+                isActive: heartbeat.isActive,
+                expireTime: heartbeat.expireTime,
+                expireTimestamp: null,
+                remainingSeconds: 0,
+                validMessage: heartbeat.validMessage,
+                hwid: heartbeat.hwid,
+                deviceName: heartbeat.deviceName,
+              }
+        );
+
+        if (!heartbeat.isValid) {
+          setAuthMessage(heartbeat.validMessage || '当前授权已失效，请续费后继续使用');
+          return;
+        }
+
+        scheduleNext(Math.max(15, heartbeat.interval || 60) * 1000);
+      } catch (cause) {
+        if (cancelled) {
+          return;
+        }
+        setAuthMessage(`心跳检查失败，将自动重试：${getErrorMessage(cause)}`);
+        scheduleNext(15000);
+      }
+    };
+
+    scheduleNext(1000);
+
+    return () => {
+      cancelled = true;
+      if (timer !== null) {
+        window.clearTimeout(timer);
+      }
+    };
+  }, [authSession, authStatus?.isValid]);
+
+  const refreshAppInfo = React.useCallback(async () => {
+    setUpdateBusy(true);
+    setUpdateError('');
+
+    try {
+      const info = await invokeTauri<AuthAppInfo>('auth_get_app_info', {});
+      setAuthAppInfo(info);
+      return info;
+    } catch (cause) {
+      const message = getErrorMessage(cause);
+      setUpdateError(message);
+      throw new Error(message);
+    } finally {
+      setUpdateBusy(false);
+    }
+  }, []);
+
+  const hasValidAccess = Boolean(authSession && authStatus?.isValid);
+  const visibleUpdateInfo =
+    authAppInfo &&
+    authAppInfo.hasUpdate &&
+    (authAppInfo.forceUpdate || dismissedUpdateVersion !== authAppInfo.latestVersion)
+      ? authAppInfo
+      : null;
+
+  const handleUpdateNow = React.useCallback(async () => {
+    if (!authAppInfo?.downloadUrl) {
+      setUpdateError('当前没有可用的更新地址。');
+      return;
+    }
+
+    setUpdateBusy(true);
+    setUpdateError('');
+
+    try {
+      await invokeTauri<void>('open_external_url', { url: authAppInfo.downloadUrl });
+    } catch (cause) {
+      setUpdateError(getErrorMessage(cause));
+    } finally {
+      setUpdateBusy(false);
+    }
+  }, [authAppInfo]);
+
+  const handleDismissUpdate = React.useCallback(() => {
+    if (!authAppInfo || authAppInfo.forceUpdate) {
+      return;
+    }
+
+    setDismissedUpdateVersion(authAppInfo.latestVersion || authAppInfo.currentVersion);
+    setUpdateError('');
+  }, [authAppInfo]);
+
   return (
     <ErrorBoundary>
-      <Layout>
-        <Routes>
-          <Route path="/" element={<HomePage project={project} onProjectChange={setProject} />} />
-          <Route path="/editor" element={<EditorPage project={project} onProjectChange={setProject} />} />
-          <Route path="/settings" element={<SettingsPage />} />
-        </Routes>
-      </Layout>
+      <>
+        {hasValidAccess ? (
+          <Layout>
+            <Routes>
+              <Route path="/" element={<HomePage project={project} onProjectChange={setProject} />} />
+              <Route path="/editor" element={<EditorPage project={project} onProjectChange={setProject} />} />
+              <Route
+                path="/settings"
+                element={
+                  <SettingsPage
+                    appInfo={authAppInfo}
+                    authContext={authContext}
+                    authSession={authSession}
+                    authStatus={authStatus}
+                    updateBusy={updateBusy}
+                    updateError={updateError}
+                    onCheckUpdate={refreshAppInfo}
+                    onOpenUpdate={handleUpdateNow}
+                  />
+                }
+              />
+            </Routes>
+          </Layout>
+        ) : (
+          <AuthScreen
+            authContext={authContext}
+            authPreferences={authPreferences}
+            authSession={authSession}
+            authStatus={authStatus}
+            authBooting={authBooting}
+            message={authMessage}
+            error={authError}
+            busyAction={authBusyAction}
+            onAuthPreferencesChange={updateAuthPreferencesState}
+            onLogin={handleLogin}
+            onRegister={handleRegister}
+            onTrial={handleTrial}
+            onRecharge={handleRecharge}
+            onLogout={handleLogout}
+          />
+        )}
+
+        {visibleUpdateInfo ? (
+          <UpdateNoticeModal
+            appInfo={visibleUpdateInfo}
+            busy={updateBusy}
+            error={updateError}
+            onUpdateNow={handleUpdateNow}
+            onDismiss={handleDismissUpdate}
+          />
+        ) : null}
+      </>
     </ErrorBoundary>
   );
 }

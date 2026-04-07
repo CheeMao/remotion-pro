@@ -51,6 +51,30 @@ const splitPoint = (point: string): { title: string; description?: string } => {
   };
 };
 
+const GENERIC_HERO_BADGE_PATTERN =
+  /^(先抛问题|抛问题|提出问题|关键反转|反转|核心问题|关键问题|先给结论|给结论|抛结论|先讲结论|开场钩子|钩子|破题|收束|行动引导|行动建议|证据页|反差页|重点来了|继续往下看|往下看答案|看答案|call to action|cta|hook|verdict|signal|preview)$/i;
+
+const sanitizeHeroBadge = (value: unknown): string | undefined => {
+  if (typeof value !== 'string') return undefined;
+  const trimmed = value.trim();
+  if (!trimmed || GENERIC_HERO_BADGE_PATTERN.test(trimmed)) {
+    return undefined;
+  }
+  return trimmed;
+};
+
+const GENERIC_CTA_PATTERN =
+  /^(答案在下一页|往下看答案|继续往下看|继续看答案|下页见|下一页见|下一页告诉你|往下看|继续看|接着看|马上揭晓|马上告诉你|继续看下去|看下去|call to action|cta)$/i;
+
+const sanitizeCtaText = (value: unknown): string | undefined => {
+  if (typeof value !== 'string') return undefined;
+  const trimmed = value.trim();
+  if (!trimmed || GENERIC_CTA_PATTERN.test(trimmed)) {
+    return undefined;
+  }
+  return trimmed;
+};
+
 const ensureListItems = (slide: SharedLayoutSlide) => {
   const items = slide.data?.items;
 
@@ -390,16 +414,10 @@ const ensureQuote = (slide: SharedLayoutSlide) => {
 };
 
 const ensureHeroData = (slide: SharedLayoutSlide) => ({
-  badge:
-    typeof slide.data?.badge === 'string'
-      ? slide.data.badge
-      : slide.points?.[0] || undefined,
+  badge: sanitizeHeroBadge(slide.data?.badge),
   cta:
-    typeof slide.data?.cta === 'string'
-      ? slide.data.cta
-      : typeof slide.data?.button === 'string'
-        ? slide.data.button
-        : undefined,
+    sanitizeCtaText(slide.data?.cta) ||
+    sanitizeCtaText(slide.data?.button),
 });
 
 const toCompactPoints = (slide: SharedLayoutSlide): string[] => {

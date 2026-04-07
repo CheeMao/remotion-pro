@@ -1,0 +1,229 @@
+{
+  "meta": {
+    "title": "Generated Video",
+    "template": "LiquidShow",
+    "voice_id": "S_PlTK120R1",
+    "full_narration": "Gemini 的口碑一直很能打，但它到底好在哪里？不亲自试一试确实很难真正体会。有没有什么办法能让我们一分钱不花直接体验到它的满血版模型？今天这期视频就跟大家扒一扒少有人知道的官方免费渠道 ——Google AI Studio，只要你有谷歌账号就能免费使用。",
+    "soundtrack_path": "projects/generated/1775485551858-LiquidShow/audio/narration.mp3",
+    "soundtrack_duration": 20.832,
+    "voiceId": "S_PlTK120R1",
+    "fullNarration": "Gemini 的口碑一直很能打，但它到底好在哪里？不亲自试一试确实很难真正体会。有没有什么办法能让我们一分钱不花直接体验到它的满血版模型？今天这期视频就跟大家扒一扒少有人知道的官方免费渠道 ——Google AI Studio，只要你有谷歌账号就能免费使用。",
+    "soundtrackPath": "projects/generated/1775485551858-LiquidShow/audio/narration.mp3",
+    "soundtrackDuration": 20.832
+  },
+  "slides": [
+    {
+      "audioDuration": 4.32,
+      "audioEnd": 4.32,
+      "audioStart": 0,
+      "data": {
+        "cta": "先看它值不值得你继续了解"
+      },
+      "durationInFrames": 130,
+      "elementTimings": [
+        {
+          "audioEnd": 0.648,
+          "audioStart": 0,
+          "cue": "Gemini 到底强在哪",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 0.9504,
+          "audioStart": 0.5184000000000001,
+          "cue": "口碑一直很能打，但很多人没真正试过它的上限",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "subtitle",
+          "type": "subtitle"
+        },
+        {
+          "audioEnd": 2.6772,
+          "audioStart": 1.0344000000000002,
+          "cue": "口碑强，但强点没被讲透",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-0",
+          "index": 0,
+          "type": "custom"
+        },
+        {
+          "audioEnd": 4.32,
+          "audioStart": 2.6772,
+          "cue": "先把“好在哪里”说清楚",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-1",
+          "index": 1,
+          "type": "custom"
+        }
+      ],
+      "layout": "hero",
+      "narration": "Gemini 的口碑一直很能打，但它到底好在哪里？",
+      "points": [
+        "口碑强，但强点没被讲透",
+        "先把“好在哪里”说清楚"
+      ],
+      "segmentIds": [
+        "segment-1"
+      ],
+      "subtitle": "口碑一直很能打，但很多人没真正试过它的上限",
+      "title": "Gemini 到底强在哪",
+      "type": "hero",
+      "audioPath": "projects/generated/1775485551858-LiquidShow/audio/slides/slide-001.mp3"
+    },
+    {
+      "audioDuration": 7.944,
+      "audioEnd": 12.264,
+      "audioStart": 4.32,
+      "data": {
+        "left": {
+          "items": [
+            "知道它火",
+            "但体会不到差异"
+          ],
+          "title": "只看评价"
+        },
+        "right": {
+          "items": [
+            "直接感受能力边界",
+            "更容易判断值不值"
+          ],
+          "title": "亲自体验"
+        },
+        "vsText": "差别就在这里"
+      },
+      "durationInFrames": 238,
+      "elementTimings": [
+        {
+          "audioEnd": 5.5116,
+          "audioStart": 4.32,
+          "cue": "不试，真感受不到",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 6.067679999999999,
+          "audioStart": 5.27328,
+          "cue": "关键不是听别人说，而是想办法直接摸到满血版",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "subtitle",
+          "type": "subtitle"
+        },
+        {
+          "audioEnd": 5.970479999999999,
+          "audioStart": 5.970479999999999,
+          "cue": "",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "compare-left",
+          "type": "compare-left"
+        },
+        {
+          "audioEnd": 5.970479999999999,
+          "audioStart": 5.970479999999999,
+          "cue": "",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "compare-right",
+          "type": "compare-right"
+        }
+      ],
+      "layout": "compare",
+      "narration": "不亲自试一试确实很难真正体会。有没有什么办法能让我们一分钱不花直接体验到它的满血版模型？",
+      "points": [
+        "听说不够，体验才有判断",
+        "核心问题变成：怎么零成本试到满血版"
+      ],
+      "segmentIds": [
+        "segment-2",
+        "segment-3"
+      ],
+      "subtitle": "关键不是听别人说，而是想办法直接摸到满血版",
+      "title": "不试，真感受不到",
+      "type": "compare",
+      "audioPath": "projects/generated/1775485551858-LiquidShow/audio/slides/slide-002.mp3"
+    },
+    {
+      "audioDuration": 8.568,
+      "audioEnd": 20.832,
+      "audioStart": 12.264,
+      "data": {
+        "items": [
+          "官方",
+          "免费",
+          "少有人知道"
+        ]
+      },
+      "durationInFrames": 257,
+      "elementTimings": [
+        {
+          "audioEnd": 13.464,
+          "audioStart": 12.264,
+          "cue": "官方免费渠道",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 14.024,
+          "audioStart": 13.224,
+          "cue": "今天直接拆给你看，少有人知道的那条路",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "subtitle",
+          "type": "subtitle"
+        },
+        {
+          "audioEnd": 18.0688,
+          "audioStart": 17.674057142857144,
+          "cue": "官方",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "highlight-0",
+          "index": 0,
+          "type": "highlight"
+        },
+        {
+          "audioEnd": 18.46354285714286,
+          "audioStart": 18.0688,
+          "cue": "免费",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "highlight-1",
+          "index": 1,
+          "type": "highlight"
+        },
+        {
+          "audioEnd": 20.832,
+          "audioStart": 18.529333333333337,
+          "cue": "少有人知道",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "highlight-2",
+          "index": 2,
+          "type": "highlight"
+        }
+      ],
+      "layout": "highlight",
+      "narration": "今天这期视频就跟大家扒一扒少有人知道的官方免费渠道 ——Google AI St...",
+      "points": [
+        "不是第三方野路子",
+        "重点是官方免费入口"
+      ],
+      "segmentIds": [
+        "segment-4"
+      ],
+      "subtitle": "今天直接拆给你看，少有人知道的那条路",
+      "title": "官方免费渠道",
+      "type": "highlight",
+      "audioPath": "projects/generated/1775485551858-LiquidShow/audio/slides/slide-003.mp3"
+    }
+  ]
+}
