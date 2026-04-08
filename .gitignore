@@ -35,4 +35,14 @@ npm-debug.log*
 
 # Cache
 audio-cache/*.mp3
+audio-cache/*.json
 !audio-cache/.gitkeep
+
+# Generated projects (runtime output)
+public/projects/generated/
+
+# Releases
+releases/
+
+# Temp config
+temp-video-config.json
