@@ -87,7 +87,10 @@
       "Bash(export VOLCENGINE_APP_ID=\"4008836872\")",
       "Bash(export VOLCENGINE_ACCESS_KEY=\"k0kPBblPBCWFCaP9-VF7zpctTDqVAn39\")",
       "Bash(export VOLCENGINE_RESOURCE_ID=\"seed-tts-1.0\")",
-      "Bash(pkill -f \"tauri dev\")"
+      "Bash(pkill -f \"tauri dev\")",
+      "Bash(node -e \"const m = require\\('@tauri-apps/api/dpi'\\); console.log\\(Object.keys\\(m\\)\\)\")",
+      "Bash(node -e \"const m = require\\('@tauri-apps/api/window'\\); console.log\\(Object.keys\\(m\\).join\\(', '\\)\\)\")",
+      "Bash(cargo check:*)"
     ]
   }
 }

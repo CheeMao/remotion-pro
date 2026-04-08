@@ -3031,24 +3031,20 @@ function dockLinkStyle(active: boolean): React.CSSProperties {
 }
 
 const SOFT_CARD_STYLE: React.CSSProperties = {
-  background: "rgba(255,255,255,0.92)",
-  borderRadius: 24,
-  padding: 18,
-  border: "1px solid rgba(224, 231, 240, 0.92)",
-  boxShadow:
-    "0 18px 36px rgba(148, 163, 184, 0.12), inset 0 1px 0 rgba(255,255,255,0.92)",
-  backdropFilter: "blur(14px)",
-  WebkitBackdropFilter: "blur(14px)",
+  background: "rgba(255,255,255,0.96)",
+  borderRadius: 12,
+  padding: 16,
+  border: "1px solid rgba(224, 231, 240, 0.9)",
+  boxShadow: "0 1px 4px rgba(148, 163, 184, 0.10), 0 2px 8px rgba(148, 163, 184, 0.06)",
 };
 
 const SOFT_INPUT_STYLE: React.CSSProperties = {
   width: "100%",
   boxSizing: "border-box",
-  padding: "11px 14px",
-  borderRadius: 14,
+  padding: "9px 12px",
+  borderRadius: 7,
   border: "1px solid #d7e0ee",
-  background: "rgba(255,255,255,0.96)",
-  boxShadow: "inset 0 1px 0 rgba(255,255,255,0.86)",
+  background: "#fff",
   fontSize: 14,
   color: "#1d2129",
   lineHeight: 1.4,
@@ -3056,22 +3052,22 @@ const SOFT_INPUT_STYLE: React.CSSProperties = {
 
 const COMPACT_SELECT_STYLE: React.CSSProperties = {
   ...SOFT_INPUT_STYLE,
-  height: 42,
-  padding: "0 12px",
-  borderRadius: 12,
+  height: 38,
+  padding: "0 10px",
+  borderRadius: 7,
   fontSize: 13,
-  lineHeight: "40px",
+  lineHeight: "36px",
 };
 
 const PRIMARY_BUTTON_STYLE: React.CSSProperties = {
-  padding: "11px 18px",
-  borderRadius: 14,
+  padding: "8px 16px",
+  borderRadius: 7,
   border: "none",
   background: "linear-gradient(135deg, #1f67ff 0%, #3c8cff 100%)",
   color: "#fff",
   fontSize: 14,
-  fontWeight: 700,
-  boxShadow: "0 8px 18px rgba(53, 113, 231, 0.2)",
+  fontWeight: 600,
+  boxShadow: "0 2px 6px rgba(53, 113, 231, 0.22)",
 };
 
 const PAGE_FRAME_STYLE: React.CSSProperties = {
@@ -3084,12 +3080,11 @@ const PAGE_FRAME_STYLE: React.CSSProperties = {
 };
 
 const HOME_PAGE_HEIGHT = "100%";
-const HOME_ACTION_BAR_HEIGHT = 74;
 
 const PANEL_STYLE: React.CSSProperties = {
   ...SOFT_CARD_STYLE,
-  padding: 18,
-  borderRadius: 24,
+  padding: 16,
+  borderRadius: 12,
 };
 
 const FIELD_GROUP_STYLE: React.CSSProperties = {
@@ -3114,25 +3109,24 @@ const SECTION_TITLE_STYLE: React.CSSProperties = {
 };
 
 const SECONDARY_BUTTON_STYLE: React.CSSProperties = {
-  padding: "10px 14px",
-  borderRadius: 14,
+  padding: "8px 14px",
+  borderRadius: 7,
   border: "1px solid #dbe3ef",
-  background: "rgba(255,255,255,0.96)",
+  background: "#fff",
   color: "#42506a",
   fontSize: 13,
-  fontWeight: 700,
+  fontWeight: 600,
   cursor: "pointer",
-  boxShadow: "0 8px 16px rgba(148, 163, 184, 0.08)",
 };
 
 const QUIET_DANGER_BUTTON_STYLE: React.CSSProperties = {
-  padding: "0 12px",
-  borderRadius: 12,
+  padding: "0 10px",
+  borderRadius: 6,
   border: "1px solid rgba(245,63,63,0.22)",
   background: "rgba(245,63,63,0.05)",
   color: "#e35252",
   fontSize: 12,
-  fontWeight: 700,
+  fontWeight: 600,
   cursor: "pointer",
 };
 
@@ -3380,7 +3374,6 @@ function HomePage(props: {
         height: HOME_PAGE_HEIGHT,
         boxSizing: "border-box",
         padding: "12px 16px 16px",
-        paddingBottom: HOME_ACTION_BAR_HEIGHT + 6,
         display: "flex",
         flexDirection: "column",
         gap: 10,
@@ -3457,9 +3450,8 @@ function HomePage(props: {
               ...FIELD_GROUP_STYLE,
               marginTop: 0,
               padding: 14,
-              borderRadius: 16,
-              background:
-                "linear-gradient(180deg, rgba(247,250,255,0.92) 0%, rgba(255,255,255,0.98) 100%)",
+              borderRadius: 8,
+              background: "rgba(249,251,255,0.9)",
               border: "1px solid #e5eaf4",
               display: "flex",
               flexDirection: "column",
@@ -3513,9 +3505,8 @@ function HomePage(props: {
               ...FIELD_GROUP_STYLE,
               marginTop: 0,
               padding: 14,
-              borderRadius: 16,
-              background:
-                "linear-gradient(180deg, rgba(247,250,255,0.92) 0%, rgba(255,255,255,0.98) 100%)",
+              borderRadius: 8,
+              background: "rgba(249,251,255,0.9)",
               border: "1px solid #e5eaf4",
               display: "flex",
               flexDirection: "column",
@@ -3595,24 +3586,20 @@ function HomePage(props: {
       {/* 底部固定操作栏 */}
       <div
         style={{
-          position: "fixed",
-          bottom: 0,
-          left: 0,
-          right: 0,
+          marginTop: "auto",
           background: "rgba(255, 255, 255, 0.96)",
           borderTop: "1px solid #e5eaf4",
+          borderRadius: 12,
           padding: "10px 16px",
           display: "flex",
           alignItems: "center",
-          justifyContent: "center",
           gap: SPACING.md,
-          zIndex: 100,
           boxShadow: "0 -4px 12px rgba(0, 0, 0, 0.04)",
+          flexShrink: 0,
         }}
       >
         <div
           style={{
-            maxWidth: COMPACT_UI.pageMaxWidth,
             width: "100%",
             display: "flex",
             alignItems: "center",
@@ -3964,7 +3951,6 @@ function EditorPage(props: {
             padding: 0,
             width: COMPACT_UI.sidePanelWidth,
             flexShrink: 0,
-            borderRadius: 22,
             minHeight: editorWorkspaceHeight,
             display: "flex",
             flexDirection: "column",
@@ -4125,7 +4111,6 @@ function EditorPage(props: {
               style={{
                 ...SOFT_CARD_STYLE,
                 padding: 0,
-                borderRadius: 22,
                 minHeight: editorWorkspaceHeight,
                 display: "flex",
                 flexDirection: "column",
@@ -4858,7 +4843,7 @@ function SettingsPage(props: SettingsPageProps) {
                         border: isDefault
                           ? "1px solid rgba(22, 93, 255, 0.28)"
                           : "1px solid rgba(229, 230, 235, 0.92)",
-                        borderRadius: 16,
+                        borderRadius: 10,
                         background: isDefault
                           ? "rgba(232, 243, 255, 0.45)"
                           : "#fff",
@@ -5018,13 +5003,12 @@ function SettingsPage(props: SettingsPageProps) {
               <div style={{ display: "grid", gap: 18 }}>
                 <div
                   style={{
-                    borderRadius: 20,
+                    borderRadius: 12,
                     border: "1px solid rgba(226, 232, 240, 0.9)",
-                    background:
-                      "linear-gradient(180deg, rgba(248,250,252,0.96) 0%, rgba(255,255,255,0.98) 100%)",
-                    padding: 20,
+                    background: "rgba(248,250,252,0.96)",
+                    padding: 16,
                     display: "grid",
-                    gap: 18,
+                    gap: 16,
                   }}
                 >
                   <div
@@ -5037,17 +5021,16 @@ function SettingsPage(props: SettingsPageProps) {
                   >
                     <div
                       style={{
-                        width: 88,
-                        height: 88,
-                        borderRadius: 28,
+                        width: 80,
+                        height: 80,
+                        borderRadius: 18,
                         padding: 8,
                         display: "grid",
                         placeItems: "center",
-                        background:
-                          "linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(238,244,255,0.94) 100%)",
+                        background: "rgba(245,248,255,0.98)",
                         border: "1px solid rgba(214, 225, 240, 0.96)",
                         boxShadow:
-                          "0 22px 40px rgba(148, 163, 184, 0.18), inset 0 1px 0 rgba(255,255,255,0.96)",
+                          "0 2px 8px rgba(148, 163, 184, 0.12), inset 0 1px 0 rgba(255,255,255,0.96)",
                       }}
                     >
                       <BrandLogo size={72} alt={`${APP_NAME} 品牌 Logo`} />
@@ -5132,8 +5115,8 @@ function SettingsPage(props: SettingsPageProps) {
                   {aboutMessage ? (
                     <div
                       style={{
-                        padding: "12px 14px",
-                        borderRadius: 16,
+                        padding: "10px 12px",
+                        borderRadius: 8,
                         background: "rgba(37,99,235,0.08)",
                         color: "#1d4ed8",
                         fontSize: 13,
@@ -5147,8 +5130,8 @@ function SettingsPage(props: SettingsPageProps) {
                   {props.updateError ? (
                     <div
                       style={{
-                        padding: "12px 14px",
-                        borderRadius: 16,
+                        padding: "10px 12px",
+                        borderRadius: 8,
                         background: "rgba(239,68,68,0.1)",
                         color: "#b91c1c",
                         fontSize: 13,
@@ -5161,10 +5144,10 @@ function SettingsPage(props: SettingsPageProps) {
 
                   <div
                     style={{
-                      borderRadius: 18,
+                      borderRadius: 10,
                       border: "1px solid rgba(226, 232, 240, 0.92)",
                       background: "rgba(255,255,255,0.82)",
-                      padding: 16,
+                      padding: 14,
                       display: "grid",
                       gap: 10,
                     }}
@@ -5250,12 +5233,11 @@ function SettingsPage(props: SettingsPageProps) {
             style={{
               width: "100%",
               maxWidth: 720,
-              borderRadius: 28,
+              borderRadius: 14,
               border: "1px solid rgba(15, 23, 42, 0.08)",
-              background:
-                "linear-gradient(180deg, rgba(255,255,255,0.97) 0%, rgba(250,250,248,0.95) 100%)",
+              background: "rgba(255,255,255,0.98)",
               boxShadow:
-                "0 28px 70px rgba(15,23,42,0.16), inset 0 1px 0 rgba(255,255,255,0.92)",
+                "0 8px 32px rgba(15,23,42,0.12), inset 0 1px 0 rgba(255,255,255,0.92)",
               padding: 24,
             }}
             onClick={(event) => event.stopPropagation()}
@@ -5518,18 +5500,17 @@ function AuthScreen(props: AuthScreenProps) {
   ]);
 
   const cardStyle: React.CSSProperties = {
-    borderRadius: 28,
+    borderRadius: 14,
     border: "1px solid rgba(15, 23, 42, 0.08)",
-    background:
-      "linear-gradient(180deg, rgba(255,255,255,0.96) 0%, rgba(250,250,248,0.92) 100%)",
+    background: "rgba(255,255,255,0.98)",
     boxShadow:
-      "0 24px 64px rgba(15,23,42,0.12), inset 0 1px 0 rgba(255,255,255,0.88)",
-    padding: 24,
+      "0 8px 32px rgba(15,23,42,0.10), inset 0 1px 0 rgba(255,255,255,0.88)",
+    padding: 22,
   };
   const inputStyle: React.CSSProperties = {
     ...SOFT_INPUT_STYLE,
-    minHeight: 50,
-    borderRadius: 16,
+    minHeight: 46,
+    borderRadius: 8,
     border: "1px solid rgba(15,23,42,0.08)",
     background: "rgba(255,255,255,0.88)",
     color: "#0f172a",
@@ -5541,85 +5522,42 @@ function AuthScreen(props: AuthScreenProps) {
         minHeight: "100vh",
         display: "grid",
         placeItems: "center",
-        padding: "24px 18px",
+        padding: "20px 24px",
         position: "relative",
         background:
-          "radial-gradient(circle at 18% 18%, rgba(214,228,255,0.82) 0%, rgba(214,228,255,0) 34%), radial-gradient(circle at 82% 12%, rgba(245,214,120,0.14) 0%, rgba(245,214,120,0) 28%), linear-gradient(180deg, #f7f8fb 0%, #edf2f7 100%)",
+          "radial-gradient(circle at 18% 18%, rgba(214,228,255,0.82) 0%, rgba(214,228,255,0) 34%), linear-gradient(180deg, #f7f8fb 0%, #edf2f7 100%)",
       }}
     >
-      <div
-        style={{
-          width: "100%",
-          maxWidth: 460,
-        }}
-      >
-        <div style={{ ...cardStyle, padding: 28 }}>
-          <div style={{ display: "grid", gap: 18 }}>
-            <div style={{ display: "grid", gap: 14 }}>
-              <div
+      <div style={{ width: "100%", maxWidth: 440 }}>
+        <div style={{ ...cardStyle, padding: 24 }}>
+          <div style={{ display: "grid", gap: 16 }}>
+            {/* 极简头部 */}
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 10,
+                marginBottom: 2,
+              }}
+            >
+              <BrandLogo size={32} alt={APP_NAME} />
+              <span
                 style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 14,
+                  fontSize: 18,
+                  fontWeight: 700,
+                  color: "#0f172a",
+                  letterSpacing: "-0.01em",
                 }}
               >
-                <BrandLogo size={56} alt={`${APP_NAME} 品牌 Logo`} />
-                <div style={{ display: "grid", gap: 4 }}>
-                  <div
-                    style={{
-                      fontSize: 12,
-                      fontWeight: 700,
-                      color: "#9a7b34",
-                      letterSpacing: "0.12em",
-                      textTransform: "uppercase",
-                    }}
-                  >
-                    {APP_NAME}
-                  </div>
-                  <h1
-                    style={{
-                      margin: 0,
-                      fontSize: 30,
-                      lineHeight: 1.1,
-                      color: "#0f172a",
-                      letterSpacing: "-0.03em",
-                    }}
-                  >
-                    登录到{APP_NAME}
-                  </h1>
-                </div>
-              </div>
-              <p
-                style={{
-                  margin: 0,
-                  color: "#475569",
-                  fontSize: 14,
-                  lineHeight: 1.75,
-                }}
-              >
-                {APP_DESCRIPTION}
-              </p>
-              <div
-                style={{
-                  padding: "12px 14px",
-                  borderRadius: 18,
-                  background:
-                    "linear-gradient(180deg, rgba(240,247,255,0.92) 0%, rgba(255,255,255,0.92) 100%)",
-                  border: "1px solid rgba(191, 219, 254, 0.75)",
-                  color: "#1e3a8a",
-                  fontSize: 13,
-                  lineHeight: 1.7,
-                }}
-              >
-                {APP_NAME}专注于帮助用户更快完成高质量内容创作，从文案整理到成片预览尽量一站完成。
-              </div>
+                {APP_NAME}
+              </span>
             </div>
 
             {props.message ? (
               <div
                 style={{
-                  padding: "12px 14px",
-                  borderRadius: 16,
+                  padding: "10px 12px",
+                  borderRadius: 8,
                   background: "rgba(17,185,129,0.1)",
                   color: "#047857",
                   fontSize: 14,
@@ -5633,8 +5571,8 @@ function AuthScreen(props: AuthScreenProps) {
             {props.error ? (
               <div
                 style={{
-                  padding: "12px 14px",
-                  borderRadius: 16,
+                  padding: "10px 12px",
+                  borderRadius: 8,
                   background: "rgba(239,68,68,0.1)",
                   color: "#b91c1c",
                   fontSize: 14,
@@ -5650,8 +5588,8 @@ function AuthScreen(props: AuthScreenProps) {
             props.authStatus.validMessage ? (
               <div
                 style={{
-                  padding: "12px 14px",
-                  borderRadius: 16,
+                  padding: "10px 12px",
+                  borderRadius: 8,
                   background: "rgba(244,63,94,0.06)",
                   color: "#be123c",
                   fontSize: 13,
@@ -5773,8 +5711,8 @@ function AuthScreen(props: AuthScreenProps) {
                 disabled={props.authBooting || !!props.busyAction}
                 style={{
                   ...PRIMARY_BUTTON_STYLE,
-                  minHeight: 48,
-                  borderRadius: 16,
+                  minHeight: 42,
+                  borderRadius: 8,
                   cursor:
                     props.authBooting || props.busyAction ? "wait" : "pointer",
                 }}
@@ -5787,8 +5725,8 @@ function AuthScreen(props: AuthScreenProps) {
                 disabled={props.authBooting || !!props.busyAction}
                 style={{
                   ...SECONDARY_BUTTON_STYLE,
-                  minHeight: 48,
-                  borderRadius: 16,
+                  minHeight: 42,
+                  borderRadius: 8,
                   cursor:
                     props.authBooting || props.busyAction ? "wait" : "pointer",
                 }}
@@ -5797,35 +5735,23 @@ function AuthScreen(props: AuthScreenProps) {
               </button>
             </div>
 
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                gap: 12,
-                alignItems: "center",
-                flexWrap: "wrap",
-              }}
-            >
-              <div style={{ fontSize: 13, color: "#64748b" }}>
-                没有账号时，请先注册再登录。
-              </div>
-              {props.authSession ? (
+            {props.authSession ? (
+              <div style={{ display: "flex", justifyContent: "flex-end" }}>
                 <button
                   type="button"
                   onClick={() => void props.onLogout()}
                   disabled={!!props.busyAction}
                   style={{
                     ...QUIET_DANGER_BUTTON_STYLE,
-                    minHeight: 36,
-                    padding: "0 12px",
-                    borderRadius: 12,
+                    minHeight: 32,
+                    padding: "0 10px",
                     cursor: props.busyAction ? "wait" : "pointer",
                   }}
                 >
                   退出登录
                 </button>
-              ) : null}
-            </div>
+              </div>
+            ) : null}
           </div>
         </div>
       </div>
@@ -5955,8 +5881,8 @@ function AuthScreen(props: AuthScreenProps) {
                   disabled={props.busyAction === "register"}
                   style={{
                     ...SECONDARY_BUTTON_STYLE,
-                    minHeight: 46,
-                    borderRadius: 16,
+                    minHeight: 40,
+                    borderRadius: 8,
                     boxShadow: "none",
                     cursor:
                       props.busyAction === "register" ? "wait" : "pointer",
@@ -5970,8 +5896,8 @@ function AuthScreen(props: AuthScreenProps) {
                   disabled={props.authBooting || !!props.busyAction}
                   style={{
                     ...PRIMARY_BUTTON_STYLE,
-                    minHeight: 46,
-                    borderRadius: 16,
+                    minHeight: 40,
+                    borderRadius: 8,
                     cursor:
                       props.authBooting || props.busyAction
                         ? "wait"
@@ -6061,8 +5987,8 @@ function AuthScreen(props: AuthScreenProps) {
                   }}
                   style={{
                     ...SECONDARY_BUTTON_STYLE,
-                    minHeight: 44,
-                    borderRadius: 16,
+                    minHeight: 40,
+                    borderRadius: 8,
                     boxShadow: "none",
                     cursor: "pointer",
                   }}
@@ -6074,8 +6000,8 @@ function AuthScreen(props: AuthScreenProps) {
                   onClick={() => setRechargeModal("form")}
                   style={{
                     ...PRIMARY_BUTTON_STYLE,
-                    minHeight: 44,
-                    borderRadius: 16,
+                    minHeight: 40,
+                    borderRadius: 8,
                     cursor: "pointer",
                   }}
                 >
@@ -6161,8 +6087,8 @@ function AuthScreen(props: AuthScreenProps) {
                   }}
                   style={{
                     ...SECONDARY_BUTTON_STYLE,
-                    minHeight: 44,
-                    borderRadius: 16,
+                    minHeight: 40,
+                    borderRadius: 8,
                     boxShadow: "none",
                     cursor: "pointer",
                   }}
@@ -6174,8 +6100,8 @@ function AuthScreen(props: AuthScreenProps) {
                   onClick={() => setRechargeModal("form")}
                   style={{
                     ...PRIMARY_BUTTON_STYLE,
-                    minHeight: 44,
-                    borderRadius: 16,
+                    minHeight: 40,
+                    borderRadius: 8,
                     cursor: "pointer",
                   }}
                 >
@@ -6307,8 +6233,8 @@ function AuthScreen(props: AuthScreenProps) {
                   disabled={props.busyAction === "recharge"}
                   style={{
                     ...SECONDARY_BUTTON_STYLE,
-                    minHeight: 46,
-                    borderRadius: 16,
+                    minHeight: 40,
+                    borderRadius: 8,
                     boxShadow: "none",
                     cursor:
                       props.busyAction === "recharge" ? "wait" : "pointer",
@@ -6326,8 +6252,8 @@ function AuthScreen(props: AuthScreenProps) {
                   }
                   style={{
                     ...PRIMARY_BUTTON_STYLE,
-                    minHeight: 46,
-                    borderRadius: 16,
+                    minHeight: 40,
+                    borderRadius: 8,
                     cursor:
                       !props.authSession ||
                       props.authBooting ||
@@ -6378,13 +6304,12 @@ function UpdateNoticeModal(props: UpdateNoticeModalProps) {
         style={{
           width: "100%",
           maxWidth: 430,
-          borderRadius: 28,
+          borderRadius: 14,
           border: "1px solid rgba(15, 23, 42, 0.08)",
-          background:
-            "linear-gradient(180deg, rgba(255,255,255,0.97) 0%, rgba(250,250,248,0.95) 100%)",
+          background: "rgba(255,255,255,0.98)",
           boxShadow:
-            "0 28px 70px rgba(15,23,42,0.16), inset 0 1px 0 rgba(255,255,255,0.92)",
-          padding: 24,
+            "0 8px 32px rgba(15,23,42,0.12), inset 0 1px 0 rgba(255,255,255,0.92)",
+          padding: 22,
         }}
       >
         <div style={{ display: "grid", gap: 16 }}>
@@ -6429,10 +6354,10 @@ function UpdateNoticeModal(props: UpdateNoticeModalProps) {
 
           <div
             style={{
-              borderRadius: 18,
+              borderRadius: 8,
               border: "1px solid rgba(148, 163, 184, 0.18)",
               background: "rgba(248, 250, 252, 0.9)",
-              padding: "14px 16px",
+              padding: "12px 14px",
               display: "grid",
               gap: 6,
             }}
@@ -6482,8 +6407,8 @@ function UpdateNoticeModal(props: UpdateNoticeModalProps) {
           {props.error ? (
             <div
               style={{
-                padding: "12px 14px",
-                borderRadius: 16,
+                padding: "10px 12px",
+                borderRadius: 8,
                 background: "rgba(239,68,68,0.1)",
                 color: "#b91c1c",
                 fontSize: 13,
@@ -6497,8 +6422,8 @@ function UpdateNoticeModal(props: UpdateNoticeModalProps) {
           {!hasDownloadUrl ? (
             <div
               style={{
-                padding: "12px 14px",
-                borderRadius: 16,
+                padding: "10px 12px",
+                borderRadius: 8,
                 background: "rgba(245,158,11,0.12)",
                 color: "#b45309",
                 fontSize: 13,
@@ -6525,8 +6450,8 @@ function UpdateNoticeModal(props: UpdateNoticeModalProps) {
                 disabled={props.busy}
                 style={{
                   ...SECONDARY_BUTTON_STYLE,
-                  minHeight: 46,
-                  borderRadius: 16,
+                  minHeight: 40,
+                  borderRadius: 8,
                   boxShadow: "none",
                   cursor: props.busy ? "wait" : "pointer",
                 }}
@@ -6540,8 +6465,8 @@ function UpdateNoticeModal(props: UpdateNoticeModalProps) {
               disabled={props.busy || !hasDownloadUrl}
               style={{
                 ...PRIMARY_BUTTON_STYLE,
-                minHeight: 46,
-                borderRadius: 16,
+                minHeight: 40,
+                borderRadius: 8,
                 cursor: props.busy
                   ? "wait"
                   : !hasDownloadUrl
@@ -6598,7 +6523,7 @@ function Layout(props: { children: React.ReactNode }) {
               "linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(248,251,255,0.96) 100%)",
             border: "1px solid rgba(223, 230, 240, 0.95)",
             boxShadow:
-              "0 30px 60px rgba(148, 163, 184, 0.24), inset 0 1px 0 rgba(255,255,255,0.92)",
+              "0 4px 16px rgba(148, 163, 184, 0.16), inset 0 1px 0 rgba(255,255,255,0.92)",
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
@@ -6619,7 +6544,7 @@ function Layout(props: { children: React.ReactNode }) {
                 "linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(238,244,255,0.96) 100%)",
               border: "1px solid rgba(214, 225, 240, 0.96)",
               boxShadow:
-                "0 18px 34px rgba(148, 163, 184, 0.18), inset 0 1px 0 rgba(255,255,255,0.96)",
+                "0 2px 6px rgba(148, 163, 184, 0.12), inset 0 1px 0 rgba(255,255,255,0.96)",
               marginBottom: 6,
             }}
           >
@@ -6678,14 +6603,11 @@ function Layout(props: { children: React.ReactNode }) {
             minHeight: isHomePage ? undefined : "calc(100vh - 20px)",
             maxWidth: COMPACT_UI.shellMaxWidth,
             margin: "0 auto",
-            borderRadius: 28,
-            background:
-              "linear-gradient(180deg, rgba(255,255,255,0.46) 0%, rgba(255,255,255,0.64) 100%)",
-            border: "1px solid rgba(255,255,255,0.82)",
+            borderRadius: 12,
+            background: "rgba(255,255,255,0.97)",
+            border: "1px solid rgba(224,231,240,0.9)",
             boxShadow:
-              "0 16px 34px rgba(148, 163, 184, 0.1), inset 0 1px 0 rgba(255,255,255,0.92)",
-            backdropFilter: "blur(10px)",
-            WebkitBackdropFilter: "blur(10px)",
+              "0 1px 4px rgba(148, 163, 184, 0.10), 0 2px 8px rgba(148, 163, 184, 0.06)",
             overflow: "hidden",
           }}
         >
@@ -7164,6 +7086,30 @@ export default function App() {
   }, []);
 
   const hasValidAccess = Boolean(authSession && authStatus?.isValid);
+
+  // 根据登录状态动态调整窗口大小（通过 Rust 命令，绕过 JS window API 兼容问题）
+  React.useEffect(() => {
+    if (authBooting) {
+      return;
+    }
+
+    if (hasValidAccess) {
+      void invokeTauri("resize_window", {
+        width: 980,
+        height: 700,
+        minWidth: 860,
+        minHeight: 620,
+      }).catch((e) => console.warn("[resize_window]", e));
+    } else {
+      void invokeTauri("resize_window", {
+        width: 580,
+        height: 520,
+        minWidth: 520,
+        minHeight: 460,
+      }).catch((e) => console.warn("[resize_window]", e));
+    }
+  }, [hasValidAccess, authBooting]);
+
   const visibleUpdateInfo =
     authAppInfo &&
     authAppInfo.hasUpdate &&

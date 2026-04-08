@@ -14,10 +14,8 @@
     "windows": [
       {
         "title": "轻剪",
-        "width": 980,
-        "height": 700,
-        "minWidth": 860,
-        "minHeight": 620,
+        "width": 580,
+        "height": 520,
         "resizable": true,
         "fullscreen": false,
         "center": true,

@@ -2560,6 +2560,34 @@ async fn render_video(
     }
 }
 
+#[tauri::command]
+fn resize_window(
+    app: tauri::AppHandle,
+    width: f64,
+    height: f64,
+    min_width: f64,
+    min_height: f64,
+) -> Result<(), String> {
+    use tauri::Manager;
+    let window = app
+        .get_webview_window("main")
+        .ok_or_else(|| "Window 'main' not found".to_string())?;
+    // 先把最小尺寸设为 1×1，确保缩小时不被拦截
+    window
+        .set_min_size(Some(tauri::LogicalSize::new(1.0_f64, 1.0_f64)))
+        .map_err(|e| e.to_string())?;
+    // 设置目标尺寸
+    window
+        .set_size(tauri::LogicalSize::new(width, height))
+        .map_err(|e| e.to_string())?;
+    // 恢复正确的最小尺寸约束
+    window
+        .set_min_size(Some(tauri::LogicalSize::new(min_width, min_height)))
+        .map_err(|e| e.to_string())?;
+    window.center().map_err(|e| e.to_string())?;
+    Ok(())
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     load_runtime_env();
@@ -2590,6 +2618,7 @@ pub fn run() {
             render_video,
             parse_douyin_url,
             transcribe_douyin_video,
+            resize_window,
         ])
         .setup(|app| {
             if cfg!(debug_assertions) {
