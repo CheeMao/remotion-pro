@@ -1,0 +1,19 @@
+很多人用 Claude 写代码、做设计时，最大的痛点就是效率和质量难兼顾。今天我来推荐8个实用技能，帮你解决这些难题，覆盖设计、规划、安全等多个关键领域，让你工作更轻松，成果更出彩。
+
+先说最牛的设计利器：Frontend Design，Anthropic 官方出品，超过27万用户用它给 Claude 输入完整设计系统和哲学，界面质量马上提升一个档次。想让作品更专业，它绝对不能少。
+
+再来是多 Agent 协同利器 Superpowers，作者 Oobra，4万多星！它能自动拆任务，多线并行，还能自我检查，复杂项目分分钟搞定。
+
+规划控必须看 Planning with Files，13000多星，让 Claude 用文件做清晰的结构化规划，先布局再行动，错误率立刻降下来。
+
+浏览器操作也能交给 Claude，Anthropic 的 Agent Browser 搭 Playwright，测试网页、抓数据、甚至填表单，都变得简单顺手。
+
+设计规范别忘了 Web Interface Guidelines，2.2万星，帮你一键检查界面符合无障碍和响应式要求，省心又专业。
+
+UIUX Pro Max 几乎是设计百科，全套67种风格、96个调色板、57套字体搭配，Claude 的设计素材库，有了它，创意不再拼命翻找。
+
+代码安全很关键，Trail of Bits 出的 Security Audit，自动扫一遍漏洞，写完代码就跑它一把，问题早发现早解决。
+
+最后是 Software Architecture，内置 Clean Architecture 和 Solid 原则，Claude 写出的代码不仅能跑，还架构清晰，质量绝对更放心。
+
+这8个技能，是我用过最实用的 Claude 加强工具。你平时还有哪些神技能？评论里告诉我，我们一起交流！

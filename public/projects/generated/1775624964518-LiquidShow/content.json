@@ -1,0 +1,883 @@
+{
+  "meta": {
+    "title": "Generated Video",
+    "template": "LiquidShow",
+    "voice_id": "S_PlTK120R1",
+    "full_narration": "你知道吗？只靠AI写代码，界面和安全能差一大截！今天我给你挑出8款真·实用的Claude技能，帮你设计更专业、规划更清晰、安全更靠谱。\n\n第一款，Anthropic官方出的Frontend Design，装了它，Claude写界面立马高级了——27万用户都在用，设计哲学全套注入，让你的产品质感直接翻倍。第二个，Superpowers，多Agent开发大杀器，Oobra打造，4万多star，能自动拆任务，还能并行处理，自检再自检，效率炸裂，你试试能不用它？第三个，Planning with Files，1.3万star，让Claude用文件做结构化规划，复杂任务先理清再动手，出错率立马降一半，告别乱糟糟。第四个，Agent Browser，基于Playwright，Anthropic官方发布，Claude直接操控浏览器，测试网页、抓数据、填表单样样行，不用你动手，省时又省力。第五个，Web Interface Guidelines，有2.2万star，帮你检查网页设计规范，从可访问性到响应式，一个都不落，设计上不了台面它不让你过。第六个，UIUX Pro Max，超全设计资源库，67种风格+96套调色板+57种字体配搭，Claude的设计百科，你想要的这都有，搭配界面嗖嗖好看。第七个，Security Audit，来自专业的Trail of Bits，自动查漏洞，写完代码跑一遍，发现安全隐患，提早修复，千万别拿安全开玩笑。最后一款，Software Architecture，内置Clean Architecture和SOLID原则，Claude写的代码，不光能跑，还架构扎实，质量感爆棚。\n\n这8个技能，就是我用过最靠谱的Claude Code升级法宝。你用过哪些好用的？评论区告诉我，咱们一起交流！记住，技术好不好，一看细节，二看流程，三看安全，别再让AI只“会写”，还得写得专业。",
+    "soundtrack_path": "projects/generated/1775624964518-LiquidShow/audio/narration.mp3",
+    "soundtrack_duration": 126.40800000000002,
+    "voiceId": "S_PlTK120R1",
+    "fullNarration": "你知道吗？只靠AI写代码，界面和安全能差一大截！今天我给你挑出8款真·实用的Claude技能，帮你设计更专业、规划更清晰、安全更靠谱。\n\n第一款，Anthropic官方出的Frontend Design，装了它，Claude写界面立马高级了——27万用户都在用，设计哲学全套注入，让你的产品质感直接翻倍。第二个，Superpowers，多Agent开发大杀器，Oobra打造，4万多star，能自动拆任务，还能并行处理，自检再自检，效率炸裂，你试试能不用它？第三个，Planning with Files，1.3万star，让Claude用文件做结构化规划，复杂任务先理清再动手，出错率立马降一半，告别乱糟糟。第四个，Agent Browser，基于Playwright，Anthropic官方发布，Claude直接操控浏览器，测试网页、抓数据、填表单样样行，不用你动手，省时又省力。第五个，Web Interface Guidelines，有2.2万star，帮你检查网页设计规范，从可访问性到响应式，一个都不落，设计上不了台面它不让你过。第六个，UIUX Pro Max，超全设计资源库，67种风格+96套调色板+57种字体配搭，Claude的设计百科，你想要的这都有，搭配界面嗖嗖好看。第七个，Security Audit，来自专业的Trail of Bits，自动查漏洞，写完代码跑一遍，发现安全隐患，提早修复，千万别拿安全开玩笑。最后一款，Software Architecture，内置Clean Architecture和SOLID原则，Claude写的代码，不光能跑，还架构扎实，质量感爆棚。\n\n这8个技能，就是我用过最靠谱的Claude Code升级法宝。你用过哪些好用的？评论区告诉我，咱们一起交流！记住，技术好不好，一看细节，二看流程，三看安全，别再让AI只“会写”，还得写得专业。",
+    "soundtrackPath": "projects/generated/1775624964518-LiquidShow/audio/narration.mp3",
+    "soundtrackDuration": 126.408
+  },
+  "slides": [
+    {
+      "audioDuration": 1.2,
+      "audioEnd": 1.2,
+      "audioStart": 0,
+      "data": {},
+      "durationInFrames": 36,
+      "elementTimings": [
+        {
+          "audioEnd": 0.18,
+          "audioStart": 0,
+          "cue": "你知道吗？",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 1.444,
+          "audioStart": 0.4439999999999999,
+          "cue": "停下，马上了解一个令人意想不到的真相",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-0",
+          "index": 0,
+          "type": "custom"
+        }
+      ],
+      "layout": "hero",
+      "narration": "你知道吗？",
+      "points": [
+        "停下，马上了解一个令人意想不到的真相"
+      ],
+      "segmentIds": [
+        "segment-1"
+      ],
+      "subtitle": "",
+      "title": "你知道吗？",
+      "type": "hero",
+      "audioPath": "projects/generated/1775624964518-LiquidShow/audio/slides/slide-001.mp3"
+    },
+    {
+      "audioDuration": 3.816,
+      "audioEnd": 5.016,
+      "audioStart": 1.2,
+      "data": {},
+      "durationInFrames": 114,
+      "elementTimings": [
+        {
+          "audioEnd": 1.7723999999999998,
+          "audioStart": 1.2,
+          "cue": "AI写代码，却有大坑！",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 3.48696,
+          "audioStart": 1.95792,
+          "cue": "只靠AI写代码，界面和安全差距明显",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-0",
+          "index": 0,
+          "type": "custom"
+        },
+        {
+          "audioEnd": 5.016,
+          "audioStart": 3.48696,
+          "cue": "代码不光要对，还得好用、安全",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-1",
+          "index": 1,
+          "type": "custom"
+        }
+      ],
+      "layout": "hero",
+      "narration": "只靠AI写代码，界面和安全能差一大截！",
+      "points": [
+        "只靠AI写代码，界面和安全差距明显",
+        "代码不光要对，还得好用、安全"
+      ],
+      "segmentIds": [
+        "segment-2"
+      ],
+      "subtitle": "",
+      "title": "AI写代码，却有大坑！",
+      "type": "hero",
+      "audioPath": "projects/generated/1775624964518-LiquidShow/audio/slides/slide-002.mp3"
+    },
+    {
+      "audioDuration": 8.232,
+      "audioEnd": 13.248,
+      "audioStart": 5.016,
+      "data": {},
+      "durationInFrames": 247,
+      "elementTimings": [
+        {
+          "audioEnd": 6.216,
+          "audioStart": 5.016,
+          "cue": "8款真·实用的Claude技能",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 11.698666666666666,
+          "audioStart": 10.343,
+          "cue": "帮你设计更专业",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-0",
+          "index": 0,
+          "type": "custom"
+        },
+        {
+          "audioEnd": 12.666999999999998,
+          "audioStart": 11.698666666666666,
+          "cue": "规划更清晰",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-1",
+          "index": 1,
+          "type": "custom"
+        },
+        {
+          "audioEnd": 13.248,
+          "audioStart": 10.924,
+          "cue": "安全更有保障",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-2",
+          "index": 2,
+          "type": "custom"
+        }
+      ],
+      "layout": "hero",
+      "narration": "今天我给你挑出8款真·实用的Claude技能，帮你设计更专业、规划更清晰、安全更......",
+      "points": [
+        "帮你设计更专业",
+        "规划更清晰",
+        "安全更有保障"
+      ],
+      "segmentIds": [
+        "segment-3"
+      ],
+      "subtitle": "",
+      "title": "8款真·实用的Claude技能",
+      "type": "hero",
+      "audioPath": "projects/generated/1775624964518-LiquidShow/audio/slides/slide-003.mp3"
+    },
+    {
+      "audioDuration": 12,
+      "audioEnd": 25.247999999999998,
+      "audioStart": 13.248,
+      "data": {},
+      "durationInFrames": 360,
+      "elementTimings": [
+        {
+          "audioEnd": 14.448,
+          "audioStart": 13.248,
+          "cue": "1.官方前端设计工具",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 18.087999999999997,
+          "audioStart": 14.508,
+          "cue": "Anthropic官方出品",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-0",
+          "index": 0,
+          "type": "custom"
+        },
+        {
+          "audioEnd": 21.667999999999996,
+          "audioStart": 18.087999999999997,
+          "cue": "快速搭建高质量前端界面",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-1",
+          "index": 1,
+          "type": "custom"
+        },
+        {
+          "audioEnd": 25.248,
+          "audioStart": 21.668,
+          "cue": "提升设计效率与一致性",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-2",
+          "index": 2,
+          "type": "custom"
+        }
+      ],
+      "layout": "default",
+      "narration": "第一款，Anthropic官方出的Frontend Design，装了它，Claude能帮你快速产出前端界面。",
+      "points": [
+        "Anthropic官方出品",
+        "快速搭建高质量前端界面",
+        "提升设计效率与一致性"
+      ],
+      "segmentIds": [
+        "segment-4"
+      ],
+      "subtitle": "",
+      "title": "1.官方前端设计工具",
+      "type": "default",
+      "audioPath": "projects/generated/1775624964518-LiquidShow/audio/slides/slide-004.mp3"
+    },
+    {
+      "audioDuration": 12.216,
+      "audioEnd": 37.464,
+      "audioStart": 25.247999999999998,
+      "data": {},
+      "durationInFrames": 366,
+      "elementTimings": [
+        {
+          "audioEnd": 26.447999999999997,
+          "audioStart": 25.248,
+          "cue": "2.多Agent开发利器",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 30.16,
+          "audioStart": 26.508,
+          "cue": "Superpowers：多Agent协同",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-0",
+          "index": 0,
+          "type": "custom"
+        },
+        {
+          "audioEnd": 33.812,
+          "audioStart": 30.16,
+          "cue": "由Oobra打造",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-1",
+          "index": 1,
+          "type": "custom"
+        },
+        {
+          "audioEnd": 37.464,
+          "audioStart": 34.661302325581396,
+          "cue": "4万多star开源项目",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-2",
+          "index": 2,
+          "type": "custom"
+        }
+      ],
+      "layout": "default",
+      "narration": "第二个，Superpowers，多Agent开发大杀器，Oobra打造，4万多star开源项目。",
+      "points": [
+        "Superpowers：多Agent协同",
+        "由Oobra打造",
+        "4万多star开源项目"
+      ],
+      "segmentIds": [
+        "segment-5"
+      ],
+      "subtitle": "",
+      "title": "2.多Agent开发利器",
+      "type": "default",
+      "audioPath": "projects/generated/1775624964518-LiquidShow/audio/slides/slide-005.mp3"
+    },
+    {
+      "audioDuration": 12.336,
+      "audioEnd": 49.8,
+      "audioStart": 37.464,
+      "data": {},
+      "durationInFrames": 370,
+      "elementTimings": [
+        {
+          "audioEnd": 38.664,
+          "audioStart": 37.464,
+          "cue": "3.文件规划神器",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 43.4371914893617,
+          "audioStart": 39.43097872340425,
+          "cue": "Planning with Files",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-0",
+          "index": 0,
+          "type": "custom"
+        },
+        {
+          "audioEnd": 46.108,
+          "audioStart": 42.416,
+          "cue": "1.3万star高人气",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-1",
+          "index": 1,
+          "type": "custom"
+        },
+        {
+          "audioEnd": 49.8,
+          "audioStart": 46.108,
+          "cue": "让Claude帮你理清代码结构",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-2",
+          "index": 2,
+          "type": "custom"
+        }
+      ],
+      "layout": "default",
+      "narration": "第三个，Planning with Files，1.3万star，让Claude帮你规划文件结构，专业又清晰。",
+      "points": [
+        "Planning with Files",
+        "1.3万star高人气",
+        "让Claude帮你理清代码结构"
+      ],
+      "segmentIds": [
+        "segment-6"
+      ],
+      "subtitle": "",
+      "title": "3.文件规划神器",
+      "type": "default",
+      "audioPath": "projects/generated/1775624964518-LiquidShow/audio/slides/slide-006.mp3"
+    },
+    {
+      "audioDuration": 12.336,
+      "audioEnd": 62.135999999999996,
+      "audioStart": 49.8,
+      "data": {},
+      "durationInFrames": 370,
+      "elementTimings": [
+        {
+          "audioEnd": 51,
+          "audioStart": 49.8,
+          "cue": "4.Playwright基础Agent浏览器",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 54.751999999999995,
+          "audioStart": 51.059999999999995,
+          "cue": "Agent Browser功能强大",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-0",
+          "index": 0,
+          "type": "custom"
+        },
+        {
+          "audioEnd": 58.444,
+          "audioStart": 54.751999999999995,
+          "cue": "基于Playwright自动化",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-1",
+          "index": 1,
+          "type": "custom"
+        },
+        {
+          "audioEnd": 62.136,
+          "audioStart": 58.444,
+          "cue": "Anthropic自己开发",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-2",
+          "index": 2,
+          "type": "custom"
+        }
+      ],
+      "layout": "default",
+      "narration": "第四个，Agent Browser，基于Playwright，Anthropic自主开发，自动化精准又稳健。",
+      "points": [
+        "Agent Browser功能强大",
+        "基于Playwright自动化",
+        "Anthropic自己开发"
+      ],
+      "segmentIds": [
+        "segment-7"
+      ],
+      "subtitle": "",
+      "title": "4.Playwright基础Agent浏览器",
+      "type": "default",
+      "audioPath": "projects/generated/1775624964518-LiquidShow/audio/slides/slide-007.mp3"
+    },
+    {
+      "audioDuration": 11.376,
+      "audioEnd": 73.512,
+      "audioStart": 62.135999999999996,
+      "data": {},
+      "durationInFrames": 341,
+      "elementTimings": [
+        {
+          "audioEnd": 63.336,
+          "audioStart": 62.136,
+          "cue": "5.实用界面设计规范",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 68.89382608695652,
+          "audioStart": 64.05573913043477,
+          "cue": "Web Interface Guidelines",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-0",
+          "index": 0,
+          "type": "custom"
+        },
+        {
+          "audioEnd": 70.14,
+          "audioStart": 66.768,
+          "cue": "2.2万star大热项目",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-1",
+          "index": 1,
+          "type": "custom"
+        },
+        {
+          "audioEnd": 73.512,
+          "audioStart": 70.14,
+          "cue": "帮你打造用户友好界面",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-2",
+          "index": 2,
+          "type": "custom"
+        }
+      ],
+      "layout": "default",
+      "narration": "第五个，Web Interface Guidelines，有2.2万star，帮你快速搭建美观实用的界面。",
+      "points": [
+        "Web Interface Guidelines",
+        "2.2万star大热项目",
+        "帮你打造用户友好界面"
+      ],
+      "segmentIds": [
+        "segment-8"
+      ],
+      "subtitle": "",
+      "title": "5.实用界面设计规范",
+      "type": "default",
+      "audioPath": "projects/generated/1775624964518-LiquidShow/audio/slides/slide-008.mp3"
+    },
+    {
+      "audioDuration": 15.312,
+      "audioEnd": 88.824,
+      "audioStart": 73.512,
+      "data": {},
+      "durationInFrames": 459,
+      "elementTimings": [
+        {
+          "audioEnd": 74.712,
+          "audioStart": 73.512,
+          "cue": "6.设计资源全包库",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 79.22751219512195,
+          "audioStart": 75.8001951219512,
+          "cue": "UIUX Pro Max",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-0",
+          "index": 0,
+          "type": "custom"
+        },
+        {
+          "audioEnd": 84.13999999999999,
+          "audioStart": 79.45599999999999,
+          "cue": "67种设计风格",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-1",
+          "index": 1,
+          "type": "custom"
+        },
+        {
+          "audioEnd": 88.824,
+          "audioStart": 84.14,
+          "cue": "96套调色板，57套组件",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-2",
+          "index": 2,
+          "type": "custom"
+        }
+      ],
+      "layout": "default",
+      "narration": "第六个，UIUX Pro Max，超全设计资源库，67种风格+96套调色板+57套组件，设计更省心。",
+      "points": [
+        "UIUX Pro Max",
+        "67种设计风格",
+        "96套调色板，57套组件"
+      ],
+      "segmentIds": [
+        "segment-9"
+      ],
+      "subtitle": "",
+      "title": "6.设计资源全包库",
+      "type": "default",
+      "audioPath": "projects/generated/1775624964518-LiquidShow/audio/slides/slide-009.mp3"
+    },
+    {
+      "audioDuration": 11.04,
+      "audioEnd": 99.864,
+      "audioStart": 88.824,
+      "data": {},
+      "durationInFrames": 331,
+      "elementTimings": [
+        {
+          "audioEnd": 90.024,
+          "audioStart": 88.824,
+          "cue": "7.自动化安全审计",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 93.344,
+          "audioStart": 90.084,
+          "cue": "Security Audit工具",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-0",
+          "index": 0,
+          "type": "custom"
+        },
+        {
+          "audioEnd": 96.604,
+          "audioStart": 93.344,
+          "cue": "专来自Trail of Bits专家",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-1",
+          "index": 1,
+          "type": "custom"
+        },
+        {
+          "audioEnd": 99.864,
+          "audioStart": 96.604,
+          "cue": "自动识别安全漏洞",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-2",
+          "index": 2,
+          "type": "custom"
+        }
+      ],
+      "layout": "default",
+      "narration": "第七个，Security Audit，来自专业的Trail of Bits，自动扫描代码安全隐患，帮你防患未然。",
+      "points": [
+        "Security Audit工具",
+        "专来自Trail of Bits专家",
+        "自动识别安全漏洞"
+      ],
+      "segmentIds": [
+        "segment-10"
+      ],
+      "subtitle": "",
+      "title": "7.自动化安全审计",
+      "type": "default",
+      "audioPath": "projects/generated/1775624964518-LiquidShow/audio/slides/slide-010.mp3"
+    },
+    {
+      "audioDuration": 9.768,
+      "audioEnd": 109.632,
+      "audioStart": 99.864,
+      "data": {},
+      "durationInFrames": 293,
+      "elementTimings": [
+        {
+          "audioEnd": 101.064,
+          "audioStart": 99.864,
+          "cue": "8.内置软件架构清晰",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 103.96,
+          "audioStart": 101.124,
+          "cue": "Software Architecture内置",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-0",
+          "index": 0,
+          "type": "custom"
+        },
+        {
+          "audioEnd": 106.796,
+          "audioStart": 103.96,
+          "cue": "支持Clean Architecture",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-1",
+          "index": 1,
+          "type": "custom"
+        },
+        {
+          "audioEnd": 109.632,
+          "audioStart": 106.796,
+          "cue": "架构更规范，代码更易维护",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-2",
+          "index": 2,
+          "type": "custom"
+        }
+      ],
+      "layout": "default",
+      "narration": "最后一款，Software Architecture，内置Clean Architecture，帮助你搭建清晰规范的代码架构。",
+      "points": [
+        "Software Architecture内置",
+        "支持Clean Architecture",
+        "架构更规范，代码更易维护"
+      ],
+      "segmentIds": [
+        "segment-11"
+      ],
+      "subtitle": "",
+      "title": "8.内置软件架构清晰",
+      "type": "default",
+      "audioPath": "projects/generated/1775624964518-LiquidShow/audio/slides/slide-011.mp3"
+    },
+    {
+      "audioDuration": 4.296,
+      "audioEnd": 113.92800000000001,
+      "audioStart": 109.632,
+      "data": {
+        "items": [
+          "设计更专业",
+          "规划更清晰",
+          "安全有保障"
+        ]
+      },
+      "durationInFrames": 129,
+      "elementTimings": [
+        {
+          "audioEnd": 110.2764,
+          "audioStart": 109.632,
+          "cue": "8个技能，一次升级",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 111.60768,
+          "audioStart": 110.44752,
+          "cue": "设计更专业",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "highlight-0",
+          "index": 0,
+          "type": "highlight"
+        },
+        {
+          "audioEnd": 112.76784,
+          "audioStart": 111.60768,
+          "cue": "规划更清晰",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "highlight-1",
+          "index": 1,
+          "type": "highlight"
+        },
+        {
+          "audioEnd": 113.928,
+          "audioStart": 112.76784,
+          "cue": "安全有保障",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "highlight-2",
+          "index": 2,
+          "type": "highlight"
+        }
+      ],
+      "layout": "highlight",
+      "narration": "这8个技能，就是我用过最靠谱的Claude Code升级法宝。",
+      "points": [],
+      "segmentIds": [
+        "segment-12"
+      ],
+      "subtitle": "",
+      "title": "8个技能，一次升级",
+      "type": "highlight",
+      "audioPath": "projects/generated/1775624964518-LiquidShow/audio/slides/slide-012.mp3"
+    },
+    {
+      "audioDuration": 1.848,
+      "audioEnd": 115.77600000000001,
+      "audioStart": 113.92800000000001,
+      "data": {
+        "items": [
+          "分享你的推荐",
+          "一起发现更多利器"
+        ]
+      },
+      "durationInFrames": 55,
+      "elementTimings": [
+        {
+          "audioEnd": 114.2052,
+          "audioStart": 113.928,
+          "cue": "你用过哪些好用的？",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 115.11288000000002,
+          "audioStart": 114.44976,
+          "cue": "分享你的推荐",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "highlight-0",
+          "index": 0,
+          "type": "highlight"
+        },
+        {
+          "audioEnd": 115.776,
+          "audioStart": 115.11288000000002,
+          "cue": "一起发现更多利器",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "highlight-1",
+          "index": 1,
+          "type": "highlight"
+        }
+      ],
+      "layout": "highlight",
+      "narration": "你用过哪些好用的？",
+      "points": [],
+      "segmentIds": [
+        "segment-13"
+      ],
+      "subtitle": "",
+      "title": "你用过哪些好用的？",
+      "type": "highlight",
+      "audioPath": "projects/generated/1775624964518-LiquidShow/audio/slides/slide-013.mp3"
+    },
+    {
+      "audioDuration": 2.664,
+      "audioEnd": 118.44000000000001,
+      "audioStart": 115.77600000000001,
+      "data": {
+        "button": "留言告诉我，咱们一起交流！",
+        "cta": "留言告诉我，咱们一起交流！"
+      },
+      "durationInFrames": 80,
+      "elementTimings": [
+        {
+          "audioEnd": 116.3088,
+          "audioStart": 115.776,
+          "cue": "评论区交流一起成长",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        }
+      ],
+      "layout": "cta",
+      "narration": "评论区告诉我，咱们一起交流！",
+      "points": [],
+      "segmentIds": [
+        "segment-14"
+      ],
+      "subtitle": "",
+      "title": "评论区交流一起成长",
+      "type": "cta",
+      "audioPath": "projects/generated/1775624964518-LiquidShow/audio/slides/slide-014.mp3"
+    },
+    {
+      "audioDuration": 7.968,
+      "audioEnd": 126.40800000000002,
+      "audioStart": 118.44000000000001,
+      "data": {
+        "steps": [
+          {
+            "title": "第一，看细节"
+          },
+          {
+            "title": "第二，看流程"
+          },
+          {
+            "title": "第三，看安全"
+          }
+        ]
+      },
+      "durationInFrames": 239,
+      "elementTimings": [
+        {
+          "audioEnd": 119.6352,
+          "audioStart": 118.44,
+          "cue": "技术优劣看细节",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 121.93344,
+          "audioStart": 119.69616,
+          "cue": "第一，看细节",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "step-0",
+          "index": 0,
+          "type": "step"
+        },
+        {
+          "audioEnd": 124.17072,
+          "audioStart": 121.93344,
+          "cue": "第二，看流程",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "step-1",
+          "index": 1,
+          "type": "step"
+        },
+        {
+          "audioEnd": 126.40800000000002,
+          "audioStart": 124.17072000000002,
+          "cue": "第三，看安全",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "step-2",
+          "index": 2,
+          "type": "step"
+        }
+      ],
+      "layout": "steps",
+      "narration": "记住，技术好不好，一看细节，二看流程，三看安全，别再让AI只“会写”，还得写得专业。",
+      "points": [],
+      "segmentIds": [
+        "segment-15"
+      ],
+      "subtitle": "",
+      "title": "技术优劣看细节",
+      "type": "steps",
+      "audioPath": "projects/generated/1775624964518-LiquidShow/audio/slides/slide-015.mp3"
+    }
+  ]
+}
