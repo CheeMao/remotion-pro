@@ -28,7 +28,6 @@ interface AppSettings {
 interface Settings {
   volcengineAppId: string;
   volcengineAccessKey: string;
-  volcengineResourceId: string;
   defaultVoiceId: string;
   defaultTemplate: string;
 }
@@ -45,7 +44,6 @@ export default function Settings() {
   const [settings, setSettings] = useState<Settings>({
     volcengineAppId: "",
     volcengineAccessKey: "",
-    volcengineResourceId: "seed-tts-1.0",
     defaultVoiceId: "",
     defaultTemplate: "SlideShow",
   });
@@ -60,7 +58,6 @@ export default function Settings() {
           volcengineAppId: parsed.volcengineAppId || "",
           volcengineAccessKey:
             parsed.volcengineAccessKey || parsed.voiceApiKey || "",
-          volcengineResourceId: parsed.volcengineResourceId || "seed-tts-1.0",
           defaultVoiceId: parsed.defaultVoiceId || parsed.voiceId || "",
           defaultTemplate: parsed.defaultTemplate || "SlideShow",
         });
@@ -128,19 +125,6 @@ export default function Settings() {
               />
               <Text type="secondary" style={{ fontSize: 12 }}>
                 用于语音合成与抖音语音转写。
-              </Text>
-            </Form.Item>
-
-            <Form.Item label="火山引擎 Resource ID">
-              <Input
-                value={settings.volcengineResourceId}
-                onChange={(value) =>
-                  setSettings({ ...settings, volcengineResourceId: value })
-                }
-                placeholder="seed-tts-1.0"
-              />
-              <Text type="secondary" style={{ fontSize: 12 }}>
-                默认 seed-tts-1.0，一般无需修改
               </Text>
             </Form.Item>
 

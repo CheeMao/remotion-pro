@@ -68,10 +68,8 @@ type Project = {
 
 type SettingsData = {
   voiceId: string;
-  voiceModel: string;
   voiceApiKey: string;
   volcengineAppId: string;
-  volcengineResourceId: string;
   volcengineAccessKey?: string;
   voiceSpeechRate: number;
   aiUrl: string;
@@ -80,6 +78,8 @@ type SettingsData = {
   rewriteStyles: RewriteStyle[];
   defaultRewriteStyleId: string;
 };
+
+const DEFAULT_VOLCENGINE_RESOURCE_ID = "seed-icl-2.0";
 
 type AuthContext = {
   hwid: string;
@@ -454,10 +454,8 @@ const DEFAULT_REWRITE_STYLES: RewriteStyle[] = [
 
 const DEFAULT_SETTINGS: SettingsData = {
   voiceId: "",
-  voiceModel: "cosyvoice-v2",
   voiceApiKey: "",
   volcengineAppId: "",
-  volcengineResourceId: "seed-icl-2.0",
   voiceSpeechRate: 1,
   aiUrl: "https://dashscope.aliyuncs.com/compatible-mode/v1",
   aiApiKey: "",
@@ -1593,11 +1591,8 @@ function loadSettings(): SettingsData {
 
     return {
       voiceId: parsed.voiceId || "",
-      voiceModel: parsed.voiceModel || DEFAULT_SETTINGS.voiceModel,
       voiceApiKey: parsed.voiceApiKey || legacyDashScopeApiKey,
       volcengineAppId: parsed.volcengineAppId || "",
-      volcengineResourceId:
-        parsed.volcengineResourceId || DEFAULT_SETTINGS.volcengineResourceId,
       voiceSpeechRate: normalizeSpeechRate(parsed.voiceSpeechRate),
       aiUrl: parsed.aiUrl || DEFAULT_SETTINGS.aiUrl,
       aiApiKey: parsed.aiApiKey || legacyDashScopeApiKey,
@@ -1711,6 +1706,10 @@ function normalizeAuthPreferences(
     username,
     password,
   };
+}
+
+function shouldPersistAuthToken(preferences: AuthPreferences) {
+  return preferences.rememberPassword && preferences.autoLogin;
 }
 
 function loadAuthPreferences(): AuthPreferences {
@@ -2023,15 +2022,8 @@ async function generateStoryboardTimeline(
   contentPath: string,
 ): Promise<NarrationTimeline> {
   const settings = loadSettings();
-  if (
-    !settings.voiceId ||
-    !settings.voiceApiKey ||
-    !settings.volcengineAppId ||
-    !settings.volcengineResourceId
-  ) {
-    throw new Error(
-      "请先在设置中配置语音 ID、Access Key、App ID 和 Resource ID",
-    );
+  if (!settings.voiceId || !settings.voiceApiKey || !settings.volcengineAppId) {
+    throw new Error("请先在设置中配置语音 ID、Access Key 和 App ID");
   }
 
   const result = await invokeTauri<string>("generate_storyboard_timeline", {
@@ -2039,7 +2031,7 @@ async function generateStoryboardTimeline(
     voiceId: settings.voiceId,
     accessKey: settings.voiceApiKey,
     appId: settings.volcengineAppId,
-    resourceId: settings.volcengineResourceId,
+    resourceId: DEFAULT_VOLCENGINE_RESOURCE_ID,
     speechRate: normalizeSpeechRate(settings.voiceSpeechRate),
     contentPath,
   });
@@ -2871,12 +2863,7 @@ async function saveSlidesToProject(project: Project) {
 
 async function syncAudio(project: Project) {
   const settings = loadSettings();
-  if (
-    !settings.voiceId ||
-    !settings.voiceApiKey ||
-    !settings.volcengineAppId ||
-    !settings.volcengineResourceId
-  ) {
+  if (!settings.voiceId || !settings.voiceApiKey || !settings.volcengineAppId) {
     return;
   }
 
@@ -2884,7 +2871,7 @@ async function syncAudio(project: Project) {
     voiceId: settings.voiceId,
     accessKey: settings.voiceApiKey,
     appId: settings.volcengineAppId,
-    resourceId: settings.volcengineResourceId,
+    resourceId: DEFAULT_VOLCENGINE_RESOURCE_ID,
     speechRate: normalizeSpeechRate(settings.voiceSpeechRate),
     contentPath: project.contentPath,
   });
@@ -2938,6 +2925,15 @@ const SOFT_INPUT_STYLE: React.CSSProperties = {
   lineHeight: 1.4,
 };
 
+const COMPACT_SELECT_STYLE: React.CSSProperties = {
+  ...SOFT_INPUT_STYLE,
+  height: 42,
+  padding: "0 12px",
+  borderRadius: 12,
+  fontSize: 13,
+  lineHeight: "40px",
+};
+
 const PRIMARY_BUTTON_STYLE: React.CSSProperties = {
   padding: "11px 18px",
   borderRadius: 14,
@@ -2958,12 +2954,8 @@ const PAGE_FRAME_STYLE: React.CSSProperties = {
   gap: 12,
 };
 
-const PAGE_HEADER_STYLE: React.CSSProperties = {
-  display: "flex",
-  flexDirection: "column",
-  gap: 0,
-  maxWidth: 760,
-};
+const HOME_PAGE_HEIGHT = "100%";
+const HOME_ACTION_BAR_HEIGHT = 74;
 
 const PANEL_STYLE: React.CSSProperties = {
   ...SOFT_CARD_STYLE,
@@ -3253,27 +3245,23 @@ function HomePage(props: {
   };
 
   return (
-    <div style={PAGE_FRAME_STYLE}>
-      <div style={PAGE_HEADER_STYLE}>
-        <h2
-          style={{
-            marginTop: 0,
-            marginBottom: 4,
-            color: "#1d2129",
-            fontSize: 18,
-            letterSpacing: "-0.02em",
-          }}
-        >
-          生成项目
-        </h2>
-      </div>
-
+    <div
+      style={{
+        ...PAGE_FRAME_STYLE,
+        height: HOME_PAGE_HEIGHT,
+        boxSizing: "border-box",
+        padding: "12px 16px 16px",
+        paddingBottom: HOME_ACTION_BAR_HEIGHT + 6,
+        display: "flex",
+        flexDirection: "column",
+        gap: 10,
+        overflow: "hidden",
+      }}
+    >
       {/* 抖音链接提取区域 */}
-      <div
-        style={{ ...PANEL_STYLE, width: "100%", marginBottom: 12, padding: 16 }}
-      >
+      <div style={{ ...PANEL_STYLE, width: "100%", padding: 14 }}>
         <div
-          style={{ display: "flex", gap: SPACING.md, alignItems: "flex-start" }}
+          style={{ display: "flex", gap: 12, alignItems: "center" }}
         >
           <input
             type="text"
@@ -3317,36 +3305,35 @@ function HomePage(props: {
         style={{
           ...PANEL_STYLE,
           width: "100%",
+          flex: 1,
           display: "flex",
           flexDirection: "column",
-          gap: 12,
-          padding: 16,
+          padding: 14,
+          minHeight: 0,
+          overflow: "hidden",
         }}
       >
-        <div style={{ marginBottom: 0 }}>
-          <h3 style={{ margin: "0 0 6px 0", fontSize: 14, color: "#1d2129" }}>
-            文案编辑
-          </h3>
-        </div>
-
         <div
           style={{
             display: "grid",
             gridTemplateColumns: "minmax(0, 1fr) minmax(0, 1fr)",
             gap: 12,
             alignItems: "stretch",
+            flex: 1,
+            minHeight: 0,
           }}
         >
           <div
             style={{
               ...FIELD_GROUP_STYLE,
-              height: "100%",
               marginTop: 0,
               padding: 14,
               borderRadius: 16,
               background:
                 "linear-gradient(180deg, rgba(247,250,255,0.92) 0%, rgba(255,255,255,0.98) 100%)",
               border: "1px solid #e5eaf4",
+              display: "flex",
+              flexDirection: "column",
             }}
           >
             <div
@@ -3356,6 +3343,7 @@ function HomePage(props: {
                 alignItems: "center",
                 marginBottom: 10,
                 gap: 8,
+                flexShrink: 0,
               }}
             >
               <label style={FIELD_LABEL_STYLE}>原文案</label>
@@ -3380,12 +3368,10 @@ function HomePage(props: {
               value={originalText}
               onChange={(event) => setOriginalText(event.target.value)}
               placeholder="粘贴文案或从抖音提取..."
-              rows={8}
               style={{
                 ...SOFT_INPUT_STYLE,
                 flex: 1,
-                minHeight: 208,
-                height: 208,
+                minHeight: 0,
                 padding: "12px 14px",
                 lineHeight: 1.6,
                 resize: "none",
@@ -3396,13 +3382,15 @@ function HomePage(props: {
           <div
             style={{
               ...FIELD_GROUP_STYLE,
-              height: "100%",
               marginTop: 0,
               padding: 14,
               borderRadius: 16,
               background:
                 "linear-gradient(180deg, rgba(247,250,255,0.92) 0%, rgba(255,255,255,0.98) 100%)",
               border: "1px solid #e5eaf4",
+              display: "flex",
+              flexDirection: "column",
+              minHeight: 0,
             }}
           >
             <div
@@ -3413,9 +3401,10 @@ function HomePage(props: {
                 gap: SPACING.md,
                 flexWrap: "nowrap",
                 marginBottom: 10,
+                flexShrink: 0,
               }}
             >
-              <label style={FIELD_LABEL_STYLE}>修改后的文案</label>
+              <label style={FIELD_LABEL_STYLE}>新文案</label>
               <div
                 style={{
                   display: "flex",
@@ -3430,10 +3419,9 @@ function HomePage(props: {
                     setSelectedRewriteStyleId(event.target.value)
                   }
                   style={{
-                    ...SOFT_INPUT_STYLE,
+                    ...COMPACT_SELECT_STYLE,
                     minWidth: 148,
                     width: 148,
-                    padding: "8px 12px",
                   }}
                 >
                   {rewriteStyles.map((style) => (
@@ -3461,12 +3449,11 @@ function HomePage(props: {
             <textarea
               value={editedText}
               onChange={(event) => setEditedText(event.target.value)}
-              rows={8}
+              placeholder="编辑后的文案..."
               style={{
                 ...SOFT_INPUT_STYLE,
                 flex: 1,
-                minHeight: 208,
-                height: 208,
+                minHeight: 0,
                 padding: "12px 14px",
                 lineHeight: 1.6,
                 resize: "none",
@@ -3474,16 +3461,34 @@ function HomePage(props: {
             />
           </div>
         </div>
+      </div>
 
+      {/* 底部固定操作栏 */}
+      <div
+        style={{
+          position: "fixed",
+          bottom: 0,
+          left: 0,
+          right: 0,
+          background: "rgba(255, 255, 255, 0.96)",
+          borderTop: "1px solid #e5eaf4",
+          padding: "10px 16px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: SPACING.md,
+          zIndex: 100,
+          boxShadow: "0 -4px 12px rgba(0, 0, 0, 0.04)",
+        }}
+      >
         <div
           style={{
+            maxWidth: COMPACT_UI.pageMaxWidth,
+            width: "100%",
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
             gap: SPACING.md,
-            flexWrap: "nowrap",
-            paddingTop: 8,
-            borderTop: "1px solid #edf1f7",
           }}
         >
           <div
@@ -3513,9 +3518,8 @@ function HomePage(props: {
                 )
               }
               style={{
-                ...SOFT_INPUT_STYLE,
-                width: 120,
-                maxWidth: "100%",
+                ...COMPACT_SELECT_STYLE,
+                width: 100,
                 flexShrink: 0,
               }}
             >
@@ -3539,9 +3543,9 @@ function HomePage(props: {
               value={template}
               onChange={(event) => handleTemplateChange(event.target.value)}
               style={{
-                ...SOFT_INPUT_STYLE,
-                width: 260,
-                maxWidth: "100%",
+                ...COMPACT_SELECT_STYLE,
+                flex: 1,
+                maxWidth: 240,
                 flexShrink: 0,
               }}
             >
@@ -3558,7 +3562,7 @@ function HomePage(props: {
             disabled={loading}
             style={{
               ...PRIMARY_BUTTON_STYLE,
-              minWidth: 148,
+              minWidth: 130,
               flexShrink: 0,
               background: loading ? "#94b8ff" : "#165dff",
               cursor: loading ? "not-allowed" : "pointer",
@@ -3567,32 +3571,47 @@ function HomePage(props: {
             {loading ? "生成中..." : "开始生成"}
           </button>
         </div>
-
-        {status ? (
-          <p
-            style={{
-              margin: 0,
-              color: "#4e5969",
-              fontSize: 13,
-              lineHeight: 1.6,
-            }}
-          >
-            {status}
-          </p>
-        ) : null}
-        {error ? (
-          <p
-            style={{
-              margin: 0,
-              color: "#f53f3f",
-              fontSize: 13,
-              lineHeight: 1.6,
-            }}
-          >
-            {error}
-          </p>
-        ) : null}
       </div>
+
+      {/* 状态提示 */}
+      {status ? (
+        <div
+          style={{
+            position: "fixed",
+            bottom: 64,
+            left: "50%",
+            transform: "translateX(-50%)",
+            background: "rgba(0, 0, 0, 0.75)",
+            color: "#fff",
+            padding: "8px 16px",
+            borderRadius: 8,
+            fontSize: 13,
+            zIndex: 101,
+          }}
+        >
+          {status}
+        </div>
+      ) : null}
+
+      {/* 错误提示 */}
+      {error ? (
+        <div
+          style={{
+            position: "fixed",
+            bottom: 64,
+            left: "50%",
+            transform: "translateX(-50%)",
+            background: "rgba(245, 63, 63, 0.9)",
+            color: "#fff",
+            padding: "8px 16px",
+            borderRadius: 8,
+            fontSize: 13,
+            zIndex: 101,
+          }}
+        >
+          {error}
+        </div>
+      ) : null}
     </div>
   );
 }
@@ -4583,28 +4602,6 @@ function SettingsPage(props: SettingsPageProps) {
                   value={settings.volcengineAppId}
                   onChange={(event) =>
                     updateField("volcengineAppId", event.target.value)
-                  }
-                  style={SOFT_INPUT_STYLE}
-                />
-              </div>
-
-              <div style={{ ...FIELD_GROUP_STYLE, marginTop: SPACING.md }}>
-                <label style={FIELD_LABEL_STYLE}>Resource ID</label>
-                <input
-                  value={settings.volcengineResourceId}
-                  onChange={(event) =>
-                    updateField("volcengineResourceId", event.target.value)
-                  }
-                  style={SOFT_INPUT_STYLE}
-                />
-              </div>
-
-              <div style={{ ...FIELD_GROUP_STYLE, marginTop: SPACING.md }}>
-                <label style={FIELD_LABEL_STYLE}>模型</label>
-                <input
-                  value={settings.voiceModel}
-                  onChange={(event) =>
-                    updateField("voiceModel", event.target.value)
                   }
                   style={SOFT_INPUT_STYLE}
                 />
@@ -6385,6 +6382,7 @@ function UpdateNoticeModal(props: UpdateNoticeModalProps) {
 
 function Layout(props: { children: React.ReactNode }) {
   const location = useLocation();
+  const isHomePage = location.pathname === "/";
 
   return (
     <div
@@ -6464,13 +6462,14 @@ function Layout(props: { children: React.ReactNode }) {
         style={{
           flex: 1,
           minWidth: 0,
-          overflow: "auto",
+          overflow: isHomePage ? "hidden" : "auto",
           paddingRight: 0,
         }}
       >
         <div
           style={{
-            minHeight: "calc(100vh - 20px)",
+            height: isHomePage ? "calc(100vh - 20px)" : undefined,
+            minHeight: isHomePage ? undefined : "calc(100vh - 20px)",
             maxWidth: COMPACT_UI.shellMaxWidth,
             margin: "0 auto",
             borderRadius: 28,
@@ -6556,6 +6555,24 @@ export default function App() {
   }, [authPreferences]);
 
   React.useEffect(() => {
+    if (authBooting) {
+      return;
+    }
+
+    if (shouldPersistAuthToken(authPreferences) && authSession?.token) {
+      saveAuthToken(authSession.token);
+      return;
+    }
+
+    clearAuthToken();
+  }, [
+    authBooting,
+    authPreferences.autoLogin,
+    authPreferences.rememberPassword,
+    authSession?.token,
+  ]);
+
+  React.useEffect(() => {
     let cancelled = false;
 
     const loadAppInfo = async () => {
@@ -6595,13 +6612,18 @@ export default function App() {
         setAuthContext(context);
 
         const token = loadAuthToken();
+        if (!shouldPersistAuthToken(storedAuthPreferences)) {
+          clearAuthToken();
+          setAuthSession(null);
+          setAuthStatus(null);
+          return;
+        }
+
         if (!token) {
           setAuthSession(null);
           setAuthStatus(null);
 
           if (
-            storedAuthPreferences.autoLogin &&
-            storedAuthPreferences.rememberPassword &&
             storedAuthPreferences.username.trim() &&
             storedAuthPreferences.password
           ) {
@@ -6613,7 +6635,6 @@ export default function App() {
               return;
             }
 
-            saveAuthToken(session.token);
             const status = await invokeTauri<AuthStatus>("auth_get_status", {});
             if (cancelled) {
               return;
@@ -6663,7 +6684,6 @@ export default function App() {
   }, []);
 
   const completeLogin = React.useCallback(async (session: AuthSession) => {
-    saveAuthToken(session.token);
     setAuthSession(session);
     const status = await invokeTauri<AuthStatus>("auth_get_status", {});
     setAuthStatus(status);
