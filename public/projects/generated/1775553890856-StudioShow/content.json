@@ -1,0 +1,293 @@
+{
+  "meta": {
+    "title": "Generated Video",
+    "template": "StudioShow",
+    "voice_id": "S_PlTK120R1",
+    "full_narration": "Gemini 的口碑一直很能打，但它到底好在哪里？不亲自试一试确实很难真正体会。有没有什么办法能让我们一分钱不花直接体验到它的满血版模型？今天这期视频就跟大家扒一扒少有人知道的官方免费渠道 ——Google AI Studio，只要你有谷歌账号就能免费使用。",
+    "soundtrack_path": "projects/generated/1775553890856-StudioShow/audio/narration.mp3",
+    "soundtrack_duration": 21.84,
+    "voiceId": "S_PlTK120R1",
+    "fullNarration": "Gemini 的口碑一直很能打，但它到底好在哪里？不亲自试一试确实很难真正体会。有没有什么办法能让我们一分钱不花直接体验到它的满血版模型？今天这期视频就跟大家扒一扒少有人知道的官方免费渠道 ——Google AI Studio，只要你有谷歌账号就能免费使用。",
+    "soundtrackPath": "projects/generated/1775553890856-StudioShow/audio/narration.mp3",
+    "soundtrackDuration": 21.84
+  },
+  "slides": [
+    {
+      "audioDuration": 4.296,
+      "audioEnd": 4.296,
+      "audioStart": 0,
+      "data": {
+        "cta": "先把“值不值”看明白"
+      },
+      "durationInFrames": 129,
+      "elementTimings": [
+        {
+          "audioEnd": 0.6444,
+          "audioStart": 0,
+          "cue": "Gemini 到底强在哪",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 0.94512,
+          "audioStart": 0.51552,
+          "cue": "口碑很猛，但真上手前，很难判断它是不是名副其实",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "subtitle",
+          "type": "subtitle"
+        },
+        {
+          "audioEnd": 2.6631600000000004,
+          "audioStart": 1.03032,
+          "cue": "口碑强，但优势得亲手试",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-0",
+          "index": 0,
+          "type": "custom"
+        },
+        {
+          "audioEnd": 4.296000000000001,
+          "audioStart": 2.6631600000000004,
+          "cue": "先不下结论，先看它凭什么被夸",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-1",
+          "index": 1,
+          "type": "custom"
+        }
+      ],
+      "layout": "hero",
+      "narration": "Gemini 的口碑一直很能打，但它到底好在哪里？",
+      "points": [
+        "口碑强，但优势得亲手试",
+        "先不下结论，先看它凭什么被夸"
+      ],
+      "segmentIds": [
+        "segment-1"
+      ],
+      "subtitle": "口碑很猛，但真上手前，很难判断它是不是名副其实",
+      "title": "Gemini 到底强在哪",
+      "type": "hero",
+      "audioPath": "projects/generated/1775553890856-StudioShow/audio/slides/slide-001.mp3"
+    },
+    {
+      "audioDuration": 3.024,
+      "audioEnd": 7.32,
+      "audioStart": 4.296,
+      "data": {
+        "author": "",
+        "quote": "不亲自试一试，确实很难真正体会。"
+      },
+      "durationInFrames": 91,
+      "elementTimings": [
+        {
+          "audioEnd": 4.7496,
+          "audioStart": 4.296,
+          "cue": "不试，真感受不到",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 4.96128,
+          "audioStart": 4.65888,
+          "cue": "纸面参数和实际体验，往往差一层",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "subtitle",
+          "type": "subtitle"
+        },
+        {
+          "audioEnd": 7.32,
+          "audioStart": 5.11008,
+          "cue": "不亲自试一试，确实很难真正体会。",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "quote-text",
+          "type": "quote"
+        }
+      ],
+      "layout": "quote",
+      "narration": "不亲自试一试确实很难真正体会。",
+      "points": [
+        "体验感比介绍更直接",
+        "真正的差别，要上手才知道"
+      ],
+      "segmentIds": [
+        "segment-2"
+      ],
+      "subtitle": "纸面参数和实际体验，往往差一层",
+      "title": "不试，真感受不到",
+      "type": "quote",
+      "audioPath": "projects/generated/1775553890856-StudioShow/audio/slides/slide-002.mp3"
+    },
+    {
+      "audioDuration": 5.208,
+      "audioEnd": 12.528,
+      "audioStart": 7.32,
+      "data": {
+        "steps": [
+          {
+            "description": "不走第三方，直接看官方给的免费渠道。",
+            "title": "先找官方入口"
+          },
+          {
+            "description": "用最省钱的方式，体验最完整的能力。",
+            "title": "直接试满血模型"
+          },
+          {
+            "description": "先体验，再决定要不要继续深入。",
+            "title": "再判断值不值"
+          }
+        ]
+      },
+      "durationInFrames": 156,
+      "elementTimings": [
+        {
+          "audioEnd": 8.1012,
+          "audioStart": 7.32,
+          "cue": "免费体验满血版",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 8.46576,
+          "audioStart": 7.94496,
+          "cue": "重点不是“能不能用”，而是能不能零成本摸到核心能力",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "subtitle",
+          "type": "subtitle"
+        },
+        {
+          "audioEnd": 9.846240000000002,
+          "audioStart": 8.505360000000001,
+          "cue": "先找官方入口",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "step-0",
+          "index": 0,
+          "type": "step"
+        },
+        {
+          "audioEnd": 11.187120000000002,
+          "audioStart": 9.846240000000002,
+          "cue": "直接试满血模型",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "step-1",
+          "index": 1,
+          "type": "step"
+        },
+        {
+          "audioEnd": 12.528,
+          "audioStart": 11.18712,
+          "cue": "再判断值不值",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "step-2",
+          "index": 2,
+          "type": "step"
+        }
+      ],
+      "layout": "steps",
+      "narration": "有没有什么办法能让我们一分钱不花直接体验到它的满血版模型？",
+      "points": [
+        "零成本先体验",
+        "直接摸到核心模型",
+        "先试再决定"
+      ],
+      "segmentIds": [
+        "segment-3"
+      ],
+      "subtitle": "重点不是“能不能用”，而是能不能零成本摸到核心能力",
+      "title": "免费体验满血版",
+      "type": "steps",
+      "audioPath": "projects/generated/1775553890856-StudioShow/audio/slides/slide-003.mp3"
+    },
+    {
+      "audioDuration": 9.312,
+      "audioEnd": 21.84,
+      "audioStart": 12.528,
+      "data": {
+        "items": [
+          "官方免费",
+          "少有人知道",
+          "直接体验"
+        ]
+      },
+      "durationInFrames": 279,
+      "elementTimings": [
+        {
+          "audioEnd": 13.728,
+          "audioStart": 12.528,
+          "cue": "官方免费渠道",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 14.288,
+          "audioStart": 13.488,
+          "cue": "少有人知道，但确实能直接用上",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "subtitle",
+          "type": "subtitle"
+        },
+        {
+          "audioEnd": 19.216457142857145,
+          "audioStart": 18.341942857142858,
+          "cue": "官方免费",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "highlight-0",
+          "index": 0,
+          "type": "highlight"
+        },
+        {
+          "audioEnd": 19.28933333333333,
+          "audioStart": 16.738666666666667,
+          "cue": "少有人知道",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "highlight-1",
+          "index": 1,
+          "type": "highlight"
+        },
+        {
+          "audioEnd": 21.839999999999996,
+          "audioStart": 19.28933333333333,
+          "cue": "直接体验",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "highlight-2",
+          "index": 2,
+          "type": "highlight"
+        }
+      ],
+      "layout": "highlight",
+      "narration": "今天这期视频就跟大家扒一扒少有人知道的官方免费渠道 ——Google AI St...",
+      "points": [
+        "重点落在官方渠道",
+        "把“免费”和“满血”连起来",
+        "最后给出最值得记住的信息"
+      ],
+      "segmentIds": [
+        "segment-4"
+      ],
+      "subtitle": "少有人知道，但确实能直接用上",
+      "title": "官方免费渠道",
+      "type": "highlight",
+      "audioPath": "projects/generated/1775553890856-StudioShow/audio/slides/slide-004.mp3"
+    }
+  ]
+}

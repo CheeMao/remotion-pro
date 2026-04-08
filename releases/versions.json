@@ -1,0 +1,34 @@
+{
+  "latest": {
+    "version": "0.1.0",
+    "date": "2024-01-07",
+    "force_update": false,
+    "minimum_version": "0.1.0",
+    "changelog": [
+      "🎉 首次发布",
+      "✨ 支持 AI 视频生成",
+      "✨ 支持多种视频模板",
+      "✨ 支持语音合成",
+      "✨ 支持抖音视频解析"
+    ]
+  },
+  "versions": {
+    "0.1.0": {
+      "date": "2024-01-07",
+      "platforms": {
+        "windows-x64": {
+          "msi": {
+            "url": "https://your-cdn.com/releases/0.1.0/VideoMaker_0.1.0_x64_en-US.msi",
+            "size": 5115904,
+            "hash": "sha256_placeholder"
+          },
+          "nsis": {
+            "url": "https://your-cdn.com/releases/0.1.0/VideoMaker_0.1.0_x64-setup.exe",
+            "size": 3414486,
+            "hash": "sha256_placeholder"
+          }
+        }
+      }
+    }
+  }
+}

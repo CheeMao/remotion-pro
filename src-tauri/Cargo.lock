@@ -87,31 +87,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7f202df86484c868dbad7eaa557ef785d5c66295e41b460ef922eca0723b842c"
 
 [[package]]
-name = "app"
-version = "0.1.0"
-dependencies = [
- "aes",
- "base64 0.22.1",
- "cbc",
- "chrono",
- "dotenvy",
- "hmac",
- "log",
- "regex",
- "reqwest 0.11.27",
- "rsa",
- "serde",
- "serde_json",
- "sha1",
- "sha2",
- "tauri",
- "tauri-build",
- "tauri-plugin-log",
- "tokio",
- "uuid",
-]
-
-[[package]]
 name = "arrayvec"
 version = "0.7.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3014,6 +2989,31 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 1.0.109",
+]
+
+[[package]]
+name = "qingjian-app"
+version = "0.1.0"
+dependencies = [
+ "aes",
+ "base64 0.22.1",
+ "cbc",
+ "chrono",
+ "dotenvy",
+ "hmac",
+ "log",
+ "regex",
+ "reqwest 0.11.27",
+ "rsa",
+ "serde",
+ "serde_json",
+ "sha1",
+ "sha2",
+ "tauri",
+ "tauri-build",
+ "tauri-plugin-log",
+ "tokio",
+ "uuid",
 ]
 
 [[package]]

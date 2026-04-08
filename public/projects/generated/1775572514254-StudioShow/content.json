@@ -1,0 +1,919 @@
+{
+  "meta": {
+    "title": "Generated Video",
+    "template": "StudioShow",
+    "voice_id": "S_PlTK120R1",
+    "full_narration": "我现在每天用 cloud code 超过十个小时，总结出了三个提效技巧，能够让它越用越懂你，干活不返工。\n第一个，先商量再放手。复杂的任务先跟它说，别动手，给我方案，它会自动调整为 plan模式，然后询问细节，列步骤，给方案。等我们确认之后再开一下狂飙模式，把权限都给它。无论是上网查资料、写文件还是改代码，它都能够给你搞定。你就只需要去泡杯咖啡回来，活就干完了。如果是新手应该是找不到狂飙模式的，需要在设置这里把这个选项给勾选上。\n第二个，给它定规矩。在项目里建一个 claude.md 的文档，把你的偏好、规则全都写进去。用的过程当中如果有需要让它记住的事情跟它说，记住这一点，它是真的能够记住，下次不会再犯同样的错误。如果项目特别大，可以再开一个 memory，跟项目有关的东西放 claude.md，跟自己的个人偏好有关的放在 memory。\n第三个，用嘴说，不要用手打。按快捷键就能够调出语音输入，普通人说话的速度是打字的三倍。用这种方式会不自觉地说得更详细，ai 做出来的东西质量更高，也更周全。\n关注我，后面还有更多的 ai 使用技巧分享。",
+    "soundtrack_path": "projects/generated/1775572514254-StudioShow/audio/narration.mp3",
+    "soundtrack_duration": 84.43200000000002,
+    "voiceId": "S_PlTK120R1",
+    "fullNarration": "我现在每天用 cloud code 超过十个小时，总结出了三个提效技巧，能够让它越用越懂你，干活不返工。\n第一个，先商量再放手。复杂的任务先跟它说，别动手，给我方案，它会自动调整为 plan模式，然后询问细节，列步骤，给方案。等我们确认之后再开一下狂飙模式，把权限都给它。无论是上网查资料、写文件还是改代码，它都能够给你搞定。你就只需要去泡杯咖啡回来，活就干完了。如果是新手应该是找不到狂飙模式的，需要在设置这里把这个选项给勾选上。\n第二个，给它定规矩。在项目里建一个 claude.md 的文档，把你的偏好、规则全都写进去。用的过程当中如果有需要让它记住的事情跟它说，记住这一点，它是真的能够记住，下次不会再犯同样的错误。如果项目特别大，可以再开一个 memory，跟项目有关的东西放 claude.md，跟自己的个人偏好有关的放在 memory。\n第三个，用嘴说，不要用手打。按快捷键就能够调出语音输入，普通人说话的速度是打字的三倍。用这种方式会不自觉地说得更详细，ai 做出来的东西质量更高，也更周全。\n关注我，后面还有更多的 ai 使用技巧分享。",
+    "soundtrackPath": "projects/generated/1775572514254-StudioShow/audio/narration.mp3",
+    "soundtrackDuration": 84.432
+  },
+  "slides": [
+    {
+      "audioDuration": 8.016,
+      "audioEnd": 8.016,
+      "audioStart": 0,
+      "data": {
+        "badge": "每天高强度实测",
+        "cta": "三招直接提升效率"
+      },
+      "durationInFrames": 240,
+      "elementTimings": [
+        {
+          "audioEnd": 1.2,
+          "audioStart": 0,
+          "cue": "云代码，提速三招",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 1.76,
+          "audioStart": 0.96,
+          "cue": "我每天用超过 10 小时，摸出最有效的办法",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "subtitle",
+          "type": "subtitle"
+        },
+        {
+          "audioEnd": 4.838,
+          "audioStart": 1.66,
+          "cue": "每天高强度实测",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-0",
+          "index": 0,
+          "type": "custom"
+        },
+        {
+          "audioEnd": 8.016,
+          "audioStart": 4.838,
+          "cue": "三招直接提升效率",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-1",
+          "index": 1,
+          "type": "custom"
+        }
+      ],
+      "layout": "hero",
+      "narration": "我现在每天用 cloud code 超过十个小时，总结出了三个提效技巧。",
+      "points": [
+        "每天高强度实测",
+        "三招直接提升效率"
+      ],
+      "segmentIds": [
+        "segment-1"
+      ],
+      "subtitle": "我每天用超过 10 小时，摸出最有效的办法",
+      "title": "Claude code，提速三招",
+      "type": "hero",
+      "audioPath": "projects/generated/1775572514254-StudioShow/audio/slides/slide-001.mp3"
+    },
+    {
+      "audioDuration": 2.784,
+      "audioEnd": 10.8,
+      "audioStart": 8.016,
+      "data": {
+        "items": [
+          "先给方案",
+          "再进入执行"
+        ]
+      },
+      "durationInFrames": 84,
+      "elementTimings": [
+        {
+          "audioEnd": 8.4336,
+          "audioStart": 8.016,
+          "cue": "先商量，再放手",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 8.62848,
+          "audioStart": 8.35008,
+          "cue": "复杂任务别急着开干",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "subtitle",
+          "type": "subtitle"
+        },
+        {
+          "audioEnd": 9.79464,
+          "audioStart": 8.789280000000002,
+          "cue": "先给方案",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "highlight-0",
+          "index": 0,
+          "type": "highlight"
+        },
+        {
+          "audioEnd": 10.8,
+          "audioStart": 9.79464,
+          "cue": "再进入执行",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "highlight-1",
+          "index": 1,
+          "type": "highlight"
+        }
+      ],
+      "layout": "highlight",
+      "narration": "第一个，先商量再放手。",
+      "points": [
+        "复杂任务先沟通",
+        "别一上来就让它乱跑"
+      ],
+      "segmentIds": [
+        "segment-2"
+      ],
+      "subtitle": "复杂任务别急着开干",
+      "title": "先商量，再放手",
+      "type": "highlight",
+      "audioPath": "projects/generated/1775572514254-StudioShow/audio/slides/slide-002.mp3"
+    },
+    {
+      "audioDuration": 8.736,
+      "audioEnd": 19.536,
+      "audioStart": 10.8,
+      "data": {
+        "steps": [
+          {
+            "description": "复杂任务先让它给方案，先别动手。",
+            "title": "先说需求"
+          },
+          {
+            "description": "它会切到 plan 模式，再追问细节。",
+            "title": "自动转计划"
+          }
+        ]
+      },
+      "durationInFrames": 262,
+      "elementTimings": [
+        {
+          "audioEnd": 12,
+          "audioStart": 10.8,
+          "cue": "先出方案",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 12.560000000000002,
+          "audioStart": 11.760000000000002,
+          "cue": "让它先切到 plan 模式",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "subtitle",
+          "type": "subtitle"
+        },
+        {
+          "audioEnd": 15.998,
+          "audioStart": 12.460000000000004,
+          "cue": "先说需求",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "step-0",
+          "index": 0,
+          "type": "step"
+        },
+        {
+          "audioEnd": 19.536,
+          "audioStart": 15.998,
+          "cue": "自动转计划",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "step-1",
+          "index": 1,
+          "type": "step"
+        }
+      ],
+      "layout": "steps",
+      "narration": "复杂的任务先跟它说，别动手，给我方案，它会自动调整为 plan 模式，然后询问细节。",
+      "points": [
+        "先讨论，再执行",
+        "让 AI 先把路铺好"
+      ],
+      "segmentIds": [
+        "segment-3"
+      ],
+      "subtitle": "让它先切到 plan 模式",
+      "title": "先出方案",
+      "type": "steps",
+      "audioPath": "projects/generated/1775572514254-StudioShow/audio/slides/slide-003.mp3"
+    },
+    {
+      "audioDuration": 10.344,
+      "audioEnd": 29.880000000000003,
+      "audioStart": 19.536,
+      "data": {
+        "left": "先收着用",
+        "leftDesc": "只做局部尝试，推进慢",
+        "right": "确认后放权",
+        "rightDesc": "上网查资料、写文件、改代码都能一起搞定",
+        "vsText": "确认之后"
+      },
+      "durationInFrames": 310,
+      "elementTimings": [
+        {
+          "audioEnd": 20.736,
+          "audioStart": 19.536,
+          "cue": "确认后再开跑",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 21.296000000000003,
+          "audioStart": 20.496,
+          "cue": "权限给足，效率才真正起飞",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "subtitle",
+          "type": "subtitle"
+        },
+        {
+          "audioEnd": 21.196,
+          "audioStart": 21.196,
+          "cue": "",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "compare-left",
+          "type": "compare-left"
+        },
+        {
+          "audioEnd": 21.196,
+          "audioStart": 21.196,
+          "cue": "",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "compare-right",
+          "type": "compare-right"
+        }
+      ],
+      "layout": "compare",
+      "narration": "等我们确认之后再开一下狂飙模式，把权限都给它。无论是上网查资料、写文件还是改代码，它都能够给你搞定。",
+      "points": [
+        "前半段先控节奏",
+        "后半段直接放开干"
+      ],
+      "segmentIds": [
+        "segment-4",
+        "segment-5"
+      ],
+      "subtitle": "权限给足，效率才真正起飞",
+      "title": "确认后再开跑",
+      "type": "compare",
+      "audioPath": "projects/generated/1775572514254-StudioShow/audio/slides/slide-004.mp3"
+    },
+    {
+      "audioDuration": 3.504,
+      "audioEnd": 33.384,
+      "audioStart": 29.880000000000003,
+      "data": {
+        "items": [
+          "人去休息",
+          "任务继续跑"
+        ]
+      },
+      "durationInFrames": 105,
+      "elementTimings": [
+        {
+          "audioEnd": 30.405600000000003,
+          "audioStart": 29.880000000000003,
+          "cue": "你去泡咖啡",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 30.650880000000004,
+          "audioStart": 30.300480000000004,
+          "cue": "活基本就干完了",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "subtitle",
+          "type": "subtitle"
+        },
+        {
+          "audioEnd": 32.079840000000004,
+          "audioStart": 30.775680000000005,
+          "cue": "人去休息",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "highlight-0",
+          "index": 0,
+          "type": "highlight"
+        },
+        {
+          "audioEnd": 33.384,
+          "audioStart": 32.079840000000004,
+          "cue": "任务继续跑",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "highlight-1",
+          "index": 1,
+          "type": "highlight"
+        }
+      ],
+      "layout": "highlight",
+      "narration": "你就只需要去泡杯咖啡回来，活就干完了。",
+      "points": [
+        "把重复活交出去",
+        "留给自己更值钱的时间"
+      ],
+      "segmentIds": [
+        "segment-6"
+      ],
+      "subtitle": "活基本就干完了",
+      "title": "你去泡咖啡",
+      "type": "highlight",
+      "audioPath": "projects/generated/1775572514254-StudioShow/audio/slides/slide-005.mp3"
+    },
+    {
+      "audioDuration": 6.504,
+      "audioEnd": 39.888,
+      "audioStart": 33.384,
+      "data": {
+        "points": [
+          "去设置里勾选",
+          "先把狂飙模式打开"
+        ]
+      },
+      "durationInFrames": 195,
+      "elementTimings": [
+        {
+          "audioEnd": 34.3596,
+          "audioStart": 33.384,
+          "cue": "新手先开权限",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 34.814879999999995,
+          "audioStart": 34.16448,
+          "cue": "狂飙模式不是默认可见",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "subtitle",
+          "type": "subtitle"
+        },
+        {
+          "audioEnd": 37.33884,
+          "audioStart": 34.78968,
+          "cue": "新手要先找设置",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-0",
+          "index": 0,
+          "type": "custom"
+        },
+        {
+          "audioEnd": 39.888,
+          "audioStart": 37.33884,
+          "cue": "把这个选项勾上",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-1",
+          "index": 1,
+          "type": "custom"
+        }
+      ],
+      "layout": "default",
+      "narration": "如果是新手应该是找不到狂飙模式的，需要在设置这里把这个选项给勾选上。",
+      "points": [
+        "新手要先找设置",
+        "把这个选项勾上"
+      ],
+      "segmentIds": [
+        "segment-7"
+      ],
+      "subtitle": "狂飙模式不是默认可见",
+      "title": "新手先开权限",
+      "type": "default",
+      "audioPath": "projects/generated/1775572514254-StudioShow/audio/slides/slide-006.mp3"
+    },
+    {
+      "audioDuration": 2.136,
+      "audioEnd": 42.024,
+      "audioStart": 39.888,
+      "data": {
+        "cta": "把规则写进去"
+      },
+      "durationInFrames": 64,
+      "elementTimings": [
+        {
+          "audioEnd": 40.2084,
+          "audioStart": 39.888,
+          "cue": "第二招：立规矩",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 40.35792,
+          "audioStart": 40.14432,
+          "cue": "让它按你的项目习惯做事",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "subtitle",
+          "type": "subtitle"
+        },
+        {
+          "audioEnd": 41.28756,
+          "audioStart": 40.55112,
+          "cue": "不是只会提问",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-0",
+          "index": 0,
+          "type": "custom"
+        },
+        {
+          "audioEnd": 42.024,
+          "audioStart": 41.28756,
+          "cue": "更要学会约束它",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-1",
+          "index": 1,
+          "type": "custom"
+        }
+      ],
+      "layout": "hero",
+      "narration": "第二个，给它定规矩。",
+      "points": [
+        "不是只会提问",
+        "更要学会约束它"
+      ],
+      "segmentIds": [
+        "segment-8"
+      ],
+      "subtitle": "让它按你的项目习惯做事",
+      "title": "第二招：立规矩",
+      "type": "hero",
+      "audioPath": "projects/generated/1775572514254-StudioShow/audio/slides/slide-007.mp3"
+    },
+    {
+      "audioDuration": 6,
+      "audioEnd": 48.024,
+      "audioStart": 42.024,
+      "data": {
+        "steps": [
+          {
+            "description": "在项目里放一个 claude.md。",
+            "title": "建文档"
+          },
+          {
+            "description": "把你的规则、习惯、要求都写进去。",
+            "title": "写偏好"
+          }
+        ]
+      },
+      "durationInFrames": 180,
+      "elementTimings": [
+        {
+          "audioEnd": 42.924,
+          "audioStart": 42.024,
+          "cue": "写进 claude.md",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 43.344,
+          "audioStart": 42.744,
+          "cue": "偏好、规则一次说清",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "subtitle",
+          "type": "subtitle"
+        },
+        {
+          "audioEnd": 45.684,
+          "audioStart": 43.343999999999994,
+          "cue": "建文档",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "step-0",
+          "index": 0,
+          "type": "step"
+        },
+        {
+          "audioEnd": 48.024,
+          "audioStart": 45.684,
+          "cue": "写偏好",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "step-1",
+          "index": 1,
+          "type": "step"
+        }
+      ],
+      "layout": "steps",
+      "narration": "在项目里建一个 claude.md 的文档，把你的偏好、规则全都写进去。",
+      "points": [
+        "项目里先建规则文件",
+        "把个人偏好固定下来"
+      ],
+      "segmentIds": [
+        "segment-9"
+      ],
+      "subtitle": "偏好、规则一次说清",
+      "title": "写进 claude.md",
+      "type": "steps",
+      "audioPath": "projects/generated/1775572514254-StudioShow/audio/slides/slide-008.mp3"
+    },
+    {
+      "audioDuration": 8.256,
+      "audioEnd": 56.28,
+      "audioStart": 48.024,
+      "data": {
+        "author": "",
+        "quote": "记住这一点，它是真的能够记住。"
+      },
+      "durationInFrames": 248,
+      "elementTimings": [
+        {
+          "audioEnd": 49.224,
+          "audioStart": 48.024,
+          "cue": "它真会记住",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 49.784,
+          "audioStart": 48.984,
+          "cue": "重点不是一次说完，而是持续积累",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "subtitle",
+          "type": "subtitle"
+        },
+        {
+          "audioEnd": 56.28,
+          "audioStart": 49.684,
+          "cue": "记住这一点，它是真的能够记住。",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "quote-text",
+          "type": "quote"
+        }
+      ],
+      "layout": "quote",
+      "narration": "用的过程当中如果有需要让它记住的事情跟它说，记住这一点，它是真的能够记住，下次不...",
+      "points": [
+        "需要记的事直接告诉它",
+        "下次还能接着用"
+      ],
+      "segmentIds": [
+        "segment-10"
+      ],
+      "subtitle": "重点不是一次说完，而是持续积累",
+      "title": "它真会记住",
+      "type": "quote",
+      "audioPath": "projects/generated/1775572514254-StudioShow/audio/slides/slide-009.mp3"
+    },
+    {
+      "audioDuration": 8.88,
+      "audioEnd": 65.16,
+      "audioStart": 56.28,
+      "data": {
+        "left": "全堆在一起",
+        "leftDesc": "信息混在一处，越来越乱",
+        "right": "项目 / 记忆分开",
+        "rightDesc": "项目有关的东西放 claude.md，额外记忆单独管理",
+        "vsText": "项目特别大时"
+      },
+      "durationInFrames": 266,
+      "elementTimings": [
+        {
+          "audioEnd": 57.48,
+          "audioStart": 56.28,
+          "cue": "大项目再分 memory",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 58.04,
+          "audioStart": 57.24,
+          "cue": "项目相关的内容单独放一层",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "subtitle",
+          "type": "subtitle"
+        },
+        {
+          "audioEnd": 57.94,
+          "audioStart": 57.94,
+          "cue": "",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "compare-left",
+          "type": "compare-left"
+        },
+        {
+          "audioEnd": 57.94,
+          "audioStart": 57.94,
+          "cue": "",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "compare-right",
+          "type": "compare-right"
+        }
+      ],
+      "layout": "compare",
+      "narration": "如果项目特别大，可以再开一个 memory，跟项目有关的东西放 claude.md。",
+      "points": [
+        "大项目别只靠一个文档",
+        "分层管理更稳"
+      ],
+      "segmentIds": [
+        "segment-11"
+      ],
+      "subtitle": "项目相关的内容单独放一层",
+      "title": "大项目再分 memory",
+      "type": "compare",
+      "audioPath": "projects/generated/1775572514254-StudioShow/audio/slides/slide-010.mp3"
+    },
+    {
+      "audioDuration": 3.552,
+      "audioEnd": 68.712,
+      "audioStart": 65.16,
+      "data": {
+        "cta": "改用语音输入"
+      },
+      "durationInFrames": 107,
+      "elementTimings": [
+        {
+          "audioEnd": 65.69279999999999,
+          "audioStart": 65.16,
+          "cue": "第三招：直接说",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 65.94144,
+          "audioStart": 65.58624,
+          "cue": "别用手打，让嘴更快",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "subtitle",
+          "type": "subtitle"
+        },
+        {
+          "audioEnd": 67.38792000000001,
+          "audioStart": 66.06384,
+          "cue": "输入方式换掉",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-0",
+          "index": 0,
+          "type": "custom"
+        },
+        {
+          "audioEnd": 68.71200000000002,
+          "audioStart": 67.38792000000001,
+          "cue": "效率马上变快",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-1",
+          "index": 1,
+          "type": "custom"
+        }
+      ],
+      "layout": "hero",
+      "narration": "第三个，用嘴说，不要用手打。",
+      "points": [
+        "输入方式换掉",
+        "效率马上变快"
+      ],
+      "segmentIds": [
+        "segment-12"
+      ],
+      "subtitle": "别用手打，让嘴更快",
+      "title": "第三招：直接说",
+      "type": "hero",
+      "audioPath": "projects/generated/1775572514254-StudioShow/audio/slides/slide-011.mp3"
+    },
+    {
+      "audioDuration": 5.328,
+      "audioEnd": 74.04,
+      "audioStart": 68.712,
+      "data": {
+        "stats": [
+          {
+            "color": "blue",
+            "label": "普通人说话速度 vs 打字",
+            "suffix": "",
+            "value": "3x"
+          }
+        ]
+      },
+      "durationInFrames": 160,
+      "elementTimings": [
+        {
+          "audioEnd": 69.5112,
+          "audioStart": 68.712,
+          "cue": "说话比打字快三倍",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 69.88416,
+          "audioStart": 69.35136,
+          "cue": "快捷键一按就能开语音",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "subtitle",
+          "type": "subtitle"
+        },
+        {
+          "audioEnd": 74.04,
+          "audioStart": 69.91776,
+          "cue": "3x普通人说话速度 vs 打字",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "stat-0",
+          "index": 0,
+          "type": "stat"
+        }
+      ],
+      "layout": "stats",
+      "narration": "按快捷键就能够调出语音输入，普通人说话的速度是打字的三倍。",
+      "points": [
+        "按快捷键调出语音输入",
+        "速度优势非常直接"
+      ],
+      "segmentIds": [
+        "segment-13"
+      ],
+      "subtitle": "快捷键一按就能开语音",
+      "title": "说话比打字快三倍",
+      "type": "stats",
+      "audioPath": "projects/generated/1775572514254-StudioShow/audio/slides/slide-012.mp3"
+    },
+    {
+      "audioDuration": 6.888,
+      "audioEnd": 80.92800000000001,
+      "audioStart": 74.04,
+      "data": {
+        "items": [
+          "更详细",
+          "更周全",
+          "质量更高"
+        ]
+      },
+      "durationInFrames": 207,
+      "elementTimings": [
+        {
+          "audioEnd": 75.07320000000001,
+          "audioStart": 74.04,
+          "cue": "说得越细，做得越稳",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 75.55536000000001,
+          "audioStart": 74.86656,
+          "cue": "语音会逼你把想法讲完整",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "subtitle",
+          "type": "subtitle"
+        },
+        {
+          "audioEnd": 78.13210838709678,
+          "audioStart": 77.60787870967742,
+          "cue": "更详细",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "highlight-0",
+          "index": 0,
+          "type": "highlight"
+        },
+        {
+          "audioEnd": 80.92800000000001,
+          "audioStart": 80.40377032258066,
+          "cue": "更周全",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "highlight-1",
+          "index": 1,
+          "type": "highlight"
+        },
+        {
+          "audioEnd": 80.92800000000001,
+          "audioStart": 79.12232,
+          "cue": "质量更高",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "highlight-2",
+          "index": 2,
+          "type": "highlight"
+        }
+      ],
+      "layout": "highlight",
+      "narration": "用这种方式会不自觉地说得更详细，ai 做出来的东西质量更高，也更周全。",
+      "points": [
+        "表达更完整",
+        "结果也更靠谱"
+      ],
+      "segmentIds": [
+        "segment-14"
+      ],
+      "subtitle": "语音会逼你把想法讲完整",
+      "title": "说得越细，做得越稳",
+      "type": "highlight",
+      "audioPath": "projects/generated/1775572514254-StudioShow/audio/slides/slide-013.mp3"
+    },
+    {
+      "audioDuration": 3.504,
+      "audioEnd": 84.43200000000002,
+      "audioStart": 80.92800000000001,
+      "data": {
+        "button": "关注获取更多技巧",
+        "cta": "关注获取更多技巧"
+      },
+      "durationInFrames": 105,
+      "elementTimings": [
+        {
+          "audioEnd": 81.45360000000001,
+          "audioStart": 80.92800000000001,
+          "cue": "关注我，继续进阶",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 81.69888,
+          "audioStart": 81.34848000000001,
+          "cue": "后面还有更多 AI 使用技巧",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "subtitle",
+          "type": "subtitle"
+        },
+        {
+          "audioEnd": 83.12784000000002,
+          "audioStart": 81.82368000000001,
+          "cue": "更多实用技巧持续更新",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-0",
+          "index": 0,
+          "type": "custom"
+        },
+        {
+          "audioEnd": 84.43200000000002,
+          "audioStart": 83.12784000000002,
+          "cue": "下一条继续提升效率",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-1",
+          "index": 1,
+          "type": "custom"
+        }
+      ],
+      "layout": "cta",
+      "narration": "关注我，后面还有更多的 ai 使用技巧分享。",
+      "points": [
+        "更多实用技巧持续更新",
+        "下一条继续提升效率"
+      ],
+      "segmentIds": [
+        "segment-15"
+      ],
+      "subtitle": "后面还有更多 AI 使用技巧",
+      "title": "关注我，继续进阶",
+      "type": "cta",
+      "audioPath": "projects/generated/1775572514254-StudioShow/audio/slides/slide-014.mp3"
+    }
+  ]
+}

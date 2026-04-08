@@ -1,0 +1,256 @@
+{
+  "meta": {
+    "title": "Generated Video",
+    "template": "TechShow",
+    "voice_id": "S_PlTK120R1",
+    "full_narration": "Gemini 的口碑一直很能打，但它到底好在哪里？不亲自试一试确实很难真正体会。有没有什么办法能让我们一分钱不花直接体验到它的满血版模型？今天这期视频就跟大家扒一扒少有人知道的官方免费渠道 ——Google AI Studio，只要你有谷歌账号就能免费使用。",
+    "soundtrack_path": "projects/generated/1775471879514-TechShow/audio/narration.mp3",
+    "soundtrack_duration": 21.936,
+    "voiceId": "S_PlTK120R1",
+    "fullNarration": "Gemini 的口碑一直很能打，但它到底好在哪里？不亲自试一试确实很难真正体会。有没有什么办法能让我们一分钱不花直接体验到它的满血版模型？今天这期视频就跟大家扒一扒少有人知道的官方免费渠道 ——Google AI Studio，只要你有谷歌账号就能免费使用。",
+    "soundtrackPath": "projects/generated/1775471879514-TechShow/audio/narration.mp3",
+    "soundtrackDuration": 21.936
+  },
+  "slides": [
+    {
+      "audioDuration": 4.248,
+      "audioEnd": 4.248,
+      "audioStart": 0,
+      "data": {
+        "badge": "TechShow",
+        "cta": "先看它为什么受关注"
+      },
+      "durationInFrames": 127,
+      "elementTimings": [
+        {
+          "audioEnd": 0.8496000000000001,
+          "audioStart": 0,
+          "cue": "Gemini 到底强在哪？",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 1.2744,
+          "audioStart": 0.6372,
+          "cue": "口碑很能打，但真实体验才是关键",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "subtitle",
+          "type": "subtitle"
+        }
+      ],
+      "layout": "hero",
+      "narration": "Gemini 的口碑一直很能打，但它到底好在哪里？",
+      "points": [],
+      "segmentIds": [
+        "segment-1"
+      ],
+      "subtitle": "口碑很能打，但真实体验才是关键",
+      "title": "Gemini 到底强在哪？",
+      "type": "hero",
+      "audioPath": "projects/generated/1775471879514-TechShow/audio/slides/slide-001.mp3"
+    },
+    {
+      "audioDuration": 3.216,
+      "audioEnd": 7.464,
+      "audioStart": 4.248,
+      "durationInFrames": 96,
+      "elementTimings": [
+        {
+          "audioEnd": 4.7304,
+          "audioStart": 4.248,
+          "cue": "纸面评价，不如亲自试",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 4.95552,
+          "audioStart": 4.63392,
+          "cue": "很多感受，只有上手后才会知道",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "subtitle",
+          "type": "subtitle"
+        },
+        {
+          "audioEnd": 6.2793600000000005,
+          "audioStart": 5.09472,
+          "cue": "不亲自试一试，很难真正体会",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-0",
+          "index": 0,
+          "type": "custom"
+        },
+        {
+          "audioEnd": 7.464,
+          "audioStart": 6.2793600000000005,
+          "cue": "真实体验比别人评价更直观",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-1",
+          "index": 1,
+          "type": "custom"
+        }
+      ],
+      "layout": "default",
+      "narration": "不亲自试一试，确实很难真正体会。",
+      "points": [
+        "不亲自试一试，很难真正体会",
+        "真实体验比别人评价更直观"
+      ],
+      "segmentIds": [
+        "segment-2"
+      ],
+      "subtitle": "很多感受，只有上手后才会知道",
+      "title": "纸面评价，不如亲自试",
+      "type": "default",
+      "audioPath": "projects/generated/1775471879514-TechShow/audio/slides/slide-002.mp3"
+    },
+    {
+      "audioDuration": 5.112,
+      "audioEnd": 12.576,
+      "audioStart": 7.464,
+      "data": {
+        "steps": [
+          {
+            "description": "有没有什么办法能直接体验到它的满血版模型",
+            "title": "先确认需求"
+          },
+          {
+            "description": "重点看是否存在一分钱不花的官方方式",
+            "title": "再找渠道"
+          }
+        ]
+      },
+      "durationInFrames": 153,
+      "elementTimings": [
+        {
+          "audioEnd": 8.2308,
+          "audioStart": 7.464,
+          "cue": "能不能免费体验满血版？",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 8.588640000000002,
+          "audioStart": 8.077440000000001,
+          "cue": "想找一个零成本上手的方法",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "subtitle",
+          "type": "subtitle"
+        },
+        {
+          "audioEnd": 10.60452,
+          "audioStart": 8.633040000000001,
+          "cue": "先确认需求",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "step-0",
+          "index": 0,
+          "type": "step"
+        },
+        {
+          "audioEnd": 12.576,
+          "audioStart": 10.60452,
+          "cue": "再找渠道",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "step-1",
+          "index": 1,
+          "type": "step"
+        }
+      ],
+      "layout": "steps",
+      "narration": "有没有什么办法能让我们一分钱不花，直接体验到它的满血版模型？",
+      "points": [],
+      "segmentIds": [
+        "segment-3"
+      ],
+      "subtitle": "想找一个零成本上手的方法",
+      "title": "能不能免费体验满血版？",
+      "type": "steps",
+      "audioPath": "projects/generated/1775471879514-TechShow/audio/slides/slide-003.mp3"
+    },
+    {
+      "audioDuration": 9.36,
+      "audioEnd": 21.936,
+      "audioStart": 12.576,
+      "data": {
+        "items": [
+          "少有人知道",
+          "官方免费渠道",
+          "Google AI Studio"
+        ]
+      },
+      "durationInFrames": 281,
+      "elementTimings": [
+        {
+          "audioEnd": 13.776,
+          "audioStart": 12.576,
+          "cue": "官方免费渠道，今天一次说清",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 14.336000000000002,
+          "audioStart": 13.536,
+          "cue": "少有人知道的 Google AI Studio 相关方法",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "subtitle",
+          "type": "subtitle"
+        },
+        {
+          "audioEnd": 17.789846153846156,
+          "audioStart": 16.802666666666667,
+          "cue": "少有人知道",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "highlight-0",
+          "index": 0,
+          "type": "highlight"
+        },
+        {
+          "audioEnd": 19.171897435897435,
+          "audioStart": 17.98728205128205,
+          "cue": "官方免费渠道",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "highlight-1",
+          "index": 1,
+          "type": "highlight"
+        },
+        {
+          "audioEnd": 21.936,
+          "audioStart": 19.171897435897435,
+          "cue": "Google AI Studio",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "highlight-2",
+          "index": 2,
+          "type": "highlight"
+        }
+      ],
+      "layout": "highlight",
+      "narration": "今天这期视频就跟大家扒一扒少有人知道的官方免费渠道——Google AI Studio。",
+      "points": [],
+      "segmentIds": [
+        "segment-4"
+      ],
+      "subtitle": "少有人知道的 Google AI Studio 相关方法",
+      "title": "官方免费渠道，今天一次说清",
+      "type": "highlight",
+      "audioPath": "projects/generated/1775471879514-TechShow/audio/slides/slide-004.mp3"
+    }
+  ]
+}

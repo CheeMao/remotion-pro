@@ -1,0 +1,8 @@
+{
+  "text": "如果不想完全清空对话，但是又想减少上下文的长度，那就用斜杠 compact，它会自动压缩历史绘画，保留关键的信息。",
+  "voiceId": "S_PlTK120R1",
+  "speechRate": 1,
+  "audioPath": "F:\\My Apps\\AI-remotion\\audio-cache\\volc-1775573088905.mp3",
+  "duration": 0,
+  "createdAt": "2026-04-07T14:44:54.422Z"
+}

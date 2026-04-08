@@ -1,0 +1,92 @@
+{
+  "meta": {
+    "title": "Generated Video",
+    "template": "GlassShow",
+    "voice_id": "S_PlTK120R1",
+    "full_narration": "Gemini 的口碑一直很能打，但它到底好在哪里？不亲自试一试确实很难真正体会。有没有什么办法能让我们一分钱不花直接体验到它的满血版模型？今天这期视频就跟大家扒一扒少有人知道的官方免费渠道 ——Google AI Studio，只要你有谷歌账号就能免费使用。",
+    "soundtrack_path": "projects/generated/1775465982886-GlassShow/audio/narration.mp3",
+    "soundtrack_duration": 21.456,
+    "voiceId": "S_PlTK120R1",
+    "fullNarration": "Gemini 的口碑一直很能打，但它到底好在哪里？不亲自试一试确实很难真正体会。有没有什么办法能让我们一分钱不花直接体验到它的满血版模型？今天这期视频就跟大家扒一扒少有人知道的官方免费渠道 ——Google AI Studio，只要你有谷歌账号就能免费使用。",
+    "soundtrackPath": "projects/generated/1775465982886-GlassShow/audio/narration.mp3",
+    "soundtrackDuration": 21.456
+  },
+  "slides": [
+    {
+      "audioDuration": 4.008,
+      "audioEnd": 4.008,
+      "audioStart": 0,
+      "data": {
+        "badge": "产品体验切入",
+        "cta": "先看它为什么被反复推荐"
+      },
+      "durationInFrames": 120,
+      "narration": "Gemini 的口碑一直很能打，但它到底好在哪里？",
+      "segmentIds": [
+        "segment-1"
+      ],
+      "subtitle": "口碑一直很能打，但真正的体验感，还是得亲自上手。",
+      "title": "Gemini 到底强在哪",
+      "type": "hero",
+      "audioPath": "projects/generated/1775465982886-GlassShow/audio/slides/slide-001.mp3"
+    },
+    {
+      "audioDuration": 2.928,
+      "audioEnd": 6.936,
+      "audioStart": 4.008,
+      "data": {
+        "points": [
+          "不亲自试一试，确实很难真正体会。",
+          "很多感受，只有上手之后才会有答案。"
+        ]
+      },
+      "durationInFrames": 88,
+      "narration": "不亲自试一试，确实很难真正体会。",
+      "segmentIds": [
+        "segment-2"
+      ],
+      "title": "光听别人说，不如自己试一次",
+      "type": "default",
+      "audioPath": "projects/generated/1775465982886-GlassShow/audio/slides/slide-002.mp3"
+    },
+    {
+      "audioDuration": 5.16,
+      "audioEnd": 12.096,
+      "audioStart": 6.936,
+      "data": {
+        "items": [
+          "一分钱不花",
+          "直接体验",
+          "满血版模型"
+        ]
+      },
+      "durationInFrames": 155,
+      "narration": "有没有什么办法能让我们一分钱不花，直接体验到它的满血版模型？",
+      "segmentIds": [
+        "segment-3"
+      ],
+      "subtitle": "不花一分钱，也能直接摸到核心能力。",
+      "title": "有没有办法，免费体验满血版",
+      "type": "list",
+      "audioPath": "projects/generated/1775465982886-GlassShow/audio/slides/slide-003.mp3"
+    },
+    {
+      "audioDuration": 9.36,
+      "audioEnd": 21.456,
+      "audioStart": 12.096,
+      "data": {
+        "badge": "重点信息",
+        "cta": "继续看官方路径怎么进"
+      },
+      "durationInFrames": 281,
+      "narration": "今天这期视频就跟大家扒一扒少有人知道的官方免费渠道 ——Google AI Studio。",
+      "segmentIds": [
+        "segment-4"
+      ],
+      "subtitle": "少有人知道的 Google AI Studio。",
+      "title": "官方免费渠道，今天一次讲清",
+      "type": "hero",
+      "audioPath": "projects/generated/1775465982886-GlassShow/audio/slides/slide-004.mp3"
+    }
+  ]
+}

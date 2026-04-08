@@ -1,0 +1,8 @@
+{
+  "text": "复杂的任务先跟它说，别动手，给我方案，它会自动调整为 plan模式，然后询问细节，列步骤，给方案。",
+  "voiceId": "S_PlTK120R1",
+  "speechRate": 1,
+  "audioPath": "F:\\My Apps\\AI-remotion\\audio-cache\\volc-1775572521652.mp3",
+  "duration": 0,
+  "createdAt": "2026-04-07T14:35:26.379Z"
+}

@@ -1,6 +1,6 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
-  "productName": "VideoMaker",
+  "productName": "轻剪",
   "version": "0.1.0",
   "identifier": "com.videomaker.app",
   "build": {
@@ -13,7 +13,7 @@
     "withGlobalTauri": false,
     "windows": [
       {
-        "title": "AI 视频生成器",
+        "title": "轻剪",
         "width": 980,
         "height": 700,
         "minWidth": 860,

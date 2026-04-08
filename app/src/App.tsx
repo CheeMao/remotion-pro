@@ -19,6 +19,7 @@ import type {
   ContentSlide,
   ElementTiming,
 } from "@remotion-root/templates/types";
+import qingjianLogo from "./assets/qingjian-logo.png";
 
 type SimpleSlide = {
   id: string;
@@ -207,6 +208,10 @@ type HomeDraft = {
 
 const FPS = 30;
 const MAX_SLIDE_DURATION_SECONDS = 8;
+const APP_NAME = "轻剪";
+const APP_TAGLINE = "帮助用户快速创作高质量内容";
+const APP_DESCRIPTION =
+  "轻剪是一款面向高质量内容创作的智能视频工具，帮助用户从原始文案、链接或素材出发，更快完成改写、分镜、配音、预览和导出。";
 const DEFAULT_AUTH_PREFERENCES: AuthPreferences = {
   rememberPassword: true,
   autoLogin: false,
@@ -261,6 +266,26 @@ function DockIcon(props: { children: React.ReactNode }) {
     >
       {props.children}
     </span>
+  );
+}
+
+function BrandLogo(props: { size?: number; alt?: string }) {
+  const size = props.size ?? 48;
+
+  return (
+    <img
+      src={qingjianLogo}
+      alt={props.alt ?? `${APP_NAME} Logo`}
+      style={{
+        width: size,
+        height: size,
+        objectFit: "cover",
+        borderRadius: Math.round(size * 0.28),
+        display: "block",
+        boxShadow:
+          "0 16px 32px rgba(148, 163, 184, 0.18), inset 0 1px 0 rgba(255,255,255,0.9)",
+      }}
+    />
   );
 }
 
@@ -409,6 +434,79 @@ const DEFAULT_REWRITE_STYLES: RewriteStyle[] = [
   {
     id: "rewrite-natural",
     name: "系统默认",
+    prompt: `你是短视频口播文案改写助手。请把用户提供的原文案，改写成更适合中文短视频传播的口播成稿。
+
+你的目标不是简单润色，而是让文案在保留原意的前提下，更抓人、更顺口、更有继续听下去的欲望。
+
+改写要求：
+1. 保留原意，不要编造事实，不要加入原文没有的关键信息、数据或结论。
+2. 开头 1-2 句必须更有吸引力。优先从用户痛点、常见误区、反差结果、核心收益、关键问题中选择一个切入点。
+3. 不要按原文顺序平铺直叙复述。要主动调整结构，把最值得听、最有价值的信息尽量前置。
+4. 文案中要自然有“推进感”，让人觉得后面还有重点。可以适度使用设问、转折、提醒、总结句，但要自然，不要夸张。
+5. 删除空话、套话、重复表达和无效铺垫，让节奏更紧凑、信息更集中。
+6. 语言要像真人在说话，顺口、自然、有交流感，不要像书面总结或照着稿子念。
+7. 句子长短要有变化。关键句可以更短、更有力，增强口播停顿感和镜头感。
+8. 如果原文表达太平，可以适度强化痛点、代价、结果感，但不能写成标题党，也不能故意制造虚假悬念。
+9. 输出必须是完整的纯文本正文，不要加标题、不要分点、不要解释、不要加引号。
+10. 最终结果要适合直接配音，听起来像一个会表达、懂传播的人在对观众说话。
+
+请直接输出改写后的最终文案。`,
+  },
+  {
+    id: "rewrite-viral",
+    name: "短视频感",
+    prompt: `你是短视频高留存口播文案改写助手。请把输入文案改写成更有吸引力、更有节奏感、更适合短视频传播的版本。
+
+你的核心任务不是单纯改得通顺，而是让观众更容易停下来、听下去、记住重点。
+
+改写要求：
+1. 保留原意，不要编造事实，不要夸大原文没有的结论。
+2. 开头必须更强。优先使用以下方式之一开场：
+   - 先点出观众最在意的痛点
+   - 先抛一个会让人想知道答案的问题
+   - 先给一个反常识、反差或结果感很强的结论
+   - 先说“为什么这件事和你有关”
+3. 不要平铺直叙地讲完整件事，要有明显的推进感。每一小段都尽量给观众一个新的信息点、判断点或情绪点。
+4. 多用观众视角表达，把客观描述改成更有代入感的说法，让观众感觉“这事和我有关”。
+5. 可以适度加入设问、反问、转折、提醒句，增强节奏和停顿感，但必须自然，不能油腻，不能像低质营销号。
+6. 删除弱信息、废话和重复句，把真正有价值、最能带动情绪或兴趣的内容放前面。
+7. 语言要口语化、有画面感、有镜头感，像一个很会讲内容的人在面对镜头说话。
+8. 可以强化痛点、冲突、代价、收益、误区这些元素，但不要故意挑衅，不要低俗，不要制造无意义争议。
+9. 结尾要有收束感，最好能留下一句容易记住的话，或让观众自然产生“原来如此”的感觉。
+10. 输出必须是完整纯文本，不要加标题、不要分点、不要解释、不要加引号。
+
+最终效果应该是：
+开头能抓住人，中间不塌，结尾有记忆点，整体适合直接拿去配音。`,
+  },
+  {
+    id: "rewrite-professional",
+    name: "专业清晰",
+    prompt: `你是知识类短视频口播编辑。请把输入文案改写成既专业清晰、又足够吸引人的讲解型短视频文案。
+
+注意：
+不要把文案改成平淡的说明文。你要做到的是，既让人觉得你懂，又让人愿意继续听。
+
+改写要求：
+1. 保留原意，不要编造事实，不要增加原文没有的专业结论。
+2. 开头先抓注意力，再进入讲解。优先使用：核心结论前置、常见误区、关键痛点、代价提醒、用户最关心的问题。
+3. 逻辑必须更清楚，但不能写成教科书。要让观众觉得是在被带着理解，而不是被硬灌知识。
+4. 不要只是复述原文，要主动优化结构，把最重要、最有判断价值的内容放到更前面。
+5. 抽象、复杂、书面化的表达，要改成更容易听懂的“人话”，但不能因此失去专业度。
+6. 可以自然加入设问句、判断句、提醒句，增强讲解感和推进感。
+7. 删除重复表达、空泛描述和不影响理解的铺垫，让内容更凝练、更有重点。
+8. 语言要稳、准、清晰，有可信度，同时保留短视频需要的节奏感和镜头感。
+9. 不要标题党，不要浮夸，不要故意煽动情绪，但要有明确重点句和可记住的结论句。
+10. 输出必须为完整纯文本，不要加标题、不要分点、不要解释、不要加引号。
+
+最终效果应该像：
+一个真正懂内容的人，用更容易传播、更容易听进去的方式，把一件事讲明白。`,
+  },
+];
+
+const LEGACY_DEFAULT_REWRITE_STYLES: RewriteStyle[] = [
+  {
+    id: "rewrite-natural",
+    name: "系统默认",
     prompt: `你是短视频二创文案助手。请把用户提供的原文案改写成适合中文短视频口播的成稿。
 
 要求：
@@ -463,6 +561,16 @@ const DEFAULT_SETTINGS: SettingsData = {
   rewriteStyles: DEFAULT_REWRITE_STYLES,
   defaultRewriteStyleId: DEFAULT_REWRITE_STYLES[0].id,
 };
+
+const NEW_REWRITE_STYLE_TEMPLATE = `你是短视频口播文案改写助手。请把输入文案改写成更适合短视频传播的版本。
+
+要求：
+1. 保留原意，不要编造事实。
+2. 开头要更抓人，整体要更顺口、更有节奏。
+3. 输出纯文本，不要加标题、不要分点、不要解释。
+
+原文案：
+{{text}}`;
 
 const COMMON_SEGMENT_RULES = `
 硬性要求：
@@ -1573,7 +1681,7 @@ function loadSettings(): SettingsData {
       bailianApiKey?: string;
     };
     const legacyDashScopeApiKey = parsed.bailianApiKey || "";
-    const rewriteStyles =
+    const parsedRewriteStyles =
       Array.isArray(parsed.rewriteStyles) && parsed.rewriteStyles.length > 0
         ? parsed.rewriteStyles.filter(
             (style): style is RewriteStyle =>
@@ -1582,14 +1690,29 @@ function loadSettings(): SettingsData {
               typeof style.name === "string" &&
               typeof style.prompt === "string",
           )
-        : DEFAULT_REWRITE_STYLES;
+        : [];
+    const shouldUpgradeLegacyRewriteStyles =
+      parsedRewriteStyles.length > 0 &&
+      parsedRewriteStyles.length === LEGACY_DEFAULT_REWRITE_STYLES.length &&
+      parsedRewriteStyles.every((style, index) => {
+        const legacyStyle = LEGACY_DEFAULT_REWRITE_STYLES[index];
+        return (
+          style.id === legacyStyle.id &&
+          style.name === legacyStyle.name &&
+          style.prompt.trim() === legacyStyle.prompt.trim()
+        );
+      });
+    const rewriteStyles =
+      parsedRewriteStyles.length === 0 || shouldUpgradeLegacyRewriteStyles
+        ? DEFAULT_REWRITE_STYLES
+        : parsedRewriteStyles;
     const defaultRewriteStyleId =
       typeof parsed.defaultRewriteStyleId === "string" &&
       rewriteStyles.some((style) => style.id === parsed.defaultRewriteStyleId)
         ? parsed.defaultRewriteStyleId
         : rewriteStyles[0]?.id || DEFAULT_REWRITE_STYLES[0].id;
 
-    return {
+    const nextSettings = {
       voiceId: parsed.voiceId || "",
       voiceApiKey: parsed.voiceApiKey || legacyDashScopeApiKey,
       volcengineAppId: parsed.volcengineAppId || "",
@@ -1600,6 +1723,12 @@ function loadSettings(): SettingsData {
       rewriteStyles,
       defaultRewriteStyleId,
     };
+
+    if (shouldUpgradeLegacyRewriteStyles) {
+      localStorage.setItem(STORAGE_KEYS.settings, JSON.stringify(nextSettings));
+    }
+
+    return nextSettings;
   } catch {
     return DEFAULT_SETTINGS;
   }
@@ -4393,6 +4522,12 @@ function SettingsPage(props: SettingsPageProps) {
   const [editingRewriteStyleId, setEditingRewriteStyleId] = React.useState<
     string | null
   >(null);
+  const [isCreateRewriteStyleOpen, setIsCreateRewriteStyleOpen] =
+    React.useState(false);
+  const [newRewriteStyleName, setNewRewriteStyleName] = React.useState("");
+  const [newRewriteStylePrompt, setNewRewriteStylePrompt] = React.useState(
+    NEW_REWRITE_STYLE_TEMPLATE,
+  );
   const [aboutMessage, setAboutMessage] = React.useState("");
 
   const updateField = <K extends keyof SettingsData>(
@@ -4417,22 +4552,35 @@ function SettingsPage(props: SettingsPageProps) {
     }));
   };
 
+  const openCreateRewriteStyle = () => {
+    setNewRewriteStyleName(`新风格 ${settings.rewriteStyles.length + 1}`);
+    setNewRewriteStylePrompt(NEW_REWRITE_STYLE_TEMPLATE);
+    setIsCreateRewriteStyleOpen(true);
+  };
+
+  const closeCreateRewriteStyle = () => {
+    setIsCreateRewriteStyleOpen(false);
+  };
+
   const addRewriteStyle = () => {
     const id = `rewrite-${Date.now()}`;
+    const nextName =
+      newRewriteStyleName.trim() || `新风格 ${settings.rewriteStyles.length + 1}`;
+    const nextPrompt = newRewriteStylePrompt.trim() || NEW_REWRITE_STYLE_TEMPLATE;
     setSettings((current) => ({
       ...current,
       rewriteStyles: [
-        ...current.rewriteStyles,
         {
           id,
-          name: `新风格 ${current.rewriteStyles.length + 1}`,
-          prompt:
-            "你是短视频文案改写助手。请把下面的原文案改写成更适合口播的视频文案。\n\n要求：输出纯文本，不要解释，不要加标题。\n\n原文案：\n{{text}}",
+          name: nextName,
+          prompt: nextPrompt,
         },
+        ...current.rewriteStyles,
       ],
       defaultRewriteStyleId: current.defaultRewriteStyleId || id,
     }));
     setEditingRewriteStyleId(id);
+    setIsCreateRewriteStyleOpen(false);
   };
 
   const removeRewriteStyle = (id: string) => {
@@ -4489,31 +4637,11 @@ function SettingsPage(props: SettingsPageProps) {
     }
   };
 
-  const licenseStatusText = props.authStatus
-    ? props.authStatus.isValid
-      ? "已授权"
-      : "未授权"
-    : props.authSession
-      ? "待验证"
-      : "未登录";
-  const licenseStatusColor = props.authStatus
-    ? props.authStatus.isValid
-      ? "#047857"
-      : "#b91c1c"
-    : "#64748b";
   const licenseUsername =
     props.authStatus?.username || props.authSession?.username || "-";
   const licenseExpireTime = formatAuthExpireTime(
     props.authStatus?.expireTime || props.authSession?.expireTime || null,
   );
-  const licenseRemaining = props.authStatus
-    ? formatRemainingSeconds(props.authStatus.remainingSeconds)
-    : "-";
-  const licenseDeviceName =
-    props.authStatus?.deviceName ||
-    props.authSession?.deviceName ||
-    props.authContext?.deviceName ||
-    "-";
 
   return (
     <div style={PAGE_FRAME_STYLE}>
@@ -4699,7 +4827,7 @@ function SettingsPage(props: SettingsPageProps) {
                 </div>
                 <button
                   type="button"
-                  onClick={addRewriteStyle}
+                  onClick={openCreateRewriteStyle}
                   style={{
                     ...SECONDARY_BUTTON_STYLE,
                     minWidth: 120,
@@ -4896,47 +5024,78 @@ function SettingsPage(props: SettingsPageProps) {
                       "linear-gradient(180deg, rgba(248,250,252,0.96) 0%, rgba(255,255,255,0.98) 100%)",
                     padding: 20,
                     display: "grid",
-                    gap: 14,
+                    gap: 18,
                   }}
                 >
-                  <div>
-                    <h3
+                  <div
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "auto 1fr",
+                      gap: 18,
+                      alignItems: "center",
+                    }}
+                  >
+                    <div
                       style={{
-                        ...SECTION_TITLE_STYLE,
-                        marginTop: 0,
-                        marginBottom: 6,
+                        width: 88,
+                        height: 88,
+                        borderRadius: 28,
+                        padding: 8,
+                        display: "grid",
+                        placeItems: "center",
+                        background:
+                          "linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(238,244,255,0.94) 100%)",
+                        border: "1px solid rgba(214, 225, 240, 0.96)",
+                        boxShadow:
+                          "0 22px 40px rgba(148, 163, 184, 0.18), inset 0 1px 0 rgba(255,255,255,0.96)",
                       }}
                     >
-                      关于软件
-                    </h3>
-                    <p
-                      style={{
-                        margin: 0,
-                        color: "#64748b",
-                        fontSize: 13,
-                        lineHeight: 1.7,
-                      }}
-                    >
-                      这里可以查看当前软件信息，并手动检查是否有新版本。
-                    </p>
+                      <BrandLogo size={72} alt={`${APP_NAME} 品牌 Logo`} />
+                    </div>
+                    <div style={{ display: "grid", gap: 8 }}>
+                      <div
+                        style={{
+                          fontSize: 12,
+                          fontWeight: 700,
+                          color: "#2563eb",
+                          letterSpacing: "0.08em",
+                        }}
+                      >
+                        {APP_NAME}
+                      </div>
+                      <h3
+                        style={{
+                          ...SECTION_TITLE_STYLE,
+                          marginTop: 0,
+                          marginBottom: 0,
+                        }}
+                      >
+                        关于{APP_NAME}
+                      </h3>
+                      <p
+                        style={{
+                          margin: 0,
+                          color: "#475569",
+                          fontSize: 14,
+                          lineHeight: 1.8,
+                        }}
+                      >
+                        {APP_DESCRIPTION}
+                      </p>
+                      <p
+                        style={{
+                          margin: 0,
+                          color: "#64748b",
+                          fontSize: 13,
+                          lineHeight: 1.75,
+                        }}
+                      >
+                        它主要用于帮助用户快速创作高质量内容，把灵感整理、文案改写、分镜排版、配音节奏和导出预览串成一条更顺手的创作流程。
+                      </p>
+                    </div>
                   </div>
 
                   <div style={{ display: "grid", gap: 10 }}>
-                    <div
-                      style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        gap: 12,
-                        flexWrap: "wrap",
-                      }}
-                    >
-                      <span style={{ color: "#64748b", fontSize: 13 }}>
-                        软件名称
-                      </span>
-                      <strong style={{ color: "#0f172a", fontSize: 14 }}>
-                        AI Remotion
-                      </strong>
-                    </div>
                     <div
                       style={{
                         display: "flex",
@@ -4950,45 +5109,6 @@ function SettingsPage(props: SettingsPageProps) {
                       </span>
                       <strong style={{ color: "#0f172a", fontSize: 14 }}>
                         {props.appInfo?.currentVersion || "-"}
-                      </strong>
-                    </div>
-                    <div
-                      style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        gap: 12,
-                        flexWrap: "wrap",
-                      }}
-                    >
-                      <span style={{ color: "#64748b", fontSize: 13 }}>
-                        最新版本
-                      </span>
-                      <strong style={{ color: "#0f172a", fontSize: 14 }}>
-                        {props.appInfo?.latestVersion || "未检查"}
-                      </strong>
-                    </div>
-                    <div
-                      style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        gap: 12,
-                        flexWrap: "wrap",
-                      }}
-                    >
-                      <span style={{ color: "#64748b", fontSize: 13 }}>
-                        更新状态
-                      </span>
-                      <strong
-                        style={{
-                          color: props.appInfo?.hasUpdate
-                            ? "#b45309"
-                            : "#047857",
-                          fontSize: 14,
-                        }}
-                      >
-                        {props.appInfo?.hasUpdate
-                          ? "有可用更新"
-                          : "当前已是最新"}
                       </strong>
                     </div>
                   </div>
@@ -5006,33 +5126,6 @@ function SettingsPage(props: SettingsPageProps) {
                       }}
                     >
                       {props.updateBusy ? "检查中..." : "检查更新"}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => void props.onOpenUpdate()}
-                      disabled={
-                        !props.appInfo?.hasUpdate ||
-                        props.updateBusy ||
-                        !props.appInfo?.downloadUrl
-                      }
-                      style={{
-                        ...PRIMARY_BUTTON_STYLE,
-                        minWidth: 120,
-                        minHeight: 42,
-                        cursor:
-                          !props.appInfo?.hasUpdate ||
-                          props.updateBusy ||
-                          !props.appInfo?.downloadUrl
-                            ? "not-allowed"
-                            : "pointer",
-                        opacity:
-                          !props.appInfo?.hasUpdate ||
-                          !props.appInfo?.downloadUrl
-                            ? 0.6
-                            : 1,
-                      }}
-                    >
-                      立即更新
                     </button>
                   </div>
 
@@ -5076,46 +5169,6 @@ function SettingsPage(props: SettingsPageProps) {
                       gap: 10,
                     }}
                   >
-                    <div>
-                      <h4
-                        style={{
-                          margin: 0,
-                          color: "#0f172a",
-                          fontSize: 16,
-                          lineHeight: 1.3,
-                        }}
-                      >
-                        授权信息
-                      </h4>
-                      <p
-                        style={{
-                          margin: "6px 0 0 0",
-                          color: "#64748b",
-                          fontSize: 13,
-                          lineHeight: 1.7,
-                        }}
-                      >
-                        当前账号、授权有效期和设备绑定信息。
-                      </p>
-                    </div>
-
-                    <div
-                      style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        gap: 12,
-                        flexWrap: "wrap",
-                      }}
-                    >
-                      <span style={{ color: "#64748b", fontSize: 13 }}>
-                        授权状态
-                      </span>
-                      <strong
-                        style={{ color: licenseStatusColor, fontSize: 14 }}
-                      >
-                        {licenseStatusText}
-                      </strong>
-                    </div>
                     <div
                       style={{
                         display: "flex",
@@ -5146,50 +5199,6 @@ function SettingsPage(props: SettingsPageProps) {
                         {licenseExpireTime}
                       </strong>
                     </div>
-                    <div
-                      style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        gap: 12,
-                        flexWrap: "wrap",
-                      }}
-                    >
-                      <span style={{ color: "#64748b", fontSize: 13 }}>
-                        剩余时长
-                      </span>
-                      <strong style={{ color: "#0f172a", fontSize: 14 }}>
-                        {licenseRemaining}
-                      </strong>
-                    </div>
-                    <div
-                      style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        gap: 12,
-                        flexWrap: "wrap",
-                      }}
-                    >
-                      <span style={{ color: "#64748b", fontSize: 13 }}>
-                        当前设备
-                      </span>
-                      <strong style={{ color: "#0f172a", fontSize: 14 }}>
-                        {licenseDeviceName}
-                      </strong>
-                    </div>
-                    {props.authStatus?.validMessage ? (
-                      <div
-                        style={{
-                          padding: "12px 14px",
-                          borderRadius: 14,
-                          background: "rgba(15,23,42,0.04)",
-                          color: "#475569",
-                          fontSize: 13,
-                          lineHeight: 1.6,
-                        }}
-                      >
-                        {props.authStatus.validMessage}
-                      </div>
-                    ) : null}
                   </div>
                 </div>
               </div>
@@ -5221,6 +5230,141 @@ function SettingsPage(props: SettingsPageProps) {
           ) : null}
         </div>
       </div>
+
+      {isCreateRewriteStyleOpen ? (
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            background: "rgba(15, 23, 42, 0.28)",
+            backdropFilter: "blur(8px)",
+            WebkitBackdropFilter: "blur(8px)",
+            display: "grid",
+            placeItems: "center",
+            padding: 20,
+            zIndex: 60,
+          }}
+          onClick={closeCreateRewriteStyle}
+        >
+          <div
+            style={{
+              width: "100%",
+              maxWidth: 720,
+              borderRadius: 28,
+              border: "1px solid rgba(15, 23, 42, 0.08)",
+              background:
+                "linear-gradient(180deg, rgba(255,255,255,0.97) 0%, rgba(250,250,248,0.95) 100%)",
+              boxShadow:
+                "0 28px 70px rgba(15,23,42,0.16), inset 0 1px 0 rgba(255,255,255,0.92)",
+              padding: 24,
+            }}
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div style={{ display: "grid", gap: 16 }}>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  gap: 12,
+                  alignItems: "flex-start",
+                }}
+              >
+                <div>
+                  <h3
+                    style={{
+                      ...SECTION_TITLE_STYLE,
+                      marginTop: 0,
+                      marginBottom: 6,
+                    }}
+                  >
+                    新增改写风格
+                  </h3>
+                  <p
+                    style={{
+                      margin: 0,
+                      color: "#64748b",
+                      fontSize: 13,
+                      lineHeight: 1.7,
+                    }}
+                  >
+                    先填写风格名称和提示词，再创建到风格列表里。
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={closeCreateRewriteStyle}
+                  style={{
+                    ...SECONDARY_BUTTON_STYLE,
+                    minWidth: 44,
+                    minHeight: 44,
+                    padding: 0,
+                    borderRadius: 14,
+                    boxShadow: "none",
+                    cursor: "pointer",
+                  }}
+                >
+                  ×
+                </button>
+              </div>
+
+              <div style={FIELD_GROUP_STYLE}>
+                <label style={FIELD_LABEL_STYLE}>风格名称</label>
+                <input
+                  value={newRewriteStyleName}
+                  onChange={(event) => setNewRewriteStyleName(event.target.value)}
+                  placeholder="例如：情绪拉满"
+                  style={SOFT_INPUT_STYLE}
+                />
+              </div>
+
+              <div style={FIELD_GROUP_STYLE}>
+                <label style={FIELD_LABEL_STYLE}>提示词</label>
+                <textarea
+                  value={newRewriteStylePrompt}
+                  onChange={(event) => setNewRewriteStylePrompt(event.target.value)}
+                  rows={12}
+                  style={{
+                    ...SOFT_INPUT_STYLE,
+                    minHeight: 260,
+                    lineHeight: 1.6,
+                  }}
+                />
+              </div>
+
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "flex-end",
+                  gap: 12,
+                }}
+              >
+                <button
+                  type="button"
+                  onClick={closeCreateRewriteStyle}
+                  style={{
+                    ...SECONDARY_BUTTON_STYLE,
+                    minWidth: 108,
+                    cursor: "pointer",
+                  }}
+                >
+                  取消
+                </button>
+                <button
+                  type="button"
+                  onClick={addRewriteStyle}
+                  style={{
+                    ...PRIMARY_BUTTON_STYLE,
+                    minWidth: 128,
+                    cursor: "pointer",
+                  }}
+                >
+                  创建风格
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }
@@ -5411,29 +5555,64 @@ function AuthScreen(props: AuthScreenProps) {
       >
         <div style={{ ...cardStyle, padding: 28 }}>
           <div style={{ display: "grid", gap: 18 }}>
-            <div style={{ display: "grid", gap: 10 }}>
+            <div style={{ display: "grid", gap: 14 }}>
               <div
                 style={{
-                  fontSize: 12,
-                  fontWeight: 700,
-                  color: "#9a7b34",
-                  letterSpacing: "0.12em",
-                  textTransform: "uppercase",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 14,
                 }}
               >
-                License Access
+                <BrandLogo size={56} alt={`${APP_NAME} 品牌 Logo`} />
+                <div style={{ display: "grid", gap: 4 }}>
+                  <div
+                    style={{
+                      fontSize: 12,
+                      fontWeight: 700,
+                      color: "#9a7b34",
+                      letterSpacing: "0.12em",
+                      textTransform: "uppercase",
+                    }}
+                  >
+                    {APP_NAME}
+                  </div>
+                  <h1
+                    style={{
+                      margin: 0,
+                      fontSize: 30,
+                      lineHeight: 1.1,
+                      color: "#0f172a",
+                      letterSpacing: "-0.03em",
+                    }}
+                  >
+                    登录到{APP_NAME}
+                  </h1>
+                </div>
               </div>
-              <h1
+              <p
                 style={{
                   margin: 0,
-                  fontSize: 30,
-                  lineHeight: 1.1,
-                  color: "#0f172a",
-                  letterSpacing: "-0.03em",
+                  color: "#475569",
+                  fontSize: 14,
+                  lineHeight: 1.75,
                 }}
               >
-                账号登录
-              </h1>
+                {APP_DESCRIPTION}
+              </p>
+              <div
+                style={{
+                  padding: "12px 14px",
+                  borderRadius: 18,
+                  background:
+                    "linear-gradient(180deg, rgba(240,247,255,0.92) 0%, rgba(255,255,255,0.92) 100%)",
+                  border: "1px solid rgba(191, 219, 254, 0.75)",
+                  color: "#1e3a8a",
+                  fontSize: 13,
+                  lineHeight: 1.7,
+                }}
+              >
+                {APP_NAME}专注于帮助用户更快完成高质量内容创作，从文案整理到成片预览尽量一站完成。
+              </div>
             </div>
 
             {props.message ? (
@@ -6428,6 +6607,33 @@ function Layout(props: { children: React.ReactNode }) {
             zIndex: 30,
           }}
         >
+          <div
+            title={`${APP_NAME} · ${APP_TAGLINE}`}
+            style={{
+              width: 44,
+              height: 44,
+              borderRadius: 16,
+              display: "grid",
+              placeItems: "center",
+              background:
+                "linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(238,244,255,0.96) 100%)",
+              border: "1px solid rgba(214, 225, 240, 0.96)",
+              boxShadow:
+                "0 18px 34px rgba(148, 163, 184, 0.18), inset 0 1px 0 rgba(255,255,255,0.96)",
+              marginBottom: 6,
+            }}
+          >
+            <BrandLogo size={32} alt={`${APP_NAME} 品牌 Logo`} />
+          </div>
+          <div
+            aria-hidden="true"
+            style={{
+              width: 30,
+              height: 1,
+              background: "rgba(148, 163, 184, 0.3)",
+              marginBottom: 2,
+            }}
+          />
           {NAV_ITEMS.map((item, index) => {
             const active = location.pathname === item.path;
             const isLast = index === NAV_ITEMS.length - 1;

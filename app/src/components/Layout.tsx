@@ -36,7 +36,7 @@ export default function Layout({ children }: LayoutProps) {
           fontSize: 18,
           color: '#165dff'
         }}>
-          AI 视频生成器
+          轻剪
         </div>
         <Menu
           selectedKeys={[location.pathname]}

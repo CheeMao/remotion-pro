@@ -1,0 +1,234 @@
+{
+  "meta": {
+    "title": "Generated Video",
+    "template": "MacShow",
+    "voice_id": "S_PlTK120R1",
+    "full_narration": "Gemini 的口碑一直很能打，但它到底好在哪里？不亲自试一试确实很难真正体会。有没有什么办法能让我们一分钱不花直接体验到它的满血版模型？今天这期视频就跟大家扒一扒少有人知道的官方免费渠道 ——Google AI Studio，只要你有谷歌账号就能免费使用。",
+    "soundtrack_path": "projects/generated/1775479522586-MacShow/audio/narration.mp3",
+    "soundtrack_duration": 20.928,
+    "voiceId": "S_PlTK120R1",
+    "fullNarration": "Gemini 的口碑一直很能打，但它到底好在哪里？不亲自试一试确实很难真正体会。有没有什么办法能让我们一分钱不花直接体验到它的满血版模型？今天这期视频就跟大家扒一扒少有人知道的官方免费渠道 ——Google AI Studio，只要你有谷歌账号就能免费使用。",
+    "soundtrackPath": "projects/generated/1775479522586-MacShow/audio/narration.mp3",
+    "soundtrackDuration": 20.928
+  },
+  "slides": [
+    {
+      "audioDuration": 4.056,
+      "audioEnd": 4.056,
+      "audioStart": 0,
+      "data": {
+        "badge": "开场"
+      },
+      "durationInFrames": 122,
+      "elementTimings": [
+        {
+          "audioEnd": 0.8112,
+          "audioStart": 0,
+          "cue": "Gemini 口碑一直很能打",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 1.2168,
+          "audioStart": 0.6083999999999999,
+          "cue": "但它到底好在哪里？",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "subtitle",
+          "type": "subtitle"
+        }
+      ],
+      "layout": "hero",
+      "narration": "Gemini 的口碑一直很能打，但它到底好在哪里？",
+      "points": [],
+      "segmentIds": [
+        "segment-1"
+      ],
+      "subtitle": "但它到底好在哪里？",
+      "title": "Gemini 口碑一直很能打",
+      "type": "hero",
+      "audioPath": "projects/generated/1775479522586-MacShow/audio/slides/slide-001.mp3"
+    },
+    {
+      "audioDuration": 3.072,
+      "audioEnd": 7.128,
+      "audioStart": 4.056,
+      "data": {
+        "items": [
+          {
+            "desc": "很多时候只能自己上手才知道",
+            "text": "体验感"
+          }
+        ]
+      },
+      "durationInFrames": 92,
+      "elementTimings": [
+        {
+          "audioEnd": 4.5168,
+          "audioStart": 4.056,
+          "cue": "不亲自试一试",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 4.73184,
+          "audioStart": 4.42464,
+          "cue": "确实很难真正体会",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "subtitle",
+          "type": "subtitle"
+        },
+        {
+          "audioEnd": 5.842422857142857,
+          "audioStart": 4.87824,
+          "cue": "不亲自试一试",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-0",
+          "index": 0,
+          "type": "custom"
+        },
+        {
+          "audioEnd": 7.128,
+          "audioStart": 5.842422857142857,
+          "cue": "确实很难真正体会",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-1",
+          "index": 1,
+          "type": "custom"
+        }
+      ],
+      "layout": "default",
+      "narration": "不亲自试一试，确实很难真正体会。",
+      "points": [
+        "不亲自试一试",
+        "确实很难真正体会"
+      ],
+      "segmentIds": [
+        "segment-2"
+      ],
+      "subtitle": "确实很难真正体会",
+      "title": "不亲自试一试",
+      "type": "default",
+      "audioPath": "projects/generated/1775479522586-MacShow/audio/slides/slide-002.mp3"
+    },
+    {
+      "audioDuration": 4.824,
+      "audioEnd": 11.952,
+      "audioStart": 7.128,
+      "data": {
+        "items": [
+          "一分钱不花",
+          "直接体验",
+          "满血版模型"
+        ]
+      },
+      "durationInFrames": 145,
+      "elementTimings": [
+        {
+          "audioEnd": 7.8516,
+          "audioStart": 7.128,
+          "cue": "如何免费体验满血版？",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 8.18928,
+          "audioStart": 7.70688,
+          "cue": "一分钱不花也能上手",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "subtitle",
+          "type": "subtitle"
+        },
+        {
+          "audioEnd": 10.364605714285714,
+          "audioStart": 9.70319142857143,
+          "cue": "一分钱不花",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "highlight-0",
+          "index": 0,
+          "type": "highlight"
+        },
+        {
+          "audioEnd": 10.893737142857145,
+          "audioStart": 10.364605714285714,
+          "cue": "直接体验",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "highlight-1",
+          "index": 1,
+          "type": "highlight"
+        },
+        {
+          "audioEnd": 11.952,
+          "audioStart": 11.290585714285715,
+          "cue": "满血版模型",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "highlight-2",
+          "index": 2,
+          "type": "highlight"
+        }
+      ],
+      "layout": "highlight",
+      "narration": "有没有什么办法能让我们一分钱不花，直接体验到它的满血版模型？",
+      "points": [],
+      "segmentIds": [
+        "segment-3"
+      ],
+      "subtitle": "一分钱不花也能上手",
+      "title": "如何免费体验满血版？",
+      "type": "highlight",
+      "audioPath": "projects/generated/1775479522586-MacShow/audio/slides/slide-003.mp3"
+    },
+    {
+      "audioDuration": 8.976,
+      "audioEnd": 20.928,
+      "audioStart": 11.952,
+      "data": {
+        "cta": "继续看，了解官方免费渠道"
+      },
+      "durationInFrames": 269,
+      "elementTimings": [
+        {
+          "audioEnd": 13.7472,
+          "audioStart": 11.952,
+          "cue": "今天这期视频",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 14.6448,
+          "audioStart": 13.2984,
+          "cue": "扒一扒少有人知道的官方免费渠道——Google AI St...",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "subtitle",
+          "type": "subtitle"
+        }
+      ],
+      "layout": "cta",
+      "narration": "今天这期视频就跟大家扒一扒少有人知道的官方免费渠道——Google AI St...",
+      "points": [],
+      "segmentIds": [
+        "segment-4"
+      ],
+      "subtitle": "扒一扒少有人知道的官方免费渠道——Google AI St...",
+      "title": "今天这期视频",
+      "type": "cta",
+      "audioPath": "projects/generated/1775479522586-MacShow/audio/slides/slide-004.mp3"
+    }
+  ]
+}
