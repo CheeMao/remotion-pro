@@ -33,6 +33,7 @@ dotenvy = "0.15"
 aes = "0.8"
 cbc = "0.1"
 rsa = { version = "0.9", features = ["pem"] }
+uuid = { version = "1", features = ["v4"] }
 
 [profile.release]
 opt-level = "s"

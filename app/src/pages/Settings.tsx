@@ -16,7 +16,7 @@ import { invoke } from "@tauri-apps/api/core";
 const { Title, Text } = Typography;
 
 interface AppSettings {
-  dashscopeApiKey?: string;
+  volcengineAccessKey?: string;
   defaultVoiceId?: string;
   defaultTtsModel?: string;
   qiniuAccessKey?: string;
@@ -70,11 +70,11 @@ export default function Settings() {
       // 如果本地没有，尝试从 .env 文件加载（通过 Tauri 后端）
       try {
         const envSettings = await invoke<AppSettings>("get_app_settings");
-        if (envSettings.dashscopeApiKey) {
+        if (envSettings.volcengineAccessKey) {
           setSettings((prev) => ({
             ...prev,
             volcengineAccessKey:
-              envSettings.dashscopeApiKey || prev.volcengineAccessKey,
+              envSettings.volcengineAccessKey || prev.volcengineAccessKey,
             defaultVoiceId: envSettings.defaultVoiceId || prev.defaultVoiceId,
           }));
         }

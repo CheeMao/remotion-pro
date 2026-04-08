@@ -3358,7 +3358,7 @@ function HomePage(props: {
                 gap: 8,
               }}
             >
-              <label style={FIELD_LABEL_STYLE}>原文案（提取）</label>
+              <label style={FIELD_LABEL_STYLE}>原文案</label>
               <button
                 onClick={handleCopyToEdit}
                 disabled={!originalText}
@@ -3376,7 +3376,11 @@ function HomePage(props: {
                 复制到修改区
               </button>
             </div>
-            <div
+            <textarea
+              value={originalText}
+              onChange={(event) => setOriginalText(event.target.value)}
+              placeholder="粘贴文案或从抖音提取..."
+              rows={8}
               style={{
                 ...SOFT_INPUT_STYLE,
                 flex: 1,
@@ -3384,13 +3388,9 @@ function HomePage(props: {
                 height: 208,
                 padding: "12px 14px",
                 lineHeight: 1.6,
-                background: "#f7f8fa",
-                whiteSpace: "pre-wrap",
-                overflow: "auto",
+                resize: "none",
               }}
-            >
-              {originalText || "提取后的原文案会显示在这里"}
-            </div>
+            />
           </div>
 
           <div

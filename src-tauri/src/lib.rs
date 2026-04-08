@@ -754,7 +754,8 @@ fn extract_douyin_content_id(url: &str) -> Option<(String, String)> {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct AppSettings {
-    pub dashscope_api_key: String,
+    #[serde(alias = "dashscopeApiKey")]
+    pub volcengine_access_key: String,
     pub default_voice_id: String,
     pub default_tts_model: String,
     pub qiniu_access_key: String,
@@ -766,7 +767,9 @@ pub struct AppSettings {
 impl Default for AppSettings {
     fn default() -> Self {
         Self {
-            dashscope_api_key: std::env::var("DASHSCOPE_API_KEY").unwrap_or_default(),
+            volcengine_access_key: std::env::var("VOLCENGINE_ACCESS_KEY")
+                .or_else(|_| std::env::var("DASHSCOPE_API_KEY"))
+                .unwrap_or_default(),
             default_voice_id: std::env::var("DEFAULT_VOICE_ID").unwrap_or_default(),
             default_tts_model: std::env::var("DEFAULT_TTS_MODEL").unwrap_or_default(),
             qiniu_access_key: std::env::var("QINIU_ACCESS_KEY").unwrap_or_default(),
@@ -1573,18 +1576,27 @@ async fn transcribe_douyin_video(
             .await
             .map_err(|e| format!("查询转写任务失败: {}", e))?;
 
+        // 先获取 headers，再解析 body
+        let status_code = query_response
+            .headers()
+            .get("X-Api-Status-Code")
+            .and_then(|v| v.to_str().ok())
+            .unwrap_or("")
+            .to_string();
+        
+        let status_message = query_response
+            .headers()
+            .get("X-Api-Message")
+            .and_then(|v| v.to_str().ok())
+            .unwrap_or("未知错误")
+            .to_string();
+
         let query_json: Value = query_response
             .json()
             .await
             .map_err(|e| format!("解析查询响应失败: {}", e))?;
 
-        let status_code = query_response
-            .headers()
-            .get("X-Api-Status-Code")
-            .and_then(|v| v.to_str().ok())
-            .unwrap_or("");
-
-        match status_code {
+        match status_code.as_str() {
             "20000000" => {
                 // 成功
                 if let Some(result) = query_json.get("result") {
@@ -1624,12 +1636,7 @@ async fn transcribe_douyin_video(
             }
             _ => {
                 // 其他错误
-                let message = query_response
-                    .headers()
-                    .get("X-Api-Message")
-                    .and_then(|v| v.to_str().ok())
-                    .unwrap_or("未知错误");
-                return Err(format!("转写任务失败: {} ({})", message, status_code));
+                return Err(format!("转写任务失败: {} ({})", status_message, status_code));
             }
         }
     }
@@ -1638,140 +1645,10 @@ async fn transcribe_douyin_video(
         return Err("转写任务超时或结果为空".to_string());
     }
 
-    Ok(TranscriptionResult {
+Ok(TranscriptionResult {
         text: result_text,
         duration: result_duration,
     })
-}
-
-    let transcription_source_url = prepare_douyin_transcription_url(&video_url)
-        .await?
-        .unwrap_or(video_url.clone());
-
-    // Step 1: 閹绘劒姘﹀鍌涱劄鏉烆剙鍟撴禒璇插
-    let client = reqwest::Client::new();
-    let task_response = client
-        .post("https://dashscope.aliyuncs.com/api/v1/services/audio/asr/transcription")
-        .header("Authorization", format!("Bearer {}", access_key))
-        .header("Content-Type", "application/json")
-        .header("X-DashScope-Async", "enable")
-        .json(&serde_json::json!({
-            "model": "paraformer-v2",
-            "input": {
-                "file_urls": [transcription_source_url]
-            },
-            "parameters": {
-                "channel_id": [0],
-                "language_hints": ["zh", "en"]
-            }
-        }))
-        .send()
-        .await
-        .map_err(|e| format!("Failed to submit transcription task: {}", e))?;
-
-    let task_json: Value = task_response
-        .json()
-        .await
-        .map_err(|e| format!("Failed to parse task response: {}", e))?;
-
-    let task_id = task_json
-        .get("output")
-        .and_then(|o| o.get("task_id"))
-        .and_then(|t| t.as_str())
-        .ok_or_else(|| format!("閺冪姵纭堕懢宄板絿task_id: {:?}", task_json))?;
-
-    // Step 2: 鏉烆喛顕楃粵澶婄窡娴犺濮熺€瑰本鍨?
-    let mut attempts = 0;
-    let max_attempts = 60; // 閺堚偓婢舵氨鐡戝?0缁?
-    let mut transcription_url = String::new();
-
-    while attempts < max_attempts {
-        tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;
-
-        let query_response = client
-            .get(format!(
-                "https://dashscope.aliyuncs.com/api/v1/tasks/{}",
-                task_id
-            ))
-            .header("Authorization", format!("Bearer {}", access_key))
-            .send()
-            .await
-            .map_err(|e| format!("Failed to query task: {}", e))?;
-
-        let query_json: Value = query_response
-            .json()
-            .await
-            .map_err(|e| format!("Failed to parse query response: {}", e))?;
-
-        let status = query_json
-            .get("output")
-            .and_then(|o| o.get("task_status"))
-            .and_then(|s| s.as_str())
-            .unwrap_or("UNKNOWN");
-
-        match status {
-            "SUCCEEDED" => {
-                transcription_url = query_json
-                    .get("output")
-                    .and_then(|o| o.get("results"))
-                    .and_then(|r| r.as_array())
-                    .and_then(|arr| arr.first())
-                    .and_then(|item| item.get("transcription_url"))
-                    .and_then(|u| u.as_str())
-                    .map(|s| s.to_string())
-                    .ok_or_else(|| "閺冪姵纭堕懢宄板絿鏉烆剙鍟撶紒鎾寸亯URL".to_string())?;
-                break;
-            }
-            "FAILED" | "CANCELLED" => {
-                return Err(format!("鏉烆剙鍟撴禒璇插婢惰精瑙? {:?}", query_json));
-            }
-            _ => {
-                // PENDING or RUNNING, continue waiting
-                attempts += 1;
-            }
-        }
-    }
-
-    if transcription_url.is_empty() {
-        return Err("转写任务超时".to_string());
-    }
-
-    // Step 3: 娑撳娴囨潪顒€鍟撶紒鎾寸亯
-    let result_response = client
-        .get(&transcription_url)
-        .send()
-        .await
-        .map_err(|e| format!("Failed to download transcription: {}", e))?;
-
-    let result_json: Value = result_response
-        .json()
-        .await
-        .map_err(|e| format!("Failed to parse transcription JSON: {}", e))?;
-
-    // Step 4: 閹绘劕褰囨潪顒€鍟撻弬鍥ㄦ拱
-    let transcripts = result_json
-        .get("transcripts")
-        .and_then(|t| t.as_array())
-        .ok_or_else(|| "鏉烆剙鍟撶紒鎾寸亯閺嶇厧绱￠柨娆掝嚖".to_string())?;
-
-    if transcripts.is_empty() {
-        return Err("转写结果为空".to_string());
-    }
-
-    let text = transcripts
-        .iter()
-        .filter_map(|t| t.get("text").and_then(|txt| txt.as_str()))
-        .collect::<Vec<_>>()
-        .join("\n");
-
-    let duration = transcripts
-        .last()
-        .and_then(|t| t.get("end_time"))
-        .and_then(|e| e.as_f64())
-        .unwrap_or(0.0)
-        / 1000.0; // 濮ｎ偆顫楁潪顒傤潡
-
-    Ok(TranscriptionResult { text, duration })
 }
 
 const REMOTION_PORT: u16 = 32123;
