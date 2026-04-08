@@ -1,9 +1,24 @@
-import React from 'react';
-import { Link, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
-import { EmbeddedPreview, PreviewProjectData } from './remotion-preview/EmbeddedPreview';
-import { prepareSlidesForRender } from '@remotion-root/templates/autoLayout';
-import { getTemplateOrientation, type TemplateOrientation } from '@remotion-root/templates/templateSpecs';
-import type { ContentSlide, ElementTiming } from '@remotion-root/templates/types';
+import React from "react";
+import {
+  Link,
+  Route,
+  Routes,
+  useLocation,
+  useNavigate,
+} from "react-router-dom";
+import {
+  EmbeddedPreview,
+  PreviewProjectData,
+} from "./remotion-preview/EmbeddedPreview";
+import { prepareSlidesForRender } from "@remotion-root/templates/autoLayout";
+import {
+  getTemplateOrientation,
+  type TemplateOrientation,
+} from "@remotion-root/templates/templateSpecs";
+import type {
+  ContentSlide,
+  ElementTiming,
+} from "@remotion-root/templates/types";
 
 type SimpleSlide = {
   id: string;
@@ -57,6 +72,7 @@ type SettingsData = {
   voiceApiKey: string;
   volcengineAppId: string;
   volcengineResourceId: string;
+  volcengineAccessKey?: string;
   voiceSpeechRate: number;
   aiUrl: string;
   aiApiKey: string;
@@ -193,17 +209,17 @@ const FPS = 30;
 const MAX_SLIDE_DURATION_SECONDS = 8;
 const DEFAULT_AUTH_PREFERENCES: AuthPreferences = {
   rememberPassword: true,
-  autoLogin: true,
-  username: '',
-  password: '',
+  autoLogin: false,
+  username: "",
+  password: "",
 };
 
 const STORAGE_KEYS = {
-  project: 'videomaker-project',
-  settings: 'videomaker-settings',
-  homeDraft: 'videomaker-home-draft',
-  authToken: 'videomaker-auth-token',
-  authPreferences: 'videomaker-auth-preferences',
+  project: "videomaker-project",
+  settings: "videomaker-settings",
+  homeDraft: "videomaker-home-draft",
+  authToken: "videomaker-auth-token",
+  authPreferences: "videomaker-auth-preferences",
 } as const;
 
 const SPACING = {
@@ -238,9 +254,9 @@ function DockIcon(props: { children: React.ReactNode }) {
       style={{
         width: 22,
         height: 22,
-        display: 'inline-flex',
-        alignItems: 'center',
-        justifyContent: 'center',
+        display: "inline-flex",
+        alignItems: "center",
+        justifyContent: "center",
       }}
     >
       {props.children}
@@ -250,11 +266,18 @@ function DockIcon(props: { children: React.ReactNode }) {
 
 const NAV_ITEMS: NavItem[] = [
   {
-    path: '/',
-    label: '首页',
+    path: "/",
+    label: "首页",
     icon: (
       <DockIcon>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.9"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
           <path d="M3 10.5 12 3l9 7.5" />
           <path d="M5.25 9.75V21h13.5V9.75" />
           <path d="M9.75 21v-6h4.5v6" />
@@ -263,11 +286,18 @@ const NAV_ITEMS: NavItem[] = [
     ),
   },
   {
-    path: '/editor',
-    label: '编辑器',
+    path: "/editor",
+    label: "编辑器",
     icon: (
       <DockIcon>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.9"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
           <path d="M4 19.25V20h.75L17.8 6.95l-1.75-1.75L3 18.25V19Z" />
           <path d="m14.95 6.25 1.75 1.75" />
           <path d="M7 20h10" />
@@ -276,11 +306,18 @@ const NAV_ITEMS: NavItem[] = [
     ),
   },
   {
-    path: '/settings',
-    label: '设置',
+    path: "/settings",
+    label: "设置",
     icon: (
       <DockIcon>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.9"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
           <path d="M12 8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7Z" />
           <path d="M19.4 15a1 1 0 0 0 .2 1.1l.05.05a1.85 1.85 0 0 1 0 2.62 1.85 1.85 0 0 1-2.62 0l-.05-.05a1 1 0 0 0-1.1-.2 1 1 0 0 0-.6.9V20a1.85 1.85 0 0 1-3.7 0v-.07a1 1 0 0 0-.67-.95 1 1 0 0 0-1.03.22l-.05.05a1.85 1.85 0 0 1-2.62 0 1.85 1.85 0 0 1 0-2.62l.05-.05a1 1 0 0 0 .2-1.1 1 1 0 0 0-.9-.6H4a1.85 1.85 0 0 1 0-3.7h.07a1 1 0 0 0 .95-.67 1 1 0 0 0-.22-1.03l-.05-.05a1.85 1.85 0 0 1 0-2.62 1.85 1.85 0 0 1 2.62 0l.05.05a1 1 0 0 0 1.1.2 1 1 0 0 0 .6-.9V4a1.85 1.85 0 0 1 3.7 0v.07a1 1 0 0 0 .67.95 1 1 0 0 0 1.03-.22l.05-.05a1.85 1.85 0 0 1 2.62 0 1.85 1.85 0 0 1 0 2.62l-.05.05a1 1 0 0 0-.2 1.1 1 1 0 0 0 .9.6H20a1.85 1.85 0 0 1 0 3.7h-.07a1 1 0 0 0-.95.67 1 1 0 0 0 .22 1.03l.05.05Z" />
         </svg>
@@ -290,41 +327,64 @@ const NAV_ITEMS: NavItem[] = [
 ] as const;
 
 const TEMPLATE_OPTIONS = [
-  { label: '科技风', value: 'SlideShow' },
-  { label: '横屏基础版', value: 'SlideShowWide' },
-  { label: '玻璃风', value: 'GlassShow' },
-  { label: '新拟态', value: 'NeuShow' },
-  { label: '富效果', value: 'RichShow' },
-  { label: '科技信息流', value: 'TechShow' },
-  { label: 'AI 风格', value: 'AIShow' },
-  { label: '霓虹风', value: 'NeonShow' },
-  { label: '奢华风', value: 'LuxeShow' },
-  { label: '液态玻璃', value: 'LiquidShow' },
-  { label: '液态玻璃 2', value: 'LiquidShow-1' },
-  { label: '磨砂玻璃', value: 'FrostedShow' },
+  { label: "科技风", value: "SlideShow" },
+  { label: "横屏基础版", value: "SlideShowWide" },
+  { label: "玻璃风", value: "GlassShow" },
+  { label: "新拟态", value: "NeuShow" },
+  { label: "富效果", value: "RichShow" },
+  { label: "科技信息流", value: "TechShow" },
+  { label: "AI 风格", value: "AIShow" },
+  { label: "霓虹风", value: "NeonShow" },
+  { label: "奢华风", value: "LuxeShow" },
+  { label: "液态玻璃", value: "LiquidShow" },
+  { label: "液态玻璃 2", value: "LiquidShow-1" },
+  { label: "磨砂玻璃", value: "FrostedShow" },
 ] as const;
 
 const ACTIVE_TEMPLATE_OPTIONS = [
-  { label: '玻璃风 · Glass', value: 'GlassShow', orientation: 'portrait' },
-  { label: '液态玻璃 · Liquid', value: 'LiquidShow', orientation: 'portrait' },
-  { label: '液态简报 · LiquidBrief', value: 'LiquidBriefShow', orientation: 'portrait' },
-  { label: '科技信息流 · Tech', value: 'TechShow', orientation: 'portrait' },
-  { label: '知识讲解 · Knowledge', value: 'KnowledgeShow', orientation: 'portrait' },
-  { label: '火柴人 · Stick', value: 'StickShow', orientation: 'portrait' },
-  { label: 'Mac 风 · Mac', value: 'MacShow', orientation: 'landscape' },
-  { label: '演播室 · Studio Terminal', value: 'StudioShow', orientation: 'landscape' },
-  { label: '杂志风 · Editorial Magazine', value: 'EditorialShow', orientation: 'landscape' },
-  { label: '知识洞察 · Insight', value: 'InsightShow', orientation: 'landscape' },
+  { label: "玻璃风 · Glass", value: "GlassShow", orientation: "portrait" },
+  { label: "液态玻璃 · Liquid", value: "LiquidShow", orientation: "portrait" },
+  {
+    label: "液态简报 · LiquidBrief",
+    value: "LiquidBriefShow",
+    orientation: "portrait",
+  },
+  { label: "科技信息流 · Tech", value: "TechShow", orientation: "portrait" },
+  {
+    label: "知识讲解 · Knowledge",
+    value: "KnowledgeShow",
+    orientation: "portrait",
+  },
+  { label: "火柴人 · Stick", value: "StickShow", orientation: "portrait" },
+  { label: "Mac 风 · Mac", value: "MacShow", orientation: "landscape" },
+  {
+    label: "演播室 · Studio Terminal",
+    value: "StudioShow",
+    orientation: "landscape",
+  },
+  {
+    label: "杂志风 · Editorial Magazine",
+    value: "EditorialShow",
+    orientation: "landscape",
+  },
+  {
+    label: "知识洞察 · Insight",
+    value: "InsightShow",
+    orientation: "landscape",
+  },
 ] as const;
 
-const TEMPLATE_ORIENTATION_OPTIONS: Array<{ label: string; value: TemplateOrientation }> = [
-  { label: '竖屏', value: 'portrait' },
-  { label: '横屏', value: 'landscape' },
+const TEMPLATE_ORIENTATION_OPTIONS: Array<{
+  label: string;
+  value: TemplateOrientation;
+}> = [
+  { label: "竖屏", value: "portrait" },
+  { label: "横屏", value: "landscape" },
 ];
 
-const DEFAULT_TEMPLATE = 'GlassShow';
+const DEFAULT_TEMPLATE = "GlassShow";
 const ACTIVE_TEMPLATES: Set<string> = new Set(
-  ACTIVE_TEMPLATE_OPTIONS.map((option) => option.value)
+  ACTIVE_TEMPLATE_OPTIONS.map((option) => option.value),
 );
 void TEMPLATE_OPTIONS;
 
@@ -336,17 +396,19 @@ function normalizeTemplate(template?: string): string {
   return ACTIVE_TEMPLATES.has(template) ? template : DEFAULT_TEMPLATE;
 }
 
-function getDefaultTemplateForOrientation(orientation: TemplateOrientation): string {
+function getDefaultTemplateForOrientation(
+  orientation: TemplateOrientation,
+): string {
   return (
-    ACTIVE_TEMPLATE_OPTIONS.find((option) => option.orientation === orientation)?.value ||
-    DEFAULT_TEMPLATE
+    ACTIVE_TEMPLATE_OPTIONS.find((option) => option.orientation === orientation)
+      ?.value || DEFAULT_TEMPLATE
   );
 }
 
 const DEFAULT_REWRITE_STYLES: RewriteStyle[] = [
   {
-    id: 'rewrite-natural',
-    name: '系统默认',
+    id: "rewrite-natural",
+    name: "系统默认",
     prompt: `你是短视频二创文案助手。请把用户提供的原文案改写成适合中文短视频口播的成稿。
 
 要求：
@@ -359,8 +421,8 @@ const DEFAULT_REWRITE_STYLES: RewriteStyle[] = [
 7. 输出必须是完整、通顺、可直接配音的中文口播文案。`,
   },
   {
-    id: 'rewrite-viral',
-    name: '短视频感',
+    id: "rewrite-viral",
+    name: "短视频感",
     prompt: `你是短视频爆款口播文案助手。请把输入文案改写成更适合短视频传播的版本。
 
 要求：
@@ -374,8 +436,8 @@ const DEFAULT_REWRITE_STYLES: RewriteStyle[] = [
 {{text}}`,
   },
   {
-    id: 'rewrite-professional',
-    name: '专业清晰',
+    id: "rewrite-professional",
+    name: "专业清晰",
     prompt: `你是知识类短视频口播编辑。请把输入文案改写成更专业、更清晰、更有条理的讲解文案。
 
 要求：
@@ -391,15 +453,15 @@ const DEFAULT_REWRITE_STYLES: RewriteStyle[] = [
 ];
 
 const DEFAULT_SETTINGS: SettingsData = {
-  voiceId: '',
-  voiceModel: 'cosyvoice-v2',
-  voiceApiKey: '',
-  volcengineAppId: '',
-  volcengineResourceId: 'seed-icl-2.0',
+  voiceId: "",
+  voiceModel: "cosyvoice-v2",
+  voiceApiKey: "",
+  volcengineAppId: "",
+  volcengineResourceId: "seed-icl-2.0",
   voiceSpeechRate: 1,
-  aiUrl: 'https://dashscope.aliyuncs.com/compatible-mode/v1',
-  aiApiKey: '',
-  aiModel: 'qwen-plus',
+  aiUrl: "https://dashscope.aliyuncs.com/compatible-mode/v1",
+  aiApiKey: "",
+  aiModel: "qwen-plus",
   rewriteStyles: DEFAULT_REWRITE_STYLES,
   defaultRewriteStyleId: DEFAULT_REWRITE_STYLES[0].id,
 };
@@ -782,40 +844,86 @@ ${COMMON_SEGMENT_RULES}
 
 function isStructuredTemplate(template: string): boolean {
   return (
-    template === 'GlassShow' ||
-    template === 'LiquidShow' ||
-    template === 'LiquidBriefShow' ||
-    template === 'MacShow' ||
-    template === 'StudioShow' ||
-    template === 'EditorialShow' ||
-    template === 'InsightShow' ||
-    template === 'StickShow' ||
-    template === 'TechShow' ||
-    template === 'KnowledgeShow'
+    template === "GlassShow" ||
+    template === "LiquidShow" ||
+    template === "LiquidBriefShow" ||
+    template === "MacShow" ||
+    template === "StudioShow" ||
+    template === "EditorialShow" ||
+    template === "InsightShow" ||
+    template === "StickShow" ||
+    template === "TechShow" ||
+    template === "KnowledgeShow"
   );
 }
 
 function getTemplateSlideTypes(template: string): string[] {
   if (!isStructuredTemplate(template)) {
-    return ['default'];
+    return ["default"];
   }
 
-  return ['hero', 'default', 'steps', 'compare', 'stats', 'quote', 'list', 'chart', 'timeline', 'highlight', 'cta'];
+  return [
+    "hero",
+    "default",
+    "steps",
+    "compare",
+    "stats",
+    "quote",
+    "list",
+    "chart",
+    "timeline",
+    "highlight",
+    "cta",
+  ];
 }
 
-const TECH_SHOW_MIDDLE_TYPES = ['compare', 'stats', 'progress', 'list', 'quote'] as const;
-const GLASS_SHOW_TYPES = ['hero', 'stats', 'compare', 'steps', 'list', 'chart', 'timeline', 'highlight', 'quote', 'default'] as const;
-const LIQUID_SHOW_TYPES = ['hero', 'stats', 'compare', 'steps', 'list', 'chart', 'timeline', 'highlight', 'quote', 'default'] as const;
+const TECH_SHOW_MIDDLE_TYPES = [
+  "compare",
+  "stats",
+  "progress",
+  "list",
+  "quote",
+] as const;
+const GLASS_SHOW_TYPES = [
+  "hero",
+  "stats",
+  "compare",
+  "steps",
+  "list",
+  "chart",
+  "timeline",
+  "highlight",
+  "quote",
+  "default",
+] as const;
+const LIQUID_SHOW_TYPES = [
+  "hero",
+  "stats",
+  "compare",
+  "steps",
+  "list",
+  "chart",
+  "timeline",
+  "highlight",
+  "quote",
+  "default",
+] as const;
 
 function getTechShowTypeTargets(pageCount: number): string[] {
   if (pageCount <= 2) {
-    return ['title', 'cta'];
+    return ["title", "cta"];
   }
 
   const middleCount = Math.max(0, pageCount - 2);
-  const preferredOrder = ['compare', 'stats', 'progress', 'list', 'quote'] as const;
+  const preferredOrder = [
+    "compare",
+    "stats",
+    "progress",
+    "list",
+    "quote",
+  ] as const;
   const preferredQueue = [...preferredOrder];
-  const result: string[] = ['title'];
+  const result: string[] = ["title"];
   let cursor = 0;
 
   for (let index = 0; index < middleCount; index += 1) {
@@ -828,7 +936,7 @@ function getTechShowTypeTargets(pageCount: number): string[] {
     cursor += 1;
   }
 
-  result.push('cta');
+  result.push("cta");
   return result;
 }
 
@@ -848,26 +956,34 @@ function getTechShowMinUniqueTypes(pageCount: number): number {
 function getTechShowDirectorBrief(pageCount: number): string {
   const targets = getTechShowTypeTargets(pageCount);
   return [
-    '优先按内容语义选择版式，而不是按固定顺序轮换版式',
-    `可参考节奏：${targets.join(' -> ')}，但只有内容真的适合时才采用`,
-    '普通说明、建议、并列要点优先使用 list',
-    '只有文本里明确出现数字、比例、阶段、对比、结论时，才使用 stats / progress / compare / quote',
+    "优先按内容语义选择版式，而不是按固定顺序轮换版式",
+    `可参考节奏：${targets.join(" -> ")}，但只有内容真的适合时才采用`,
+    "普通说明、建议、并列要点优先使用 list",
+    "只有文本里明确出现数字、比例、阶段、对比、结论时，才使用 stats / progress / compare / quote",
     `尽量保持 ${Math.min(4, getTechShowMinUniqueTypes(pageCount))} 种左右的有效版式变化，宁可少而准，不要多而乱`,
-  ].join('\n');
+  ].join("\n");
 }
 
 function getGlassShowTypeTargets(pageCount: number): string[] {
   if (pageCount <= 1) {
-    return ['hero'];
+    return ["hero"];
   }
 
   if (pageCount === 2) {
-    return ['hero', 'quote'];
+    return ["hero", "quote"];
   }
 
   const middleCount = Math.max(0, pageCount - 2);
-  const preferredOrder = ['stats', 'compare', 'steps', 'list', 'timeline', 'highlight', 'chart'] as const;
-  const result: string[] = ['hero'];
+  const preferredOrder = [
+    "stats",
+    "compare",
+    "steps",
+    "list",
+    "timeline",
+    "highlight",
+    "chart",
+  ] as const;
+  const result: string[] = ["hero"];
   let cursor = 0;
 
   for (let index = 0; index < middleCount; index += 1) {
@@ -880,7 +996,7 @@ function getGlassShowTypeTargets(pageCount: number): string[] {
     cursor += 1;
   }
 
-  result.push('quote');
+  result.push("quote");
   return result;
 }
 
@@ -900,26 +1016,34 @@ function getGlassShowMinUniqueTypes(pageCount: number): number {
 function getGlassShowDirectorBrief(pageCount: number): string {
   const targets = getGlassShowTypeTargets(pageCount);
   return [
-    '优先按内容语义选择版式，不要为了变化而变化',
-    `可参考节奏：${targets.join(' -> ')}，但不要硬套`,
-    '普通解释、结论展开、建议整理可以直接使用 list 或 default',
-    '只有内容确实带有数字、过程、时间顺序、对比时，才使用 stats / chart / timeline / steps / compare',
+    "优先按内容语义选择版式，不要为了变化而变化",
+    `可参考节奏：${targets.join(" -> ")}，但不要硬套`,
+    "普通解释、结论展开、建议整理可以直接使用 list 或 default",
+    "只有内容确实带有数字、过程、时间顺序、对比时，才使用 stats / chart / timeline / steps / compare",
     `尽量保持 ${Math.min(4, getGlassShowMinUniqueTypes(pageCount))} 种左右的有效版式变化，宁可自然，也不要硬凑`,
-  ].join('\n');
+  ].join("\n");
 }
 
 function getLiquidShowTypeTargets(pageCount: number): string[] {
   if (pageCount <= 1) {
-    return ['hero'];
+    return ["hero"];
   }
 
   if (pageCount === 2) {
-    return ['hero', 'quote'];
+    return ["hero", "quote"];
   }
 
   const middleCount = Math.max(0, pageCount - 2);
-  const preferredOrder = ['stats', 'compare', 'steps', 'chart', 'timeline', 'list', 'highlight'] as const;
-  const result: string[] = ['hero'];
+  const preferredOrder = [
+    "stats",
+    "compare",
+    "steps",
+    "chart",
+    "timeline",
+    "list",
+    "highlight",
+  ] as const;
+  const result: string[] = ["hero"];
   let cursor = 0;
 
   for (let index = 0; index < middleCount; index += 1) {
@@ -932,7 +1056,7 @@ function getLiquidShowTypeTargets(pageCount: number): string[] {
     cursor += 1;
   }
 
-  result.push('quote');
+  result.push("quote");
   return result;
 }
 
@@ -952,26 +1076,34 @@ function getLiquidShowMinUniqueTypes(pageCount: number): number {
 function getLiquidShowDirectorBrief(pageCount: number): string {
   const targets = getLiquidShowTypeTargets(pageCount);
   return [
-    '优先按内容语义选择版式，不要为了变化而变化',
-    `可参考节奏：${targets.join(' -> ')}，但不要硬套`,
-    '普通解释、结论展开、建议整理可以直接使用 list 或 default',
-    '只有内容确实带有数字、过程、时间顺序、对比时，才使用 stats / chart / timeline / steps / compare',
+    "优先按内容语义选择版式，不要为了变化而变化",
+    `可参考节奏：${targets.join(" -> ")}，但不要硬套`,
+    "普通解释、结论展开、建议整理可以直接使用 list 或 default",
+    "只有内容确实带有数字、过程、时间顺序、对比时，才使用 stats / chart / timeline / steps / compare",
     `尽量保持 ${Math.min(4, getLiquidShowMinUniqueTypes(pageCount))} 种左右的有效版式变化，宁可自然，也不要硬凑`,
-  ].join('\n');
+  ].join("\n");
 }
 
 function getMacShowTypeTargets(pageCount: number): string[] {
   if (pageCount <= 1) {
-    return ['hero'];
+    return ["hero"];
   }
 
   if (pageCount === 2) {
-    return ['hero', 'cta'];
+    return ["hero", "cta"];
   }
 
   const middleCount = Math.max(0, pageCount - 2);
-  const preferredOrder = ['compare', 'stats', 'steps', 'chart', 'list', 'timeline', 'highlight'] as const;
-  const result: string[] = ['hero'];
+  const preferredOrder = [
+    "compare",
+    "stats",
+    "steps",
+    "chart",
+    "list",
+    "timeline",
+    "highlight",
+  ] as const;
+  const result: string[] = ["hero"];
   let cursor = 0;
 
   for (let index = 0; index < middleCount; index += 1) {
@@ -984,26 +1116,29 @@ function getMacShowTypeTargets(pageCount: number): string[] {
     cursor += 1;
   }
 
-  result.push('cta');
+  result.push("cta");
   return result;
 }
 
 function getMacShowDirectorBrief(pageCount: number): string {
   const targets = getMacShowTypeTargets(pageCount);
   return [
-    '开头必须像横屏产品视频的钩子页，而不是普通封面',
-    `可参考节奏：${targets.join(' -> ')}，但要服从内容本身`,
-    '中段优先安排至少一页证据页或反差页，优先 compare / stats / chart / timeline',
-    'list 和 default 只用于解释，不要让它们占满整条视频',
-    '结尾要有明确收束，优先 cta，其次 quote',
-  ].join('\n');
+    "开头必须像横屏产品视频的钩子页，而不是普通封面",
+    `可参考节奏：${targets.join(" -> ")}，但要服从内容本身`,
+    "中段优先安排至少一页证据页或反差页，优先 compare / stats / chart / timeline",
+    "list 和 default 只用于解释，不要让它们占满整条视频",
+    "结尾要有明确收束，优先 cta，其次 quote",
+  ].join("\n");
 }
 
 function isComplexSlide(slide: Slide): slide is ComplexSlide {
-  return 'type' in slide;
+  return "type" in slide;
 }
 
-function detachSlideNarrationTiming<T extends Slide>(slide: T, narration: string): T {
+function detachSlideNarrationTiming<T extends Slide>(
+  slide: T,
+  narration: string,
+): T {
   return {
     ...slide,
     narration,
@@ -1017,13 +1152,16 @@ function detachSlideNarrationTiming<T extends Slide>(slide: T, narration: string
 
 function getSlideLayout(slide: Slide): string {
   if (isComplexSlide(slide)) {
-    return slide.layout || slide.type || 'default';
+    return slide.layout || slide.type || "default";
   }
 
-  return slide.layout || slide.type || 'default';
+  return slide.layout || slide.type || "default";
 }
 
-function splitEditorLine(line: string): { title: string; description?: string } {
+function splitEditorLine(line: string): {
+  title: string;
+  description?: string;
+} {
   const parts = line
     .split(/[：:]/)
     .map((part) => part.trim())
@@ -1035,7 +1173,7 @@ function splitEditorLine(line: string): { title: string; description?: string } 
 
   return {
     title: parts[0],
-    description: parts.slice(1).join('：'),
+    description: parts.slice(1).join("："),
   };
 }
 
@@ -1047,137 +1185,145 @@ function getComplexSlideEditorPoints(slide: ComplexSlide): string[] {
   const layout = getSlideLayout(slide);
   const data = slide.data || {};
 
-  if (layout === 'compare') {
+  if (layout === "compare") {
     const lines: string[] = [];
     const left = data.left as Record<string, unknown> | undefined;
     const right = data.right as Record<string, unknown> | undefined;
 
     if (left) {
-      const label = typeof left.label === 'string' ? left.label : '左侧';
+      const label = typeof left.label === "string" ? left.label : "左侧";
       const value =
-        typeof left.value === 'string'
+        typeof left.value === "string"
           ? left.value
-          : typeof left.title === 'string'
+          : typeof left.title === "string"
             ? left.title
-            : '';
+            : "";
       if (value) lines.push(`${label}：${value}`);
     }
 
     if (right) {
-      const label = typeof right.label === 'string' ? right.label : '右侧';
+      const label = typeof right.label === "string" ? right.label : "右侧";
       const value =
-        typeof right.value === 'string'
+        typeof right.value === "string"
           ? right.value
-          : typeof right.title === 'string'
+          : typeof right.title === "string"
             ? right.title
-            : '';
+            : "";
       if (value) lines.push(`${label}：${value}`);
     }
 
     return lines;
   }
 
-  if (layout === 'stats' && Array.isArray(data.stats)) {
+  if (layout === "stats" && Array.isArray(data.stats)) {
     return data.stats
       .map((item) => {
-        if (!item || typeof item !== 'object') return '';
+        if (!item || typeof item !== "object") return "";
         const record = item as Record<string, unknown>;
-        const value = record.value ?? '';
-        const suffix = typeof record.suffix === 'string' ? record.suffix : '';
-        const label = typeof record.label === 'string' ? record.label : '';
+        const value = record.value ?? "";
+        const suffix = typeof record.suffix === "string" ? record.suffix : "";
+        const label = typeof record.label === "string" ? record.label : "";
         return `${label}：${value}${suffix}`.trim();
       })
       .filter(Boolean);
   }
 
-  if (layout === 'chart' && Array.isArray(data.bars)) {
+  if (layout === "chart" && Array.isArray(data.bars)) {
     return data.bars
       .map((item) => {
-        if (!item || typeof item !== 'object') return '';
+        if (!item || typeof item !== "object") return "";
         const record = item as Record<string, unknown>;
-        const label = typeof record.label === 'string' ? record.label : '';
-        const value = record.percent ?? record.value ?? '';
+        const label = typeof record.label === "string" ? record.label : "";
+        const value = record.percent ?? record.value ?? "";
         return `${label}：${value}`.trim();
       })
       .filter(Boolean);
   }
 
-  if (layout === 'steps' && Array.isArray(data.steps)) {
+  if (layout === "steps" && Array.isArray(data.steps)) {
     return data.steps
       .map((item) => {
-        if (!item || typeof item !== 'object') return '';
+        if (!item || typeof item !== "object") return "";
         const record = item as Record<string, unknown>;
-        const title = typeof record.title === 'string' ? record.title : '';
+        const title = typeof record.title === "string" ? record.title : "";
         const description =
-          typeof record.description === 'string' ? record.description : '';
+          typeof record.description === "string" ? record.description : "";
         return description ? `${title}：${description}` : title;
       })
       .filter(Boolean);
   }
 
-  if (layout === 'timeline' && Array.isArray(data.timeline)) {
+  if (layout === "timeline" && Array.isArray(data.timeline)) {
     return data.timeline
       .map((item) => {
-        if (!item || typeof item !== 'object') return '';
+        if (!item || typeof item !== "object") return "";
         const record = item as Record<string, unknown>;
-        const year = typeof record.year === 'string' ? record.year : '';
-        const title = typeof record.title === 'string' ? record.title : '';
+        const year = typeof record.year === "string" ? record.year : "";
+        const title = typeof record.title === "string" ? record.title : "";
         const description =
-          typeof record.description === 'string' ? record.description : '';
-        const main = [year, title].filter(Boolean).join('：');
+          typeof record.description === "string" ? record.description : "";
+        const main = [year, title].filter(Boolean).join("：");
         return description ? `${main}：${description}` : main;
       })
       .filter(Boolean);
   }
 
-  if (layout === 'list' && Array.isArray(data.items)) {
+  if (layout === "list" && Array.isArray(data.items)) {
     return data.items
       .map((item) => {
-        if (typeof item === 'string') return item;
-        if (!item || typeof item !== 'object') return '';
+        if (typeof item === "string") return item;
+        if (!item || typeof item !== "object") return "";
         const record = item as Record<string, unknown>;
         const text =
-          typeof record.text === 'string'
+          typeof record.text === "string"
             ? record.text
-            : typeof record.title === 'string'
+            : typeof record.title === "string"
               ? record.title
-              : '';
+              : "";
         const desc =
-          typeof record.desc === 'string'
+          typeof record.desc === "string"
             ? record.desc
-            : typeof record.description === 'string'
+            : typeof record.description === "string"
               ? record.description
-              : '';
+              : "";
         return desc ? `${text}：${desc}` : text;
       })
       .filter(Boolean);
   }
 
-  if (layout === 'highlight' && Array.isArray(data.highlights)) {
+  if (layout === "highlight" && Array.isArray(data.highlights)) {
     return data.highlights
       .map((item) => {
-        if (typeof item === 'string') return item;
-        if (item && typeof item === 'object' && typeof (item as { text?: unknown }).text === 'string') {
+        if (typeof item === "string") return item;
+        if (
+          item &&
+          typeof item === "object" &&
+          typeof (item as { text?: unknown }).text === "string"
+        ) {
           return (item as { text: string }).text;
         }
-        return '';
+        return "";
       })
       .filter(Boolean);
   }
 
-  if (layout === 'quote' && Array.isArray(data.tags)) {
-    return data.tags.filter((item): item is string => typeof item === 'string' && item.trim().length > 0);
+  if (layout === "quote" && Array.isArray(data.tags)) {
+    return data.tags.filter(
+      (item): item is string =>
+        typeof item === "string" && item.trim().length > 0,
+    );
   }
 
-  if (layout === 'hero' || layout === 'cta') {
+  if (layout === "hero" || layout === "cta") {
     const extras: string[] = [];
-    if (typeof data.badge === 'string' && data.badge.trim()) extras.push(data.badge);
+    if (typeof data.badge === "string" && data.badge.trim())
+      extras.push(data.badge);
     const ctaText =
-      typeof data.button === 'string'
+      typeof data.button === "string"
         ? data.button
-        : typeof data.cta === 'string'
+        : typeof data.cta === "string"
           ? data.cta
-          : '';
+          : "";
     if (ctaText.trim()) extras.push(ctaText);
     return extras;
   }
@@ -1185,7 +1331,10 @@ function getComplexSlideEditorPoints(slide: ComplexSlide): string[] {
   return [];
 }
 
-function parseMetricLine(line: string, index: number): { label: string; value: number; suffix?: string } | null {
+function parseMetricLine(
+  line: string,
+  index: number,
+): { label: string; value: number; suffix?: string } | null {
   const trimmed = line.trim();
   if (!trimmed) return null;
 
@@ -1194,14 +1343,15 @@ function parseMetricLine(line: string, index: number): { label: string; value: n
     return null;
   }
 
-  const value = Number(match[1].replace(',', '.'));
+  const value = Number(match[1].replace(",", "."));
   if (Number.isNaN(value)) return null;
 
   const suffix = match[2]?.trim() || undefined;
-  const label = `${trimmed.slice(0, match.index)} ${trimmed.slice(match.index + match[0].length)}`
-    .replace(/\s+/g, ' ')
-    .replace(/^[：:\-]+|[：:\-]+$/g, '')
-    .trim();
+  const label =
+    `${trimmed.slice(0, match.index)} ${trimmed.slice(match.index + match[0].length)}`
+      .replace(/\s+/g, " ")
+      .replace(/^[：:\-]+|[：:\-]+$/g, "")
+      .trim();
 
   return {
     label: label || `数据 ${index + 1}`,
@@ -1219,51 +1369,57 @@ function syncComplexSlideForEditor(slide: ComplexSlide): ComplexSlide {
   let data: Record<string, unknown> = {};
 
   switch (layout) {
-    case 'hero': {
+    case "hero": {
       data = {
         badge: points[0] || undefined,
         cta: points[1] || undefined,
       };
       break;
     }
-    case 'compare': {
-      const left = splitEditorLine(points[0] || '');
-      const right = splitEditorLine(points[1] || '');
+    case "compare": {
+      const left = splitEditorLine(points[0] || "");
+      const right = splitEditorLine(points[1] || "");
       data = {
         left: {
-          label: left.title || '左侧',
-          value: left.description || left.title || '',
-          title: left.description || left.title || '',
+          label: left.title || "左侧",
+          value: left.description || left.title || "",
+          title: left.description || left.title || "",
           desc: left.description,
         },
         right: {
-          label: right.title || '右侧',
-          value: right.description || right.title || '',
-          title: right.description || right.title || '',
+          label: right.title || "右侧",
+          value: right.description || right.title || "",
+          title: right.description || right.title || "",
           desc: right.description,
         },
-        centerLabel: 'VS',
+        centerLabel: "VS",
       };
       break;
     }
-    case 'stats': {
+    case "stats": {
       data = {
         stats: points
           .map((point, index) => parseMetricLine(point, index))
-          .filter((item): item is NonNullable<ReturnType<typeof parseMetricLine>> => item !== null)
+          .filter(
+            (item): item is NonNullable<ReturnType<typeof parseMetricLine>> =>
+              item !== null,
+          )
           .map((item) => ({
             label: item.label,
             value: item.value,
             suffix: item.suffix,
-            note: '',
+            note: "",
           })),
       };
       break;
     }
-    case 'chart': {
+    case "chart": {
       const bars = points
         .map((point, index) => parseMetricLine(point, index))
-        .filter((item): item is NonNullable<ReturnType<typeof parseMetricLine>> => item !== null)
+        .filter(
+          (item): item is NonNullable<ReturnType<typeof parseMetricLine>> =>
+            item !== null,
+        )
         .map((item) => ({
           label: item.label,
           percent: item.value,
@@ -1273,7 +1429,7 @@ function syncComplexSlideForEditor(slide: ComplexSlide): ComplexSlide {
       data = {
         bars,
         chart: {
-          type: 'progress',
+          type: "progress",
           values: bars.map((item) => ({
             label: item.label,
             value: item.percent,
@@ -1282,7 +1438,7 @@ function syncComplexSlideForEditor(slide: ComplexSlide): ComplexSlide {
       };
       break;
     }
-    case 'steps': {
+    case "steps": {
       data = {
         steps: points.map((point) => {
           const parsed = splitEditorLine(point);
@@ -1294,12 +1450,12 @@ function syncComplexSlideForEditor(slide: ComplexSlide): ComplexSlide {
       };
       break;
     }
-    case 'timeline': {
+    case "timeline": {
       data = {
         timeline: points.map((point, index) => {
           const parsed = splitEditorLine(point);
           return {
-            year: parsed.title || String(index + 1).padStart(2, '0'),
+            year: parsed.title || String(index + 1).padStart(2, "0"),
             title: parsed.description || parsed.title,
             description: parsed.description ? undefined : undefined,
           };
@@ -1307,12 +1463,12 @@ function syncComplexSlideForEditor(slide: ComplexSlide): ComplexSlide {
       };
       break;
     }
-    case 'list': {
+    case "list": {
       data = {
         items: points.map((point, index) => {
           const parsed = splitEditorLine(point);
           return {
-            icon: String(index + 1).padStart(2, '0'),
+            icon: String(index + 1).padStart(2, "0"),
             text: parsed.title,
             desc: parsed.description,
           };
@@ -1320,26 +1476,26 @@ function syncComplexSlideForEditor(slide: ComplexSlide): ComplexSlide {
       };
       break;
     }
-    case 'highlight': {
+    case "highlight": {
       data = {
         highlights: points.map((point) => ({ text: point })),
         items: points,
       };
       break;
     }
-    case 'quote': {
+    case "quote": {
       data = {
-        quote: slide.title || '',
-        author: slide.subtitle || '',
+        quote: slide.title || "",
+        author: slide.subtitle || "",
         tags: points,
       };
       break;
     }
-    case 'cta': {
-      const ctaText = points[0] || '';
+    case "cta": {
+      const ctaText = points[0] || "";
       data = {
-        title: slide.title || '',
-        subtitle: slide.subtitle || '',
+        title: slide.title || "",
+        subtitle: slide.subtitle || "",
         cta: ctaText,
         button: ctaText,
       };
@@ -1366,26 +1522,26 @@ function getComplexEditorLabels(slide: ComplexSlide): {
   const layout = getSlideLayout(slide);
 
   switch (layout) {
-    case 'quote':
-      return { title: '引用内容', subtitle: '署名 / 来源', points: '标签' };
-    case 'cta':
-      return { title: '收尾标题', subtitle: '补充说明', points: '按钮文案' };
-    case 'hero':
-      return { title: '标题', subtitle: '副标题', points: '补充信息' };
-    case 'compare':
-      return { title: '标题', subtitle: '副标题', points: '左右对比内容' };
-    case 'stats':
-      return { title: '标题', subtitle: '副标题', points: '数据项' };
-    case 'chart':
-      return { title: '标题', subtitle: '副标题', points: '图表项' };
-    case 'steps':
-      return { title: '标题', subtitle: '副标题', points: '步骤内容' };
-    case 'timeline':
-      return { title: '标题', subtitle: '副标题', points: '时间线内容' };
-    case 'highlight':
-      return { title: '标题', subtitle: '副标题', points: '重点内容' };
+    case "quote":
+      return { title: "引用内容", subtitle: "署名 / 来源", points: "标签" };
+    case "cta":
+      return { title: "收尾标题", subtitle: "补充说明", points: "按钮文案" };
+    case "hero":
+      return { title: "标题", subtitle: "副标题", points: "补充信息" };
+    case "compare":
+      return { title: "标题", subtitle: "副标题", points: "左右对比内容" };
+    case "stats":
+      return { title: "标题", subtitle: "副标题", points: "数据项" };
+    case "chart":
+      return { title: "标题", subtitle: "副标题", points: "图表项" };
+    case "steps":
+      return { title: "标题", subtitle: "副标题", points: "步骤内容" };
+    case "timeline":
+      return { title: "标题", subtitle: "副标题", points: "时间线内容" };
+    case "highlight":
+      return { title: "标题", subtitle: "副标题", points: "重点内容" };
     default:
-      return { title: '标题', subtitle: '副标题', points: '页面内容' };
+      return { title: "标题", subtitle: "副标题", points: "页面内容" };
   }
 }
 
@@ -1393,12 +1549,15 @@ function getProjectContentPath(template: string): string {
   return `public/projects/${template}/content.json`;
 }
 
-function getGeneratedProjectContentPath(template: string, projectId: string): string {
+function getGeneratedProjectContentPath(
+  template: string,
+  projectId: string,
+): string {
   return `public/projects/generated/${projectId}-${template}/content.json`;
 }
 
 function normalizeSpeechRate(value: unknown): number {
-  const parsed = typeof value === 'number' ? value : Number(value);
+  const parsed = typeof value === "number" ? value : Number(value);
   if (!Number.isFinite(parsed) || parsed < 0.5 || parsed > 2) {
     return 1;
   }
@@ -1415,29 +1574,30 @@ function loadSettings(): SettingsData {
     const parsed = JSON.parse(raw) as Partial<SettingsData> & {
       bailianApiKey?: string;
     };
-    const legacyDashScopeApiKey = parsed.bailianApiKey || '';
+    const legacyDashScopeApiKey = parsed.bailianApiKey || "";
     const rewriteStyles =
       Array.isArray(parsed.rewriteStyles) && parsed.rewriteStyles.length > 0
         ? parsed.rewriteStyles.filter(
             (style): style is RewriteStyle =>
               !!style &&
-              typeof style.id === 'string' &&
-              typeof style.name === 'string' &&
-              typeof style.prompt === 'string'
+              typeof style.id === "string" &&
+              typeof style.name === "string" &&
+              typeof style.prompt === "string",
           )
         : DEFAULT_REWRITE_STYLES;
     const defaultRewriteStyleId =
-      typeof parsed.defaultRewriteStyleId === 'string' &&
+      typeof parsed.defaultRewriteStyleId === "string" &&
       rewriteStyles.some((style) => style.id === parsed.defaultRewriteStyleId)
         ? parsed.defaultRewriteStyleId
         : rewriteStyles[0]?.id || DEFAULT_REWRITE_STYLES[0].id;
 
     return {
-      voiceId: parsed.voiceId || '',
+      voiceId: parsed.voiceId || "",
       voiceModel: parsed.voiceModel || DEFAULT_SETTINGS.voiceModel,
       voiceApiKey: parsed.voiceApiKey || legacyDashScopeApiKey,
-      volcengineAppId: parsed.volcengineAppId || '',
-      volcengineResourceId: parsed.volcengineResourceId || DEFAULT_SETTINGS.volcengineResourceId,
+      volcengineAppId: parsed.volcengineAppId || "",
+      volcengineResourceId:
+        parsed.volcengineResourceId || DEFAULT_SETTINGS.volcengineResourceId,
       voiceSpeechRate: normalizeSpeechRate(parsed.voiceSpeechRate),
       aiUrl: parsed.aiUrl || DEFAULT_SETTINGS.aiUrl,
       aiApiKey: parsed.aiApiKey || legacyDashScopeApiKey,
@@ -1492,13 +1652,15 @@ function loadHomeDraft(): HomeDraft | null {
     const parsed = JSON.parse(raw) as Partial<HomeDraft>;
     const settings = loadSettings();
     return {
-      douyinLink: parsed.douyinLink || '',
-      originalText: parsed.originalText || '',
-      editedText: parsed.editedText || '',
+      douyinLink: parsed.douyinLink || "",
+      originalText: parsed.originalText || "",
+      editedText: parsed.editedText || "",
       template: normalizeTemplate(parsed.template),
       selectedRewriteStyleId:
-        typeof parsed.selectedRewriteStyleId === 'string' &&
-        settings.rewriteStyles.some((style) => style.id === parsed.selectedRewriteStyleId)
+        typeof parsed.selectedRewriteStyleId === "string" &&
+        settings.rewriteStyles.some(
+          (style) => style.id === parsed.selectedRewriteStyleId,
+        )
           ? parsed.selectedRewriteStyleId
           : settings.defaultRewriteStyleId,
     };
@@ -1529,11 +1691,18 @@ function clearAuthToken() {
   localStorage.removeItem(STORAGE_KEYS.authToken);
 }
 
-function normalizeAuthPreferences(value: Partial<AuthPreferences> | null | undefined): AuthPreferences {
-  const rememberPassword = value?.rememberPassword ?? DEFAULT_AUTH_PREFERENCES.rememberPassword;
-  const requestedAutoLogin = value?.autoLogin ?? DEFAULT_AUTH_PREFERENCES.autoLogin;
-  const username = typeof value?.username === 'string' ? value.username : '';
-  const password = rememberPassword && typeof value?.password === 'string' ? value.password : '';
+function normalizeAuthPreferences(
+  value: Partial<AuthPreferences> | null | undefined,
+): AuthPreferences {
+  const rememberPassword =
+    value?.rememberPassword ?? DEFAULT_AUTH_PREFERENCES.rememberPassword;
+  const requestedAutoLogin =
+    value?.autoLogin ?? DEFAULT_AUTH_PREFERENCES.autoLogin;
+  const username = typeof value?.username === "string" ? value.username : "";
+  const password =
+    rememberPassword && typeof value?.password === "string"
+      ? value.password
+      : "";
   const autoLogin = rememberPassword ? requestedAutoLogin : false;
 
   return {
@@ -1559,12 +1728,15 @@ function loadAuthPreferences(): AuthPreferences {
 }
 
 function saveAuthPreferences(preferences: AuthPreferences) {
-  localStorage.setItem(STORAGE_KEYS.authPreferences, JSON.stringify(normalizeAuthPreferences(preferences)));
+  localStorage.setItem(
+    STORAGE_KEYS.authPreferences,
+    JSON.stringify(normalizeAuthPreferences(preferences)),
+  );
 }
 
 function formatRemainingSeconds(seconds: number): string {
   if (!Number.isFinite(seconds) || seconds <= 0) {
-    return '已过期';
+    return "已过期";
   }
 
   const days = Math.floor(seconds / 86400);
@@ -1582,53 +1754,53 @@ function formatRemainingSeconds(seconds: number): string {
 
 function formatAuthExpireTime(value?: string | null): string {
   if (!value) {
-    return '-';
+    return "-";
   }
 
   const normalized = value.trim();
   if (!normalized) {
-    return '-';
+    return "-";
   }
 
   const date = new Date(normalized);
   if (!Number.isNaN(date.getTime())) {
-    const pad = (input: number) => String(input).padStart(2, '0');
+    const pad = (input: number) => String(input).padStart(2, "0");
     return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
   }
 
   return normalized
-    .replace('T', ' ')
-    .replace(/\.\d+Z?$/, '')
-    .replace(/Z$/, '')
+    .replace("T", " ")
+    .replace(/\.\d+Z?$/, "")
+    .replace(/Z$/, "")
     .trim();
 }
 
 function validateAuthUsername(username: string) {
   const trimmed = username.trim();
   if (!trimmed) {
-    throw new Error('请输入用户名');
+    throw new Error("请输入用户名");
   }
   if (trimmed.length < 3 || trimmed.length > 50) {
-    throw new Error('用户名长度需为 3-50 个字符');
+    throw new Error("用户名长度需为 3-50 个字符");
   }
   if (/\s/.test(trimmed)) {
-    throw new Error('用户名不能包含空格或换行');
+    throw new Error("用户名不能包含空格或换行");
   }
   return trimmed;
 }
 
 function validateAuthPassword(password: string) {
   if (!password) {
-    throw new Error('请输入密码');
+    throw new Error("请输入密码");
   }
   if (password.length < 6) {
-    throw new Error('密码至少 6 个字符');
+    throw new Error("密码至少 6 个字符");
   }
   if (password.length > 128) {
-    throw new Error('密码不能超过 128 个字符');
+    throw new Error("密码不能超过 128 个字符");
   }
   if (/[\u0000-\u001f]/.test(password)) {
-    throw new Error('密码不能包含控制字符');
+    throw new Error("密码不能包含控制字符");
   }
   return password;
 }
@@ -1636,13 +1808,13 @@ function validateAuthPassword(password: string) {
 function validateCardCode(code: string) {
   const trimmed = code.trim();
   if (!trimmed) {
-    throw new Error('请输入卡密');
+    throw new Error("请输入卡密");
   }
   if (trimmed.length < 6 || trimmed.length > 64) {
-    throw new Error('卡密长度需为 6-64 个字符');
+    throw new Error("卡密长度需为 6-64 个字符");
   }
   if (!/^[A-Za-z0-9_-]+$/.test(trimmed)) {
-    throw new Error('卡密只能包含字母、数字、下划线或短横线');
+    throw new Error("卡密只能包含字母、数字、下划线或短横线");
   }
   return trimmed;
 }
@@ -1657,12 +1829,12 @@ function getPagePlan(durationSeconds: number, template: string) {
   const minPages = Math.max(
     structured ? 5 : 4,
     Math.ceil(durationSeconds / 7),
-    Math.ceil(durationSeconds / MAX_SLIDE_DURATION_SECONDS)
+    Math.ceil(durationSeconds / MAX_SLIDE_DURATION_SECONDS),
   );
   const maxPages = structured ? 20 : 24;
   const targetPages = Math.max(
     minPages,
-    Math.min(maxPages, Math.ceil(durationSeconds / targetSecondsPerPage))
+    Math.min(maxPages, Math.ceil(durationSeconds / targetSecondsPerPage)),
   );
 
   return {
@@ -1674,7 +1846,7 @@ function getPagePlan(durationSeconds: number, template: string) {
 
 function formatSegmentsForPrompt(segments: NarrationSegment[]): string {
   if (segments.length === 0) {
-    return '';
+    return "";
   }
 
   // Reduce prompt size: merge adjacent short segments into semantic groups.
@@ -1733,12 +1905,15 @@ function formatSegmentsForPrompt(segments: NarrationSegment[]): string {
 
   return groups
     .map((segment) => {
-      const preview = segment.text.length > 40 ? `${segment.text.slice(0, 40)}...` : segment.text;
-      return `- ${segment.ids.join(',')} | ${segment.start.toFixed(2)}s - ${segment.end.toFixed(
-        2
+      const preview =
+        segment.text.length > 40
+          ? `${segment.text.slice(0, 40)}...`
+          : segment.text;
+      return `- ${segment.ids.join(",")} | ${segment.start.toFixed(2)}s - ${segment.end.toFixed(
+        2,
       )}s | ${preview}`;
     })
-    .join('\n');
+    .join("\n");
 }
 
 function replaceToken(source: string, token: string, value: string): string {
@@ -1748,47 +1923,54 @@ function replaceToken(source: string, token: string, value: string): string {
 function getPrompt(
   template: string,
   timeline: NarrationTimeline,
-  strict: boolean
+  strict: boolean,
 ): string {
   const plan = getPagePlan(timeline.duration, template);
   const legacyPrompt =
-    template === 'TechShow'
+    template === "TechShow"
       ? TECH_PROMPT
-      : template === 'GlassShow'
+      : template === "GlassShow"
         ? GLASS_PROMPT
-        : template === 'LiquidShow' || template === 'LiquidBriefShow'
+        : template === "LiquidShow" || template === "LiquidBriefShow"
           ? LIQUID_PROMPT
           : SIMPLE_PROMPT;
   void legacyPrompt;
   void RICH_PROMPT;
 
   const legacyDirectorBrief =
-    template === 'TechShow'
+    template === "TechShow"
       ? getTechShowDirectorBrief(plan.targetPages)
-      : template === 'GlassShow'
+      : template === "GlassShow"
         ? getGlassShowDirectorBrief(plan.targetPages)
-        : template === 'LiquidShow' || template === 'LiquidBriefShow'
+        : template === "LiquidShow" || template === "LiquidBriefShow"
           ? getLiquidShowDirectorBrief(plan.targetPages)
-        : template === 'MacShow' ||
-            template === 'StudioShow' ||
-            template === 'EditorialShow' ||
-            template === 'InsightShow'
-          ? getMacShowDirectorBrief(plan.targetPages)
-          : '';
+          : template === "MacShow" ||
+              template === "StudioShow" ||
+              template === "EditorialShow" ||
+              template === "InsightShow"
+            ? getMacShowDirectorBrief(plan.targetPages)
+            : "";
   void legacyDirectorBrief;
   void MACSHOW_PROMPT;
 
-  let prompt =
-    isStructuredTemplate(template)
-      ? SHARED_STRUCTURED_PROMPT
-      : SIMPLE_PROMPT;
-  prompt = replaceToken(prompt, '{template_name}', template);
-  prompt = replaceToken(prompt, '{duration_seconds}', timeline.duration.toFixed(2));
-  prompt = replaceToken(prompt, '{target_pages}', String(plan.targetPages));
-  prompt = replaceToken(prompt, '{min_pages}', String(plan.minPages));
-  prompt = replaceToken(prompt, '{max_pages}', String(plan.maxPages));
-  prompt = replaceToken(prompt, '{segments_text}', formatSegmentsForPrompt(timeline.segments));
-  prompt = replaceToken(prompt, '{director_brief}', legacyDirectorBrief);
+  let prompt = isStructuredTemplate(template)
+    ? SHARED_STRUCTURED_PROMPT
+    : SIMPLE_PROMPT;
+  prompt = replaceToken(prompt, "{template_name}", template);
+  prompt = replaceToken(
+    prompt,
+    "{duration_seconds}",
+    timeline.duration.toFixed(2),
+  );
+  prompt = replaceToken(prompt, "{target_pages}", String(plan.targetPages));
+  prompt = replaceToken(prompt, "{min_pages}", String(plan.minPages));
+  prompt = replaceToken(prompt, "{max_pages}", String(plan.maxPages));
+  prompt = replaceToken(
+    prompt,
+    "{segments_text}",
+    formatSegmentsForPrompt(timeline.segments),
+  );
+  prompt = replaceToken(prompt, "{director_brief}", legacyDirectorBrief);
 
   if (!strict) {
     return prompt;
@@ -1802,18 +1984,25 @@ function getPrompt(
 - 如果内容偏密，请优先拆成更多页`;
 }
 
-async function invokeTauri<T>(command: string, args: Record<string, unknown>): Promise<T> {
-  const { invoke } = await import('@tauri-apps/api/core');
+async function invokeTauri<T>(
+  command: string,
+  args: Record<string, unknown>,
+): Promise<T> {
+  const { invoke } = await import("@tauri-apps/api/core");
   return invoke<T>(command, args);
 }
 
-function withTimeout<T>(promise: Promise<T>, timeoutMs: number, label: string): Promise<T> {
+function withTimeout<T>(
+  promise: Promise<T>,
+  timeoutMs: number,
+  label: string,
+): Promise<T> {
   return new Promise<T>((resolve, reject) => {
     const timer = window.setTimeout(() => {
       reject(
         new Error(
-          `${label} 超时（>${Math.round(timeoutMs / 1000)} 秒）。建议稍后重试，或缩短文案/更换更快模型。`
-        )
+          `${label} 超时（>${Math.round(timeoutMs / 1000)} 秒）。建议稍后重试，或缩短文案/更换更快模型。`,
+        ),
       );
     }, timeoutMs);
 
@@ -1831,14 +2020,21 @@ function withTimeout<T>(promise: Promise<T>, timeoutMs: number, label: string): 
 
 async function generateStoryboardTimeline(
   rawText: string,
-  contentPath: string
+  contentPath: string,
 ): Promise<NarrationTimeline> {
   const settings = loadSettings();
-  if (!settings.voiceId || !settings.voiceApiKey || !settings.volcengineAppId || !settings.volcengineResourceId) {
-    throw new Error('请先在设置中配置语音 ID、Access Key、App ID 和 Resource ID');
+  if (
+    !settings.voiceId ||
+    !settings.voiceApiKey ||
+    !settings.volcengineAppId ||
+    !settings.volcengineResourceId
+  ) {
+    throw new Error(
+      "请先在设置中配置语音 ID、Access Key、App ID 和 Resource ID",
+    );
   }
 
-  const result = await invokeTauri<string>('generate_storyboard_timeline', {
+  const result = await invokeTauri<string>("generate_storyboard_timeline", {
     rawText,
     voiceId: settings.voiceId,
     accessKey: settings.voiceApiKey,
@@ -1853,18 +2049,21 @@ async function generateStoryboardTimeline(
 
 function normalizeSegmentIds(
   value: unknown,
-  availableIds: Set<string>
+  availableIds: Set<string>,
 ): string[] {
   if (!Array.isArray(value)) {
     return [];
   }
 
-  return value.filter((item): item is string => typeof item === 'string' && availableIds.has(item));
+  return value.filter(
+    (item): item is string =>
+      typeof item === "string" && availableIds.has(item),
+  );
 }
 
 function repairSegmentAssignments(
   rawSlides: Array<Record<string, unknown>>,
-  segments: NarrationSegment[]
+  segments: NarrationSegment[],
 ): string[][] {
   const ids = segments.map((segment) => segment.id);
   const available = new Set(ids);
@@ -1884,9 +2083,10 @@ function repairSegmentAssignments(
 
     const remainingSlides = Math.max(1, rawSlides.length - index);
     const remainingSegments = Math.max(0, ids.length - cursor);
-    const take = index === rawSlides.length - 1
-      ? remainingSegments
-      : Math.max(1, Math.floor(remainingSegments / remainingSlides));
+    const take =
+      index === rawSlides.length - 1
+        ? remainingSegments
+        : Math.max(1, Math.floor(remainingSegments / remainingSlides));
     const assigned = ids.slice(cursor, cursor + take);
     cursor += assigned.length;
     return assigned;
@@ -1895,13 +2095,15 @@ function repairSegmentAssignments(
 
 function attachTimingToSlides(
   slides: Slide[],
-  segments: NarrationSegment[]
+  segments: NarrationSegment[],
 ): Slide[] {
   const segmentMap = new Map(segments.map((segment) => [segment.id, segment]));
 
   return slides.map((slide) => {
     const ids = (slide.segmentIds || []).filter((id) => segmentMap.has(id));
-    const pageSegments = ids.map((id) => segmentMap.get(id) as NarrationSegment);
+    const pageSegments = ids.map(
+      (id) => segmentMap.get(id) as NarrationSegment,
+    );
 
     if (pageSegments.length === 0) {
       return slide;
@@ -1910,7 +2112,9 @@ function attachTimingToSlides(
     const audioStart = pageSegments[0].start;
     const audioEnd = pageSegments[pageSegments.length - 1].end;
     const audioDuration = Math.max(0.01, audioEnd - audioStart);
-    const narration = (slide.narration || '').trim() || pageSegments.map((item) => item.text).join(' ');
+    const narration =
+      (slide.narration || "").trim() ||
+      pageSegments.map((item) => item.text).join(" ");
 
     return {
       ...slide,
@@ -1927,28 +2131,33 @@ function attachTimingToSlides(
 function normalizeSlides(
   rawSlides: Array<Record<string, unknown>>,
   _template: string,
-  segments: NarrationSegment[]
+  segments: NarrationSegment[],
 ): Slide[] {
   const assignments = repairSegmentAssignments(rawSlides, segments);
 
   const normalized = rawSlides.map((item, index) => {
     return {
       id: `slide-${index}`,
-      title: typeof item.title === 'string' ? item.title : `第 ${index + 1} 页`,
-      subtitle: typeof item.subtitle === 'string' ? item.subtitle : '',
+      title: typeof item.title === "string" ? item.title : `第 ${index + 1} 页`,
+      subtitle: typeof item.subtitle === "string" ? item.subtitle : "",
       points: Array.isArray(item.points)
-        ? item.points.filter((point): point is string => typeof point === 'string')
+        ? item.points.filter(
+            (point): point is string => typeof point === "string",
+          )
         : [],
-      narration: typeof item.narration === 'string' ? item.narration : '',
-      layout: typeof item.layout === 'string' ? item.layout : undefined,
-      type: typeof item.type === 'string' ? item.type : undefined,
+      narration: typeof item.narration === "string" ? item.narration : "",
+      layout: typeof item.layout === "string" ? item.layout : undefined,
+      type: typeof item.type === "string" ? item.type : undefined,
       data:
-        item.data && typeof item.data === 'object'
+        item.data && typeof item.data === "object"
           ? (item.data as Record<string, unknown>)
           : undefined,
-      badge: typeof item.badge === 'string' ? item.badge : undefined,
+      badge: typeof item.badge === "string" ? item.badge : undefined,
       items: Array.isArray(item.items)
-        ? item.items.filter((entry): entry is Record<string, unknown> => Boolean(entry) && typeof entry === 'object')
+        ? item.items.filter(
+            (entry): entry is Record<string, unknown> =>
+              Boolean(entry) && typeof entry === "object",
+          )
         : undefined,
       segmentIds: assignments[index],
     };
@@ -1962,30 +2171,34 @@ function normalizeSlides(
       points: slide.points,
       narration: slide.narration,
       layout: slide.layout,
-      type: slide.type as ContentSlide['type'],
+      type: slide.type as ContentSlide["type"],
       data: slide.data,
       segmentIds: slide.segmentIds,
       audioStart: slide.audioStart,
       audioEnd: slide.audioEnd,
       audioDuration: slide.audioDuration,
       durationInFrames: slide.durationInFrames,
-    }))
+    })),
   );
 
   return preparedSlides.map((slide, index) => ({
     id: `slide-${index}`,
-    title: typeof slide.title === 'string' ? slide.title : `第 ${index + 1} 页`,
-    subtitle: typeof slide.subtitle === 'string' ? slide.subtitle : '',
+    title: typeof slide.title === "string" ? slide.title : `第 ${index + 1} 页`,
+    subtitle: typeof slide.subtitle === "string" ? slide.subtitle : "",
     points: Array.isArray(slide.points)
-      ? slide.points.filter((point): point is string => typeof point === 'string')
+      ? slide.points.filter(
+          (point): point is string => typeof point === "string",
+        )
       : [],
-    narration: typeof slide.narration === 'string' ? slide.narration : '',
-    layout: typeof slide.layout === 'string' ? slide.layout : undefined,
-    type: typeof slide.type === 'string' ? slide.type : undefined,
+    narration: typeof slide.narration === "string" ? slide.narration : "",
+    layout: typeof slide.layout === "string" ? slide.layout : undefined,
+    type: typeof slide.type === "string" ? slide.type : undefined,
     data: slide.data,
     elementTimings: slide.elementTimings,
     segmentIds: Array.isArray(slide.segmentIds)
-      ? slide.segmentIds.filter((segmentId): segmentId is string => typeof segmentId === 'string')
+      ? slide.segmentIds.filter(
+          (segmentId): segmentId is string => typeof segmentId === "string",
+        )
       : [],
     audioStart: slide.audioStart,
     audioEnd: slide.audioEnd,
@@ -1995,41 +2208,50 @@ function normalizeSlides(
 }
 
 function hasNonEmptyString(value: unknown): value is string {
-  return typeof value === 'string' && value.trim().length > 0;
+  return typeof value === "string" && value.trim().length > 0;
 }
 
 function collectSlideText(slide: Slide): string {
   const parts: string[] = [];
 
-  if ('title' in slide && hasNonEmptyString(slide.title)) {
+  if ("title" in slide && hasNonEmptyString(slide.title)) {
     parts.push(slide.title);
   }
-  if ('subtitle' in slide && hasNonEmptyString(slide.subtitle)) {
+  if ("subtitle" in slide && hasNonEmptyString(slide.subtitle)) {
     parts.push(slide.subtitle);
   }
-  if ('narration' in slide && hasNonEmptyString(slide.narration)) {
+  if ("narration" in slide && hasNonEmptyString(slide.narration)) {
     parts.push(slide.narration);
   }
-  if ('points' in slide && Array.isArray(slide.points)) {
-    parts.push(...slide.points.filter((item): item is string => hasNonEmptyString(item)));
+  if ("points" in slide && Array.isArray(slide.points)) {
+    parts.push(
+      ...slide.points.filter((item): item is string => hasNonEmptyString(item)),
+    );
   }
   if (isComplexSlide(slide)) {
     parts.push(JSON.stringify(slide.data || {}));
   }
 
-  return parts.join(' ');
+  return parts.join(" ");
 }
 
 function hasNumberCue(text: string): boolean {
-  return /\d/.test(text) || /百分之|占比|比例|数据|增长|下降|翻倍|倍|排名|Top|TOP|%/.test(text);
+  return (
+    /\d/.test(text) ||
+    /百分之|占比|比例|数据|增长|下降|翻倍|倍|排名|Top|TOP|%/.test(text)
+  );
 }
 
 function hasProcessCue(text: string): boolean {
-  return /步骤|阶段|流程|路径|先|再|然后|最后|第一|第二|第三|进阶|推进|过程|逐步|成熟度|完成度/.test(text);
+  return /步骤|阶段|流程|路径|先|再|然后|最后|第一|第二|第三|进阶|推进|过程|逐步|成熟度|完成度/.test(
+    text,
+  );
 }
 
 function hasCompareCue(text: string): boolean {
-  return /对比|相比|区别|不同|vs|VS|一边|另一边|优点|缺点|误区|正确|过去|现在|之前|之后/.test(text);
+  return /对比|相比|区别|不同|vs|VS|一边|另一边|优点|缺点|误区|正确|过去|现在|之前|之后/.test(
+    text,
+  );
 }
 
 function hasQuoteCue(text: string): boolean {
@@ -2037,7 +2259,9 @@ function hasQuoteCue(text: string): boolean {
 }
 
 function hasListFriendlyCue(text: string): boolean {
-  return /包括|主要|比如|例如|可以|建议|方法|要点|原因|优势|问题|重点|注意/.test(text);
+  return /包括|主要|比如|例如|可以|建议|方法|要点|原因|优势|问题|重点|注意/.test(
+    text,
+  );
 }
 
 function hasTechShowRequiredData(slide: Slide): boolean {
@@ -2048,36 +2272,44 @@ function hasTechShowRequiredData(slide: Slide): boolean {
   const data = slide.data || {};
 
   switch (slide.type) {
-    case 'title':
+    case "title":
       return hasNonEmptyString(data.title);
-    case 'compare':
+    case "compare":
       return (
-        hasNonEmptyString((data.left as { label?: unknown } | undefined)?.label) &&
-        hasNonEmptyString((data.left as { value?: unknown } | undefined)?.value) &&
-        hasNonEmptyString((data.right as { label?: unknown } | undefined)?.label) &&
-        hasNonEmptyString((data.right as { value?: unknown } | undefined)?.value)
+        hasNonEmptyString(
+          (data.left as { label?: unknown } | undefined)?.label,
+        ) &&
+        hasNonEmptyString(
+          (data.left as { value?: unknown } | undefined)?.value,
+        ) &&
+        hasNonEmptyString(
+          (data.right as { label?: unknown } | undefined)?.label,
+        ) &&
+        hasNonEmptyString(
+          (data.right as { value?: unknown } | undefined)?.value,
+        )
       );
-    case 'stats':
+    case "stats":
       return (
         hasNonEmptyString(data.title) &&
         Array.isArray(data.stats) &&
         data.stats.length >= 2
       );
-    case 'progress':
+    case "progress":
       return (
         hasNonEmptyString(data.title) &&
         Array.isArray(data.bars) &&
         data.bars.length >= 2
       );
-    case 'list':
+    case "list":
       return (
         hasNonEmptyString(data.title) &&
         Array.isArray(data.items) &&
         data.items.length >= 2
       );
-    case 'quote':
+    case "quote":
       return hasNonEmptyString(data.quote);
-    case 'cta':
+    case "cta":
       return hasNonEmptyString(data.title) && hasNonEmptyString(data.button);
     default:
       return false;
@@ -2092,12 +2324,19 @@ function shouldRetryTechShowSlides(slides: Slide[]): boolean {
     return true;
   }
 
-  if (types[0] !== 'title' || types[types.length - 1] !== 'cta') {
+  if (types[0] !== "title" || types[types.length - 1] !== "cta") {
     return true;
   }
 
   const middleTypes = types.slice(1, -1);
-  if (middleTypes.some((type) => !TECH_SHOW_MIDDLE_TYPES.includes(type as (typeof TECH_SHOW_MIDDLE_TYPES)[number]))) {
+  if (
+    middleTypes.some(
+      (type) =>
+        !TECH_SHOW_MIDDLE_TYPES.includes(
+          type as (typeof TECH_SHOW_MIDDLE_TYPES)[number],
+        ),
+    )
+  ) {
     return true;
   }
 
@@ -2112,7 +2351,7 @@ function shouldRetryTechShowSlides(slides: Slide[]): boolean {
     return true;
   }
 
-  const listCount = middleTypes.filter((type) => type === 'list').length;
+  const listCount = middleTypes.filter((type) => type === "list").length;
   if (listCount > Math.max(1, Math.ceil(middleTypes.length * 0.4))) {
     return true;
   }
@@ -2124,16 +2363,16 @@ function shouldRetryTechShowSlides(slides: Slide[]): boolean {
   if (
     techSlides.some((slide) => {
       const text = collectSlideText(slide);
-      if (slide.type === 'stats') {
+      if (slide.type === "stats") {
         return !hasNumberCue(text);
       }
-      if (slide.type === 'progress') {
+      if (slide.type === "progress") {
         return !hasProcessCue(text);
       }
-      if (slide.type === 'compare') {
+      if (slide.type === "compare") {
         return !hasCompareCue(text);
       }
-      if (slide.type === 'quote') {
+      if (slide.type === "quote") {
         return !hasQuoteCue(text);
       }
       return false;
@@ -2153,28 +2392,36 @@ function hasGlassShowRequiredData(slide: Slide): boolean {
   const data = slide.data || {};
 
   switch (slide.type) {
-    case 'hero':
-      return hasNonEmptyString(slide.title) || hasNonEmptyString(data.badge) || hasNonEmptyString(data.cta);
-    case 'stats':
-      return Array.isArray(data.stats) && data.stats.length >= 2;
-    case 'compare':
+    case "hero":
       return (
-        hasNonEmptyString((data.left as { label?: unknown } | undefined)?.label) &&
-        hasNonEmptyString((data.right as { label?: unknown } | undefined)?.label)
+        hasNonEmptyString(slide.title) ||
+        hasNonEmptyString(data.badge) ||
+        hasNonEmptyString(data.cta)
       );
-    case 'steps':
+    case "stats":
+      return Array.isArray(data.stats) && data.stats.length >= 2;
+    case "compare":
+      return (
+        hasNonEmptyString(
+          (data.left as { label?: unknown } | undefined)?.label,
+        ) &&
+        hasNonEmptyString(
+          (data.right as { label?: unknown } | undefined)?.label,
+        )
+      );
+    case "steps":
       return Array.isArray(data.steps) && data.steps.length >= 2;
-    case 'list':
+    case "list":
       return Array.isArray(data.items) && data.items.length >= 2;
-    case 'chart':
+    case "chart":
       return Array.isArray(data.bars) && data.bars.length >= 2;
-    case 'timeline':
+    case "timeline":
       return Array.isArray(data.timeline) && data.timeline.length >= 2;
-    case 'highlight':
+    case "highlight":
       return Array.isArray(data.items) && data.items.length >= 2;
-    case 'quote':
+    case "quote":
       return hasNonEmptyString(data.quote);
-    case 'default':
+    case "default":
       return Array.isArray(slide.points) && slide.points.length >= 2;
     default:
       return false;
@@ -2189,7 +2436,7 @@ function shouldRetryGlassShowSlides(slides: Slide[]): boolean {
     return true;
   }
 
-  if (types[0] !== 'hero') {
+  if (types[0] !== "hero") {
     return true;
   }
 
@@ -2199,7 +2446,12 @@ function shouldRetryGlassShowSlides(slides: Slide[]): boolean {
     }
   }
 
-  if (types.some((type) => !GLASS_SHOW_TYPES.includes(type as (typeof GLASS_SHOW_TYPES)[number]))) {
+  if (
+    types.some(
+      (type) =>
+        !GLASS_SHOW_TYPES.includes(type as (typeof GLASS_SHOW_TYPES)[number]),
+    )
+  ) {
     return true;
   }
 
@@ -2208,12 +2460,12 @@ function shouldRetryGlassShowSlides(slides: Slide[]): boolean {
     return true;
   }
 
-  const defaultCount = types.filter((type) => type === 'default').length;
+  const defaultCount = types.filter((type) => type === "default").length;
   if (defaultCount > Math.max(1, Math.floor(types.length / 3))) {
     return true;
   }
 
-  const listCount = types.filter((type) => type === 'list').length;
+  const listCount = types.filter((type) => type === "list").length;
   if (listCount > Math.max(1, Math.ceil(types.length * 0.35))) {
     return true;
   }
@@ -2225,19 +2477,19 @@ function shouldRetryGlassShowSlides(slides: Slide[]): boolean {
   if (
     glassSlides.some((slide) => {
       const text = collectSlideText(slide);
-      if (slide.type === 'stats' || slide.type === 'chart') {
+      if (slide.type === "stats" || slide.type === "chart") {
         return !hasNumberCue(text);
       }
-      if (slide.type === 'timeline' || slide.type === 'steps') {
+      if (slide.type === "timeline" || slide.type === "steps") {
         return !hasProcessCue(text);
       }
-      if (slide.type === 'compare') {
+      if (slide.type === "compare") {
         return !hasCompareCue(text);
       }
-      if (slide.type === 'quote') {
+      if (slide.type === "quote") {
         return !hasQuoteCue(text);
       }
-      if (slide.type === 'highlight') {
+      if (slide.type === "highlight") {
         return !hasListFriendlyCue(text) && !hasQuoteCue(text);
       }
       return false;
@@ -2257,31 +2509,47 @@ function hasLiquidShowRequiredData(slide: Slide): boolean {
   const data = slide.data || {};
 
   switch (slide.type) {
-    case 'hero':
-      return hasNonEmptyString(slide.title) || hasNonEmptyString(data.badge) || hasNonEmptyString(data.cta);
-    case 'stats':
-      return Array.isArray(data.stats) && data.stats.length >= 2;
-    case 'compare':
+    case "hero":
       return (
-        hasNonEmptyString((data.left as { label?: unknown } | undefined)?.label) &&
-        hasNonEmptyString((data.left as { value?: unknown } | undefined)?.value) &&
-        hasNonEmptyString((data.right as { label?: unknown } | undefined)?.label) &&
-        hasNonEmptyString((data.right as { value?: unknown } | undefined)?.value)
+        hasNonEmptyString(slide.title) ||
+        hasNonEmptyString(data.badge) ||
+        hasNonEmptyString(data.cta)
       );
-    case 'steps':
+    case "stats":
+      return Array.isArray(data.stats) && data.stats.length >= 2;
+    case "compare":
+      return (
+        hasNonEmptyString(
+          (data.left as { label?: unknown } | undefined)?.label,
+        ) &&
+        hasNonEmptyString(
+          (data.left as { value?: unknown } | undefined)?.value,
+        ) &&
+        hasNonEmptyString(
+          (data.right as { label?: unknown } | undefined)?.label,
+        ) &&
+        hasNonEmptyString(
+          (data.right as { value?: unknown } | undefined)?.value,
+        )
+      );
+    case "steps":
       return Array.isArray(data.steps) && data.steps.length >= 2;
-    case 'list':
+    case "list":
       return Array.isArray(data.items) && data.items.length >= 3;
-    case 'chart':
+    case "chart":
       return Array.isArray(data.bars) && data.bars.length >= 2;
-    case 'timeline':
+    case "timeline":
       return Array.isArray(data.timeline) && data.timeline.length >= 2;
-    case 'highlight':
+    case "highlight":
       return Array.isArray(data.items) && data.items.length >= 3;
-    case 'quote':
+    case "quote":
       return hasNonEmptyString(data.quote);
-    case 'default':
-      return hasNonEmptyString(slide.title) && Array.isArray(slide.points) && slide.points.length > 0;
+    case "default":
+      return (
+        hasNonEmptyString(slide.title) &&
+        Array.isArray(slide.points) &&
+        slide.points.length > 0
+      );
     default:
       return false;
   }
@@ -2295,7 +2563,7 @@ function shouldRetryLiquidShowSlides(slides: Slide[]): boolean {
     return true;
   }
 
-  if (types[0] !== 'hero') {
+  if (types[0] !== "hero") {
     return true;
   }
 
@@ -2305,7 +2573,12 @@ function shouldRetryLiquidShowSlides(slides: Slide[]): boolean {
     }
   }
 
-  if (types.some((type) => !LIQUID_SHOW_TYPES.includes(type as (typeof LIQUID_SHOW_TYPES)[number]))) {
+  if (
+    types.some(
+      (type) =>
+        !LIQUID_SHOW_TYPES.includes(type as (typeof LIQUID_SHOW_TYPES)[number]),
+    )
+  ) {
     return true;
   }
 
@@ -2314,9 +2587,12 @@ function shouldRetryLiquidShowSlides(slides: Slide[]): boolean {
     return true;
   }
 
-  const defaultCount = types.filter((type) => type === 'default').length;
-  const listCount = types.filter((type) => type === 'list').length;
-  if (defaultCount > Math.max(1, Math.floor(types.length / 4)) || listCount > Math.ceil(types.length / 3)) {
+  const defaultCount = types.filter((type) => type === "default").length;
+  const listCount = types.filter((type) => type === "list").length;
+  if (
+    defaultCount > Math.max(1, Math.floor(types.length / 4)) ||
+    listCount > Math.ceil(types.length / 3)
+  ) {
     return true;
   }
 
@@ -2327,19 +2603,19 @@ function shouldRetryLiquidShowSlides(slides: Slide[]): boolean {
   if (
     liquidSlides.some((slide) => {
       const text = collectSlideText(slide);
-      if (slide.type === 'stats' || slide.type === 'chart') {
+      if (slide.type === "stats" || slide.type === "chart") {
         return !hasNumberCue(text);
       }
-      if (slide.type === 'timeline' || slide.type === 'steps') {
+      if (slide.type === "timeline" || slide.type === "steps") {
         return !hasProcessCue(text);
       }
-      if (slide.type === 'compare') {
+      if (slide.type === "compare") {
         return !hasCompareCue(text);
       }
-      if (slide.type === 'quote') {
+      if (slide.type === "quote") {
         return !hasQuoteCue(text);
       }
-      if (slide.type === 'highlight') {
+      if (slide.type === "highlight") {
         return !hasListFriendlyCue(text) && !hasQuoteCue(text);
       }
       return false;
@@ -2359,12 +2635,12 @@ function shouldRetryMacShowSlides(slides: Slide[]): boolean {
     return true;
   }
 
-  if (types[0] !== 'hero') {
+  if (types[0] !== "hero") {
     return true;
   }
 
   const lastType = types[types.length - 1];
-  if (lastType !== 'cta' && lastType !== 'quote') {
+  if (lastType !== "cta" && lastType !== "quote") {
     return true;
   }
 
@@ -2373,13 +2649,17 @@ function shouldRetryMacShowSlides(slides: Slide[]): boolean {
     return true;
   }
 
-  const evidenceLayouts = new Set(['compare', 'stats', 'chart', 'timeline']);
-  const hasEvidenceSlide = types.slice(1, -1).some((type) => evidenceLayouts.has(type));
+  const evidenceLayouts = new Set(["compare", "stats", "chart", "timeline"]);
+  const hasEvidenceSlide = types
+    .slice(1, -1)
+    .some((type) => evidenceLayouts.has(type));
   if (types.length >= 4 && !hasEvidenceSlide) {
     return true;
   }
 
-  const listLikeCount = types.filter((type) => type === 'list' || type === 'default').length;
+  const listLikeCount = types.filter(
+    (type) => type === "list" || type === "default",
+  ).length;
   if (listLikeCount > Math.ceil(types.length / 2)) {
     return true;
   }
@@ -2390,28 +2670,37 @@ function shouldRetryMacShowSlides(slides: Slide[]): boolean {
 async function generateSlidesWithAi(
   rawText: string,
   template: string,
-  timeline: NarrationTimeline
+  timeline: NarrationTimeline,
 ): Promise<Slide[]> {
   const settings = loadSettings();
   if (!settings.aiApiKey) {
-    throw new Error('请先在设置中配置 AI API Key');
+    throw new Error("请先在设置中配置 AI API Key");
   }
 
   const requestSlides = async (strict: boolean): Promise<Slide[]> => {
     const result = await withTimeout(
-      invokeTauri<string>('generate_slides', {
+      invokeTauri<string>("generate_slides", {
         apiUrl: settings.aiUrl,
         accessKey: settings.aiApiKey,
         model: settings.aiModel,
-        prompt: getPrompt(template, timeline, strict).replace('{input_text}', rawText),
+        prompt: getPrompt(template, timeline, strict).replace(
+          "{input_text}",
+          rawText,
+        ),
       }),
       45_000,
-      strict ? 'AI 分页规划请求（严格重试）' : 'AI 分页规划请求'
+      strict ? "AI 分页规划请求（严格重试）" : "AI 分页规划请求",
     );
-    const parsed = JSON.parse(result) as { slides?: Array<Record<string, unknown>> };
+    const parsed = JSON.parse(result) as {
+      slides?: Array<Record<string, unknown>>;
+    };
 
-    if (!parsed.slides || !Array.isArray(parsed.slides) || parsed.slides.length === 0) {
-      throw new Error('AI 返回的 JSON 不包含 slides');
+    if (
+      !parsed.slides ||
+      !Array.isArray(parsed.slides) ||
+      parsed.slides.length === 0
+    ) {
+      throw new Error("AI 返回的 JSON 不包含 slides");
     }
 
     return normalizeSlides(parsed.slides, template, timeline.segments);
@@ -2424,23 +2713,28 @@ async function generateSlidesWithAi(
     const coveredIds = slides.flatMap((slide) => slide.segmentIds || []);
     const expectedIds = timeline.segments.map((segment) => segment.id);
     const legacyTemplateChecks =
-      (template === 'TechShow' && shouldRetryTechShowSlides(slides)) ||
-      (template === 'GlassShow' && shouldRetryGlassShowSlides(slides)) ||
-      ((template === 'LiquidShow' || template === 'LiquidBriefShow') &&
+      (template === "TechShow" && shouldRetryTechShowSlides(slides)) ||
+      (template === "GlassShow" && shouldRetryGlassShowSlides(slides)) ||
+      ((template === "LiquidShow" || template === "LiquidBriefShow") &&
         shouldRetryLiquidShowSlides(slides)) ||
-      ((template === 'MacShow' ||
-        template === 'StudioShow' ||
-        template === 'EditorialShow' ||
-        template === 'InsightShow') &&
+      ((template === "MacShow" ||
+        template === "StudioShow" ||
+        template === "EditorialShow" ||
+        template === "InsightShow") &&
         shouldRetryMacShowSlides(slides));
 
     const layouts = slides
-      .map((slide) => ('layout' in slide ? slide.layout : slide.type))
-      .filter((item): item is string => typeof item === 'string' && item.length > 0);
+      .map((slide) => ("layout" in slide ? slide.layout : slide.type))
+      .filter(
+        (item): item is string => typeof item === "string" && item.length > 0,
+      );
     const uniqueLayoutCount = new Set(layouts).size;
-    const hasStructuredSlide = slides.some((slide) => isComplexSlide(slide) || Boolean(slide.layout));
+    const hasStructuredSlide = slides.some(
+      (slide) => isComplexSlide(slide) || Boolean(slide.layout),
+    );
     const needsVariety = isStructuredTemplate(template) && slides.length >= 4;
-    const varietyTooLow = needsVariety && uniqueLayoutCount < Math.min(3, slides.length);
+    const varietyTooLow =
+      needsVariety && uniqueLayoutCount < Math.min(3, slides.length);
 
     return (
       slides.length < plan.targetPages ||
@@ -2468,20 +2762,23 @@ async function generateSlidesWithAi(
 
 function buildRewritePrompt(text: string, style: RewriteStyle): string {
   const template = style.prompt.trim() || DEFAULT_REWRITE_STYLES[0].prompt;
-  if (template.includes('{{text}}')) {
-    return template.replaceAll('{{text}}', text);
+  if (template.includes("{{text}}")) {
+    return template.replaceAll("{{text}}", text);
   }
 
   return `${template}\n\n原文案：\n${text}`;
 }
 
-async function rewriteCopyWithAi(text: string, style: RewriteStyle): Promise<string> {
+async function rewriteCopyWithAi(
+  text: string,
+  style: RewriteStyle,
+): Promise<string> {
   const settings = loadSettings();
   if (!settings.aiApiKey) {
-    throw new Error('请先在设置中配置 AI API Key');
+    throw new Error("请先在设置中配置 AI API Key");
   }
 
-  const result = await invokeTauri<string>('generate_slides', {
+  const result = await invokeTauri<string>("generate_slides", {
     apiUrl: settings.aiUrl,
     accessKey: settings.aiApiKey,
     model: settings.aiModel,
@@ -2497,9 +2794,9 @@ async function saveSlidesToProject(project: Project) {
     project.slides.length > 0 &&
     project.slides.every(
       (slide) =>
-        typeof slide.audioStart === 'number' &&
-        typeof slide.audioEnd === 'number' &&
-        slide.audioEnd >= slide.audioStart
+        typeof slide.audioStart === "number" &&
+        typeof slide.audioEnd === "number" &&
+        slide.audioEnd >= slide.audioStart,
     );
   const slides = project.slides.map((slide) => {
     if (isComplexSlide(slide)) {
@@ -2508,7 +2805,7 @@ async function saveSlidesToProject(project: Project) {
         layout: slide.layout,
         data: slide.data,
         elementTimings: slide.elementTimings,
-        narration: slide.narration || '',
+        narration: slide.narration || "",
         segmentIds: slide.segmentIds || [],
         audioStart: slide.audioStart,
         audioEnd: slide.audioEnd,
@@ -2516,16 +2813,16 @@ async function saveSlidesToProject(project: Project) {
         durationInFrames: slide.durationInFrames,
       };
 
-      if (typeof slide.title === 'string') {
+      if (typeof slide.title === "string") {
         payload.title = slide.title;
       }
-      if (typeof slide.subtitle === 'string') {
+      if (typeof slide.subtitle === "string") {
         payload.subtitle = slide.subtitle;
       }
       if (Array.isArray(slide.points)) {
         payload.points = slide.points;
       }
-      if (typeof slide.badge === 'string') {
+      if (typeof slide.badge === "string") {
         payload.badge = slide.badge;
       }
       if (Array.isArray(slide.items)) {
@@ -2552,28 +2849,38 @@ async function saveSlidesToProject(project: Project) {
     };
   });
 
-  await invokeTauri<string>('save_slides', {
+  await invokeTauri<string>("save_slides", {
     template: project.template,
     voiceId: settings.voiceId,
     rawText: project.rawText,
     slides,
     contentPath: project.contentPath,
     soundtrackPath: hasCompleteTiming
-      ? project.contentPath.replace(/content\.json$/i, 'audio/narration.mp3').replace(/^public\//, '')
+      ? project.contentPath
+          .replace(/content\.json$/i, "audio/narration.mp3")
+          .replace(/^public\//, "")
       : undefined,
     soundtrackDuration: hasCompleteTiming
-      ? project.slides.reduce((max, slide) => Math.max(max, slide.audioEnd || 0), 0)
+      ? project.slides.reduce(
+          (max, slide) => Math.max(max, slide.audioEnd || 0),
+          0,
+        )
       : undefined,
   });
 }
 
 async function syncAudio(project: Project) {
   const settings = loadSettings();
-  if (!settings.voiceId || !settings.voiceApiKey || !settings.volcengineAppId || !settings.volcengineResourceId) {
+  if (
+    !settings.voiceId ||
+    !settings.voiceApiKey ||
+    !settings.volcengineAppId ||
+    !settings.volcengineResourceId
+  ) {
     return;
   }
 
-  await invokeTauri<string>('generate_audio', {
+  await invokeTauri<string>("generate_audio", {
     voiceId: settings.voiceId,
     accessKey: settings.voiceApiKey,
     appId: settings.volcengineAppId,
@@ -2587,70 +2894,73 @@ function dockLinkStyle(active: boolean): React.CSSProperties {
   return {
     width: active ? 44 : 56,
     height: active ? 44 : 56,
-    display: 'inline-flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    color: active ? '#2563eb' : '#5f6b82',
-    textDecoration: 'none',
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    color: active ? "#2563eb" : "#5f6b82",
+    textDecoration: "none",
     borderRadius: 16,
     background: active
-      ? 'linear-gradient(180deg, rgba(239,244,255,0.98) 0%, rgba(220,231,255,0.96) 100%)'
-      : 'transparent',
-    border: active ? '1px solid rgba(141,171,255,0.6)' : '1px solid transparent',
+      ? "linear-gradient(180deg, rgba(239,244,255,0.98) 0%, rgba(220,231,255,0.96) 100%)"
+      : "transparent",
+    border: active
+      ? "1px solid rgba(141,171,255,0.6)"
+      : "1px solid transparent",
     boxShadow: active
-      ? '0 6px 16px rgba(53, 113, 231, 0.14), inset 0 1px 0 rgba(255,255,255,0.95), inset 0 -6px 12px rgba(115, 154, 255, 0.08)'
-      : 'none',
+      ? "0 6px 16px rgba(53, 113, 231, 0.14), inset 0 1px 0 rgba(255,255,255,0.95), inset 0 -6px 12px rgba(115, 154, 255, 0.08)"
+      : "none",
     transition:
-      'transform 180ms ease, background 180ms ease, color 180ms ease, box-shadow 180ms ease, border-color 180ms ease, width 180ms ease, height 180ms ease',
+      "transform 180ms ease, background 180ms ease, color 180ms ease, box-shadow 180ms ease, border-color 180ms ease, width 180ms ease, height 180ms ease",
   };
 }
 
 const SOFT_CARD_STYLE: React.CSSProperties = {
-  background: 'rgba(255,255,255,0.92)',
+  background: "rgba(255,255,255,0.92)",
   borderRadius: 24,
   padding: 18,
-  border: '1px solid rgba(224, 231, 240, 0.92)',
-  boxShadow: '0 18px 36px rgba(148, 163, 184, 0.12), inset 0 1px 0 rgba(255,255,255,0.92)',
-  backdropFilter: 'blur(14px)',
-  WebkitBackdropFilter: 'blur(14px)',
+  border: "1px solid rgba(224, 231, 240, 0.92)",
+  boxShadow:
+    "0 18px 36px rgba(148, 163, 184, 0.12), inset 0 1px 0 rgba(255,255,255,0.92)",
+  backdropFilter: "blur(14px)",
+  WebkitBackdropFilter: "blur(14px)",
 };
 
 const SOFT_INPUT_STYLE: React.CSSProperties = {
-  width: '100%',
-  boxSizing: 'border-box',
-  padding: '11px 14px',
+  width: "100%",
+  boxSizing: "border-box",
+  padding: "11px 14px",
   borderRadius: 14,
-  border: '1px solid #d7e0ee',
-  background: 'rgba(255,255,255,0.96)',
-  boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.86)',
+  border: "1px solid #d7e0ee",
+  background: "rgba(255,255,255,0.96)",
+  boxShadow: "inset 0 1px 0 rgba(255,255,255,0.86)",
   fontSize: 14,
-  color: '#1d2129',
+  color: "#1d2129",
   lineHeight: 1.4,
 };
 
 const PRIMARY_BUTTON_STYLE: React.CSSProperties = {
-  padding: '11px 18px',
+  padding: "11px 18px",
   borderRadius: 14,
-  border: 'none',
-  background: 'linear-gradient(135deg, #1f67ff 0%, #3c8cff 100%)',
-  color: '#fff',
+  border: "none",
+  background: "linear-gradient(135deg, #1f67ff 0%, #3c8cff 100%)",
+  color: "#fff",
   fontSize: 14,
   fontWeight: 700,
-  boxShadow: '0 8px 18px rgba(53, 113, 231, 0.2)',
+  boxShadow: "0 8px 18px rgba(53, 113, 231, 0.2)",
 };
 
 const PAGE_FRAME_STYLE: React.CSSProperties = {
   maxWidth: COMPACT_UI.pageMaxWidth,
-  margin: '0 auto',
+  margin: "0 auto",
   padding: `16px 18px 18px`,
-  display: 'flex',
-  flexDirection: 'column',
+  display: "flex",
+  flexDirection: "column",
   gap: 12,
 };
 
 const PAGE_HEADER_STYLE: React.CSSProperties = {
-  display: 'flex',
-  flexDirection: 'column',
+  display: "flex",
+  flexDirection: "column",
   gap: 0,
   maxWidth: 760,
 };
@@ -2662,13 +2972,13 @@ const PANEL_STYLE: React.CSSProperties = {
 };
 
 const FIELD_GROUP_STYLE: React.CSSProperties = {
-  display: 'flex',
-  flexDirection: 'column',
+  display: "flex",
+  flexDirection: "column",
   gap: 6,
 };
 
 const FIELD_LABEL_STYLE: React.CSSProperties = {
-  color: '#20293b',
+  color: "#20293b",
   fontSize: 14,
   fontWeight: 700,
   lineHeight: 1.4,
@@ -2676,33 +2986,33 @@ const FIELD_LABEL_STYLE: React.CSSProperties = {
 
 const SECTION_TITLE_STYLE: React.CSSProperties = {
   margin: 0,
-  color: '#20293b',
+  color: "#20293b",
   fontSize: 17,
   lineHeight: 1.25,
   fontWeight: 800,
 };
 
 const SECONDARY_BUTTON_STYLE: React.CSSProperties = {
-  padding: '10px 14px',
+  padding: "10px 14px",
   borderRadius: 14,
-  border: '1px solid #dbe3ef',
-  background: 'rgba(255,255,255,0.96)',
-  color: '#42506a',
+  border: "1px solid #dbe3ef",
+  background: "rgba(255,255,255,0.96)",
+  color: "#42506a",
   fontSize: 13,
   fontWeight: 700,
-  cursor: 'pointer',
-  boxShadow: '0 8px 16px rgba(148, 163, 184, 0.08)',
+  cursor: "pointer",
+  boxShadow: "0 8px 16px rgba(148, 163, 184, 0.08)",
 };
 
 const QUIET_DANGER_BUTTON_STYLE: React.CSSProperties = {
-  padding: '0 12px',
+  padding: "0 12px",
   borderRadius: 12,
-  border: '1px solid rgba(245,63,63,0.22)',
-  background: 'rgba(245,63,63,0.05)',
-  color: '#e35252',
+  border: "1px solid rgba(245,63,63,0.22)",
+  background: "rgba(245,63,63,0.05)",
+  color: "#e35252",
   fontSize: 12,
   fontWeight: 700,
-  cursor: 'pointer',
+  cursor: "pointer",
 };
 
 function HomePage(props: {
@@ -2712,24 +3022,36 @@ function HomePage(props: {
   const navigate = useNavigate();
   const homeDraft = React.useMemo(() => loadHomeDraft(), []);
   // 文案状态
-  const [originalText, setOriginalText] = React.useState(homeDraft?.originalText || ''); // 原文案（提取的）
-  const [editedText, setEditedText] = React.useState(homeDraft?.editedText || props.project?.rawText || ''); // 修改后的文案
+  const [originalText, setOriginalText] = React.useState(
+    homeDraft?.originalText || "",
+  ); // 原文案（提取的）
+  const [editedText, setEditedText] = React.useState(
+    homeDraft?.editedText || props.project?.rawText || "",
+  ); // 修改后的文案
   const [template, setTemplate] = React.useState(
-    normalizeTemplate(homeDraft?.template || props.project?.template || DEFAULT_TEMPLATE)
+    normalizeTemplate(
+      homeDraft?.template || props.project?.template || DEFAULT_TEMPLATE,
+    ),
   );
-  const [templateOrientation, setTemplateOrientation] = React.useState<TemplateOrientation>(() =>
-    getTemplateOrientation(homeDraft?.template || props.project?.template || DEFAULT_TEMPLATE)
-  );
+  const [templateOrientation, setTemplateOrientation] =
+    React.useState<TemplateOrientation>(() =>
+      getTemplateOrientation(
+        homeDraft?.template || props.project?.template || DEFAULT_TEMPLATE,
+      ),
+    );
   const [loading, setLoading] = React.useState(false);
-  const [status, setStatus] = React.useState('');
-  const [error, setError] = React.useState('');
+  const [status, setStatus] = React.useState("");
+  const [error, setError] = React.useState("");
 
   // 抖音提取状态
-  const [douyinLink, setDouyinLink] = React.useState(homeDraft?.douyinLink || '');
+  const [douyinLink, setDouyinLink] = React.useState(
+    homeDraft?.douyinLink || "",
+  );
   const [isExtracting, setIsExtracting] = React.useState(false);
   const [isRewriting, setIsRewriting] = React.useState(false);
   const [selectedRewriteStyleId, setSelectedRewriteStyleId] = React.useState(
-    () => homeDraft?.selectedRewriteStyleId || loadSettings().defaultRewriteStyleId
+    () =>
+      homeDraft?.selectedRewriteStyleId || loadSettings().defaultRewriteStyleId,
   );
   const rewriteStyles = loadSettings().rewriteStyles;
 
@@ -2740,21 +3062,28 @@ function HomePage(props: {
   }, [rewriteStyles, selectedRewriteStyleId]);
 
   const filteredTemplateOptions = React.useMemo(
-    () => ACTIVE_TEMPLATE_OPTIONS.filter((option) => option.orientation === templateOrientation),
-    [templateOrientation]
+    () =>
+      ACTIVE_TEMPLATE_OPTIONS.filter(
+        (option) => option.orientation === templateOrientation,
+      ),
+    [templateOrientation],
   );
 
-  const handleTemplateOrientationChange = React.useCallback((nextOrientation: TemplateOrientation) => {
-    setTemplateOrientation(nextOrientation);
+  const handleTemplateOrientationChange = React.useCallback(
+    (nextOrientation: TemplateOrientation) => {
+      setTemplateOrientation(nextOrientation);
 
-    const hasMatchingTemplate = ACTIVE_TEMPLATE_OPTIONS.some(
-      (option) => option.value === template && option.orientation === nextOrientation
-    );
+      const hasMatchingTemplate = ACTIVE_TEMPLATE_OPTIONS.some(
+        (option) =>
+          option.value === template && option.orientation === nextOrientation,
+      );
 
-    if (!hasMatchingTemplate) {
-      setTemplate(getDefaultTemplateForOrientation(nextOrientation));
-    }
-  }, [template]);
+      if (!hasMatchingTemplate) {
+        setTemplate(getDefaultTemplateForOrientation(nextOrientation));
+      }
+    },
+    [template],
+  );
 
   const handleTemplateChange = React.useCallback((nextTemplate: string) => {
     setTemplate(nextTemplate);
@@ -2771,49 +3100,64 @@ function HomePage(props: {
     });
   }, [douyinLink, originalText, editedText, template, selectedRewriteStyleId]);
 
-  // 从设置获取 API Key
-  const getApiKey = () => {
-    const settings = loadSettings() as SettingsData & { bailianApiKey?: string };
-    return settings.voiceApiKey || settings.aiApiKey || settings.bailianApiKey || '';
+  // 从设置获取火山引擎配置
+  const getVolcengineConfig = () => {
+    const settings = loadSettings() as SettingsData & {
+      bailianApiKey?: string;
+    };
+    return {
+      accessKey: settings.voiceApiKey || settings.volcengineAccessKey || "",
+      appId: settings.volcengineAppId || "",
+    };
   };
 
   // 从抖音链接提取文案
   const handleExtractFromDouyin = async () => {
     if (!douyinLink.trim()) {
-      setError('请输入抖音分享链接');
+      setError("请输入抖音分享链接");
       return;
     }
 
-    const apiKey = getApiKey();
-    if (!apiKey) {
-      setError('请先配置阿里云 DashScope API Key（在设置页面）');
+    const { accessKey, appId } = getVolcengineConfig();
+    if (!accessKey) {
+      setError("请先配置火山引擎 Access Key（在设置页面）");
       return;
     }
 
     setIsExtracting(true);
-    setError('');
-    setStatus('正在解析抖音链接...');
+    setError("");
+    setStatus("正在解析抖音链接...");
 
     try {
       // Step 1: 解析分享链接获取视频URL
-      const parseResult = await invokeTauri<{ title: string; videoUrl: string; videoId: string }>('parse_douyin_url', {
+      const parseResult = await invokeTauri<{
+        title: string;
+        videoUrl: string;
+        videoId: string;
+      }>("parse_douyin_url", {
         shareText: douyinLink,
       });
 
       setStatus(`已获取视频: ${parseResult.title}，正在转写语音...`);
 
-      // Step 2: 调用语音转写
-      const transcribeResult = await invokeTauri<{ text: string; duration: number }>('transcribe_douyin_video', {
+      // Step 2: 调用火山引擎语音转写
+      const transcribeResult = await invokeTauri<{
+        text: string;
+        duration: number;
+      }>("transcribe_douyin_video", {
         videoUrl: parseResult.videoUrl,
-        accessKey: apiKey,
+        accessKey,
+        appId,
       });
 
       // 设置原文案和修改后的文案
       setOriginalText(transcribeResult.text);
       setEditedText(transcribeResult.text);
 
-      setStatus(`文案提取成功！视频时长: ${Math.round(transcribeResult.duration)}秒`);
-      setTimeout(() => setStatus(''), 3000);
+      setStatus(
+        `文案提取成功！视频时长: ${Math.round(transcribeResult.duration)}秒`,
+      );
+      setTimeout(() => setStatus(""), 3000);
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : String(cause));
     } finally {
@@ -2829,24 +3173,26 @@ function HomePage(props: {
   const handleRewriteCopy = async () => {
     const sourceText = (originalText || editedText).trim();
     if (!sourceText) {
-      setError('请先输入或提取文案');
+      setError("请先输入或提取文案");
       return;
     }
     const settings = loadSettings();
     const selectedStyle =
-      settings.rewriteStyles.find((style) => style.id === selectedRewriteStyleId) ||
+      settings.rewriteStyles.find(
+        (style) => style.id === selectedRewriteStyleId,
+      ) ||
       settings.rewriteStyles[0] ||
       DEFAULT_REWRITE_STYLES[0];
 
     setIsRewriting(true);
-    setError('');
-    setStatus('正在改写文案...');
+    setError("");
+    setStatus("正在改写文案...");
 
     try {
       const rewritten = await rewriteCopyWithAi(sourceText, selectedStyle);
       setEditedText(rewritten);
-      setStatus('文案改写完成');
-      window.setTimeout(() => setStatus(''), 2500);
+      setStatus("文案改写完成");
+      window.setTimeout(() => setStatus(""), 2500);
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : String(cause));
     } finally {
@@ -2856,21 +3202,24 @@ function HomePage(props: {
 
   const handleGenerate = async () => {
     if (!editedText.trim()) {
-      setError('请输入完整口播文案');
+      setError("请输入完整口播文案");
       return;
     }
 
     setLoading(true);
-    setError('');
+    setError("");
 
     try {
       const projectId = `${Date.now()}`;
       const contentPath = getGeneratedProjectContentPath(template, projectId);
-      setStatus('正在生成语义时间轴...');
-      const timeline = await generateStoryboardTimeline(editedText, contentPath);
+      setStatus("正在生成语义时间轴...");
+      const timeline = await generateStoryboardTimeline(
+        editedText,
+        contentPath,
+      );
 
       const planningStart = Date.now();
-      setStatus('正在规划最终分页...（已等待 0 秒）');
+      setStatus("正在规划最终分页...（已等待 0 秒）");
       const planningTimer = window.setInterval(() => {
         const waited = Math.floor((Date.now() - planningStart) / 1000);
         setStatus(`正在规划最终分页...（已等待 ${waited} 秒）`);
@@ -2890,28 +3239,42 @@ function HomePage(props: {
         contentPath,
       };
 
-      setStatus('正在保存项目...');
+      setStatus("正在保存项目...");
       await saveSlidesToProject(project);
 
       props.onProjectChange(project);
-      navigate('/editor');
+      navigate("/editor");
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : String(cause));
     } finally {
       setLoading(false);
-      setStatus('');
+      setStatus("");
     }
   };
 
   return (
     <div style={PAGE_FRAME_STYLE}>
       <div style={PAGE_HEADER_STYLE}>
-        <h2 style={{ marginTop: 0, marginBottom: 4, color: '#1d2129', fontSize: 18, letterSpacing: '-0.02em' }}>生成项目</h2>
+        <h2
+          style={{
+            marginTop: 0,
+            marginBottom: 4,
+            color: "#1d2129",
+            fontSize: 18,
+            letterSpacing: "-0.02em",
+          }}
+        >
+          生成项目
+        </h2>
       </div>
 
       {/* 抖音链接提取区域 */}
-      <div style={{ ...PANEL_STYLE, width: '100%', marginBottom: 12, padding: 16 }}>
-        <div style={{ display: 'flex', gap: SPACING.md, alignItems: 'flex-start' }}>
+      <div
+        style={{ ...PANEL_STYLE, width: "100%", marginBottom: 12, padding: 16 }}
+      >
+        <div
+          style={{ display: "flex", gap: SPACING.md, alignItems: "flex-start" }}
+        >
           <input
             type="text"
             placeholder="https://v.douyin.com/xxxxx 或完整分享文本..."
@@ -2924,59 +3287,89 @@ function HomePage(props: {
             disabled={isExtracting}
             style={{
               ...PRIMARY_BUTTON_STYLE,
-              background: isExtracting ? '#94b8ff' : '#165dff',
-              cursor: isExtracting ? 'not-allowed' : 'pointer',
-              whiteSpace: 'nowrap',
+              background: isExtracting ? "#94b8ff" : "#165dff",
+              cursor: isExtracting ? "not-allowed" : "pointer",
+              whiteSpace: "nowrap",
             }}
           >
-            {isExtracting ? '提取中...' : '提取文案'}
+            {isExtracting ? "提取中..." : "提取文案"}
           </button>
         </div>
         {isExtracting && (
-          <div style={{ marginTop: SPACING.md, padding: '12px', background: '#f2f3f5', borderRadius: 6, textAlign: 'center' }}>
-            <span style={{ color: '#4e5969', fontSize: 13 }}>⏳ 正在云端转写视频语音，请稍候...</span>
+          <div
+            style={{
+              marginTop: SPACING.md,
+              padding: "12px",
+              background: "#f2f3f5",
+              borderRadius: 6,
+              textAlign: "center",
+            }}
+          >
+            <span style={{ color: "#4e5969", fontSize: 13 }}>
+              ⏳ 正在云端转写视频语音，请稍候...
+            </span>
           </div>
         )}
       </div>
 
       {/* 文案编辑区域 */}
-      <div style={{ ...PANEL_STYLE, width: '100%', display: 'flex', flexDirection: 'column', gap: 12, padding: 16 }}>
+      <div
+        style={{
+          ...PANEL_STYLE,
+          width: "100%",
+          display: "flex",
+          flexDirection: "column",
+          gap: 12,
+          padding: 16,
+        }}
+      >
         <div style={{ marginBottom: 0 }}>
-          <h3 style={{ margin: '0 0 6px 0', fontSize: 14, color: '#1d2129' }}>文案编辑</h3>
+          <h3 style={{ margin: "0 0 6px 0", fontSize: 14, color: "#1d2129" }}>
+            文案编辑
+          </h3>
         </div>
 
         <div
           style={{
-            display: 'grid',
-            gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)',
+            display: "grid",
+            gridTemplateColumns: "minmax(0, 1fr) minmax(0, 1fr)",
             gap: 12,
-            alignItems: 'stretch',
+            alignItems: "stretch",
           }}
         >
           <div
             style={{
               ...FIELD_GROUP_STYLE,
-              height: '100%',
+              height: "100%",
               marginTop: 0,
               padding: 14,
               borderRadius: 16,
-              background: 'linear-gradient(180deg, rgba(247,250,255,0.92) 0%, rgba(255,255,255,0.98) 100%)',
-              border: '1px solid #e5eaf4',
+              background:
+                "linear-gradient(180deg, rgba(247,250,255,0.92) 0%, rgba(255,255,255,0.98) 100%)",
+              border: "1px solid #e5eaf4",
             }}
           >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10, gap: 8 }}>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                marginBottom: 10,
+                gap: 8,
+              }}
+            >
               <label style={FIELD_LABEL_STYLE}>原文案（提取）</label>
               <button
                 onClick={handleCopyToEdit}
                 disabled={!originalText}
                 style={{
-                  padding: '6px 12px',
+                  padding: "6px 12px",
                   fontSize: 12,
-                  border: '1px solid #165dff',
-                  background: 'transparent',
-                  color: !originalText ? '#94a3b8' : '#165dff',
+                  border: "1px solid #165dff",
+                  background: "transparent",
+                  color: !originalText ? "#94a3b8" : "#165dff",
                   borderRadius: 8,
-                  cursor: !originalText ? 'not-allowed' : 'pointer',
+                  cursor: !originalText ? "not-allowed" : "pointer",
                   opacity: !originalText ? 0.6 : 1,
                 }}
               >
@@ -2989,35 +3382,59 @@ function HomePage(props: {
                 flex: 1,
                 minHeight: 208,
                 height: 208,
-                padding: '12px 14px',
+                padding: "12px 14px",
                 lineHeight: 1.6,
-                background: '#f7f8fa',
-                whiteSpace: 'pre-wrap',
-                overflow: 'auto',
+                background: "#f7f8fa",
+                whiteSpace: "pre-wrap",
+                overflow: "auto",
               }}
             >
-              {originalText || '提取后的原文案会显示在这里'}
+              {originalText || "提取后的原文案会显示在这里"}
             </div>
           </div>
 
           <div
             style={{
               ...FIELD_GROUP_STYLE,
-              height: '100%',
+              height: "100%",
               marginTop: 0,
               padding: 14,
               borderRadius: 16,
-              background: 'linear-gradient(180deg, rgba(247,250,255,0.92) 0%, rgba(255,255,255,0.98) 100%)',
-              border: '1px solid #e5eaf4',
+              background:
+                "linear-gradient(180deg, rgba(247,250,255,0.92) 0%, rgba(255,255,255,0.98) 100%)",
+              border: "1px solid #e5eaf4",
             }}
           >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: SPACING.md, flexWrap: 'nowrap', marginBottom: 10 }}>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                gap: SPACING.md,
+                flexWrap: "nowrap",
+                marginBottom: 10,
+              }}
+            >
               <label style={FIELD_LABEL_STYLE}>修改后的文案</label>
-              <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'nowrap' }}>
+              <div
+                style={{
+                  display: "flex",
+                  gap: 8,
+                  alignItems: "center",
+                  flexWrap: "nowrap",
+                }}
+              >
                 <select
                   value={selectedRewriteStyleId}
-                  onChange={(event) => setSelectedRewriteStyleId(event.target.value)}
-                  style={{ ...SOFT_INPUT_STYLE, minWidth: 148, width: 148, padding: '8px 12px' }}
+                  onChange={(event) =>
+                    setSelectedRewriteStyleId(event.target.value)
+                  }
+                  style={{
+                    ...SOFT_INPUT_STYLE,
+                    minWidth: 148,
+                    width: 148,
+                    padding: "8px 12px",
+                  }}
                 >
                   {rewriteStyles.map((style) => (
                     <option key={style.id} value={style.id}>
@@ -3032,12 +3449,12 @@ function HomePage(props: {
                   style={{
                     ...PRIMARY_BUTTON_STYLE,
                     minWidth: 108,
-                    padding: '8px 14px',
-                    background: isRewriting ? '#94b8ff' : '#165dff',
-                    cursor: isRewriting ? 'not-allowed' : 'pointer',
+                    padding: "8px 14px",
+                    background: isRewriting ? "#94b8ff" : "#165dff",
+                    cursor: isRewriting ? "not-allowed" : "pointer",
                   }}
                 >
-                  {isRewriting ? '改写中...' : 'AI 改写'}
+                  {isRewriting ? "改写中..." : "AI 改写"}
                 </button>
               </div>
             </div>
@@ -3050,9 +3467,9 @@ function HomePage(props: {
                 flex: 1,
                 minHeight: 208,
                 height: 208,
-                padding: '12px 14px',
+                padding: "12px 14px",
                 lineHeight: 1.6,
-                resize: 'none',
+                resize: "none",
               }}
             />
           </div>
@@ -3060,29 +3477,47 @@ function HomePage(props: {
 
         <div
           style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
             gap: SPACING.md,
-            flexWrap: 'nowrap',
+            flexWrap: "nowrap",
             paddingTop: 8,
-            borderTop: '1px solid #edf1f7',
+            borderTop: "1px solid #edf1f7",
           }}
         >
           <div
             style={{
-              display: 'flex',
-              alignItems: 'center',
+              display: "flex",
+              alignItems: "center",
               gap: 12,
               minWidth: 0,
               flex: 1,
             }}
           >
-            <label style={{ fontWeight: 600, color: '#1d2129', whiteSpace: 'nowrap', flexShrink: 0 }}>画幅</label>
+            <label
+              style={{
+                fontWeight: 600,
+                color: "#1d2129",
+                whiteSpace: "nowrap",
+                flexShrink: 0,
+              }}
+            >
+              画幅
+            </label>
             <select
               value={templateOrientation}
-              onChange={(event) => handleTemplateOrientationChange(event.target.value as TemplateOrientation)}
-              style={{ ...SOFT_INPUT_STYLE, width: 120, maxWidth: '100%', flexShrink: 0 }}
+              onChange={(event) =>
+                handleTemplateOrientationChange(
+                  event.target.value as TemplateOrientation,
+                )
+              }
+              style={{
+                ...SOFT_INPUT_STYLE,
+                width: 120,
+                maxWidth: "100%",
+                flexShrink: 0,
+              }}
             >
               {TEMPLATE_ORIENTATION_OPTIONS.map((option) => (
                 <option key={option.value} value={option.value}>
@@ -3090,11 +3525,25 @@ function HomePage(props: {
                 </option>
               ))}
             </select>
-            <label style={{ fontWeight: 600, color: '#1d2129', whiteSpace: 'nowrap', flexShrink: 0 }}>模板</label>
+            <label
+              style={{
+                fontWeight: 600,
+                color: "#1d2129",
+                whiteSpace: "nowrap",
+                flexShrink: 0,
+              }}
+            >
+              模板
+            </label>
             <select
               value={template}
               onChange={(event) => handleTemplateChange(event.target.value)}
-              style={{ ...SOFT_INPUT_STYLE, width: 260, maxWidth: '100%', flexShrink: 0 }}
+              style={{
+                ...SOFT_INPUT_STYLE,
+                width: 260,
+                maxWidth: "100%",
+                flexShrink: 0,
+              }}
             >
               {filteredTemplateOptions.map((option) => (
                 <option key={option.value} value={option.value}>
@@ -3111,16 +3560,38 @@ function HomePage(props: {
               ...PRIMARY_BUTTON_STYLE,
               minWidth: 148,
               flexShrink: 0,
-              background: loading ? '#94b8ff' : '#165dff',
-              cursor: loading ? 'not-allowed' : 'pointer',
+              background: loading ? "#94b8ff" : "#165dff",
+              cursor: loading ? "not-allowed" : "pointer",
             }}
           >
-            {loading ? '生成中...' : '开始生成'}
+            {loading ? "生成中..." : "开始生成"}
           </button>
         </div>
 
-        {status ? <p style={{ margin: 0, color: '#4e5969', fontSize: 13, lineHeight: 1.6 }}>{status}</p> : null}
-        {error ? <p style={{ margin: 0, color: '#f53f3f', fontSize: 13, lineHeight: 1.6 }}>{error}</p> : null}
+        {status ? (
+          <p
+            style={{
+              margin: 0,
+              color: "#4e5969",
+              fontSize: 13,
+              lineHeight: 1.6,
+            }}
+          >
+            {status}
+          </p>
+        ) : null}
+        {error ? (
+          <p
+            style={{
+              margin: 0,
+              color: "#f53f3f",
+              fontSize: 13,
+              lineHeight: 1.6,
+            }}
+          >
+            {error}
+          </p>
+        ) : null}
       </div>
     </div>
   );
@@ -3130,15 +3601,16 @@ function EditorPage(props: {
   project: Project | null;
   onProjectChange: (project: Project | null) => void;
 }) {
-  const editorWorkspaceHeight = 'min(680px, calc(100vh - 150px))';
+  const editorWorkspaceHeight = "min(680px, calc(100vh - 150px))";
   const navigate = useNavigate();
   const [activeIndex, setActiveIndex] = React.useState(0);
   const [showPreview, setShowPreview] = React.useState(false);
-  const [previewData, setPreviewData] = React.useState<PreviewProjectData | null>(null);
+  const [previewData, setPreviewData] =
+    React.useState<PreviewProjectData | null>(null);
   const [previewLoading, setPreviewLoading] = React.useState(false);
-  const [previewError, setPreviewError] = React.useState('');
+  const [previewError, setPreviewError] = React.useState("");
   const [rendering, setRendering] = React.useState(false);
-  const [renderProgress, setRenderProgress] = React.useState('');
+  const [renderProgress, setRenderProgress] = React.useState("");
 
   const project = props.project;
 
@@ -3149,10 +3621,17 @@ function EditorPage(props: {
   if (!project) {
     return (
       <div style={{ padding: COMPACT_UI.pagePadding }}>
-        <p style={{ color: '#4e5969' }}>当前还没有项目，请先生成。</p>
+        <p style={{ color: "#4e5969" }}>当前还没有项目，请先生成。</p>
         <button
-          onClick={() => navigate('/')}
-          style={{ padding: '10px 14px', border: 'none', borderRadius: 8, background: '#165dff', color: '#fff', cursor: 'pointer' }}
+          onClick={() => navigate("/")}
+          style={{
+            padding: "10px 14px",
+            border: "none",
+            borderRadius: 8,
+            background: "#165dff",
+            color: "#fff",
+            cursor: "pointer",
+          }}
         >
           返回首页
         </button>
@@ -3161,7 +3640,10 @@ function EditorPage(props: {
   }
 
   const complex = isStructuredTemplate(project.template);
-  const safeIndex = Math.min(activeIndex, Math.max(0, project.slides.length - 1));
+  const safeIndex = Math.min(
+    activeIndex,
+    Math.max(0, project.slides.length - 1),
+  );
   const slide = project.slides[safeIndex];
 
   const updateProject = (updater: (current: Project) => Project) => {
@@ -3173,20 +3655,20 @@ function EditorPage(props: {
     updateProject((current) => ({
       ...current,
       slides: current.slides.map((item, itemIndex) =>
-        itemIndex === index ? updater(item) : item
+        itemIndex === index ? updater(item) : item,
       ),
     }));
   };
 
   const updateComplexSlideFields = (
     index: number,
-    patch: Partial<ComplexSlide>
+    patch: Partial<ComplexSlide>,
   ) => {
     updateSlide(index, (current) =>
       syncComplexSlideForEditor({
         ...(current as ComplexSlide),
         ...patch,
-      })
+      }),
     );
   };
 
@@ -3195,25 +3677,25 @@ function EditorPage(props: {
   };
 
   const handleAddSlide = () => {
-    const defaultLayout = getTemplateSlideTypes(project.template)[0] || 'hero';
+    const defaultLayout = getTemplateSlideTypes(project.template)[0] || "hero";
     const nextSlide: Slide = complex
       ? {
           id: `slide-${Date.now()}`,
           layout: defaultLayout,
           type: defaultLayout,
-          title: '新页面',
-          subtitle: '',
+          title: "新页面",
+          subtitle: "",
           points: [],
           items: [],
           data: {},
-          narration: '',
+          narration: "",
         }
       : {
           id: `slide-${Date.now()}`,
-          title: '新页面',
-          subtitle: '',
-          points: ['要点 1'],
-          narration: '',
+          title: "新页面",
+          subtitle: "",
+          points: ["要点 1"],
+          narration: "",
         };
 
     updateProject((current) => ({
@@ -3242,14 +3724,14 @@ function EditorPage(props: {
     setPreviewLoading(true);
     setShowPreview(true);
     setPreviewData(null);
-    setPreviewError('');
+    setPreviewError("");
 
     try {
       await saveCurrentProject();
       await syncAudio(project);
 
-      const { convertFileSrc } = await import('@tauri-apps/api/core');
-      const result = await invokeTauri<string>('load_preview_project', {
+      const { convertFileSrc } = await import("@tauri-apps/api/core");
+      const result = await invokeTauri<string>("load_preview_project", {
         contentPath: project.contentPath,
       });
       const preview = JSON.parse(result) as PreviewProjectResponse;
@@ -3257,9 +3739,11 @@ function EditorPage(props: {
       setPreviewData({
         template: preview.template || project.template,
         slides: preview.slides || [],
-        soundtrackUrl: preview.soundtrackDataUrl || (preview.soundtrackFile
-          ? convertFileSrc(preview.soundtrackFile)
-          : undefined),
+        soundtrackUrl:
+          preview.soundtrackDataUrl ||
+          (preview.soundtrackFile
+            ? convertFileSrc(preview.soundtrackFile)
+            : undefined),
       });
     } catch (cause) {
       const message = cause instanceof Error ? cause.message : String(cause);
@@ -3282,21 +3766,21 @@ function EditorPage(props: {
 
   const handleRender = async () => {
     setRendering(true);
-    setRenderProgress('正在保存项目...');
+    setRenderProgress("正在保存项目...");
 
     try {
       await saveCurrentProject();
-      setRenderProgress('正在同步音频...');
+      setRenderProgress("正在同步音频...");
       await syncAudio(project);
 
-      setRenderProgress('正在渲染视频...');
-      const result = await invokeTauri<string>('render_video', {
+      setRenderProgress("正在渲染视频...");
+      const result = await invokeTauri<string>("render_video", {
         template: project.template,
         contentPath: project.contentPath,
       });
       setRenderProgress(`渲染完成: ${result}`);
     } catch (cause) {
-      setRenderProgress('');
+      setRenderProgress("");
       alert(cause instanceof Error ? cause.message : String(cause));
     } finally {
       setRendering(false);
@@ -3304,7 +3788,10 @@ function EditorPage(props: {
   };
 
   const panelTitle = isComplexSlide(slide)
-    ? String((slide.title || slide.data.title || slide.data.quote || slide.type) ?? `第 ${safeIndex + 1} 页`)
+    ? String(
+        (slide.title || slide.data.title || slide.data.quote || slide.type) ??
+          `第 ${safeIndex + 1} 页`,
+      )
     : slide.title || `第 ${safeIndex + 1} 页`;
   const complexEditorLabels = isComplexSlide(slide)
     ? getComplexEditorLabels(slide)
@@ -3317,10 +3804,10 @@ function EditorPage(props: {
     <div style={{ ...PAGE_FRAME_STYLE, maxWidth: 1140 }}>
       <div
         style={{
-          display: 'flex',
+          display: "flex",
           gap: SPACING.md,
-          alignItems: 'start',
-          width: '100%',
+          alignItems: "start",
+          width: "100%",
         }}
       >
         <div
@@ -3331,26 +3818,48 @@ function EditorPage(props: {
             flexShrink: 0,
             borderRadius: 22,
             minHeight: editorWorkspaceHeight,
-            display: 'flex',
-            flexDirection: 'column',
-            overflow: 'hidden',
+            display: "flex",
+            flexDirection: "column",
+            overflow: "hidden",
           }}
         >
           <div
             style={{
-              padding: '14px 14px 12px',
-              borderBottom: '1px solid #edf1f7',
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
+              padding: "14px 14px 12px",
+              borderBottom: "1px solid #edf1f7",
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
               gap: SPACING.md,
             }}
           >
-            <span style={{ fontWeight: 700, color: '#1d2129', whiteSpace: 'nowrap' }}>页面 ({project.slides.length})</span>
-            <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexShrink: 0 }}>
+            <span
+              style={{
+                fontWeight: 700,
+                color: "#1d2129",
+                whiteSpace: "nowrap",
+              }}
+            >
+              页面 ({project.slides.length})
+            </span>
+            <div
+              style={{
+                display: "flex",
+                gap: 8,
+                alignItems: "center",
+                flexShrink: 0,
+              }}
+            >
               <button
                 onClick={handleAddSlide}
-                style={{ ...PRIMARY_BUTTON_STYLE, padding: '8px 16px', borderRadius: 12, fontSize: 13, cursor: 'pointer', minWidth: 88 }}
+                style={{
+                  ...PRIMARY_BUTTON_STYLE,
+                  padding: "8px 16px",
+                  borderRadius: 12,
+                  fontSize: 13,
+                  cursor: "pointer",
+                  minWidth: 88,
+                }}
               >
                 + 新增
               </button>
@@ -3359,38 +3868,52 @@ function EditorPage(props: {
                 disabled={previewLoading}
                 style={{
                   ...PRIMARY_BUTTON_STYLE,
-                  padding: '8px 12px',
+                  padding: "8px 12px",
                   borderRadius: 12,
                   fontSize: 13,
                   minWidth: 96,
-                  background: previewLoading ? '#94b8ff' : 'linear-gradient(135deg, #07b36d 0%, #19c37d 100%)',
-                  cursor: previewLoading ? 'not-allowed' : 'pointer',
+                  background: previewLoading
+                    ? "#94b8ff"
+                    : "linear-gradient(135deg, #07b36d 0%, #19c37d 100%)",
+                  cursor: previewLoading ? "not-allowed" : "pointer",
                 }}
               >
-                {previewLoading ? '准备中...' : showPreview ? '返回编辑' : '预览'}
+                {previewLoading
+                  ? "准备中..."
+                  : showPreview
+                    ? "返回编辑"
+                    : "预览"}
               </button>
               <button
                 onClick={handleRender}
                 disabled={rendering}
                 style={{
                   ...PRIMARY_BUTTON_STYLE,
-                  padding: '8px 12px',
+                  padding: "8px 12px",
                   borderRadius: 12,
                   fontSize: 13,
                   minWidth: 116,
-                  background: rendering ? '#94b8ff' : PRIMARY_BUTTON_STYLE.background,
-                  cursor: rendering ? 'not-allowed' : 'pointer',
+                  background: rendering
+                    ? "#94b8ff"
+                    : PRIMARY_BUTTON_STYLE.background,
+                  cursor: rendering ? "not-allowed" : "pointer",
                 }}
               >
-                {rendering ? '生成中...' : '生成视频'}
+                {rendering ? "生成中..." : "生成视频"}
               </button>
             </div>
           </div>
 
-          <div style={{ flex: 1, overflow: 'auto', padding: 6 }}>
+          <div style={{ flex: 1, overflow: "auto", padding: 6 }}>
             {project.slides.map((item, index) => {
               const title = isComplexSlide(item)
-                ? String((item.title || item.data.title || item.data.quote || item.type) ?? `第 ${index + 1} 页`)
+                ? String(
+                    (item.title ||
+                      item.data.title ||
+                      item.data.quote ||
+                      item.type) ??
+                      `第 ${index + 1} 页`,
+                  )
                 : item.title || `第 ${index + 1} 页`;
 
               return (
@@ -3399,31 +3922,40 @@ function EditorPage(props: {
                   onClick={() => setActiveIndex(index)}
                   style={{
                     marginBottom: 6,
-                    padding: '10px 12px',
-                    cursor: 'pointer',
+                    padding: "10px 12px",
+                    cursor: "pointer",
                     background:
                       safeIndex === index
-                        ? 'linear-gradient(180deg, rgba(232,239,255,0.98) 0%, rgba(219,229,255,0.9) 100%)'
-                        : 'transparent',
+                        ? "linear-gradient(180deg, rgba(232,239,255,0.98) 0%, rgba(219,229,255,0.9) 100%)"
+                        : "transparent",
                     border:
                       safeIndex === index
-                        ? '1px solid rgba(167,191,255,0.56)'
-                        : '1px solid transparent',
+                        ? "1px solid rgba(167,191,255,0.56)"
+                        : "1px solid transparent",
                     borderRadius: 14,
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
                     gap: SPACING.sm,
                   }}
                 >
-                  <span style={{ fontSize: 13, color: '#1d2129', lineHeight: 1.4 }}>{title}</span>
+                  <span
+                    style={{ fontSize: 13, color: "#1d2129", lineHeight: 1.4 }}
+                  >
+                    {title}
+                  </span>
                   {project.slides.length > 1 ? (
                     <button
                       onClick={(event) => {
                         event.stopPropagation();
                         handleDeleteSlide(index);
                       }}
-                      style={{ ...QUIET_DANGER_BUTTON_STYLE, padding: '4px 8px', fontSize: 11, flexShrink: 0 }}
+                      style={{
+                        ...QUIET_DANGER_BUTTON_STYLE,
+                        padding: "4px 8px",
+                        fontSize: 11,
+                        flexShrink: 0,
+                      }}
                     >
                       删除
                     </button>
@@ -3432,7 +3964,6 @@ function EditorPage(props: {
               );
             })}
           </div>
-
         </div>
 
         <div
@@ -3448,41 +3979,47 @@ function EditorPage(props: {
                 padding: 0,
                 borderRadius: 22,
                 minHeight: editorWorkspaceHeight,
-                display: 'flex',
-                flexDirection: 'column',
-                overflow: 'hidden',
+                display: "flex",
+                flexDirection: "column",
+                overflow: "hidden",
               }}
             >
               <div
                 style={{
-                  padding: '14px 16px',
-                  borderBottom: '1px solid #edf1f7',
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
+                  padding: "14px 16px",
+                  borderBottom: "1px solid #edf1f7",
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
                 }}
               >
-                <span style={{ fontWeight: 700, color: '#1d2129' }}>预览</span>
+                <span style={{ fontWeight: 700, color: "#1d2129" }}>预览</span>
                 <button
                   onClick={() => setShowPreview(false)}
-                  style={{ ...SECONDARY_BUTTON_STYLE, padding: '8px 12px', borderRadius: 999 }}
+                  style={{
+                    ...SECONDARY_BUTTON_STYLE,
+                    padding: "8px 12px",
+                    borderRadius: 999,
+                  }}
                 >
                   返回编辑
                 </button>
               </div>
 
-              <div style={{ flex: 1, minWidth: 0, minHeight: 0, display: 'flex' }}>
+              <div
+                style={{ flex: 1, minWidth: 0, minHeight: 0, display: "flex" }}
+              >
                 {previewLoading || !previewData ? (
                   <div
                     style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      width: '100%',
-                      color: '#86909c',
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      width: "100%",
+                      color: "#86909c",
                     }}
                   >
-                    {previewError || '正在准备预览...'}
+                    {previewError || "正在准备预览..."}
                   </div>
                 ) : (
                   <div style={{ flex: 1, minWidth: 0, minHeight: 0 }}>
@@ -3493,11 +4030,11 @@ function EditorPage(props: {
 
               <div
                 style={{
-                  padding: '10px 14px',
-                  borderTop: '1px solid #e5e6eb',
+                  padding: "10px 14px",
+                  borderTop: "1px solid #e5e6eb",
                   fontSize: 12,
-                  color: '#86909c',
-                  textAlign: 'center',
+                  color: "#86909c",
+                  textAlign: "center",
                 }}
               >
                 当前模板: {project.template} | 预览在应用内直接播放
@@ -3508,212 +4045,308 @@ function EditorPage(props: {
               style={{
                 ...PANEL_STYLE,
                 minHeight: editorWorkspaceHeight,
-                overflow: 'auto',
+                overflow: "auto",
               }}
             >
-            <div style={{ marginBottom: SPACING.md }}>
-              <h3 style={{ ...SECTION_TITLE_STYLE, marginBottom: SPACING.xs }}>{panelTitle}</h3>
-              <p style={{ margin: 0, color: '#86909c', fontSize: 12, lineHeight: 1.5 }}>
-                第 {safeIndex + 1} 页 / 共 {project.slides.length} 页
-              </p>
-            </div>
+              <div style={{ marginBottom: SPACING.md }}>
+                <h3
+                  style={{ ...SECTION_TITLE_STYLE, marginBottom: SPACING.xs }}
+                >
+                  {panelTitle}
+                </h3>
+                <p
+                  style={{
+                    margin: 0,
+                    color: "#86909c",
+                    fontSize: 12,
+                    lineHeight: 1.5,
+                  }}
+                >
+                  第 {safeIndex + 1} 页 / 共 {project.slides.length} 页
+                </p>
+              </div>
 
-            {isComplexSlide(slide) ? (
-              <>
-                <div style={FIELD_GROUP_STYLE}>
-                  <label style={{ display: 'block', marginBottom: 8, fontWeight: 600 }}>
-                    {complexEditorLabels?.title || '标题'}
-                  </label>
-                  <input
-                    value={slide.title || ''}
-                    onChange={(event) => {
-                      updateComplexSlideFields(safeIndex, {
-                        title: event.target.value,
-                      });
-                    }}
-                    onBlur={() => {
-                      void saveCurrentProject();
-                    }}
-                    style={SOFT_INPUT_STYLE}
-                  />
-                </div>
+              {isComplexSlide(slide) ? (
+                <>
+                  <div style={FIELD_GROUP_STYLE}>
+                    <label
+                      style={{
+                        display: "block",
+                        marginBottom: 8,
+                        fontWeight: 600,
+                      }}
+                    >
+                      {complexEditorLabels?.title || "标题"}
+                    </label>
+                    <input
+                      value={slide.title || ""}
+                      onChange={(event) => {
+                        updateComplexSlideFields(safeIndex, {
+                          title: event.target.value,
+                        });
+                      }}
+                      onBlur={() => {
+                        void saveCurrentProject();
+                      }}
+                      style={SOFT_INPUT_STYLE}
+                    />
+                  </div>
 
-                <div style={{ ...FIELD_GROUP_STYLE, marginTop: SPACING.md }}>
-                  <label style={{ display: 'block', marginBottom: 8, fontWeight: 600 }}>
-                    {complexEditorLabels?.subtitle || '副标题'}
-                  </label>
-                  <input
-                    value={slide.subtitle || ''}
-                    onChange={(event) => {
-                      updateComplexSlideFields(safeIndex, {
-                        subtitle: event.target.value,
-                      });
-                    }}
-                    onBlur={() => {
-                      void saveCurrentProject();
-                    }}
-                    style={SOFT_INPUT_STYLE}
-                  />
-                </div>
+                  <div style={{ ...FIELD_GROUP_STYLE, marginTop: SPACING.md }}>
+                    <label
+                      style={{
+                        display: "block",
+                        marginBottom: 8,
+                        fontWeight: 600,
+                      }}
+                    >
+                      {complexEditorLabels?.subtitle || "副标题"}
+                    </label>
+                    <input
+                      value={slide.subtitle || ""}
+                      onChange={(event) => {
+                        updateComplexSlideFields(safeIndex, {
+                          subtitle: event.target.value,
+                        });
+                      }}
+                      onBlur={() => {
+                        void saveCurrentProject();
+                      }}
+                      style={SOFT_INPUT_STYLE}
+                    />
+                  </div>
 
-                <div style={{ ...FIELD_GROUP_STYLE, marginTop: SPACING.md }}>
-                  <label style={{ display: 'block', marginBottom: 8, fontWeight: 600 }}>
-                    {complexEditorLabels?.points || '页面内容'}
-                  </label>
-                  <textarea
-                    value={complexEditorPoints.join('\n')}
-                    onChange={(event) => {
-                      const nextPoints = event.target.value
-                        .split('\n')
-                        .map((line) => line.trim())
-                        .filter(Boolean);
-                      updateComplexSlideFields(safeIndex, {
-                        points: nextPoints,
-                      });
-                    }}
-                    onBlur={() => {
-                      void saveCurrentProject();
-                    }}
-                    rows={5}
-                    style={{ ...SOFT_INPUT_STYLE, minHeight: 128 }}
-                  />
-                </div>
+                  <div style={{ ...FIELD_GROUP_STYLE, marginTop: SPACING.md }}>
+                    <label
+                      style={{
+                        display: "block",
+                        marginBottom: 8,
+                        fontWeight: 600,
+                      }}
+                    >
+                      {complexEditorLabels?.points || "页面内容"}
+                    </label>
+                    <textarea
+                      value={complexEditorPoints.join("\n")}
+                      onChange={(event) => {
+                        const nextPoints = event.target.value
+                          .split("\n")
+                          .map((line) => line.trim())
+                          .filter(Boolean);
+                        updateComplexSlideFields(safeIndex, {
+                          points: nextPoints,
+                        });
+                      }}
+                      onBlur={() => {
+                        void saveCurrentProject();
+                      }}
+                      rows={5}
+                      style={{ ...SOFT_INPUT_STYLE, minHeight: 128 }}
+                    />
+                  </div>
 
-                <div style={{ ...FIELD_GROUP_STYLE, marginTop: SPACING.md }}>
-                  <label style={{ display: 'block', marginBottom: 8, fontWeight: 600 }}>旁白</label>
-                  <textarea
-                    value={slide.narration || ''}
-                    onChange={(event) => {
-                      const nextNarration = event.target.value;
-                      updateSlide(safeIndex, (current) => ({
-                        ...(nextNarration === (current as ComplexSlide).narration
-                          ? (current as ComplexSlide)
-                          : detachSlideNarrationTiming(
-                              current as ComplexSlide,
-                              nextNarration
-                            )),
-                      }));
-                    }}
-                    onBlur={() => {
-                      void saveCurrentProject();
-                    }}
-                    rows={5}
-                    style={{ ...SOFT_INPUT_STYLE, minHeight: 128 }}
-                  />
-                </div>
-              </>
-            ) : (
-              <>
-                <div style={FIELD_GROUP_STYLE}>
-                  <label style={{ display: 'block', marginBottom: 8, fontWeight: 600 }}>标题</label>
-                  <input
-                    value={slide.title}
-                    onChange={(event) => {
-                      updateSlide(safeIndex, (current) => ({
-                        ...(current as SimpleSlide),
-                        title: event.target.value,
-                      }));
-                    }}
-                    onBlur={() => {
-                      void saveCurrentProject();
-                    }}
-                    style={SOFT_INPUT_STYLE}
-                  />
-                </div>
+                  <div style={{ ...FIELD_GROUP_STYLE, marginTop: SPACING.md }}>
+                    <label
+                      style={{
+                        display: "block",
+                        marginBottom: 8,
+                        fontWeight: 600,
+                      }}
+                    >
+                      旁白
+                    </label>
+                    <textarea
+                      value={slide.narration || ""}
+                      onChange={(event) => {
+                        const nextNarration = event.target.value;
+                        updateSlide(safeIndex, (current) => ({
+                          ...(nextNarration ===
+                          (current as ComplexSlide).narration
+                            ? (current as ComplexSlide)
+                            : detachSlideNarrationTiming(
+                                current as ComplexSlide,
+                                nextNarration,
+                              )),
+                        }));
+                      }}
+                      onBlur={() => {
+                        void saveCurrentProject();
+                      }}
+                      rows={5}
+                      style={{ ...SOFT_INPUT_STYLE, minHeight: 128 }}
+                    />
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div style={FIELD_GROUP_STYLE}>
+                    <label
+                      style={{
+                        display: "block",
+                        marginBottom: 8,
+                        fontWeight: 600,
+                      }}
+                    >
+                      标题
+                    </label>
+                    <input
+                      value={slide.title}
+                      onChange={(event) => {
+                        updateSlide(safeIndex, (current) => ({
+                          ...(current as SimpleSlide),
+                          title: event.target.value,
+                        }));
+                      }}
+                      onBlur={() => {
+                        void saveCurrentProject();
+                      }}
+                      style={SOFT_INPUT_STYLE}
+                    />
+                  </div>
 
-                <div style={{ ...FIELD_GROUP_STYLE, marginTop: SPACING.md }}>
-                  <label style={{ display: 'block', marginBottom: 8, fontWeight: 600 }}>副标题</label>
-                  <input
-                    value={slide.subtitle}
-                    onChange={(event) => {
-                      updateSlide(safeIndex, (current) => ({
-                        ...(current as SimpleSlide),
-                        subtitle: event.target.value,
-                      }));
-                    }}
-                    onBlur={() => {
-                      void saveCurrentProject();
-                    }}
-                    style={SOFT_INPUT_STYLE}
-                  />
-                </div>
+                  <div style={{ ...FIELD_GROUP_STYLE, marginTop: SPACING.md }}>
+                    <label
+                      style={{
+                        display: "block",
+                        marginBottom: 8,
+                        fontWeight: 600,
+                      }}
+                    >
+                      副标题
+                    </label>
+                    <input
+                      value={slide.subtitle}
+                      onChange={(event) => {
+                        updateSlide(safeIndex, (current) => ({
+                          ...(current as SimpleSlide),
+                          subtitle: event.target.value,
+                        }));
+                      }}
+                      onBlur={() => {
+                        void saveCurrentProject();
+                      }}
+                      style={SOFT_INPUT_STYLE}
+                    />
+                  </div>
 
-                <div style={{ ...FIELD_GROUP_STYLE, marginTop: SPACING.md }}>
-                  <label style={{ display: 'block', marginBottom: 8, fontWeight: 600 }}>要点</label>
-                  {slide.points.map((point, pointIndex) => (
-                    <div key={`${slide.id}-${pointIndex}`} style={{ display: 'flex', gap: SPACING.sm, marginBottom: SPACING.sm }}>
-                      <input
-                        value={point}
-                        onChange={(event) => {
-                          const nextPoints = slide.points.map((item, itemIndex) =>
-                            itemIndex === pointIndex ? event.target.value : item
-                          );
-                          updateSlide(safeIndex, (current) => ({
-                            ...(current as SimpleSlide),
-                            points: nextPoints,
-                          }));
+                  <div style={{ ...FIELD_GROUP_STYLE, marginTop: SPACING.md }}>
+                    <label
+                      style={{
+                        display: "block",
+                        marginBottom: 8,
+                        fontWeight: 600,
+                      }}
+                    >
+                      要点
+                    </label>
+                    {slide.points.map((point, pointIndex) => (
+                      <div
+                        key={`${slide.id}-${pointIndex}`}
+                        style={{
+                          display: "flex",
+                          gap: SPACING.sm,
+                          marginBottom: SPACING.sm,
                         }}
-                        onBlur={() => {
-                          void saveCurrentProject();
-                        }}
-                        style={{ ...SOFT_INPUT_STYLE, flex: 1 }}
-                      />
-                      <button
-                        onClick={() => {
-                          const nextPoints = slide.points.filter((_, itemIndex) => itemIndex !== pointIndex);
-                          updateSlide(safeIndex, (current) => ({
-                            ...(current as SimpleSlide),
-                            points: nextPoints,
-                          }));
-                        }}
-                        style={{ ...QUIET_DANGER_BUTTON_STYLE, padding: '0 14px' }}
                       >
-                        删除
-                      </button>
-                    </div>
-                  ))}
-                  <button
-                    onClick={() => {
-                      updateSlide(safeIndex, (current) => ({
-                        ...(current as SimpleSlide),
-                        points: [...(current as SimpleSlide).points, '新要点'],
-                      }));
-                    }}
-                    style={{ ...SECONDARY_BUTTON_STYLE, padding: '8px 12px' }}
-                  >
-                    + 添加要点
-                  </button>
-                </div>
+                        <input
+                          value={point}
+                          onChange={(event) => {
+                            const nextPoints = slide.points.map(
+                              (item, itemIndex) =>
+                                itemIndex === pointIndex
+                                  ? event.target.value
+                                  : item,
+                            );
+                            updateSlide(safeIndex, (current) => ({
+                              ...(current as SimpleSlide),
+                              points: nextPoints,
+                            }));
+                          }}
+                          onBlur={() => {
+                            void saveCurrentProject();
+                          }}
+                          style={{ ...SOFT_INPUT_STYLE, flex: 1 }}
+                        />
+                        <button
+                          onClick={() => {
+                            const nextPoints = slide.points.filter(
+                              (_, itemIndex) => itemIndex !== pointIndex,
+                            );
+                            updateSlide(safeIndex, (current) => ({
+                              ...(current as SimpleSlide),
+                              points: nextPoints,
+                            }));
+                          }}
+                          style={{
+                            ...QUIET_DANGER_BUTTON_STYLE,
+                            padding: "0 14px",
+                          }}
+                        >
+                          删除
+                        </button>
+                      </div>
+                    ))}
+                    <button
+                      onClick={() => {
+                        updateSlide(safeIndex, (current) => ({
+                          ...(current as SimpleSlide),
+                          points: [
+                            ...(current as SimpleSlide).points,
+                            "新要点",
+                          ],
+                        }));
+                      }}
+                      style={{ ...SECONDARY_BUTTON_STYLE, padding: "8px 12px" }}
+                    >
+                      + 添加要点
+                    </button>
+                  </div>
 
-                <div style={{ ...FIELD_GROUP_STYLE, marginTop: SPACING.md }}>
-                  <label style={{ display: 'block', marginBottom: 8, fontWeight: 600 }}>旁白</label>
-                  <textarea
-                    value={slide.narration}
-                    onChange={(event) => {
-                      const nextNarration = event.target.value;
-                      updateSlide(safeIndex, (current) => ({
-                        ...(nextNarration === (current as SimpleSlide).narration
-                          ? (current as SimpleSlide)
-                          : detachSlideNarrationTiming(
-                              current as SimpleSlide,
-                              nextNarration
-                            )),
-                      }));
-                    }}
-                    onBlur={() => {
-                      void saveCurrentProject();
-                    }}
-                    rows={5}
-                    style={{ ...SOFT_INPUT_STYLE, minHeight: 128 }}
-                  />
-                </div>
-              </>
-            )}
-            {renderProgress ? (
-              <p style={{ margin: `${SPACING.md}px 0 0`, fontSize: 12, color: '#86909c', lineHeight: 1.5 }}>
-                {renderProgress}
-              </p>
-            ) : null}
+                  <div style={{ ...FIELD_GROUP_STYLE, marginTop: SPACING.md }}>
+                    <label
+                      style={{
+                        display: "block",
+                        marginBottom: 8,
+                        fontWeight: 600,
+                      }}
+                    >
+                      旁白
+                    </label>
+                    <textarea
+                      value={slide.narration}
+                      onChange={(event) => {
+                        const nextNarration = event.target.value;
+                        updateSlide(safeIndex, (current) => ({
+                          ...(nextNarration ===
+                          (current as SimpleSlide).narration
+                            ? (current as SimpleSlide)
+                            : detachSlideNarrationTiming(
+                                current as SimpleSlide,
+                                nextNarration,
+                              )),
+                        }));
+                      }}
+                      onBlur={() => {
+                        void saveCurrentProject();
+                      }}
+                      rows={5}
+                      style={{ ...SOFT_INPUT_STYLE, minHeight: 128 }}
+                    />
+                  </div>
+                </>
+              )}
+              {renderProgress ? (
+                <p
+                  style={{
+                    margin: `${SPACING.md}px 0 0`,
+                    fontSize: 12,
+                    color: "#86909c",
+                    lineHeight: 1.5,
+                  }}
+                >
+                  {renderProgress}
+                </p>
+              ) : null}
             </div>
           )}
         </div>
@@ -3735,11 +4368,18 @@ type SettingsPageProps = {
 function SettingsPage(props: SettingsPageProps) {
   const [settings, setSettings] = React.useState<SettingsData>(loadSettings());
   const [saved, setSaved] = React.useState(false);
-  const [activeTab, setActiveTab] = React.useState<'voice' | 'ai' | 'rewrite' | 'about'>('voice');
-  const [editingRewriteStyleId, setEditingRewriteStyleId] = React.useState<string | null>(null);
-  const [aboutMessage, setAboutMessage] = React.useState('');
+  const [activeTab, setActiveTab] = React.useState<
+    "voice" | "ai" | "rewrite" | "about"
+  >("voice");
+  const [editingRewriteStyleId, setEditingRewriteStyleId] = React.useState<
+    string | null
+  >(null);
+  const [aboutMessage, setAboutMessage] = React.useState("");
 
-  const updateField = <K extends keyof SettingsData>(key: K, value: SettingsData[K]) => {
+  const updateField = <K extends keyof SettingsData>(
+    key: K,
+    value: SettingsData[K],
+  ) => {
     setSettings((current) => ({ ...current, [key]: value }));
   };
 
@@ -3752,7 +4392,9 @@ function SettingsPage(props: SettingsPageProps) {
   const updateRewriteStyle = (id: string, patch: Partial<RewriteStyle>) => {
     setSettings((current) => ({
       ...current,
-      rewriteStyles: current.rewriteStyles.map((style) => (style.id === id ? { ...style, ...patch } : style)),
+      rewriteStyles: current.rewriteStyles.map((style) =>
+        style.id === id ? { ...style, ...patch } : style,
+      ),
     }));
   };
 
@@ -3765,7 +4407,8 @@ function SettingsPage(props: SettingsPageProps) {
         {
           id,
           name: `新风格 ${current.rewriteStyles.length + 1}`,
-          prompt: '你是短视频文案改写助手。请把下面的原文案改写成更适合口播的视频文案。\n\n要求：输出纯文本，不要解释，不要加标题。\n\n原文案：\n{{text}}',
+          prompt:
+            "你是短视频文案改写助手。请把下面的原文案改写成更适合口播的视频文案。\n\n要求：输出纯文本，不要解释，不要加标题。\n\n原文案：\n{{text}}",
         },
       ],
       defaultRewriteStyleId: current.defaultRewriteStyleId || id,
@@ -3778,40 +4421,50 @@ function SettingsPage(props: SettingsPageProps) {
       if (current.rewriteStyles.length <= 1) {
         return current;
       }
-      const rewriteStyles = current.rewriteStyles.filter((style) => style.id !== id);
+      const rewriteStyles = current.rewriteStyles.filter(
+        (style) => style.id !== id,
+      );
       return {
         ...current,
         rewriteStyles,
         defaultRewriteStyleId:
-          current.defaultRewriteStyleId === id ? rewriteStyles[0].id : current.defaultRewriteStyleId,
+          current.defaultRewriteStyleId === id
+            ? rewriteStyles[0].id
+            : current.defaultRewriteStyleId,
       };
     });
     setEditingRewriteStyleId((current) => (current === id ? null : current));
   };
 
   const settingsTabStyle = (active: boolean): React.CSSProperties => ({
-    padding: '10px 18px',
+    padding: "10px 18px",
     borderRadius: 999,
-    border: active ? '1px solid rgba(70, 118, 255, 0.35)' : '1px solid transparent',
+    border: active
+      ? "1px solid rgba(70, 118, 255, 0.35)"
+      : "1px solid transparent",
     background: active
-      ? 'linear-gradient(180deg, rgba(233,239,255,0.98) 0%, rgba(220,230,255,0.92) 100%)'
-      : 'transparent',
-    color: active ? '#2563eb' : '#5f6b82',
+      ? "linear-gradient(180deg, rgba(233,239,255,0.98) 0%, rgba(220,230,255,0.92) 100%)"
+      : "transparent",
+    color: active ? "#2563eb" : "#5f6b82",
     fontSize: 14,
     fontWeight: 700,
-    cursor: 'pointer',
+    cursor: "pointer",
   });
 
   const handleCheckUpdate = async () => {
-    setAboutMessage('');
+    setAboutMessage("");
     try {
       const info = await props.onCheckUpdate();
       if (!info) {
-        setAboutMessage('暂时没有拿到版本信息。');
+        setAboutMessage("暂时没有拿到版本信息。");
         return;
       }
 
-      setAboutMessage(info.hasUpdate ? `发现新版本 ${info.latestVersion || ''}`.trim() : '当前已经是最新版本。');
+      setAboutMessage(
+        info.hasUpdate
+          ? `发现新版本 ${info.latestVersion || ""}`.trim()
+          : "当前已经是最新版本。",
+      );
     } catch (cause) {
       setAboutMessage(getErrorMessage(cause));
     }
@@ -3819,55 +4472,96 @@ function SettingsPage(props: SettingsPageProps) {
 
   const licenseStatusText = props.authStatus
     ? props.authStatus.isValid
-      ? '已授权'
-      : '未授权'
+      ? "已授权"
+      : "未授权"
     : props.authSession
-      ? '待验证'
-      : '未登录';
+      ? "待验证"
+      : "未登录";
   const licenseStatusColor = props.authStatus
     ? props.authStatus.isValid
-      ? '#047857'
-      : '#b91c1c'
-    : '#64748b';
-  const licenseUsername = props.authStatus?.username || props.authSession?.username || '-';
-  const licenseExpireTime = formatAuthExpireTime(props.authStatus?.expireTime || props.authSession?.expireTime || null);
-  const licenseRemaining = props.authStatus ? formatRemainingSeconds(props.authStatus.remainingSeconds) : '-';
-  const licenseDeviceName = props.authStatus?.deviceName || props.authSession?.deviceName || props.authContext?.deviceName || '-';
-
+      ? "#047857"
+      : "#b91c1c"
+    : "#64748b";
+  const licenseUsername =
+    props.authStatus?.username || props.authSession?.username || "-";
+  const licenseExpireTime = formatAuthExpireTime(
+    props.authStatus?.expireTime || props.authSession?.expireTime || null,
+  );
+  const licenseRemaining = props.authStatus
+    ? formatRemainingSeconds(props.authStatus.remainingSeconds)
+    : "-";
+  const licenseDeviceName =
+    props.authStatus?.deviceName ||
+    props.authSession?.deviceName ||
+    props.authContext?.deviceName ||
+    "-";
 
   return (
     <div style={PAGE_FRAME_STYLE}>
-      <div style={{ width: '100%', maxWidth: 760, margin: '0 auto' }}>
-        <h2 style={{ marginTop: 0, marginBottom: 8, color: '#1d2129', fontSize: 18, letterSpacing: '-0.02em' }}>设置</h2>
+      <div style={{ width: "100%", maxWidth: 760, margin: "0 auto" }}>
+        <h2
+          style={{
+            marginTop: 0,
+            marginBottom: 8,
+            color: "#1d2129",
+            fontSize: 18,
+            letterSpacing: "-0.02em",
+          }}
+        >
+          设置
+        </h2>
 
-        <div style={{ ...PANEL_STYLE, display: 'flex', flexDirection: 'column', gap: SPACING.md }}>
+        <div
+          style={{
+            ...PANEL_STYLE,
+            display: "flex",
+            flexDirection: "column",
+            gap: SPACING.md,
+          }}
+        >
           <div
             style={{
-              display: 'inline-flex',
+              display: "inline-flex",
               gap: SPACING.xs,
               padding: 5,
               borderRadius: 999,
-              background: 'rgba(243, 247, 252, 0.88)',
-              border: '1px solid rgba(223, 230, 240, 0.92)',
-              alignSelf: 'flex-start',
-              flexWrap: 'wrap',
+              background: "rgba(243, 247, 252, 0.88)",
+              border: "1px solid rgba(223, 230, 240, 0.92)",
+              alignSelf: "flex-start",
+              flexWrap: "wrap",
             }}
           >
-            <button type="button" onClick={() => setActiveTab('voice')} style={settingsTabStyle(activeTab === 'voice')}>
+            <button
+              type="button"
+              onClick={() => setActiveTab("voice")}
+              style={settingsTabStyle(activeTab === "voice")}
+            >
               配音
             </button>
-            <button type="button" onClick={() => setActiveTab('ai')} style={settingsTabStyle(activeTab === 'ai')}>
+            <button
+              type="button"
+              onClick={() => setActiveTab("ai")}
+              style={settingsTabStyle(activeTab === "ai")}
+            >
               AI 生成
             </button>
-            <button type="button" onClick={() => setActiveTab('rewrite')} style={settingsTabStyle(activeTab === 'rewrite')}>
+            <button
+              type="button"
+              onClick={() => setActiveTab("rewrite")}
+              style={settingsTabStyle(activeTab === "rewrite")}
+            >
               改写风格
             </button>
-            <button type="button" onClick={() => setActiveTab('about')} style={settingsTabStyle(activeTab === 'about')}>
+            <button
+              type="button"
+              onClick={() => setActiveTab("about")}
+              style={settingsTabStyle(activeTab === "about")}
+            >
               关于
             </button>
           </div>
 
-          {activeTab === 'voice' ? (
+          {activeTab === "voice" ? (
             <>
               <h3 style={{ ...SECTION_TITLE_STYLE, marginTop: 0 }}>配音</h3>
 
@@ -3876,7 +4570,9 @@ function SettingsPage(props: SettingsPageProps) {
                 <input
                   type="password"
                   value={settings.voiceApiKey}
-                  onChange={(event) => updateField('voiceApiKey', event.target.value)}
+                  onChange={(event) =>
+                    updateField("voiceApiKey", event.target.value)
+                  }
                   style={SOFT_INPUT_STYLE}
                 />
               </div>
@@ -3885,7 +4581,9 @@ function SettingsPage(props: SettingsPageProps) {
                 <label style={FIELD_LABEL_STYLE}>App ID</label>
                 <input
                   value={settings.volcengineAppId}
-                  onChange={(event) => updateField('volcengineAppId', event.target.value)}
+                  onChange={(event) =>
+                    updateField("volcengineAppId", event.target.value)
+                  }
                   style={SOFT_INPUT_STYLE}
                 />
               </div>
@@ -3894,7 +4592,9 @@ function SettingsPage(props: SettingsPageProps) {
                 <label style={FIELD_LABEL_STYLE}>Resource ID</label>
                 <input
                   value={settings.volcengineResourceId}
-                  onChange={(event) => updateField('volcengineResourceId', event.target.value)}
+                  onChange={(event) =>
+                    updateField("volcengineResourceId", event.target.value)
+                  }
                   style={SOFT_INPUT_STYLE}
                 />
               </div>
@@ -3903,7 +4603,9 @@ function SettingsPage(props: SettingsPageProps) {
                 <label style={FIELD_LABEL_STYLE}>模型</label>
                 <input
                   value={settings.voiceModel}
-                  onChange={(event) => updateField('voiceModel', event.target.value)}
+                  onChange={(event) =>
+                    updateField("voiceModel", event.target.value)
+                  }
                   style={SOFT_INPUT_STYLE}
                 />
               </div>
@@ -3912,7 +4614,9 @@ function SettingsPage(props: SettingsPageProps) {
                 <label style={FIELD_LABEL_STYLE}>语音 ID</label>
                 <input
                   value={settings.voiceId}
-                  onChange={(event) => updateField('voiceId', event.target.value)}
+                  onChange={(event) =>
+                    updateField("voiceId", event.target.value)
+                  }
                   style={SOFT_INPUT_STYLE}
                 />
               </div>
@@ -3925,12 +4629,17 @@ function SettingsPage(props: SettingsPageProps) {
                   max={2}
                   step={0.1}
                   value={settings.voiceSpeechRate}
-                  onChange={(event) => updateField('voiceSpeechRate', normalizeSpeechRate(event.target.value))}
+                  onChange={(event) =>
+                    updateField(
+                      "voiceSpeechRate",
+                      normalizeSpeechRate(event.target.value),
+                    )
+                  }
                   style={SOFT_INPUT_STYLE}
                 />
               </div>
             </>
-          ) : activeTab === 'ai' ? (
+          ) : activeTab === "ai" ? (
             <>
               <h3 style={{ ...SECTION_TITLE_STYLE, marginTop: 0 }}>AI 生成</h3>
 
@@ -3938,7 +4647,7 @@ function SettingsPage(props: SettingsPageProps) {
                 <label style={FIELD_LABEL_STYLE}>API Base URL</label>
                 <input
                   value={settings.aiUrl}
-                  onChange={(event) => updateField('aiUrl', event.target.value)}
+                  onChange={(event) => updateField("aiUrl", event.target.value)}
                   style={SOFT_INPUT_STYLE}
                 />
               </div>
@@ -3948,7 +4657,9 @@ function SettingsPage(props: SettingsPageProps) {
                 <input
                   type="password"
                   value={settings.aiApiKey}
-                  onChange={(event) => updateField('aiApiKey', event.target.value)}
+                  onChange={(event) =>
+                    updateField("aiApiKey", event.target.value)
+                  }
                   style={SOFT_INPUT_STYLE}
                 />
               </div>
@@ -3957,72 +4668,155 @@ function SettingsPage(props: SettingsPageProps) {
                 <label style={FIELD_LABEL_STYLE}>模型名</label>
                 <input
                   value={settings.aiModel}
-                  onChange={(event) => updateField('aiModel', event.target.value)}
+                  onChange={(event) =>
+                    updateField("aiModel", event.target.value)
+                  }
                   style={SOFT_INPUT_STYLE}
                 />
               </div>
             </>
-          ) : activeTab === 'rewrite' ? (
+          ) : activeTab === "rewrite" ? (
             <>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: SPACING.md, flexWrap: 'wrap' }}>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  gap: SPACING.md,
+                  flexWrap: "wrap",
+                }}
+              >
                 <div>
-                  <h3 style={{ ...SECTION_TITLE_STYLE, marginTop: 0, marginBottom: 6 }}>改写风格</h3>
-                  <p style={{ margin: 0, color: '#86909c', fontSize: 12 }}>
+                  <h3
+                    style={{
+                      ...SECTION_TITLE_STYLE,
+                      marginTop: 0,
+                      marginBottom: 6,
+                    }}
+                  >
+                    改写风格
+                  </h3>
+                  <p style={{ margin: 0, color: "#86909c", fontSize: 12 }}>
                     在这里管理二创提示词模板。首页改写文案时会使用你选择的风格。
                   </p>
                 </div>
                 <button
                   type="button"
                   onClick={addRewriteStyle}
-                  style={{ ...SECONDARY_BUTTON_STYLE, minWidth: 120, cursor: 'pointer' }}
+                  style={{
+                    ...SECONDARY_BUTTON_STYLE,
+                    minWidth: 120,
+                    cursor: "pointer",
+                  }}
                 >
                   新增风格
                 </button>
               </div>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: SPACING.md }}>
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: SPACING.md,
+                }}
+              >
                 {settings.rewriteStyles.map((style) => {
                   const isDefault = settings.defaultRewriteStyleId === style.id;
                   const isEditing = editingRewriteStyleId === style.id;
-                  const promptPreview = style.prompt.replace(/\s+/g, ' ').trim();
+                  const promptPreview = style.prompt
+                    .replace(/\s+/g, " ")
+                    .trim();
                   return (
                     <div
                       key={style.id}
                       style={{
-                        border: isDefault ? '1px solid rgba(22, 93, 255, 0.28)' : '1px solid rgba(229, 230, 235, 0.92)',
+                        border: isDefault
+                          ? "1px solid rgba(22, 93, 255, 0.28)"
+                          : "1px solid rgba(229, 230, 235, 0.92)",
                         borderRadius: 16,
-                        background: isDefault ? 'rgba(232, 243, 255, 0.45)' : '#fff',
+                        background: isDefault
+                          ? "rgba(232, 243, 255, 0.45)"
+                          : "#fff",
                         padding: 16,
+                      }}
+                    >
+                      <div
+                        style={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          gap: SPACING.md,
+                          alignItems: "center",
+                          flexWrap: "wrap",
                         }}
                       >
-                      <div style={{ display: 'flex', justifyContent: 'space-between', gap: SPACING.md, alignItems: 'center', flexWrap: 'wrap' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 10,
+                            flexWrap: "wrap",
+                          }}
+                        >
                           {isEditing ? (
                             <input
                               value={style.name}
-                              onChange={(event) => updateRewriteStyle(style.id, { name: event.target.value })}
+                              onChange={(event) =>
+                                updateRewriteStyle(style.id, {
+                                  name: event.target.value,
+                                })
+                              }
                               style={{ ...SOFT_INPUT_STYLE, minWidth: 220 }}
                             />
                           ) : (
-                            <div style={{ fontSize: 15, fontWeight: 700, color: '#1d2129' }}>{style.name}</div>
+                            <div
+                              style={{
+                                fontSize: 15,
+                                fontWeight: 700,
+                                color: "#1d2129",
+                              }}
+                            >
+                              {style.name}
+                            </div>
                           )}
                           {isDefault ? (
-                            <span style={{ fontSize: 12, color: '#165dff', fontWeight: 700 }}>默认</span>
+                            <span
+                              style={{
+                                fontSize: 12,
+                                color: "#165dff",
+                                fontWeight: 700,
+                              }}
+                            >
+                              默认
+                            </span>
                           ) : null}
                         </div>
-                        <div style={{ display: 'flex', gap: 8 }}>
+                        <div style={{ display: "flex", gap: 8 }}>
                           <button
                             type="button"
-                            onClick={() => setEditingRewriteStyleId((current) => (current === style.id ? null : style.id))}
-                            style={{ ...SECONDARY_BUTTON_STYLE, padding: '8px 12px', cursor: 'pointer' }}
+                            onClick={() =>
+                              setEditingRewriteStyleId((current) =>
+                                current === style.id ? null : style.id,
+                              )
+                            }
+                            style={{
+                              ...SECONDARY_BUTTON_STYLE,
+                              padding: "8px 12px",
+                              cursor: "pointer",
+                            }}
                           >
-                            {isEditing ? '收起' : '编辑'}
+                            {isEditing ? "收起" : "编辑"}
                           </button>
                           {!isDefault ? (
                             <button
                               type="button"
-                              onClick={() => updateField('defaultRewriteStyleId', style.id)}
-                              style={{ ...SECONDARY_BUTTON_STYLE, padding: '8px 12px', cursor: 'pointer' }}
+                              onClick={() =>
+                                updateField("defaultRewriteStyleId", style.id)
+                              }
+                              style={{
+                                ...SECONDARY_BUTTON_STYLE,
+                                padding: "8px 12px",
+                                cursor: "pointer",
+                              }}
                             >
                               设为默认
                             </button>
@@ -4033,9 +4827,13 @@ function SettingsPage(props: SettingsPageProps) {
                             disabled={settings.rewriteStyles.length <= 1}
                             style={{
                               ...QUIET_DANGER_BUTTON_STYLE,
-                              padding: '8px 12px',
-                              cursor: settings.rewriteStyles.length <= 1 ? 'not-allowed' : 'pointer',
-                              opacity: settings.rewriteStyles.length <= 1 ? 0.5 : 1,
+                              padding: "8px 12px",
+                              cursor:
+                                settings.rewriteStyles.length <= 1
+                                  ? "not-allowed"
+                                  : "pointer",
+                              opacity:
+                                settings.rewriteStyles.length <= 1 ? 0.5 : 1,
                             }}
                           >
                             删除
@@ -4047,17 +4845,42 @@ function SettingsPage(props: SettingsPageProps) {
                         <>
                           <textarea
                             value={style.prompt}
-                            onChange={(event) => updateRewriteStyle(style.id, { prompt: event.target.value })}
+                            onChange={(event) =>
+                              updateRewriteStyle(style.id, {
+                                prompt: event.target.value,
+                              })
+                            }
                             rows={10}
-                            style={{ ...SOFT_INPUT_STYLE, minHeight: 220, lineHeight: 1.6, marginTop: 12 }}
+                            style={{
+                              ...SOFT_INPUT_STYLE,
+                              minHeight: 220,
+                              lineHeight: 1.6,
+                              marginTop: 12,
+                            }}
                           />
-                          <p style={{ margin: '10px 0 0 0', color: '#86909c', fontSize: 12, lineHeight: 1.6 }}>
+                          <p
+                            style={{
+                              margin: "10px 0 0 0",
+                              color: "#86909c",
+                              fontSize: 12,
+                              lineHeight: 1.6,
+                            }}
+                          >
                             这里只写风格提示词本身。系统会自动把原文案拼接到后面。
                           </p>
                         </>
                       ) : (
-                        <p style={{ margin: '12px 0 0 0', color: '#4e5969', fontSize: 13, lineHeight: 1.7 }}>
-                          {promptPreview.length > 140 ? `${promptPreview.slice(0, 140)}...` : promptPreview}
+                        <p
+                          style={{
+                            margin: "12px 0 0 0",
+                            color: "#4e5969",
+                            fontSize: 13,
+                            lineHeight: 1.7,
+                          }}
+                        >
+                          {promptPreview.length > 140
+                            ? `${promptPreview.slice(0, 140)}...`
+                            : promptPreview}
                         </p>
                       )}
                     </div>
@@ -4067,46 +4890,113 @@ function SettingsPage(props: SettingsPageProps) {
             </>
           ) : (
             <>
-              <div style={{ display: 'grid', gap: 18 }}>
+              <div style={{ display: "grid", gap: 18 }}>
                 <div
                   style={{
                     borderRadius: 20,
-                    border: '1px solid rgba(226, 232, 240, 0.9)',
-                    background: 'linear-gradient(180deg, rgba(248,250,252,0.96) 0%, rgba(255,255,255,0.98) 100%)',
+                    border: "1px solid rgba(226, 232, 240, 0.9)",
+                    background:
+                      "linear-gradient(180deg, rgba(248,250,252,0.96) 0%, rgba(255,255,255,0.98) 100%)",
                     padding: 20,
-                    display: 'grid',
+                    display: "grid",
                     gap: 14,
                   }}
                 >
                   <div>
-                    <h3 style={{ ...SECTION_TITLE_STYLE, marginTop: 0, marginBottom: 6 }}>关于软件</h3>
-                    <p style={{ margin: 0, color: '#64748b', fontSize: 13, lineHeight: 1.7 }}>
+                    <h3
+                      style={{
+                        ...SECTION_TITLE_STYLE,
+                        marginTop: 0,
+                        marginBottom: 6,
+                      }}
+                    >
+                      关于软件
+                    </h3>
+                    <p
+                      style={{
+                        margin: 0,
+                        color: "#64748b",
+                        fontSize: 13,
+                        lineHeight: 1.7,
+                      }}
+                    >
                       这里可以查看当前软件信息，并手动检查是否有新版本。
                     </p>
                   </div>
 
-                  <div style={{ display: 'grid', gap: 10 }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
-                      <span style={{ color: '#64748b', fontSize: 13 }}>软件名称</span>
-                      <strong style={{ color: '#0f172a', fontSize: 14 }}>AI Remotion</strong>
+                  <div style={{ display: "grid", gap: 10 }}>
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        gap: 12,
+                        flexWrap: "wrap",
+                      }}
+                    >
+                      <span style={{ color: "#64748b", fontSize: 13 }}>
+                        软件名称
+                      </span>
+                      <strong style={{ color: "#0f172a", fontSize: 14 }}>
+                        AI Remotion
+                      </strong>
                     </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
-                      <span style={{ color: '#64748b', fontSize: 13 }}>当前版本</span>
-                      <strong style={{ color: '#0f172a', fontSize: 14 }}>{props.appInfo?.currentVersion || '-'}</strong>
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        gap: 12,
+                        flexWrap: "wrap",
+                      }}
+                    >
+                      <span style={{ color: "#64748b", fontSize: 13 }}>
+                        当前版本
+                      </span>
+                      <strong style={{ color: "#0f172a", fontSize: 14 }}>
+                        {props.appInfo?.currentVersion || "-"}
+                      </strong>
                     </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
-                      <span style={{ color: '#64748b', fontSize: 13 }}>最新版本</span>
-                      <strong style={{ color: '#0f172a', fontSize: 14 }}>{props.appInfo?.latestVersion || '未检查'}</strong>
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        gap: 12,
+                        flexWrap: "wrap",
+                      }}
+                    >
+                      <span style={{ color: "#64748b", fontSize: 13 }}>
+                        最新版本
+                      </span>
+                      <strong style={{ color: "#0f172a", fontSize: 14 }}>
+                        {props.appInfo?.latestVersion || "未检查"}
+                      </strong>
                     </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
-                      <span style={{ color: '#64748b', fontSize: 13 }}>更新状态</span>
-                      <strong style={{ color: props.appInfo?.hasUpdate ? '#b45309' : '#047857', fontSize: 14 }}>
-                        {props.appInfo?.hasUpdate ? '有可用更新' : '当前已是最新'}
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        gap: 12,
+                        flexWrap: "wrap",
+                      }}
+                    >
+                      <span style={{ color: "#64748b", fontSize: 13 }}>
+                        更新状态
+                      </span>
+                      <strong
+                        style={{
+                          color: props.appInfo?.hasUpdate
+                            ? "#b45309"
+                            : "#047857",
+                          fontSize: 14,
+                        }}
+                      >
+                        {props.appInfo?.hasUpdate
+                          ? "有可用更新"
+                          : "当前已是最新"}
                       </strong>
                     </div>
                   </div>
 
-                  <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+                  <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
                     <button
                       type="button"
                       onClick={() => void handleCheckUpdate()}
@@ -4115,24 +5005,34 @@ function SettingsPage(props: SettingsPageProps) {
                         ...SECONDARY_BUTTON_STYLE,
                         minWidth: 120,
                         minHeight: 42,
-                        cursor: props.updateBusy ? 'wait' : 'pointer',
+                        cursor: props.updateBusy ? "wait" : "pointer",
                       }}
                     >
-                      {props.updateBusy ? '检查中...' : '检查更新'}
+                      {props.updateBusy ? "检查中..." : "检查更新"}
                     </button>
                     <button
                       type="button"
                       onClick={() => void props.onOpenUpdate()}
-                      disabled={!props.appInfo?.hasUpdate || props.updateBusy || !props.appInfo?.downloadUrl}
+                      disabled={
+                        !props.appInfo?.hasUpdate ||
+                        props.updateBusy ||
+                        !props.appInfo?.downloadUrl
+                      }
                       style={{
                         ...PRIMARY_BUTTON_STYLE,
                         minWidth: 120,
                         minHeight: 42,
                         cursor:
-                          !props.appInfo?.hasUpdate || props.updateBusy || !props.appInfo?.downloadUrl
-                            ? 'not-allowed'
-                            : 'pointer',
-                        opacity: !props.appInfo?.hasUpdate || !props.appInfo?.downloadUrl ? 0.6 : 1,
+                          !props.appInfo?.hasUpdate ||
+                          props.updateBusy ||
+                          !props.appInfo?.downloadUrl
+                            ? "not-allowed"
+                            : "pointer",
+                        opacity:
+                          !props.appInfo?.hasUpdate ||
+                          !props.appInfo?.downloadUrl
+                            ? 0.6
+                            : 1,
                       }}
                     >
                       立即更新
@@ -4140,13 +5040,31 @@ function SettingsPage(props: SettingsPageProps) {
                   </div>
 
                   {aboutMessage ? (
-                    <div style={{ padding: '12px 14px', borderRadius: 16, background: 'rgba(37,99,235,0.08)', color: '#1d4ed8', fontSize: 13, lineHeight: 1.6 }}>
+                    <div
+                      style={{
+                        padding: "12px 14px",
+                        borderRadius: 16,
+                        background: "rgba(37,99,235,0.08)",
+                        color: "#1d4ed8",
+                        fontSize: 13,
+                        lineHeight: 1.6,
+                      }}
+                    >
                       {aboutMessage}
                     </div>
                   ) : null}
 
                   {props.updateError ? (
-                    <div style={{ padding: '12px 14px', borderRadius: 16, background: 'rgba(239,68,68,0.1)', color: '#b91c1c', fontSize: 13, lineHeight: 1.6 }}>
+                    <div
+                      style={{
+                        padding: "12px 14px",
+                        borderRadius: 16,
+                        background: "rgba(239,68,68,0.1)",
+                        color: "#b91c1c",
+                        fontSize: 13,
+                        lineHeight: 1.6,
+                      }}
+                    >
                       {props.updateError}
                     </div>
                   ) : null}
@@ -4154,42 +5072,124 @@ function SettingsPage(props: SettingsPageProps) {
                   <div
                     style={{
                       borderRadius: 18,
-                      border: '1px solid rgba(226, 232, 240, 0.92)',
-                      background: 'rgba(255,255,255,0.82)',
+                      border: "1px solid rgba(226, 232, 240, 0.92)",
+                      background: "rgba(255,255,255,0.82)",
                       padding: 16,
-                      display: 'grid',
+                      display: "grid",
                       gap: 10,
                     }}
                   >
                     <div>
-                      <h4 style={{ margin: 0, color: '#0f172a', fontSize: 16, lineHeight: 1.3 }}>授权信息</h4>
-                      <p style={{ margin: '6px 0 0 0', color: '#64748b', fontSize: 13, lineHeight: 1.7 }}>
+                      <h4
+                        style={{
+                          margin: 0,
+                          color: "#0f172a",
+                          fontSize: 16,
+                          lineHeight: 1.3,
+                        }}
+                      >
+                        授权信息
+                      </h4>
+                      <p
+                        style={{
+                          margin: "6px 0 0 0",
+                          color: "#64748b",
+                          fontSize: 13,
+                          lineHeight: 1.7,
+                        }}
+                      >
                         当前账号、授权有效期和设备绑定信息。
                       </p>
                     </div>
 
-                    <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
-                      <span style={{ color: '#64748b', fontSize: 13 }}>授权状态</span>
-                      <strong style={{ color: licenseStatusColor, fontSize: 14 }}>{licenseStatusText}</strong>
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        gap: 12,
+                        flexWrap: "wrap",
+                      }}
+                    >
+                      <span style={{ color: "#64748b", fontSize: 13 }}>
+                        授权状态
+                      </span>
+                      <strong
+                        style={{ color: licenseStatusColor, fontSize: 14 }}
+                      >
+                        {licenseStatusText}
+                      </strong>
                     </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
-                      <span style={{ color: '#64748b', fontSize: 13 }}>当前账号</span>
-                      <strong style={{ color: '#0f172a', fontSize: 14 }}>{licenseUsername}</strong>
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        gap: 12,
+                        flexWrap: "wrap",
+                      }}
+                    >
+                      <span style={{ color: "#64748b", fontSize: 13 }}>
+                        当前账号
+                      </span>
+                      <strong style={{ color: "#0f172a", fontSize: 14 }}>
+                        {licenseUsername}
+                      </strong>
                     </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
-                      <span style={{ color: '#64748b', fontSize: 13 }}>到期时间</span>
-                      <strong style={{ color: '#0f172a', fontSize: 14 }}>{licenseExpireTime}</strong>
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        gap: 12,
+                        flexWrap: "wrap",
+                      }}
+                    >
+                      <span style={{ color: "#64748b", fontSize: 13 }}>
+                        到期时间
+                      </span>
+                      <strong style={{ color: "#0f172a", fontSize: 14 }}>
+                        {licenseExpireTime}
+                      </strong>
                     </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
-                      <span style={{ color: '#64748b', fontSize: 13 }}>剩余时长</span>
-                      <strong style={{ color: '#0f172a', fontSize: 14 }}>{licenseRemaining}</strong>
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        gap: 12,
+                        flexWrap: "wrap",
+                      }}
+                    >
+                      <span style={{ color: "#64748b", fontSize: 13 }}>
+                        剩余时长
+                      </span>
+                      <strong style={{ color: "#0f172a", fontSize: 14 }}>
+                        {licenseRemaining}
+                      </strong>
                     </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
-                      <span style={{ color: '#64748b', fontSize: 13 }}>当前设备</span>
-                      <strong style={{ color: '#0f172a', fontSize: 14 }}>{licenseDeviceName}</strong>
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        gap: 12,
+                        flexWrap: "wrap",
+                      }}
+                    >
+                      <span style={{ color: "#64748b", fontSize: 13 }}>
+                        当前设备
+                      </span>
+                      <strong style={{ color: "#0f172a", fontSize: 14 }}>
+                        {licenseDeviceName}
+                      </strong>
                     </div>
                     {props.authStatus?.validMessage ? (
-                      <div style={{ padding: '12px 14px', borderRadius: 14, background: 'rgba(15,23,42,0.04)', color: '#475569', fontSize: 13, lineHeight: 1.6 }}>
+                      <div
+                        style={{
+                          padding: "12px 14px",
+                          borderRadius: 14,
+                          background: "rgba(15,23,42,0.04)",
+                          color: "#475569",
+                          fontSize: 13,
+                          lineHeight: 1.6,
+                        }}
+                      >
                         {props.authStatus.validMessage}
                       </div>
                     ) : null}
@@ -4198,15 +5198,28 @@ function SettingsPage(props: SettingsPageProps) {
               </div>
             </>
           )}
-          {activeTab !== 'about' ? (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, paddingTop: 4 }}>
+          {activeTab !== "about" ? (
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 10,
+                paddingTop: 4,
+              }}
+            >
               <button
                 onClick={handleSave}
-                style={{ ...PRIMARY_BUTTON_STYLE, minWidth: 160, cursor: 'pointer' }}
+                style={{
+                  ...PRIMARY_BUTTON_STYLE,
+                  minWidth: 160,
+                  cursor: "pointer",
+                }}
               >
                 保存设置
               </button>
-              {saved ? <span style={{ color: '#00b42a', fontSize: 12 }}>已保存</span> : null}
+              {saved ? (
+                <span style={{ color: "#00b42a", fontSize: 12 }}>已保存</span>
+              ) : null}
             </div>
           ) : null}
         </div>
@@ -4233,16 +5246,23 @@ type AuthScreenProps = {
 };
 
 function AuthScreen(props: AuthScreenProps) {
-  const [username, setUsername] = React.useState(props.authPreferences.username);
-  const [password, setPassword] = React.useState(props.authPreferences.password);
-  const [cardCode, setCardCode] = React.useState('');
+  const [username, setUsername] = React.useState(
+    props.authPreferences.username,
+  );
+  const [password, setPassword] = React.useState(
+    props.authPreferences.password,
+  );
+  const [cardCode, setCardCode] = React.useState("");
   const [showRegister, setShowRegister] = React.useState(false);
-  const [registerUsername, setRegisterUsername] = React.useState('');
-  const [registerPassword, setRegisterPassword] = React.useState('');
-  const [registerConfirmPassword, setRegisterConfirmPassword] = React.useState('');
-  const [rechargeModal, setRechargeModal] = React.useState<'hidden' | 'reminder' | 'expired' | 'form'>('hidden');
-  const [lastReminderKey, setLastReminderKey] = React.useState('');
-  const [lastExpiredKey, setLastExpiredKey] = React.useState('');
+  const [registerUsername, setRegisterUsername] = React.useState("");
+  const [registerPassword, setRegisterPassword] = React.useState("");
+  const [registerConfirmPassword, setRegisterConfirmPassword] =
+    React.useState("");
+  const [rechargeModal, setRechargeModal] = React.useState<
+    "hidden" | "reminder" | "expired" | "form"
+  >("hidden");
+  const [lastReminderKey, setLastReminderKey] = React.useState("");
+  const [lastExpiredKey, setLastExpiredKey] = React.useState("");
 
   React.useEffect(() => {
     setUsername(props.authPreferences.username);
@@ -4264,13 +5284,13 @@ function AuthScreen(props: AuthScreenProps) {
 
   const openRegister = () => {
     setRegisterUsername(username.trim());
-    setRegisterPassword('');
-    setRegisterConfirmPassword('');
+    setRegisterPassword("");
+    setRegisterConfirmPassword("");
     setShowRegister(true);
   };
 
   const closeRegister = () => {
-    if (props.busyAction === 'register') {
+    if (props.busyAction === "register") {
       return;
     }
     setShowRegister(false);
@@ -4282,7 +5302,7 @@ function AuthScreen(props: AuthScreenProps) {
       const nextPassword = validateAuthPassword(registerPassword);
       const nextConfirmPassword = validateAuthPassword(registerConfirmPassword);
       if (nextPassword !== nextConfirmPassword) {
-        throw new Error('两次输入的密码不一致');
+        throw new Error("两次输入的密码不一致");
       }
 
       await props.onRegister(nextUsername, nextPassword);
@@ -4297,8 +5317,8 @@ function AuthScreen(props: AuthScreenProps) {
   const submitRecharge = async () => {
     try {
       await props.onRecharge(validateCardCode(cardCode));
-      setCardCode('');
-      setRechargeModal('hidden');
+      setCardCode("");
+      setRechargeModal("hidden");
     } catch (cause) {
       alert(cause instanceof Error ? cause.message : String(cause));
     }
@@ -4306,26 +5326,36 @@ function AuthScreen(props: AuthScreenProps) {
 
   const remainingText = props.authStatus
     ? formatRemainingSeconds(props.authStatus.remainingSeconds)
-    : '未登录';
-  const expireTime = props.authStatus?.expireTime || props.authSession?.expireTime || '未激活';
+    : "未登录";
+  const expireTime =
+    props.authStatus?.expireTime || props.authSession?.expireTime || "未激活";
   const THIRTY_DAYS_SECONDS = 30 * 24 * 60 * 60;
 
   React.useEffect(() => {
-    if (!props.authSession || !props.authStatus || props.authBooting || props.busyAction === 'recharge') {
+    if (
+      !props.authSession ||
+      !props.authStatus ||
+      props.authBooting ||
+      props.busyAction === "recharge"
+    ) {
       return;
     }
 
     const statusKey = [
       props.authStatus.username,
-      props.authStatus.expireTime || '',
+      props.authStatus.expireTime || "",
       props.authStatus.remainingSeconds,
-      props.authStatus.isValid ? 'valid' : 'invalid',
-    ].join('|');
+      props.authStatus.isValid ? "valid" : "invalid",
+    ].join("|");
 
-    if (props.authStatus.isValid && props.authStatus.remainingSeconds > 0 && props.authStatus.remainingSeconds <= THIRTY_DAYS_SECONDS) {
+    if (
+      props.authStatus.isValid &&
+      props.authStatus.remainingSeconds > 0 &&
+      props.authStatus.remainingSeconds <= THIRTY_DAYS_SECONDS
+    ) {
       if (lastReminderKey !== statusKey) {
         setLastReminderKey(statusKey);
-        setRechargeModal('reminder');
+        setRechargeModal("reminder");
       }
       return;
     }
@@ -4333,7 +5363,7 @@ function AuthScreen(props: AuthScreenProps) {
     if (props.authStatus.remainingSeconds <= 0 || !props.authStatus.isValid) {
       if (lastExpiredKey !== statusKey) {
         setLastExpiredKey(statusKey);
-        setRechargeModal('expired');
+        setRechargeModal("expired");
       }
     }
   }, [
@@ -4348,70 +5378,121 @@ function AuthScreen(props: AuthScreenProps) {
 
   const cardStyle: React.CSSProperties = {
     borderRadius: 28,
-    border: '1px solid rgba(15, 23, 42, 0.08)',
-    background: 'linear-gradient(180deg, rgba(255,255,255,0.96) 0%, rgba(250,250,248,0.92) 100%)',
-    boxShadow: '0 24px 64px rgba(15,23,42,0.12), inset 0 1px 0 rgba(255,255,255,0.88)',
+    border: "1px solid rgba(15, 23, 42, 0.08)",
+    background:
+      "linear-gradient(180deg, rgba(255,255,255,0.96) 0%, rgba(250,250,248,0.92) 100%)",
+    boxShadow:
+      "0 24px 64px rgba(15,23,42,0.12), inset 0 1px 0 rgba(255,255,255,0.88)",
     padding: 24,
   };
   const inputStyle: React.CSSProperties = {
     ...SOFT_INPUT_STYLE,
     minHeight: 50,
     borderRadius: 16,
-    border: '1px solid rgba(15,23,42,0.08)',
-    background: 'rgba(255,255,255,0.88)',
-    color: '#0f172a',
+    border: "1px solid rgba(15,23,42,0.08)",
+    background: "rgba(255,255,255,0.88)",
+    color: "#0f172a",
   };
 
   return (
     <div
       style={{
-        minHeight: '100vh',
-        display: 'grid',
-        placeItems: 'center',
-        padding: '24px 18px',
-        position: 'relative',
+        minHeight: "100vh",
+        display: "grid",
+        placeItems: "center",
+        padding: "24px 18px",
+        position: "relative",
         background:
-          'radial-gradient(circle at 18% 18%, rgba(214,228,255,0.82) 0%, rgba(214,228,255,0) 34%), radial-gradient(circle at 82% 12%, rgba(245,214,120,0.14) 0%, rgba(245,214,120,0) 28%), linear-gradient(180deg, #f7f8fb 0%, #edf2f7 100%)',
+          "radial-gradient(circle at 18% 18%, rgba(214,228,255,0.82) 0%, rgba(214,228,255,0) 34%), radial-gradient(circle at 82% 12%, rgba(245,214,120,0.14) 0%, rgba(245,214,120,0) 28%), linear-gradient(180deg, #f7f8fb 0%, #edf2f7 100%)",
       }}
     >
       <div
         style={{
-          width: '100%',
+          width: "100%",
           maxWidth: 460,
         }}
       >
         <div style={{ ...cardStyle, padding: 28 }}>
-          <div style={{ display: 'grid', gap: 18 }}>
-            <div style={{ display: 'grid', gap: 10 }}>
-              <div style={{ fontSize: 12, fontWeight: 700, color: '#9a7b34', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
+          <div style={{ display: "grid", gap: 18 }}>
+            <div style={{ display: "grid", gap: 10 }}>
+              <div
+                style={{
+                  fontSize: 12,
+                  fontWeight: 700,
+                  color: "#9a7b34",
+                  letterSpacing: "0.12em",
+                  textTransform: "uppercase",
+                }}
+              >
                 License Access
               </div>
-              <h1 style={{ margin: 0, fontSize: 30, lineHeight: 1.1, color: '#0f172a', letterSpacing: '-0.03em' }}>
+              <h1
+                style={{
+                  margin: 0,
+                  fontSize: 30,
+                  lineHeight: 1.1,
+                  color: "#0f172a",
+                  letterSpacing: "-0.03em",
+                }}
+              >
                 账号登录
               </h1>
             </div>
 
             {props.message ? (
-              <div style={{ padding: '12px 14px', borderRadius: 16, background: 'rgba(17,185,129,0.1)', color: '#047857', fontSize: 14, lineHeight: 1.6 }}>
+              <div
+                style={{
+                  padding: "12px 14px",
+                  borderRadius: 16,
+                  background: "rgba(17,185,129,0.1)",
+                  color: "#047857",
+                  fontSize: 14,
+                  lineHeight: 1.6,
+                }}
+              >
                 {props.message}
               </div>
             ) : null}
 
             {props.error ? (
-              <div style={{ padding: '12px 14px', borderRadius: 16, background: 'rgba(239,68,68,0.1)', color: '#b91c1c', fontSize: 14, lineHeight: 1.6 }}>
+              <div
+                style={{
+                  padding: "12px 14px",
+                  borderRadius: 16,
+                  background: "rgba(239,68,68,0.1)",
+                  color: "#b91c1c",
+                  fontSize: 14,
+                  lineHeight: 1.6,
+                }}
+              >
                 {props.error}
               </div>
             ) : null}
 
-            {props.authStatus && !props.authStatus.isValid && props.authStatus.validMessage ? (
-              <div style={{ padding: '12px 14px', borderRadius: 16, background: 'rgba(244,63,94,0.06)', color: '#be123c', fontSize: 13, lineHeight: 1.6 }}>
+            {props.authStatus &&
+            !props.authStatus.isValid &&
+            props.authStatus.validMessage ? (
+              <div
+                style={{
+                  padding: "12px 14px",
+                  borderRadius: 16,
+                  background: "rgba(244,63,94,0.06)",
+                  color: "#be123c",
+                  fontSize: 13,
+                  lineHeight: 1.6,
+                }}
+              >
                 当前授权不可用。{props.authStatus.validMessage}
               </div>
             ) : null}
 
             <div style={FIELD_GROUP_STYLE}>
               <label style={FIELD_LABEL_STYLE}>用户名</label>
-              <input value={username} onChange={(event) => setUsername(event.target.value)} style={inputStyle} />
+              <input
+                value={username}
+                onChange={(event) => setUsername(event.target.value)}
+                style={inputStyle}
+              />
             </div>
 
             <div style={FIELD_GROUP_STYLE}>
@@ -4424,15 +5505,25 @@ function AuthScreen(props: AuthScreenProps) {
               />
             </div>
 
-            <div style={{ display: 'flex', gap: 18, flexWrap: 'wrap', alignItems: 'center' }}>
+            <div
+              style={{
+                display: "flex",
+                gap: 18,
+                flexWrap: "wrap",
+                alignItems: "center",
+              }}
+            >
               <label
                 style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
+                  display: "inline-flex",
+                  alignItems: "center",
                   gap: 8,
                   fontSize: 13,
-                  color: '#475569',
-                  cursor: props.authBooting || !!props.busyAction ? 'not-allowed' : 'pointer',
+                  color: "#475569",
+                  cursor:
+                    props.authBooting || !!props.busyAction
+                      ? "not-allowed"
+                      : "pointer",
                 }}
               >
                 <input
@@ -4443,33 +5534,43 @@ function AuthScreen(props: AuthScreenProps) {
                     const checked = event.target.checked;
                     props.onAuthPreferencesChange({
                       rememberPassword: checked,
-                      autoLogin: checked ? props.authPreferences.autoLogin : false,
+                      autoLogin: checked
+                        ? props.authPreferences.autoLogin
+                        : false,
                       username,
                       password,
                     });
                   }}
-                  style={{ width: 16, height: 16, accentColor: '#2563eb' }}
+                  style={{ width: 16, height: 16, accentColor: "#2563eb" }}
                 />
                 记住密码
               </label>
 
               <label
                 style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
+                  display: "inline-flex",
+                  alignItems: "center",
                   gap: 8,
                   fontSize: 13,
-                  color: props.authPreferences.rememberPassword ? '#475569' : '#94a3b8',
+                  color: props.authPreferences.rememberPassword
+                    ? "#475569"
+                    : "#94a3b8",
                   cursor:
-                    props.authBooting || !!props.busyAction || !props.authPreferences.rememberPassword
-                      ? 'not-allowed'
-                      : 'pointer',
+                    props.authBooting ||
+                    !!props.busyAction ||
+                    !props.authPreferences.rememberPassword
+                      ? "not-allowed"
+                      : "pointer",
                 }}
               >
                 <input
                   type="checkbox"
                   checked={props.authPreferences.autoLogin}
-                  disabled={props.authBooting || !!props.busyAction || !props.authPreferences.rememberPassword}
+                  disabled={
+                    props.authBooting ||
+                    !!props.busyAction ||
+                    !props.authPreferences.rememberPassword
+                  }
                   onChange={(event) => {
                     props.onAuthPreferencesChange({
                       autoLogin: event.target.checked,
@@ -4477,13 +5578,19 @@ function AuthScreen(props: AuthScreenProps) {
                       password,
                     });
                   }}
-                  style={{ width: 16, height: 16, accentColor: '#2563eb' }}
+                  style={{ width: 16, height: 16, accentColor: "#2563eb" }}
                 />
                 自动登录
               </label>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 12 }}>
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+                gap: 12,
+              }}
+            >
               <button
                 type="button"
                 onClick={() => void submitLogin()}
@@ -4492,10 +5599,11 @@ function AuthScreen(props: AuthScreenProps) {
                   ...PRIMARY_BUTTON_STYLE,
                   minHeight: 48,
                   borderRadius: 16,
-                  cursor: props.authBooting || props.busyAction ? 'wait' : 'pointer',
+                  cursor:
+                    props.authBooting || props.busyAction ? "wait" : "pointer",
                 }}
               >
-                {props.busyAction === 'login' ? '登录中...' : '登录'}
+                {props.busyAction === "login" ? "登录中..." : "登录"}
               </button>
               <button
                 type="button"
@@ -4505,15 +5613,24 @@ function AuthScreen(props: AuthScreenProps) {
                   ...SECONDARY_BUTTON_STYLE,
                   minHeight: 48,
                   borderRadius: 16,
-                  cursor: props.authBooting || props.busyAction ? 'wait' : 'pointer',
+                  cursor:
+                    props.authBooting || props.busyAction ? "wait" : "pointer",
                 }}
               >
-                {props.busyAction === 'register' ? '注册中...' : '注册'}
+                {props.busyAction === "register" ? "注册中..." : "注册"}
               </button>
             </div>
 
-            <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
-              <div style={{ fontSize: 13, color: '#64748b' }}>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                gap: 12,
+                alignItems: "center",
+                flexWrap: "wrap",
+              }}
+            >
+              <div style={{ fontSize: 13, color: "#64748b" }}>
                 没有账号时，请先注册再登录。
               </div>
               {props.authSession ? (
@@ -4524,14 +5641,14 @@ function AuthScreen(props: AuthScreenProps) {
                   style={{
                     ...QUIET_DANGER_BUTTON_STYLE,
                     minHeight: 36,
-                    padding: '0 12px',
+                    padding: "0 12px",
                     borderRadius: 12,
-                    cursor: props.busyAction ? 'wait' : 'pointer',
+                    cursor: props.busyAction ? "wait" : "pointer",
                   }}
                 >
                   退出登录
                 </button>
-                ) : null}
+              ) : null}
             </div>
           </div>
         </div>
@@ -4540,13 +5657,13 @@ function AuthScreen(props: AuthScreenProps) {
       {showRegister ? (
         <div
           style={{
-            position: 'fixed',
+            position: "fixed",
             inset: 0,
-            background: 'rgba(15, 23, 42, 0.34)',
-            backdropFilter: 'blur(8px)',
-            WebkitBackdropFilter: 'blur(8px)',
-            display: 'grid',
-            placeItems: 'center',
+            background: "rgba(15, 23, 42, 0.34)",
+            backdropFilter: "blur(8px)",
+            WebkitBackdropFilter: "blur(8px)",
+            display: "grid",
+            placeItems: "center",
             padding: 20,
             zIndex: 40,
           }}
@@ -4554,36 +5671,61 @@ function AuthScreen(props: AuthScreenProps) {
         >
           <div
             style={{
-              width: '100%',
+              width: "100%",
               maxWidth: 440,
               ...cardStyle,
               padding: 22,
-              boxShadow: '0 30px 80px rgba(15,23,42,0.2), inset 0 1px 0 rgba(255,255,255,0.88)',
+              boxShadow:
+                "0 30px 80px rgba(15,23,42,0.2), inset 0 1px 0 rgba(255,255,255,0.88)",
             }}
             onClick={(event) => event.stopPropagation()}
           >
-            <div style={{ display: 'grid', gap: 16 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'flex-start' }}>
+            <div style={{ display: "grid", gap: 16 }}>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  gap: 12,
+                  alignItems: "flex-start",
+                }}
+              >
                 <div>
-                  <div style={{ fontSize: 12, fontWeight: 700, color: '#9a7b34', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
+                  <div
+                    style={{
+                      fontSize: 12,
+                      fontWeight: 700,
+                      color: "#9a7b34",
+                      letterSpacing: "0.12em",
+                      textTransform: "uppercase",
+                    }}
+                  >
                     Create Account
                   </div>
-                  <h2 style={{ margin: '10px 0 0', fontSize: 26, lineHeight: 1.12, color: '#0f172a', letterSpacing: '-0.03em' }}>
+                  <h2
+                    style={{
+                      margin: "10px 0 0",
+                      fontSize: 26,
+                      lineHeight: 1.12,
+                      color: "#0f172a",
+                      letterSpacing: "-0.03em",
+                    }}
+                  >
                     注册账号
                   </h2>
                 </div>
                 <button
                   type="button"
                   onClick={closeRegister}
-                  disabled={props.busyAction === 'register'}
+                  disabled={props.busyAction === "register"}
                   style={{
                     ...SECONDARY_BUTTON_STYLE,
                     minWidth: 44,
                     minHeight: 44,
                     borderRadius: 14,
                     padding: 0,
-                    boxShadow: 'none',
-                    cursor: props.busyAction === 'register' ? 'wait' : 'pointer',
+                    boxShadow: "none",
+                    cursor:
+                      props.busyAction === "register" ? "wait" : "pointer",
                   }}
                 >
                   ×
@@ -4616,23 +5758,32 @@ function AuthScreen(props: AuthScreenProps) {
                 <input
                   type="password"
                   value={registerConfirmPassword}
-                  onChange={(event) => setRegisterConfirmPassword(event.target.value)}
+                  onChange={(event) =>
+                    setRegisterConfirmPassword(event.target.value)
+                  }
                   style={inputStyle}
                   placeholder="再次输入密码"
                 />
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 12 }}>
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+                  gap: 12,
+                }}
+              >
                 <button
                   type="button"
                   onClick={closeRegister}
-                  disabled={props.busyAction === 'register'}
+                  disabled={props.busyAction === "register"}
                   style={{
                     ...SECONDARY_BUTTON_STYLE,
                     minHeight: 46,
                     borderRadius: 16,
-                    boxShadow: 'none',
-                    cursor: props.busyAction === 'register' ? 'wait' : 'pointer',
+                    boxShadow: "none",
+                    cursor:
+                      props.busyAction === "register" ? "wait" : "pointer",
                   }}
                 >
                   取消
@@ -4645,10 +5796,13 @@ function AuthScreen(props: AuthScreenProps) {
                     ...PRIMARY_BUTTON_STYLE,
                     minHeight: 46,
                     borderRadius: 16,
-                    cursor: props.authBooting || props.busyAction ? 'wait' : 'pointer',
+                    cursor:
+                      props.authBooting || props.busyAction
+                        ? "wait"
+                        : "pointer",
                   }}
                 >
-                  {props.busyAction === 'register' ? '注册中...' : '确认注册'}
+                  {props.busyAction === "register" ? "注册中..." : "确认注册"}
                 </button>
               </div>
             </div>
@@ -4656,63 +5810,97 @@ function AuthScreen(props: AuthScreenProps) {
         </div>
       ) : null}
 
-      {rechargeModal === 'reminder' ? (
+      {rechargeModal === "reminder" ? (
         <div
           style={{
-            position: 'fixed',
+            position: "fixed",
             inset: 0,
-            background: 'rgba(15, 23, 42, 0.28)',
-            backdropFilter: 'blur(8px)',
-            WebkitBackdropFilter: 'blur(8px)',
-            display: 'grid',
-            placeItems: 'center',
+            background: "rgba(15, 23, 42, 0.28)",
+            backdropFilter: "blur(8px)",
+            WebkitBackdropFilter: "blur(8px)",
+            display: "grid",
+            placeItems: "center",
             padding: 20,
             zIndex: 38,
           }}
         >
           <div
             style={{
-              width: '100%',
+              width: "100%",
               maxWidth: 420,
               ...cardStyle,
               padding: 22,
             }}
           >
-            <div style={{ display: 'grid', gap: 16 }}>
+            <div style={{ display: "grid", gap: 16 }}>
               <div>
-                <div style={{ fontSize: 12, fontWeight: 700, color: '#9a7b34', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
+                <div
+                  style={{
+                    fontSize: 12,
+                    fontWeight: 700,
+                    color: "#9a7b34",
+                    letterSpacing: "0.12em",
+                    textTransform: "uppercase",
+                  }}
+                >
                   Renewal Reminder
                 </div>
-                <h2 style={{ margin: '10px 0 0', fontSize: 24, lineHeight: 1.15, color: '#0f172a', letterSpacing: '-0.03em' }}>
+                <h2
+                  style={{
+                    margin: "10px 0 0",
+                    fontSize: 24,
+                    lineHeight: 1.15,
+                    color: "#0f172a",
+                    letterSpacing: "-0.03em",
+                  }}
+                >
                   授权即将到期
                 </h2>
-                <p style={{ margin: '10px 0 0', color: '#64748b', lineHeight: 1.7, fontSize: 14 }}>
-                  当前授权剩余 {remainingText}，到期时间 {expireTime}。是否现在充值续费？
+                <p
+                  style={{
+                    margin: "10px 0 0",
+                    color: "#64748b",
+                    lineHeight: 1.7,
+                    fontSize: 14,
+                  }}
+                >
+                  当前授权剩余 {remainingText}，到期时间 {expireTime}
+                  。是否现在充值续费？
                 </p>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 12 }}>
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+                  gap: 12,
+                }}
+              >
                 <button
                   type="button"
-                  onClick={() => setRechargeModal('hidden')}
+                  onClick={() => {
+                    setRechargeModal("hidden");
+                    setLastReminderKey("");
+                    setLastExpiredKey("");
+                  }}
                   style={{
                     ...SECONDARY_BUTTON_STYLE,
                     minHeight: 44,
                     borderRadius: 16,
-                    boxShadow: 'none',
-                    cursor: 'pointer',
+                    boxShadow: "none",
+                    cursor: "pointer",
                   }}
                 >
                   稍后再说
                 </button>
                 <button
                   type="button"
-                  onClick={() => setRechargeModal('form')}
+                  onClick={() => setRechargeModal("form")}
                   style={{
                     ...PRIMARY_BUTTON_STYLE,
                     minHeight: 44,
                     borderRadius: 16,
-                    cursor: 'pointer',
+                    cursor: "pointer",
                   }}
                 >
                   去充值
@@ -4723,63 +5911,96 @@ function AuthScreen(props: AuthScreenProps) {
         </div>
       ) : null}
 
-      {rechargeModal === 'expired' ? (
+      {rechargeModal === "expired" ? (
         <div
           style={{
-            position: 'fixed',
+            position: "fixed",
             inset: 0,
-            background: 'rgba(15, 23, 42, 0.28)',
-            backdropFilter: 'blur(8px)',
-            WebkitBackdropFilter: 'blur(8px)',
-            display: 'grid',
-            placeItems: 'center',
+            background: "rgba(15, 23, 42, 0.28)",
+            backdropFilter: "blur(8px)",
+            WebkitBackdropFilter: "blur(8px)",
+            display: "grid",
+            placeItems: "center",
             padding: 20,
             zIndex: 38,
           }}
         >
           <div
             style={{
-              width: '100%',
+              width: "100%",
               maxWidth: 420,
               ...cardStyle,
               padding: 22,
             }}
           >
-            <div style={{ display: 'grid', gap: 16 }}>
+            <div style={{ display: "grid", gap: 16 }}>
               <div>
-                <div style={{ fontSize: 12, fontWeight: 700, color: '#9a7b34', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
+                <div
+                  style={{
+                    fontSize: 12,
+                    fontWeight: 700,
+                    color: "#9a7b34",
+                    letterSpacing: "0.12em",
+                    textTransform: "uppercase",
+                  }}
+                >
                   Renewal Required
                 </div>
-                <h2 style={{ margin: '10px 0 0', fontSize: 24, lineHeight: 1.15, color: '#0f172a', letterSpacing: '-0.03em' }}>
+                <h2
+                  style={{
+                    margin: "10px 0 0",
+                    fontSize: 24,
+                    lineHeight: 1.15,
+                    color: "#0f172a",
+                    letterSpacing: "-0.03em",
+                  }}
+                >
                   授权已到期
                 </h2>
-                <p style={{ margin: '10px 0 0', color: '#64748b', lineHeight: 1.7, fontSize: 14 }}>
+                <p
+                  style={{
+                    margin: "10px 0 0",
+                    color: "#64748b",
+                    lineHeight: 1.7,
+                    fontSize: 14,
+                  }}
+                >
                   当前账号授权已到期，请充值后继续使用。到期时间 {expireTime}。
                 </p>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 12 }}>
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+                  gap: 12,
+                }}
+              >
                 <button
                   type="button"
-                  onClick={() => setRechargeModal('hidden')}
+                  onClick={() => {
+                    setRechargeModal("hidden");
+                    setLastReminderKey("");
+                    setLastExpiredKey("");
+                  }}
                   style={{
                     ...SECONDARY_BUTTON_STYLE,
                     minHeight: 44,
                     borderRadius: 16,
-                    boxShadow: 'none',
-                    cursor: 'pointer',
+                    boxShadow: "none",
+                    cursor: "pointer",
                   }}
                 >
                   暂不充值
                 </button>
                 <button
                   type="button"
-                  onClick={() => setRechargeModal('form')}
+                  onClick={() => setRechargeModal("form")}
                   style={{
                     ...PRIMARY_BUTTON_STYLE,
                     minHeight: 44,
                     borderRadius: 16,
-                    cursor: 'pointer',
+                    cursor: "pointer",
                   }}
                 >
                   立即充值
@@ -4790,59 +6011,92 @@ function AuthScreen(props: AuthScreenProps) {
         </div>
       ) : null}
 
-      {rechargeModal === 'form' ? (
+      {rechargeModal === "form" ? (
         <div
           style={{
-            position: 'fixed',
+            position: "fixed",
             inset: 0,
-            background: 'rgba(15, 23, 42, 0.34)',
-            backdropFilter: 'blur(8px)',
-            WebkitBackdropFilter: 'blur(8px)',
-            display: 'grid',
-            placeItems: 'center',
+            background: "rgba(15, 23, 42, 0.34)",
+            backdropFilter: "blur(8px)",
+            WebkitBackdropFilter: "blur(8px)",
+            display: "grid",
+            placeItems: "center",
             padding: 20,
             zIndex: 40,
           }}
           onClick={() => {
-            if (props.busyAction !== 'recharge') {
-              setRechargeModal('hidden');
+            if (props.busyAction !== "recharge") {
+              setRechargeModal("hidden");
             }
           }}
         >
           <div
             style={{
-              width: '100%',
+              width: "100%",
               maxWidth: 420,
               ...cardStyle,
               padding: 22,
             }}
             onClick={(event) => event.stopPropagation()}
           >
-            <div style={{ display: 'grid', gap: 16 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'flex-start' }}>
+            <div style={{ display: "grid", gap: 16 }}>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  gap: 12,
+                  alignItems: "flex-start",
+                }}
+              >
                 <div>
-                  <div style={{ fontSize: 12, fontWeight: 700, color: '#9a7b34', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
+                  <div
+                    style={{
+                      fontSize: 12,
+                      fontWeight: 700,
+                      color: "#9a7b34",
+                      letterSpacing: "0.12em",
+                      textTransform: "uppercase",
+                    }}
+                  >
                     Recharge License
                   </div>
-                  <h2 style={{ margin: '10px 0 0', fontSize: 24, lineHeight: 1.15, color: '#0f172a', letterSpacing: '-0.03em' }}>
+                  <h2
+                    style={{
+                      margin: "10px 0 0",
+                      fontSize: 24,
+                      lineHeight: 1.15,
+                      color: "#0f172a",
+                      letterSpacing: "-0.03em",
+                    }}
+                  >
                     充值续费
                   </h2>
-                  <p style={{ margin: '8px 0 0', color: '#64748b', lineHeight: 1.6, fontSize: 14 }}>
-                    {props.authSession ? `当前到期时间 ${expireTime}，剩余 ${remainingText}` : '请先登录账号，再进行充值。'}
+                  <p
+                    style={{
+                      margin: "8px 0 0",
+                      color: "#64748b",
+                      lineHeight: 1.6,
+                      fontSize: 14,
+                    }}
+                  >
+                    {props.authSession
+                      ? `当前到期时间 ${expireTime}，剩余 ${remainingText}`
+                      : "请先登录账号，再进行充值。"}
                   </p>
                 </div>
                 <button
                   type="button"
-                  onClick={() => setRechargeModal('hidden')}
-                  disabled={props.busyAction === 'recharge'}
+                  onClick={() => setRechargeModal("hidden")}
+                  disabled={props.busyAction === "recharge"}
                   style={{
                     ...SECONDARY_BUTTON_STYLE,
                     minWidth: 44,
                     minHeight: 44,
                     borderRadius: 14,
                     padding: 0,
-                    boxShadow: 'none',
-                    cursor: props.busyAction === 'recharge' ? 'wait' : 'pointer',
+                    boxShadow: "none",
+                    cursor:
+                      props.busyAction === "recharge" ? "wait" : "pointer",
                   }}
                 >
                   ×
@@ -4854,23 +6108,34 @@ function AuthScreen(props: AuthScreenProps) {
                 <input
                   value={cardCode}
                   onChange={(event) => setCardCode(event.target.value)}
-                  placeholder={props.authSession ? '输入卡密后为当前账号续费' : '请先登录后再充值'}
+                  placeholder={
+                    props.authSession
+                      ? "输入卡密后为当前账号续费"
+                      : "请先登录后再充值"
+                  }
                   style={inputStyle}
                   disabled={!props.authSession}
                 />
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 12 }}>
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+                  gap: 12,
+                }}
+              >
                 <button
                   type="button"
-                  onClick={() => setRechargeModal('hidden')}
-                  disabled={props.busyAction === 'recharge'}
+                  onClick={() => setRechargeModal("hidden")}
+                  disabled={props.busyAction === "recharge"}
                   style={{
                     ...SECONDARY_BUTTON_STYLE,
                     minHeight: 46,
                     borderRadius: 16,
-                    boxShadow: 'none',
-                    cursor: props.busyAction === 'recharge' ? 'wait' : 'pointer',
+                    boxShadow: "none",
+                    cursor:
+                      props.busyAction === "recharge" ? "wait" : "pointer",
                   }}
                 >
                   取消
@@ -4878,15 +6143,24 @@ function AuthScreen(props: AuthScreenProps) {
                 <button
                   type="button"
                   onClick={() => void submitRecharge()}
-                  disabled={!props.authSession || props.authBooting || !!props.busyAction}
+                  disabled={
+                    !props.authSession ||
+                    props.authBooting ||
+                    !!props.busyAction
+                  }
                   style={{
                     ...PRIMARY_BUTTON_STYLE,
                     minHeight: 46,
                     borderRadius: 16,
-                    cursor: !props.authSession || props.authBooting || props.busyAction ? 'not-allowed' : 'pointer',
+                    cursor:
+                      !props.authSession ||
+                      props.authBooting ||
+                      props.busyAction
+                        ? "not-allowed"
+                        : "pointer",
                   }}
                 >
-                  {props.busyAction === 'recharge' ? '充值中...' : '确认充值'}
+                  {props.busyAction === "recharge" ? "充值中..." : "确认充值"}
                 </button>
               </div>
             </div>
@@ -4906,86 +6180,168 @@ type UpdateNoticeModalProps = {
 };
 
 function UpdateNoticeModal(props: UpdateNoticeModalProps) {
-  const latestVersion = props.appInfo.latestVersion || '最新版本';
+  const latestVersion = props.appInfo.latestVersion || "最新版本";
   const isForceUpdate = props.appInfo.forceUpdate;
   const hasDownloadUrl = Boolean(props.appInfo.downloadUrl);
 
   return (
     <div
       style={{
-        position: 'fixed',
+        position: "fixed",
         inset: 0,
-        background: 'rgba(15, 23, 42, 0.28)',
-        backdropFilter: 'blur(8px)',
-        WebkitBackdropFilter: 'blur(8px)',
-        display: 'grid',
-        placeItems: 'center',
+        background: "rgba(15, 23, 42, 0.28)",
+        backdropFilter: "blur(8px)",
+        WebkitBackdropFilter: "blur(8px)",
+        display: "grid",
+        placeItems: "center",
         padding: 20,
         zIndex: 80,
       }}
     >
       <div
         style={{
-          width: '100%',
+          width: "100%",
           maxWidth: 430,
           borderRadius: 28,
-          border: '1px solid rgba(15, 23, 42, 0.08)',
-          background: 'linear-gradient(180deg, rgba(255,255,255,0.97) 0%, rgba(250,250,248,0.95) 100%)',
-          boxShadow: '0 28px 70px rgba(15,23,42,0.16), inset 0 1px 0 rgba(255,255,255,0.92)',
+          border: "1px solid rgba(15, 23, 42, 0.08)",
+          background:
+            "linear-gradient(180deg, rgba(255,255,255,0.97) 0%, rgba(250,250,248,0.95) 100%)",
+          boxShadow:
+            "0 28px 70px rgba(15,23,42,0.16), inset 0 1px 0 rgba(255,255,255,0.92)",
           padding: 24,
         }}
       >
-        <div style={{ display: 'grid', gap: 16 }}>
-          <div style={{ display: 'grid', gap: 10 }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: '#9a7b34', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
+        <div style={{ display: "grid", gap: 16 }}>
+          <div style={{ display: "grid", gap: 10 }}>
+            <div
+              style={{
+                fontSize: 12,
+                fontWeight: 700,
+                color: "#9a7b34",
+                letterSpacing: "0.12em",
+                textTransform: "uppercase",
+              }}
+            >
               Version Update
             </div>
-            <h2 style={{ margin: 0, fontSize: 26, lineHeight: 1.14, color: '#0f172a', letterSpacing: '-0.03em' }}>
-              {isForceUpdate ? '请先更新到新版本' : '发现新版本'}
+            <h2
+              style={{
+                margin: 0,
+                fontSize: 26,
+                lineHeight: 1.14,
+                color: "#0f172a",
+                letterSpacing: "-0.03em",
+              }}
+            >
+              {isForceUpdate ? "请先更新到新版本" : "发现新版本"}
             </h2>
-            <p style={{ margin: 0, fontSize: 14, lineHeight: 1.7, color: '#64748b' }}>
-              当前版本 {props.appInfo.currentVersion}，最新版本 {latestVersion}。
-              {isForceUpdate ? ' 当前版本已被标记为必须更新。' : ' 你可以现在更新，也可以稍后处理。'}
+            <p
+              style={{
+                margin: 0,
+                fontSize: 14,
+                lineHeight: 1.7,
+                color: "#64748b",
+              }}
+            >
+              当前版本 {props.appInfo.currentVersion}，最新版本 {latestVersion}
+              。
+              {isForceUpdate
+                ? " 当前版本已被标记为必须更新。"
+                : " 你可以现在更新，也可以稍后处理。"}
             </p>
           </div>
 
           <div
             style={{
               borderRadius: 18,
-              border: '1px solid rgba(148, 163, 184, 0.18)',
-              background: 'rgba(248, 250, 252, 0.9)',
-              padding: '14px 16px',
-              display: 'grid',
+              border: "1px solid rgba(148, 163, 184, 0.18)",
+              background: "rgba(248, 250, 252, 0.9)",
+              padding: "14px 16px",
+              display: "grid",
               gap: 6,
             }}
           >
-            <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, fontSize: 13, color: '#475569' }}>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                gap: 12,
+                fontSize: 13,
+                color: "#475569",
+              }}
+            >
               <span>当前版本</span>
-              <strong style={{ color: '#0f172a' }}>{props.appInfo.currentVersion}</strong>
+              <strong style={{ color: "#0f172a" }}>
+                {props.appInfo.currentVersion}
+              </strong>
             </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, fontSize: 13, color: '#475569' }}>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                gap: 12,
+                fontSize: 13,
+                color: "#475569",
+              }}
+            >
               <span>最新版本</span>
-              <strong style={{ color: '#0f172a' }}>{latestVersion}</strong>
+              <strong style={{ color: "#0f172a" }}>{latestVersion}</strong>
             </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, fontSize: 13, color: '#475569' }}>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                gap: 12,
+                fontSize: 13,
+                color: "#475569",
+              }}
+            >
               <span>更新方式</span>
-              <strong style={{ color: '#0f172a' }}>{hasDownloadUrl ? '打开下载地址' : '暂未提供下载地址'}</strong>
+              <strong style={{ color: "#0f172a" }}>
+                {hasDownloadUrl ? "打开下载地址" : "暂未提供下载地址"}
+              </strong>
             </div>
           </div>
 
           {props.error ? (
-            <div style={{ padding: '12px 14px', borderRadius: 16, background: 'rgba(239,68,68,0.1)', color: '#b91c1c', fontSize: 13, lineHeight: 1.6 }}>
+            <div
+              style={{
+                padding: "12px 14px",
+                borderRadius: 16,
+                background: "rgba(239,68,68,0.1)",
+                color: "#b91c1c",
+                fontSize: 13,
+                lineHeight: 1.6,
+              }}
+            >
               {props.error}
             </div>
           ) : null}
 
           {!hasDownloadUrl ? (
-            <div style={{ padding: '12px 14px', borderRadius: 16, background: 'rgba(245,158,11,0.12)', color: '#b45309', fontSize: 13, lineHeight: 1.6 }}>
+            <div
+              style={{
+                padding: "12px 14px",
+                borderRadius: 16,
+                background: "rgba(245,158,11,0.12)",
+                color: "#b45309",
+                fontSize: 13,
+                lineHeight: 1.6,
+              }}
+            >
               服务端还没有返回下载地址，暂时无法直接跳转更新。
             </div>
           ) : null}
 
-          <div style={{ display: 'grid', gridTemplateColumns: isForceUpdate ? '1fr' : 'repeat(2, minmax(0, 1fr))', gap: 12 }}>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: isForceUpdate
+                ? "1fr"
+                : "repeat(2, minmax(0, 1fr))",
+              gap: 12,
+            }}
+          >
             {!isForceUpdate ? (
               <button
                 type="button"
@@ -4995,8 +6351,8 @@ function UpdateNoticeModal(props: UpdateNoticeModalProps) {
                   ...SECONDARY_BUTTON_STYLE,
                   minHeight: 46,
                   borderRadius: 16,
-                  boxShadow: 'none',
-                  cursor: props.busy ? 'wait' : 'pointer',
+                  boxShadow: "none",
+                  cursor: props.busy ? "wait" : "pointer",
                 }}
               >
                 稍后提醒
@@ -5010,11 +6366,15 @@ function UpdateNoticeModal(props: UpdateNoticeModalProps) {
                 ...PRIMARY_BUTTON_STYLE,
                 minHeight: 46,
                 borderRadius: 16,
-                cursor: props.busy ? 'wait' : !hasDownloadUrl ? 'not-allowed' : 'pointer',
+                cursor: props.busy
+                  ? "wait"
+                  : !hasDownloadUrl
+                    ? "not-allowed"
+                    : "pointer",
                 opacity: !hasDownloadUrl ? 0.6 : 1,
               }}
             >
-              {props.busy ? '正在打开下载地址...' : '立即更新'}
+              {props.busy ? "正在打开下载地址..." : "立即更新"}
             </button>
           </div>
         </div>
@@ -5029,27 +6389,24 @@ function Layout(props: { children: React.ReactNode }) {
   return (
     <div
       style={{
-        display: 'flex',
-        height: '100vh',
-        padding: '10px 12px 10px 6px',
+        display: "flex",
+        height: "100vh",
+        padding: "10px 12px 10px 6px",
         gap: 12,
         background:
-          'radial-gradient(circle at 16% 18%, rgba(214,228,255,0.94) 0%, rgba(214,228,255,0) 32%), radial-gradient(circle at 84% 12%, rgba(222,244,241,0.82) 0%, rgba(222,244,241,0) 26%), linear-gradient(180deg, #f8fbff 0%, #eef4fb 100%)',
+          "radial-gradient(circle at 16% 18%, rgba(214,228,255,0.94) 0%, rgba(214,228,255,0) 32%), radial-gradient(circle at 84% 12%, rgba(222,244,241,0.82) 0%, rgba(222,244,241,0) 26%), linear-gradient(180deg, #f8fbff 0%, #eef4fb 100%)",
       }}
     >
-      <a
-        href="#app-main"
-        className="skip-link"
-      >
+      <a href="#app-main" className="skip-link">
         跳到主内容
       </a>
       <div
         style={{
           width: COMPACT_UI.navWidth,
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          position: 'relative',
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          position: "relative",
           zIndex: 30,
         }}
       >
@@ -5058,17 +6415,18 @@ function Layout(props: { children: React.ReactNode }) {
           className="dock-nav"
           style={{
             width: 60,
-            padding: '10px 6px',
+            padding: "10px 6px",
             borderRadius: 24,
-            background: 'linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(248,251,255,0.96) 100%)',
-            border: '1px solid rgba(223, 230, 240, 0.95)',
+            background:
+              "linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(248,251,255,0.96) 100%)",
+            border: "1px solid rgba(223, 230, 240, 0.95)",
             boxShadow:
-              '0 30px 60px rgba(148, 163, 184, 0.24), inset 0 1px 0 rgba(255,255,255,0.92)',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
+              "0 30px 60px rgba(148, 163, 184, 0.24), inset 0 1px 0 rgba(255,255,255,0.92)",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
             gap: 10,
-            position: 'relative',
+            position: "relative",
             zIndex: 30,
           }}
         >
@@ -5080,7 +6438,11 @@ function Layout(props: { children: React.ReactNode }) {
               <Link
                 key={item.path}
                 to={item.path}
-                className={active ? 'dock-nav__link dock-nav__link--active' : 'dock-nav__link'}
+                className={
+                  active
+                    ? "dock-nav__link dock-nav__link--active"
+                    : "dock-nav__link"
+                }
                 style={{
                   ...dockLinkStyle(active),
                   marginTop: isLast ? 12 : 0,
@@ -5088,7 +6450,7 @@ function Layout(props: { children: React.ReactNode }) {
                 aria-label={item.label}
                 title={item.label}
               >
-                <span style={{ display: 'inline-flex' }}>{item.icon}</span>
+                <span style={{ display: "inline-flex" }}>{item.icon}</span>
                 <span className="dock-nav__tooltip" role="tooltip">
                   {item.label}
                 </span>
@@ -5102,22 +6464,24 @@ function Layout(props: { children: React.ReactNode }) {
         style={{
           flex: 1,
           minWidth: 0,
-          overflow: 'auto',
+          overflow: "auto",
           paddingRight: 0,
         }}
       >
         <div
           style={{
-            minHeight: 'calc(100vh - 20px)',
+            minHeight: "calc(100vh - 20px)",
             maxWidth: COMPACT_UI.shellMaxWidth,
-            margin: '0 auto',
+            margin: "0 auto",
             borderRadius: 28,
-            background: 'linear-gradient(180deg, rgba(255,255,255,0.46) 0%, rgba(255,255,255,0.64) 100%)',
-            border: '1px solid rgba(255,255,255,0.82)',
-            boxShadow: '0 16px 34px rgba(148, 163, 184, 0.1), inset 0 1px 0 rgba(255,255,255,0.92)',
-            backdropFilter: 'blur(10px)',
-            WebkitBackdropFilter: 'blur(10px)',
-            overflow: 'hidden',
+            background:
+              "linear-gradient(180deg, rgba(255,255,255,0.46) 0%, rgba(255,255,255,0.64) 100%)",
+            border: "1px solid rgba(255,255,255,0.82)",
+            boxShadow:
+              "0 16px 34px rgba(148, 163, 184, 0.1), inset 0 1px 0 rgba(255,255,255,0.92)",
+            backdropFilter: "blur(10px)",
+            WebkitBackdropFilter: "blur(10px)",
+            overflow: "hidden",
           }}
         >
           {props.children}
@@ -5155,19 +6519,33 @@ class ErrorBoundary extends React.Component<
 }
 
 export default function App() {
-  const [project, setProject] = React.useState<Project | null>(() => loadProject());
-  const [authPreferences, setAuthPreferences] = React.useState<AuthPreferences>(loadAuthPreferences());
-  const [authContext, setAuthContext] = React.useState<AuthContext | null>(null);
-  const [authSession, setAuthSession] = React.useState<AuthSession | null>(null);
+  const [project, setProject] = React.useState<Project | null>(() =>
+    loadProject(),
+  );
+  const [authPreferences, setAuthPreferences] = React.useState<AuthPreferences>(
+    loadAuthPreferences(),
+  );
+  const [authContext, setAuthContext] = React.useState<AuthContext | null>(
+    null,
+  );
+  const [authSession, setAuthSession] = React.useState<AuthSession | null>(
+    null,
+  );
   const [authStatus, setAuthStatus] = React.useState<AuthStatus | null>(null);
-  const [authAppInfo, setAuthAppInfo] = React.useState<AuthAppInfo | null>(null);
+  const [authAppInfo, setAuthAppInfo] = React.useState<AuthAppInfo | null>(
+    null,
+  );
   const [authBooting, setAuthBooting] = React.useState(true);
-  const [authMessage, setAuthMessage] = React.useState('');
-  const [authError, setAuthError] = React.useState('');
-  const [authBusyAction, setAuthBusyAction] = React.useState<string | null>(null);
+  const [authMessage, setAuthMessage] = React.useState("");
+  const [authError, setAuthError] = React.useState("");
+  const [authBusyAction, setAuthBusyAction] = React.useState<string | null>(
+    null,
+  );
   const [updateBusy, setUpdateBusy] = React.useState(false);
-  const [updateError, setUpdateError] = React.useState('');
-  const [dismissedUpdateVersion, setDismissedUpdateVersion] = React.useState<string | null>(null);
+  const [updateError, setUpdateError] = React.useState("");
+  const [dismissedUpdateVersion, setDismissedUpdateVersion] = React.useState<
+    string | null
+  >(null);
 
   React.useEffect(() => {
     saveProject(project);
@@ -5182,14 +6560,14 @@ export default function App() {
 
     const loadAppInfo = async () => {
       try {
-        const info = await invokeTauri<AuthAppInfo>('auth_get_app_info', {});
+        const info = await invokeTauri<AuthAppInfo>("auth_get_app_info", {});
         if (cancelled) {
           return;
         }
         setAuthAppInfo(info);
       } catch (cause) {
         if (!cancelled) {
-          console.warn('Failed to load app update info:', cause);
+          console.warn("Failed to load app update info:", cause);
         }
       }
     };
@@ -5206,11 +6584,11 @@ export default function App() {
 
     const bootstrapAuth = async () => {
       setAuthBooting(true);
-      setAuthError('');
+      setAuthError("");
 
       try {
         const storedAuthPreferences = loadAuthPreferences();
-        const context = await invokeTauri<AuthContext>('auth_get_context', {});
+        const context = await invokeTauri<AuthContext>("auth_get_context", {});
         if (cancelled) {
           return;
         }
@@ -5227,7 +6605,7 @@ export default function App() {
             storedAuthPreferences.username.trim() &&
             storedAuthPreferences.password
           ) {
-            const session = await invokeTauri<AuthSession>('auth_login', {
+            const session = await invokeTauri<AuthSession>("auth_login", {
               username: storedAuthPreferences.username.trim(),
               password: storedAuthPreferences.password,
             });
@@ -5236,7 +6614,7 @@ export default function App() {
             }
 
             saveAuthToken(session.token);
-            const status = await invokeTauri<AuthStatus>('auth_get_status', {});
+            const status = await invokeTauri<AuthStatus>("auth_get_status", {});
             if (cancelled) {
               return;
             }
@@ -5248,12 +6626,14 @@ export default function App() {
           return;
         }
 
-        const session = await invokeTauri<AuthSession>('auth_restore_session', { token });
+        const session = await invokeTauri<AuthSession>("auth_restore_session", {
+          token,
+        });
         if (cancelled) {
           return;
         }
 
-        const status = await invokeTauri<AuthStatus>('auth_get_status', {});
+        const status = await invokeTauri<AuthStatus>("auth_get_status", {});
         if (cancelled) {
           return;
         }
@@ -5285,35 +6665,43 @@ export default function App() {
   const completeLogin = React.useCallback(async (session: AuthSession) => {
     saveAuthToken(session.token);
     setAuthSession(session);
-    const status = await invokeTauri<AuthStatus>('auth_get_status', {});
+    const status = await invokeTauri<AuthStatus>("auth_get_status", {});
     setAuthStatus(status);
     return status;
   }, []);
 
-  const updateAuthPreferencesState = React.useCallback((patch: Partial<AuthPreferences>) => {
-    setAuthPreferences((current) => normalizeAuthPreferences({ ...current, ...patch }));
-  }, []);
+  const updateAuthPreferencesState = React.useCallback(
+    (patch: Partial<AuthPreferences>) => {
+      setAuthPreferences((current) =>
+        normalizeAuthPreferences({ ...current, ...patch }),
+      );
+    },
+    [],
+  );
 
   const handleLogin = React.useCallback(
     async (username: string, password: string) => {
-      setAuthBusyAction('login');
-      setAuthError('');
-      setAuthMessage('');
+      setAuthBusyAction("login");
+      setAuthError("");
+      setAuthMessage("");
 
       try {
-        const session = await invokeTauri<AuthSession>('auth_login', { username, password });
+        const session = await invokeTauri<AuthSession>("auth_login", {
+          username,
+          password,
+        });
         const status = await completeLogin(session);
         setAuthPreferences((current) =>
           normalizeAuthPreferences({
             ...current,
             username,
             password,
-          })
+          }),
         );
         setAuthMessage(
           status.isValid
             ? `登录成功，欢迎回来 ${status.username}`
-            : `登录成功，但当前授权无效${status.validMessage ? `：${status.validMessage}` : ''}`
+            : `登录成功，但当前授权无效${status.validMessage ? `：${status.validMessage}` : ""}`,
         );
       } catch (cause) {
         const message = getErrorMessage(cause);
@@ -5323,38 +6711,44 @@ export default function App() {
         setAuthBusyAction(null);
       }
     },
-    [completeLogin]
+    [completeLogin],
   );
 
-  const handleRegister = React.useCallback(async (username: string, password: string) => {
-    setAuthBusyAction('register');
-    setAuthError('');
-    setAuthMessage('');
+  const handleRegister = React.useCallback(
+    async (username: string, password: string) => {
+      setAuthBusyAction("register");
+      setAuthError("");
+      setAuthMessage("");
 
-    try {
-      const result = await invokeTauri<AuthRegisterResult>('auth_register', { username, password });
-      setAuthMessage(`注册成功，用户 ${result.username} 已创建，请直接登录`);
-    } catch (cause) {
-      const message = getErrorMessage(cause);
-      setAuthError(message);
-      throw new Error(message);
-    } finally {
-      setAuthBusyAction(null);
-    }
-  }, []);
+      try {
+        const result = await invokeTauri<AuthRegisterResult>("auth_register", {
+          username,
+          password,
+        });
+        setAuthMessage(`注册成功，用户 ${result.username} 已创建，请直接登录`);
+      } catch (cause) {
+        const message = getErrorMessage(cause);
+        setAuthError(message);
+        throw new Error(message);
+      } finally {
+        setAuthBusyAction(null);
+      }
+    },
+    [],
+  );
 
   const handleTrial = React.useCallback(async () => {
-    setAuthBusyAction('trial');
-    setAuthError('');
-    setAuthMessage('');
+    setAuthBusyAction("trial");
+    setAuthError("");
+    setAuthMessage("");
 
     try {
-      const result = await invokeTauri<AuthTrialResult>('auth_trial', {});
+      const result = await invokeTauri<AuthTrialResult>("auth_trial", {});
       const hours = Math.floor((result.addedSeconds || 0) / 3600);
       setAuthMessage(
         result.expireTime
           ? `试用申请成功，可用时长约 ${hours} 小时，到期时间 ${result.expireTime}`
-          : result.message || '试用申请成功，请登录后继续使用'
+          : result.message || "试用申请成功，请登录后继续使用",
       );
     } catch (cause) {
       const message = getErrorMessage(cause);
@@ -5365,57 +6759,62 @@ export default function App() {
     }
   }, []);
 
-  const handleRecharge = React.useCallback(async (code: string) => {
-    if (!authSession) {
-      throw new Error('请先登录后再续费');
-    }
+  const handleRecharge = React.useCallback(
+    async (code: string) => {
+      if (!authSession) {
+        throw new Error("请先登录后再续费");
+      }
 
-    setAuthBusyAction('recharge');
-    setAuthError('');
-    setAuthMessage('');
+      setAuthBusyAction("recharge");
+      setAuthError("");
+      setAuthMessage("");
 
-    try {
-      const result = await invokeTauri<AuthRechargeResult>('auth_recharge', { code });
-      const status = await invokeTauri<AuthStatus>('auth_get_status', {});
-      setAuthStatus(status);
-      setAuthSession((current) =>
-        current
-          ? {
-              ...current,
-              isValid: status.isValid,
-              expireTime: status.expireTime,
-              validMessage: status.validMessage,
-              username: status.username,
-            }
-          : current
-      );
-      setAuthMessage(
-        result.newExpireTime
-          ? `续费成功，新到期时间 ${result.newExpireTime}`
-          : result.message || '续费成功'
-      );
-    } catch (cause) {
-      const message = getErrorMessage(cause);
-      setAuthError(message);
-      throw new Error(message);
-    } finally {
-      setAuthBusyAction(null);
-    }
-  }, [authSession]);
+      try {
+        const result = await invokeTauri<AuthRechargeResult>("auth_recharge", {
+          code,
+        });
+        const status = await invokeTauri<AuthStatus>("auth_get_status", {});
+        setAuthStatus(status);
+        setAuthSession((current) =>
+          current
+            ? {
+                ...current,
+                isValid: status.isValid,
+                expireTime: status.expireTime,
+                validMessage: status.validMessage,
+                username: status.username,
+              }
+            : current,
+        );
+        setAuthMessage(
+          result.newExpireTime
+            ? `续费成功，新到期时间 ${result.newExpireTime}`
+            : result.message || "续费成功",
+        );
+      } catch (cause) {
+        const message = getErrorMessage(cause);
+        setAuthError(message);
+        throw new Error(message);
+      } finally {
+        setAuthBusyAction(null);
+      }
+    },
+    [authSession],
+  );
 
   const handleLogout = React.useCallback(async () => {
-    setAuthBusyAction('logout');
-    setAuthError('');
+    setAuthBusyAction("logout");
+    setAuthError("");
 
     try {
-      await invokeTauri<void>('auth_logout', {});
+      await invokeTauri<void>("auth_logout", {});
     } catch {
       // Ignore logout cleanup errors and still clear local session.
     } finally {
       clearAuthToken();
       setAuthSession(null);
       setAuthStatus(null);
-      setAuthMessage('已退出登录');
+      setAuthMessage("已退出登录");
       setAuthBusyAction(null);
     }
   }, []);
@@ -5439,17 +6838,20 @@ export default function App() {
 
     const runHeartbeat = async () => {
       try {
-        const heartbeat = await invokeTauri<AuthHeartbeat>('auth_heartbeat', {});
+        const heartbeat = await invokeTauri<AuthHeartbeat>(
+          "auth_heartbeat",
+          {},
+        );
         if (cancelled) {
           return;
         }
 
-        if (heartbeat.commands.includes('force_logout')) {
-          void invokeTauri<void>('auth_logout', {});
+        if (heartbeat.commands.includes("force_logout")) {
+          void invokeTauri<void>("auth_logout", {});
           clearAuthToken();
           setAuthSession(null);
           setAuthStatus(null);
-          setAuthError('授权被服务器强制下线，请重新登录');
+          setAuthError("授权被服务器强制下线，请重新登录");
           return;
         }
 
@@ -5464,7 +6866,7 @@ export default function App() {
                 heartInterval: heartbeat.interval,
                 heartbeatTimeout: heartbeat.heartbeatTimeout,
               }
-            : current
+            : current,
         );
         setAuthStatus((current) =>
           current
@@ -5488,11 +6890,13 @@ export default function App() {
                 validMessage: heartbeat.validMessage,
                 hwid: heartbeat.hwid,
                 deviceName: heartbeat.deviceName,
-              }
+              },
         );
 
         if (!heartbeat.isValid) {
-          setAuthMessage(heartbeat.validMessage || '当前授权已失效，请续费后继续使用');
+          setAuthMessage(
+            heartbeat.validMessage || "当前授权已失效，请续费后继续使用",
+          );
           return;
         }
 
@@ -5518,10 +6922,10 @@ export default function App() {
 
   const refreshAppInfo = React.useCallback(async () => {
     setUpdateBusy(true);
-    setUpdateError('');
+    setUpdateError("");
 
     try {
-      const info = await invokeTauri<AuthAppInfo>('auth_get_app_info', {});
+      const info = await invokeTauri<AuthAppInfo>("auth_get_app_info", {});
       setAuthAppInfo(info);
       return info;
     } catch (cause) {
@@ -5537,21 +6941,24 @@ export default function App() {
   const visibleUpdateInfo =
     authAppInfo &&
     authAppInfo.hasUpdate &&
-    (authAppInfo.forceUpdate || dismissedUpdateVersion !== authAppInfo.latestVersion)
+    (authAppInfo.forceUpdate ||
+      dismissedUpdateVersion !== authAppInfo.latestVersion)
       ? authAppInfo
       : null;
 
   const handleUpdateNow = React.useCallback(async () => {
     if (!authAppInfo?.downloadUrl) {
-      setUpdateError('当前没有可用的更新地址。');
+      setUpdateError("当前没有可用的更新地址。");
       return;
     }
 
     setUpdateBusy(true);
-    setUpdateError('');
+    setUpdateError("");
 
     try {
-      await invokeTauri<void>('open_external_url', { url: authAppInfo.downloadUrl });
+      await invokeTauri<void>("open_external_url", {
+        url: authAppInfo.downloadUrl,
+      });
     } catch (cause) {
       setUpdateError(getErrorMessage(cause));
     } finally {
@@ -5564,8 +6971,10 @@ export default function App() {
       return;
     }
 
-    setDismissedUpdateVersion(authAppInfo.latestVersion || authAppInfo.currentVersion);
-    setUpdateError('');
+    setDismissedUpdateVersion(
+      authAppInfo.latestVersion || authAppInfo.currentVersion,
+    );
+    setUpdateError("");
   }, [authAppInfo]);
 
   return (
@@ -5574,8 +6983,18 @@ export default function App() {
         {hasValidAccess ? (
           <Layout>
             <Routes>
-              <Route path="/" element={<HomePage project={project} onProjectChange={setProject} />} />
-              <Route path="/editor" element={<EditorPage project={project} onProjectChange={setProject} />} />
+              <Route
+                path="/"
+                element={
+                  <HomePage project={project} onProjectChange={setProject} />
+                }
+              />
+              <Route
+                path="/editor"
+                element={
+                  <EditorPage project={project} onProjectChange={setProject} />
+                }
+              />
               <Route
                 path="/settings"
                 element={

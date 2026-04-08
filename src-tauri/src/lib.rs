@@ -751,6 +751,37 @@ fn extract_douyin_content_id(url: &str) -> Option<(String, String)> {
     None
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct AppSettings {
+    pub dashscope_api_key: String,
+    pub default_voice_id: String,
+    pub default_tts_model: String,
+    pub qiniu_access_key: String,
+    pub qiniu_secret_key: String,
+    pub qiniu_bucket: String,
+    pub qiniu_domain: String,
+}
+
+impl Default for AppSettings {
+    fn default() -> Self {
+        Self {
+            dashscope_api_key: std::env::var("DASHSCOPE_API_KEY").unwrap_or_default(),
+            default_voice_id: std::env::var("DEFAULT_VOICE_ID").unwrap_or_default(),
+            default_tts_model: std::env::var("DEFAULT_TTS_MODEL").unwrap_or_default(),
+            qiniu_access_key: std::env::var("QINIU_ACCESS_KEY").unwrap_or_default(),
+            qiniu_secret_key: std::env::var("QINIU_SECRET_KEY").unwrap_or_default(),
+            qiniu_bucket: std::env::var("QINIU_BUCKET").unwrap_or_default(),
+            qiniu_domain: std::env::var("QINIU_DOMAIN").unwrap_or_default(),
+        }
+    }
+}
+
+#[tauri::command]
+fn get_app_settings() -> AppSettings {
+    AppSettings::default()
+}
+
 #[tauri::command]
 async fn auth_get_context() -> Result<AuthContext, String> {
     Ok(build_auth_context())
@@ -1435,17 +1466,183 @@ async fn parse_douyin_url(
     })
 }
 
-/// 娴ｈ法鏁ら梼鍧楀櫡娴滄厪ashScope鏉烆剙鍟撶憴鍡涱暥鐠囶參鐓?
+/// 使用火山引擎豆包语音识别服务转写抖音视频
 #[tauri::command]
 async fn transcribe_douyin_video(
     video_url: String,
     access_key: String,
+    app_id: Option<String>,
     state: tauri::State<'_, AuthState>,
 ) -> Result<TranscriptionResult, String> {
     let _session = require_valid_license(&state).await?;
     if access_key.is_empty() {
-        return Err("鐠囧嘲鍘涢柊宥囩枂闂冨潡鍣锋禍鎱廰shScope API Key".to_string());
+        return Err("请先配置火山引擎 Access Key（在设置页面）".to_string());
     }
+
+    let transcription_source_url = prepare_douyin_transcription_url(&video_url)
+        .await?
+        .unwrap_or(video_url.clone());
+
+    let task_id = uuid::Uuid::new_v4().to_string();
+    let client = reqwest::Client::new();
+
+    // Step 1: 提交转写任务
+    let mut submit_headers = reqwest::header::HeaderMap::new();
+    submit_headers.insert("Content-Type", "application/json".parse().unwrap());
+    
+    // 判断使用新版还是旧版认证方式
+    if let Some(ref app_id_value) = app_id {
+        if !app_id_value.is_empty() {
+            // 旧版控制台：使用 App ID + Access Key
+            submit_headers.insert("X-Api-App-Key", app_id_value.parse().unwrap());
+            submit_headers.insert("X-Api-Access-Key", access_key.parse().unwrap());
+        } else {
+            // 新版控制台：只使用 API Key
+            submit_headers.insert("X-Api-Key", access_key.parse().unwrap());
+        }
+    } else {
+        // 新版控制台：只使用 API Key
+        submit_headers.insert("X-Api-Key", access_key.parse().unwrap());
+    }
+    
+    submit_headers.insert("X-Api-Resource-Id", "volc.seedasr.auc".parse().unwrap());
+    submit_headers.insert("X-Api-Request-Id", task_id.parse().unwrap());
+    submit_headers.insert("X-Api-Sequence", "-1".parse().unwrap());
+
+    let submit_body = serde_json::json!({
+        "user": {
+            "uid": "ai-remotion-user"
+        },
+        "audio": {
+            "format": "mp3",
+            "url": transcription_source_url
+        },
+        "request": {
+            "model_name": "bigmodel",
+            "enable_itn": true,
+            "enable_punc": true,
+            "show_utterances": true
+        }
+    });
+
+    let submit_response = client
+        .post("https://openspeech.bytedance.com/api/v3/auc/bigmodel/submit")
+        .headers(submit_headers)
+        .json(&submit_body)
+        .send()
+        .await
+        .map_err(|e| format!("提交转写任务失败: {}", e))?;
+
+    let submit_status = submit_response.status();
+    if !submit_status.is_success() {
+        let error_text = submit_response.text().await.unwrap_or_default();
+        return Err(format!("提交转写任务失败 (HTTP {}): {}", submit_status, error_text));
+    }
+
+    // Step 2: 轮询查询结果
+    let mut attempts = 0;
+    let max_attempts = 120; // 最长等待120秒
+    let mut result_text = String::new();
+    let mut result_duration = 0.0;
+
+    while attempts < max_attempts {
+        tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;
+
+        let mut query_headers = reqwest::header::HeaderMap::new();
+        query_headers.insert("Content-Type", "application/json".parse().unwrap());
+        
+        if let Some(ref app_id_value) = app_id {
+            if !app_id_value.is_empty() {
+                query_headers.insert("X-Api-App-Key", app_id_value.parse().unwrap());
+                query_headers.insert("X-Api-Access-Key", access_key.parse().unwrap());
+            } else {
+                query_headers.insert("X-Api-Key", access_key.parse().unwrap());
+            }
+        } else {
+            query_headers.insert("X-Api-Key", access_key.parse().unwrap());
+        }
+        
+        query_headers.insert("X-Api-Resource-Id", "volc.seedasr.auc".parse().unwrap());
+        query_headers.insert("X-Api-Request-Id", task_id.parse().unwrap());
+
+        let query_response = client
+            .post("https://openspeech.bytedance.com/api/v3/auc/bigmodel/query")
+            .headers(query_headers)
+            .json(&serde_json::json!({}))
+            .send()
+            .await
+            .map_err(|e| format!("查询转写任务失败: {}", e))?;
+
+        let query_json: Value = query_response
+            .json()
+            .await
+            .map_err(|e| format!("解析查询响应失败: {}", e))?;
+
+        let status_code = query_response
+            .headers()
+            .get("X-Api-Status-Code")
+            .and_then(|v| v.to_str().ok())
+            .unwrap_or("");
+
+        match status_code {
+            "20000000" => {
+                // 成功
+                if let Some(result) = query_json.get("result") {
+                    result_text = result
+                        .get("text")
+                        .and_then(|t| t.as_str())
+                        .unwrap_or("")
+                        .to_string();
+
+                    // 尝试从 utterances 获取时长
+                    if let Some(utterances) = result.get("utterances").and_then(|u| u.as_array()) {
+                        if let Some(last) = utterances.last() {
+                            result_duration = last
+                                .get("end_time")
+                                .and_then(|e| e.as_f64())
+                                .unwrap_or(0.0)
+                                / 1000.0;
+                        }
+                    }
+
+                    // 如果没有 utterances，尝试从 audio_info 获取时长
+                    if result_duration == 0.0 {
+                        if let Some(audio_info) = query_json.get("audio_info") {
+                            result_duration = audio_info
+                                .get("duration")
+                                .and_then(|d| d.as_f64())
+                                .unwrap_or(0.0)
+                                / 1000.0;
+                        }
+                    }
+                }
+                break;
+            }
+            "20000001" => {
+                // 处理中
+                attempts += 1;
+            }
+            _ => {
+                // 其他错误
+                let message = query_response
+                    .headers()
+                    .get("X-Api-Message")
+                    .and_then(|v| v.to_str().ok())
+                    .unwrap_or("未知错误");
+                return Err(format!("转写任务失败: {} ({})", message, status_code));
+            }
+        }
+    }
+
+    if result_text.is_empty() {
+        return Err("转写任务超时或结果为空".to_string());
+    }
+
+    Ok(TranscriptionResult {
+        text: result_text,
+        duration: result_duration,
+    })
+}
 
     let transcription_source_url = prepare_douyin_transcription_url(&video_url)
         .await?

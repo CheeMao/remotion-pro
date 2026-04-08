@@ -10,6 +10,7 @@
     "beforeBuildCommand": "npm run build:app"
   },
   "app": {
+    "withGlobalTauri": false,
     "windows": [
       {
         "title": "AI 视频生成器",
@@ -19,7 +20,11 @@
         "minHeight": 620,
         "resizable": true,
         "fullscreen": false,
-        "center": true
+        "center": true,
+        "decorations": true,
+        "transparent": false,
+        "alwaysOnTop": false,
+        "visible": true
       }
     ],
     "security": {
