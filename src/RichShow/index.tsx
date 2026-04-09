@@ -7,6 +7,7 @@ import {
 } from '../hooks/useContentJson';
 import { TimelineFields } from '../templates/types';
 import { getTemplateContentPath } from '../project-content';
+import { SubtitleOverlay } from '../renderers/SubtitleOverlay';
 
 type SlideType =
   | 'title'
@@ -16,7 +17,10 @@ type SlideType =
   | 'quote'
   | 'compare'
   | 'list'
-  | 'cta';
+  | 'cta'
+  | 'steps'
+  | 'timeline'
+  | 'hero';
 
 interface RichSlideData extends TimelineFields {
   type: SlideType;
@@ -64,6 +68,7 @@ export const RichShow: React.FC = () => {
   return (
     <AbsoluteFill style={{ background: '#0f0f1a' }}>
       {soundtrackSrc ? <Audio src={staticFile(soundtrackSrc)} /> : null}
+      <SubtitleOverlay slides={slides} template="RichShow" />
       {slides.map((slide, index) => {
         const { from, duration } = getSlideTiming(
           slides,

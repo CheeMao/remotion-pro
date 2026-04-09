@@ -7,6 +7,8 @@ import { KnowledgeShow } from "./KnowledgeShow";
 import { LiquidBriefShow } from "./LiquidBriefShow";
 import { LiquidShow } from "./LiquidShow";
 import { MacShow } from "./MacShow";
+import { CosmosShow } from "./CosmosShow";
+import { ProjectShow } from "./ProjectShow";
 import { StickShow } from "./StickShow";
 import { StudioShow } from "./StudioShow";
 import { TechShow } from "./TechShow";
@@ -110,6 +112,7 @@ const toAudioSlides = (content: ContentFile): AudioSlideData[] => {
     subtitle: slide.subtitle,
     points: slide.points,
     narration: slide.narration,
+    segmentIds: slide.segmentIds,
     type: slide.type,
     data: slide.data,
     elementTimings: slide.elementTimings,
@@ -127,6 +130,7 @@ const coerceToAudioSlides = (slides: ContentSlide[]): AudioSlideData[] => {
     subtitle: slide.subtitle,
     points: slide.points,
     narration: slide.narration,
+    segmentIds: slide.segmentIds,
     type: slide.type,
     data: slide.data,
     elementTimings: slide.elementTimings,
@@ -373,6 +377,24 @@ export const RemotionRoot: React.FC = () => {
         width={1080}
         height={1920}
         calculateMetadata={getTemplateMetadata("TechShow")}
+      />
+      <Composition
+        id="CosmosShow"
+        component={CosmosShow}
+        durationInFrames={FALLBACK_COMPOSITION_DURATION}
+        fps={30}
+        width={1080}
+        height={1920}
+        calculateMetadata={getTemplateMetadata("CosmosShow")}
+      />
+      <Composition
+        id="ProjectShow"
+        component={ProjectShow}
+        durationInFrames={FALLBACK_COMPOSITION_DURATION}
+        fps={30}
+        width={1080}
+        height={1920}
+        calculateMetadata={getTemplateMetadata("ProjectShow")}
       />
       <Composition
         id="GeneratedVideo"

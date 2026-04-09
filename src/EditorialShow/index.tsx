@@ -3,6 +3,7 @@ import { AbsoluteFill, Audio, Sequence, staticFile, useVideoConfig } from "remot
 import { EditorialSlide } from "./EditorialSlide";
 import { getSlideTiming, getStaticAssetPath, useContentJson } from "../hooks/useContentJson";
 import { getTemplateContentPath } from "../project-content";
+import { SubtitleOverlay } from "../renderers/SubtitleOverlay";
 
 const defaultSlides = [
   {
@@ -62,6 +63,7 @@ export const EditorialShow: React.FC = () => {
   return (
     <AbsoluteFill style={{ background: "#f2ece2" }}>
       {soundtrackSrc ? <Audio src={staticFile(soundtrackSrc)} /> : null}
+      <SubtitleOverlay slides={slides} template="EditorialShow" />
       {slides.map((slide, index) => {
         const { from, duration } = getSlideTiming(slides, index, fps, DEFAULT_SLIDE_DURATION);
 

@@ -1,0 +1,771 @@
+{
+  "meta": {
+    "title": "Generated Video",
+    "template": "StickShow",
+    "voice_id": "S_PlTK120R1",
+    "full_narration": "很多人用 Claude 写代码、做设计时，最大的痛点就是效率和质量难兼顾。今天我来推荐8个实用技能，帮你解决这些难题，覆盖设计、规划、安全等多个关键领域，让你工作更轻松，成果更出彩。\n\n先说最牛的设计利器：Frontend Design，Anthropic 官方出品，超过27万用户用它给 Claude 输入完整设计系统和哲学，界面质量马上提升一个档次。想让作品更专业，它绝对不能少。\n\n再来是多 Agent 协同利器 Superpowers，作者 Oobra，4万多星！它能自动拆任务，多线并行，还能自我检查，复杂项目分分钟搞定。\n\n规划控必须看 Planning with Files，13000多星，让 Claude 用文件做清晰的结构化规划，先布局再行动，错误率立刻降下来。\n\n浏览器操作也能交给 Claude，Anthropic 的 Agent Browser 搭 Playwright，测试网页、抓数据、甚至填表单，都变得简单顺手。\n\n设计规范别忘了 Web Interface Guidelines，2.2万星，帮你一键检查界面符合无障碍和响应式要求，省心又专业。\n\nUIUX Pro Max 几乎是设计百科，全套67种风格、96个调色板、57套字体搭配，Claude 的设计素材库，有了它，创意不再拼命翻找。\n\n代码安全很关键，Trail of Bits 出的 Security Audit，自动扫一遍漏洞，写完代码就跑它一把，问题早发现早解决。\n\n最后是 Software Architecture，内置 Clean Architecture 和 Solid 原则，Claude 写出的代码不仅能跑，还架构清晰，质量绝对更放心。\n\n这8个技能，是我用过最实用的 Claude 加强工具。你平时还有哪些神技能？评论里告诉我，我们一起交流！",
+    "soundtrack_path": "projects/generated/1775625197535-StickShow/audio/narration.mp3",
+    "soundtrack_duration": 118.128,
+    "voiceId": "S_PlTK120R1",
+    "fullNarration": "很多人用 Claude 写代码、做设计时，最大的痛点就是效率和质量难兼顾。今天我来推荐8个实用技能，帮你解决这些难题，覆盖设计、规划、安全等多个关键领域，让你工作更轻松，成果更出彩。\n\n先说最牛的设计利器：Frontend Design，Anthropic 官方出品，超过27万用户用它给 Claude 输入完整设计系统和哲学，界面质量马上提升一个档次。想让作品更专业，它绝对不能少。\n\n再来是多 Agent 协同利器 Superpowers，作者 Oobra，4万多星！它能自动拆任务，多线并行，还能自我检查，复杂项目分分钟搞定。\n\n规划控必须看 Planning with Files，13000多星，让 Claude 用文件做清晰的结构化规划，先布局再行动，错误率立刻降下来。\n\n浏览器操作也能交给 Claude，Anthropic 的 Agent Browser 搭 Playwright，测试网页、抓数据、甚至填表单，都变得简单顺手。\n\n设计规范别忘了 Web Interface Guidelines，2.2万星，帮你一键检查界面符合无障碍和响应式要求，省心又专业。\n\nUIUX Pro Max 几乎是设计百科，全套67种风格、96个调色板、57套字体搭配，Claude 的设计素材库，有了它，创意不再拼命翻找。\n\n代码安全很关键，Trail of Bits 出的 Security Audit，自动扫一遍漏洞，写完代码就跑它一把，问题早发现早解决。\n\n最后是 Software Architecture，内置 Clean Architecture 和 Solid 原则，Claude 写出的代码不仅能跑，还架构清晰，质量绝对更放心。\n\n这8个技能，是我用过最实用的 Claude 加强工具。你平时还有哪些神技能？评论里告诉我，我们一起交流！",
+    "soundtrackPath": "projects/generated/1775625197535-StickShow/audio/narration.mp3",
+    "soundtrackDuration": 118.128
+  },
+  "slides": [
+    {
+      "audioDuration": 5.832,
+      "audioEnd": 5.832,
+      "audioStart": 0,
+      "durationInFrames": 175,
+      "elementTimings": [
+        {
+          "audioEnd": 0.8747999999999999,
+          "audioStart": 0,
+          "cue": "写代码设计难兼顾？",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 3.41592,
+          "audioStart": 0.99984,
+          "cue": "效率和质量往往难以兼顾",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-0",
+          "index": 0,
+          "type": "custom"
+        },
+        {
+          "audioEnd": 5.832,
+          "audioStart": 3.41592,
+          "cue": "很多人深感痛点",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-1",
+          "index": 1,
+          "type": "custom"
+        }
+      ],
+      "layout": "hero",
+      "narration": "很多人用 Claude 写代码、做设计时，最大的痛点就是效率和质量难兼顾。",
+      "points": [
+        "效率和质量往往难以兼顾",
+        "很多人深感痛点"
+      ],
+      "segmentIds": [
+        "segment-1"
+      ],
+      "subtitle": "",
+      "title": "写代码设计难兼顾？",
+      "type": "hero",
+      "audioPath": "projects/generated/1775625197535-StickShow/audio/slides/slide-001.mp3"
+    },
+    {
+      "audioDuration": 10.632,
+      "audioEnd": 16.464,
+      "audioStart": 5.832,
+      "durationInFrames": 319,
+      "elementTimings": [
+        {
+          "audioEnd": 7.032,
+          "audioStart": 5.832,
+          "cue": "解决方案来了",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 11.778,
+          "audioStart": 7.092,
+          "cue": "8个实用技能覆盖设计、规划、安全等",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-0",
+          "index": 0,
+          "type": "custom"
+        },
+        {
+          "audioEnd": 16.464,
+          "audioStart": 11.778,
+          "cue": "帮你提升效率和质量",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-1",
+          "index": 1,
+          "type": "custom"
+        }
+      ],
+      "layout": "hero",
+      "narration": "今天我来推荐8个实用技能，帮你解决这些难题，覆盖设计、规划、安全等多个关键领域。",
+      "points": [
+        "8个实用技能覆盖设计、规划、安全等",
+        "帮你提升效率和质量"
+      ],
+      "segmentIds": [
+        "segment-2"
+      ],
+      "subtitle": "",
+      "title": "解决方案来了",
+      "type": "hero",
+      "audioPath": "projects/generated/1775625197535-StickShow/audio/slides/slide-002.mp3"
+    },
+    {
+      "audioDuration": 2.136,
+      "audioEnd": 18.599999999999998,
+      "audioStart": 16.464,
+      "data": {
+        "badge": "Frontend Design，Anthropic出品",
+        "cta": "让设计更专业"
+      },
+      "durationInFrames": 64,
+      "elementTimings": [
+        {
+          "audioEnd": 16.784399999999998,
+          "audioStart": 16.464,
+          "cue": "最强设计利器",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 17.810159999999996,
+          "audioStart": 17.020319999999998,
+          "cue": "Frontend Design，Anthropic出品",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-0",
+          "index": 0,
+          "type": "custom"
+        },
+        {
+          "audioEnd": 18.59999999999999,
+          "audioStart": 17.810159999999996,
+          "cue": "让设计更专业",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-1",
+          "index": 1,
+          "type": "custom"
+        }
+      ],
+      "layout": "hero",
+      "narration": "先说最牛的设计利器：Frontend Design，Anthropic 官方出品。",
+      "points": [
+        "Frontend Design，Anthropic出品",
+        "让设计更专业"
+      ],
+      "segmentIds": [
+        "segment-3"
+      ],
+      "subtitle": "Frontend Design",
+      "title": "最强设计利器",
+      "type": "hero",
+      "audioPath": "projects/generated/1775625197535-StickShow/audio/slides/slide-003.mp3"
+    },
+    {
+      "audioDuration": 13.752,
+      "audioEnd": 32.352,
+      "audioStart": 18.599999999999998,
+      "data": {},
+      "durationInFrames": 413,
+      "elementTimings": [
+        {
+          "audioEnd": 19.799999999999997,
+          "audioStart": 18.6,
+          "cue": "为什么不能错过",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 26.106,
+          "audioStart": 19.86,
+          "cue": "作品更专业是它的核心价值",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-0",
+          "index": 0,
+          "type": "custom"
+        },
+        {
+          "audioEnd": 32.352000000000004,
+          "audioStart": 26.106,
+          "cue": "基本必备设计工具",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-1",
+          "index": 1,
+          "type": "custom"
+        }
+      ],
+      "layout": "default",
+      "narration": "Frontend Design 想让作品更专业，它绝对不能少。",
+      "points": [
+        "作品更专业是它的核心价值",
+        "基本必备设计工具"
+      ],
+      "segmentIds": [
+        "segment-4",
+        "segment-5"
+      ],
+      "subtitle": "Frontend Design",
+      "title": "为什么不能错过",
+      "type": "default",
+      "audioPath": "projects/generated/1775625197535-StickShow/audio/slides/slide-004.mp3"
+    },
+    {
+      "audioDuration": 6.144,
+      "audioEnd": 38.495999999999995,
+      "audioStart": 32.352,
+      "data": {
+        "badge": "Superpowers，4万+用户",
+        "cta": "自动拆任务，多线并行"
+      },
+      "durationInFrames": 184,
+      "elementTimings": [
+        {
+          "audioEnd": 33.2736,
+          "audioStart": 32.352000000000004,
+          "cue": "多 Agent 协同神器",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 35.94264,
+          "audioStart": 33.38928,
+          "cue": "Superpowers，4万+用户",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-0",
+          "index": 0,
+          "type": "custom"
+        },
+        {
+          "audioEnd": 38.495999999999995,
+          "audioStart": 35.94264,
+          "cue": "自动拆任务，多线并行",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-1",
+          "index": 1,
+          "type": "custom"
+        }
+      ],
+      "layout": "hero",
+      "narration": "再来是多 Agent 协同利器 Superpowers，作者 Oobra，4万多用户。",
+      "points": [
+        "Superpowers，4万+用户",
+        "自动拆任务，多线并行"
+      ],
+      "segmentIds": [
+        "segment-6"
+      ],
+      "subtitle": "Superpowers",
+      "title": "多 Agent 协同神器",
+      "type": "hero",
+      "audioPath": "projects/generated/1775625197535-StickShow/audio/slides/slide-005.mp3"
+    },
+    {
+      "audioDuration": 6.048,
+      "audioEnd": 44.544,
+      "audioStart": 38.495999999999995,
+      "durationInFrames": 181,
+      "elementTimings": [
+        {
+          "audioEnd": 39.403200000000005,
+          "audioStart": 38.496,
+          "cue": "复杂项目秒解决",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 42.032880000000006,
+          "audioStart": 39.52176,
+          "cue": "任务自动拆分",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-0",
+          "index": 0,
+          "type": "custom"
+        },
+        {
+          "audioEnd": 44.54400000000001,
+          "audioStart": 42.032880000000006,
+          "cue": "自我检查保障质量",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-1",
+          "index": 1,
+          "type": "custom"
+        }
+      ],
+      "layout": "default",
+      "narration": "它能自动拆任务，多线并行，还能自我检查，复杂项目分分钟搞定。",
+      "points": [
+        "任务自动拆分",
+        "自我检查保障质量"
+      ],
+      "segmentIds": [
+        "segment-7"
+      ],
+      "subtitle": "",
+      "title": "复杂项目秒解决",
+      "type": "default",
+      "audioPath": "projects/generated/1775625197535-StickShow/audio/slides/slide-006.mp3"
+    },
+    {
+      "audioDuration": 10.632,
+      "audioEnd": 55.175999999999995,
+      "audioStart": 44.544,
+      "durationInFrames": 319,
+      "elementTimings": [
+        {
+          "audioEnd": 45.74400000000001,
+          "audioStart": 44.544,
+          "cue": "规划控必备",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 50.49,
+          "audioStart": 45.804,
+          "cue": "Planning with Files，13000+星",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-0",
+          "index": 0,
+          "type": "custom"
+        },
+        {
+          "audioEnd": 55.176,
+          "audioStart": 50.49,
+          "cue": "帮 Claude 高效规划",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-1",
+          "index": 1,
+          "type": "custom"
+        }
+      ],
+      "layout": "hero",
+      "narration": "规划控必须看 Planning with Files，13000多星，让 Claude 规划更高效。",
+      "points": [
+        "Planning with Files，13000+星",
+        "帮 Claude 高效规划"
+      ],
+      "segmentIds": [
+        "segment-8"
+      ],
+      "subtitle": "",
+      "title": "规划控必备",
+      "type": "hero",
+      "audioPath": "projects/generated/1775625197535-StickShow/audio/slides/slide-007.mp3"
+    },
+    {
+      "audioDuration": 10.896,
+      "audioEnd": 66.072,
+      "audioStart": 55.175999999999995,
+      "durationInFrames": 327,
+      "elementTimings": [
+        {
+          "audioEnd": 56.376000000000005,
+          "audioStart": 55.176,
+          "cue": "浏览器操作交给它",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 61.254000000000005,
+          "audioStart": 56.436,
+          "cue": "Agent Brows 能自动操作网页",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-0",
+          "index": 0,
+          "type": "custom"
+        },
+        {
+          "audioEnd": 66.072,
+          "audioStart": 61.254000000000005,
+          "cue": "解放双手更精准",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-1",
+          "index": 1,
+          "type": "custom"
+        }
+      ],
+      "layout": "default",
+      "narration": "浏览器操作也能交给 Claude，Anthropic 的 Agent Brows 能自动完成。",
+      "points": [
+        "Agent Brows 能自动操作网页",
+        "解放双手更精准"
+      ],
+      "segmentIds": [
+        "segment-9"
+      ],
+      "subtitle": "",
+      "title": "浏览器操作交给它",
+      "type": "default",
+      "audioPath": "projects/generated/1775625197535-StickShow/audio/slides/slide-008.mp3"
+    },
+    {
+      "audioDuration": 9.696,
+      "audioEnd": 75.768,
+      "audioStart": 66.072,
+      "durationInFrames": 291,
+      "elementTimings": [
+        {
+          "audioEnd": 67.272,
+          "audioStart": 66.072,
+          "cue": "设计规范助手",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 74.1219512195122,
+          "audioStart": 68.77229268292682,
+          "cue": "Web Interface Guidelines，2.2万星",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-0",
+          "index": 0,
+          "type": "custom"
+        },
+        {
+          "audioEnd": 75.768,
+          "audioStart": 71.55,
+          "cue": "确保界面符合设计规范",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-1",
+          "index": 1,
+          "type": "custom"
+        }
+      ],
+      "layout": "hero",
+      "narration": "设计规范别忘了 Web Interface Guidelines，2.2万星，帮你做准设计标准。",
+      "points": [
+        "Web Interface Guidelines，2.2万星",
+        "确保界面符合设计规范"
+      ],
+      "segmentIds": [
+        "segment-10"
+      ],
+      "subtitle": "",
+      "title": "设计规范助手",
+      "type": "hero",
+      "audioPath": "projects/generated/1775625197535-StickShow/audio/slides/slide-009.mp3"
+    },
+    {
+      "audioDuration": 12.336,
+      "audioEnd": 88.104,
+      "audioStart": 75.768,
+      "durationInFrames": 370,
+      "elementTimings": [
+        {
+          "audioEnd": 76.968,
+          "audioStart": 75.768,
+          "cue": "设计百科大全",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 80.19257142857143,
+          "audioStart": 77.02799999999999,
+          "cue": "UIUX Pro Max",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-0",
+          "index": 0,
+          "type": "custom"
+        },
+        {
+          "audioEnd": 88.10400000000001,
+          "audioStart": 82.566,
+          "cue": "67种风格，96调色板，57套字体",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-1",
+          "index": 1,
+          "type": "custom"
+        }
+      ],
+      "layout": "default",
+      "narration": "UIUX Pro Max 几乎是设计百科，全套67种风格、96个调色板、57套字体。",
+      "points": [
+        "UIUX Pro Max",
+        "67种风格，96调色板，57套字体"
+      ],
+      "segmentIds": [
+        "segment-11"
+      ],
+      "subtitle": "",
+      "title": "设计百科大全",
+      "type": "default",
+      "audioPath": "projects/generated/1775625197535-StickShow/audio/slides/slide-010.mp3"
+    },
+    {
+      "audioDuration": 9.264,
+      "audioEnd": 97.368,
+      "audioStart": 88.104,
+      "durationInFrames": 278,
+      "elementTimings": [
+        {
+          "audioEnd": 89.304,
+          "audioStart": 88.104,
+          "cue": "代码安全护航",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 93.366,
+          "audioStart": 89.36399999999999,
+          "cue": "Security Audit，Trail of Bits出品",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-0",
+          "index": 0,
+          "type": "custom"
+        },
+        {
+          "audioEnd": 97.368,
+          "audioStart": 93.366,
+          "cue": "保障代码安全无漏洞",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-1",
+          "index": 1,
+          "type": "custom"
+        }
+      ],
+      "layout": "hero",
+      "narration": "代码安全很关键，Trail of Bits 出的 Security Audit 是最佳选择。",
+      "points": [
+        "Security Audit，Trail of Bits出品",
+        "保障代码安全无漏洞"
+      ],
+      "segmentIds": [
+        "segment-12"
+      ],
+      "subtitle": "",
+      "title": "代码安全护航",
+      "type": "hero",
+      "audioPath": "projects/generated/1775625197535-StickShow/audio/slides/slide-011.mp3"
+    },
+    {
+      "audioDuration": 11.568,
+      "audioEnd": 108.93599999999999,
+      "audioStart": 97.368,
+      "durationInFrames": 347,
+      "elementTimings": [
+        {
+          "audioEnd": 98.568,
+          "audioStart": 97.368,
+          "cue": "软件架构利器",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 103.78199999999998,
+          "audioStart": 98.628,
+          "cue": "Software Architecture 工具",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-0",
+          "index": 0,
+          "type": "custom"
+        },
+        {
+          "audioEnd": 107.88416326530611,
+          "audioStart": 103.46644897959185,
+          "cue": "内置 Clean Architecture 模板",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-1",
+          "index": 1,
+          "type": "custom"
+        }
+      ],
+      "layout": "default",
+      "narration": "最后是 Software Architecture，内置 Clean Architecture 模板，架构更清晰。",
+      "points": [
+        "Software Architecture 工具",
+        "内置 Clean Architecture 模板"
+      ],
+      "segmentIds": [
+        "segment-13"
+      ],
+      "subtitle": "",
+      "title": "软件架构利器",
+      "type": "default",
+      "audioPath": "projects/generated/1775625197535-StickShow/audio/slides/slide-012.mp3"
+    },
+    {
+      "audioDuration": 4.224,
+      "audioEnd": 113.16,
+      "audioStart": 108.93599999999999,
+      "data": {
+        "items": [
+          "设计利器不止一个",
+          "多 Agent 协同提升效率",
+          "安全和架构同样重要"
+        ]
+      },
+      "durationInFrames": 127,
+      "elementTimings": [
+        {
+          "audioEnd": 109.5696,
+          "audioStart": 108.936,
+          "cue": "实用技能总结",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 110.88192,
+          "audioStart": 109.74288,
+          "cue": "设计利器不止一个",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "highlight-0",
+          "index": 0,
+          "type": "highlight"
+        },
+        {
+          "audioEnd": 112.02096,
+          "audioStart": 110.88192,
+          "cue": "多 Agent 协同提升效率",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "highlight-1",
+          "index": 1,
+          "type": "highlight"
+        },
+        {
+          "audioEnd": 113.16,
+          "audioStart": 112.02096,
+          "cue": "安全和架构同样重要",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "highlight-2",
+          "index": 2,
+          "type": "highlight"
+        }
+      ],
+      "layout": "highlight",
+      "narration": "这8个技能，是我用过最实用的 Claude 加强工具。",
+      "points": [],
+      "segmentIds": [
+        "segment-14"
+      ],
+      "subtitle": "",
+      "title": "实用技能总结",
+      "type": "highlight",
+      "audioPath": "projects/generated/1775625197535-StickShow/audio/slides/slide-013.mp3"
+    },
+    {
+      "audioDuration": 2.184,
+      "audioEnd": 115.344,
+      "audioStart": 113.16,
+      "durationInFrames": 66,
+      "elementTimings": [
+        {
+          "audioEnd": 113.4876,
+          "audioStart": 113.16,
+          "cue": "你的神技能？",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 114.53304,
+          "audioStart": 113.72208,
+          "cue": "欢迎分享你的独家用法",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-0",
+          "index": 0,
+          "type": "custom"
+        },
+        {
+          "audioEnd": 115.344,
+          "audioStart": 114.53304,
+          "cue": "互相学习更快成长",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-1",
+          "index": 1,
+          "type": "custom"
+        }
+      ],
+      "layout": "hero",
+      "narration": "你平时还有哪些神技能？",
+      "points": [
+        "欢迎分享你的独家用法",
+        "互相学习更快成长"
+      ],
+      "segmentIds": [
+        "segment-15"
+      ],
+      "subtitle": "",
+      "title": "你的神技能？",
+      "type": "hero",
+      "audioPath": "projects/generated/1775625197535-StickShow/audio/slides/slide-014.mp3"
+    },
+    {
+      "audioDuration": 2.784,
+      "audioEnd": 118.128,
+      "audioStart": 115.344,
+      "data": {
+        "button": "评论告诉我，一起交流！",
+        "cta": "评论告诉我，一起交流！"
+      },
+      "durationInFrames": 84,
+      "elementTimings": [
+        {
+          "audioEnd": 115.9008,
+          "audioStart": 115.344,
+          "cue": "评论区交流",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        }
+      ],
+      "layout": "cta",
+      "narration": "评论里告诉我，我们一起交流！",
+      "points": [],
+      "segmentIds": [
+        "segment-16"
+      ],
+      "subtitle": "",
+      "title": "评论区交流",
+      "type": "cta",
+      "audioPath": "projects/generated/1775625197535-StickShow/audio/slides/slide-015.mp3"
+    }
+  ]
+}

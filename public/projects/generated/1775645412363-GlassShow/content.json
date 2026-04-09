@@ -1,0 +1,102 @@
+{
+  "meta": {
+    "title": "Generated Video",
+    "template": "GlassShow",
+    "voice_id": "S_PlTK120R1",
+    "full_narration": "很多人用 Claude 写代码、设计界面，但如何真正提升效率和质量？今天直接告诉你8个实用到爆的 Cloud Code Skill，覆盖设计、规划、安全，帮你一步步成高手。\n",
+    "soundtrack_path": "projects/generated/1775645412363-GlassShow/audio/narration.mp3",
+    "soundtrack_duration": 13.368,
+    "voiceId": "S_PlTK120R1",
+    "fullNarration": "很多人用 Claude 写代码、设计界面，但如何真正提升效率和质量？今天直接告诉你8个实用到爆的 Cloud Code Skill，覆盖设计、规划、安全，帮你一步步成高手。",
+    "soundtrackPath": "projects/generated/1775645412363-GlassShow/audio/narration.mp3",
+    "soundtrackDuration": 13.368
+  },
+  "slides": [
+    {
+      "audioDuration": 5.208,
+      "audioEnd": 5.208,
+      "audioStart": 0,
+      "durationInFrames": 156,
+      "elementTimings": [
+        {
+          "audioEnd": 0.7812,
+          "audioStart": 0,
+          "cue": "为什么用 Claude 写代码还不够？",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 3.06648,
+          "audioStart": 0.92496,
+          "cue": "多数人只用 Claude 写代码、设计界面",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-0",
+          "index": 0,
+          "type": "custom"
+        },
+        {
+          "audioEnd": 5.208,
+          "audioStart": 3.06648,
+          "cue": "但真要提升效率，方法少有人知",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-1",
+          "index": 1,
+          "type": "custom"
+        }
+      ],
+      "layout": "hero",
+      "narration": "很多人用 Claude 写代码、设计界面，但如何真正提升效率和质量？",
+      "points": [
+        "多数人只用 Claude 写代码、设计界面",
+        "但真要提升效率，方法少有人知"
+      ],
+      "segmentIds": [
+        "segment-1"
+      ],
+      "subtitle": "",
+      "title": "为什么用 Claude 写代码还不够？",
+      "type": "hero",
+      "audioPath": "projects/generated/1775645412363-GlassShow/audio/slides/slide-001.mp3"
+    },
+    {
+      "audioDuration": 8.16,
+      "audioEnd": 13.368,
+      "audioStart": 5.208,
+      "durationInFrames": 245,
+      "elementTimings": [
+        {
+          "audioEnd": 6.84,
+          "audioStart": 5.208,
+          "cue": "揭秘8个爆赞的 Cloud Code 技巧",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 7.656000000000001,
+          "audioStart": 6.432,
+          "cue": "设计、规划全覆盖，效率翻倍",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "subtitle",
+          "type": "subtitle"
+        }
+      ],
+      "layout": "list",
+      "narration": "今天直接告诉你8个实用到爆的 Cloud Code Skill，覆盖设计、规划、...",
+      "points": [],
+      "segmentIds": [
+        "segment-2"
+      ],
+      "subtitle": "设计、规划全覆盖，效率翻倍",
+      "title": "揭秘8个爆赞的 Cloud Code 技巧",
+      "type": "list",
+      "audioPath": "projects/generated/1775645412363-GlassShow/audio/slides/slide-002.mp3"
+    }
+  ]
+}

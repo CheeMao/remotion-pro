@@ -2,7 +2,7 @@ import {AbsoluteFill,interpolate,spring,useCurrentFrame,useVideoConfig} from 're
 import React from 'react';
 import {getSlideMotionTiming} from '../templates/animationTiming';
 
-type SlideType='cover'|'cards'|'steps'|'compare'|'stats'|'quote'|'timeline'|'chart'|'highlight'|'cta';
+type SlideType='cover'|'cards'|'steps'|'compare'|'stats'|'quote'|'timeline'|'chart'|'highlight'|'cta'|'list';
 
 type Item={number:string;title:string;color?:string};
 type SlideData=Record<string,unknown>;
@@ -216,7 +216,7 @@ export const LiquidBriefSlide:React.FC<Props>=({
     }
 
     if(type==='compare'){
-      const compare=data as {left?:{label:string;title:string;points:string[]};right?:{label:string;title:string;points:string[]};centerLabel?:string};
+      const compare=data as {left?:{label:string;title:string;points:string[]};right?:{label:string;title:string;points:string[]};centerLabel?:string;centerBadge?:string};
       const left=spring({frame:frame-t.pointsStart,fps,config:{damping:15,stiffness:100}});
       const right=spring({frame:frame-t.pointsStart-10,fps,config:{damping:15,stiffness:100}});
       const center=spring({frame:frame-t.pointsStart-4,fps,config:{damping:16,stiffness:100}});
@@ -270,7 +270,7 @@ export const LiquidBriefSlide:React.FC<Props>=({
               transform:`scale(${interpolate(center,[0,1],[0.72,1])})`,
             }}
           >
-            <div style={{fontSize:12,fontWeight:700,letterSpacing:'0.18em',color:c.soft,marginBottom:4}}>MODE</div>
+            <div style={{fontSize:12,fontWeight:700,letterSpacing:'0.18em',color:c.soft,marginBottom:4}}>{compare.centerBadge||'MODE'}</div>
             <div style={{fontSize:22,fontWeight:900,color:c.ink,letterSpacing:'-0.03em'}}>{compare.centerLabel||'VS'}</div>
           </div>
           {panel(compare.right,c.aqua,right,28)}
@@ -449,6 +449,58 @@ export const LiquidBriefSlide:React.FC<Props>=({
               })}
             </div>
           ):null}
+        </div>
+      );
+    }
+
+    if(type==='list'){
+      const listItems=(data?.items as Array<{icon?:string;title:string;desc?:string}>)||[];
+      return (
+        <div style={{display:'flex',flexDirection:'column',gap:16}}>
+          {listItems.map((item,i)=>{
+            const p=spring({frame:frame-t.pointsStart-i*t.pointStagger,fps,config:{damping:16,stiffness:100}});
+            const color=[c.pink,c.aqua,c.apricot,c.lavender][i%4];
+            return (
+              <div
+                key={`${item.title}-${i}`}
+                style={{
+                  ...panelShell(color),
+                  padding:'20px 24px 22px',
+                  opacity:p,
+                  transform:rise(p,16),
+                  display:'flex',
+                  alignItems:'center',
+                  gap:20,
+                }}
+              >
+                <div style={{position:'absolute',left:0,top:0,bottom:0,width:5,background:`linear-gradient(180deg, ${color} 0%, rgba(255,255,255,0.9) 100%)`,borderRadius:'28px 0 0 28px'}} />
+                <div style={{position:'relative',zIndex:1,display:'flex',alignItems:'center',gap:20,width:'100%'}}>
+                  <div
+                    style={{
+                      width:48,
+                      height:48,
+                      borderRadius:'50%',
+                      background:`${color}28`,
+                      border:`1.5px solid ${color}60`,
+                      display:'flex',
+                      alignItems:'center',
+                      justifyContent:'center',
+                      fontSize:22,
+                      flexShrink:0,
+                    }}
+                  >
+                    {item.icon||<span style={{fontWeight:900,color:color,fontSize:18}}>{String(i+1).padStart(2,'0')}</span>}
+                  </div>
+                  <div style={{flex:1}}>
+                    <div style={{fontSize:26,fontWeight:800,color:c.ink,letterSpacing:'-0.025em',lineHeight:1.2}}>{item.title}</div>
+                    {item.desc?(
+                      <div style={{marginTop:6,fontSize:20,lineHeight:1.5,color:c.muted,fontWeight:500}}>{item.desc}</div>
+                    ):null}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
         </div>
       );
     }

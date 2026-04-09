@@ -11,6 +11,7 @@ import {
   PreviewProjectData,
 } from "./remotion-preview/EmbeddedPreview";
 import { prepareSlidesForRender } from "@remotion-root/templates/autoLayout";
+import { parseJsonWithRepair } from "@remotion-root/utils/json-repair";
 import {
   getTemplateOrientation,
   type TemplateOrientation,
@@ -78,6 +79,7 @@ type SettingsData = {
   aiModel: string;
   rewriteStyles: RewriteStyle[];
   defaultRewriteStyleId: string;
+  outputDir?: string;
 };
 
 const DEFAULT_VOLCENGINE_RESOURCE_ID = "seed-icl-2.0";
@@ -381,6 +383,8 @@ const ACTIVE_TEMPLATE_OPTIONS = [
     orientation: "portrait",
   },
   { label: "火柴人 · Stick", value: "StickShow", orientation: "portrait" },
+  { label: "宇宙风 · Cosmos", value: "CosmosShow", orientation: "portrait" },
+  { label: "项目展示 · Project", value: "ProjectShow", orientation: "portrait" },
   { label: "Mac 风 · Mac", value: "MacShow", orientation: "landscape" },
   {
     label: "演播室 · Studio Terminal",
@@ -2120,6 +2124,10 @@ async function invokeTauri<T>(
   return invoke<T>(command, args);
 }
 
+function parseTauriJson<T>(content: string, sourceLabel: string): T {
+  return parseJsonWithRepair<T>(content, sourceLabel).data;
+}
+
 function withTimeout<T>(
   promise: Promise<T>,
   timeoutMs: number,
@@ -2146,6 +2154,24 @@ function withTimeout<T>(
   });
 }
 
+function getSlidesRequestTimeoutMs(
+  rawText: string,
+  segmentCount: number,
+  strict: boolean,
+): number {
+  const baseTimeout = strict ? 60_000 : 45_000;
+  const textExtra = Math.min(
+    20_000,
+    Math.max(0, Math.ceil(rawText.trim().length / 900) - 1) * 7_500,
+  );
+  const segmentExtra = Math.min(
+    15_000,
+    Math.max(0, segmentCount - 6) * 1_500,
+  );
+
+  return Math.min(90_000, baseTimeout + textExtra + segmentExtra);
+}
+
 async function generateStoryboardTimeline(
   rawText: string,
   contentPath: string,
@@ -2165,7 +2191,7 @@ async function generateStoryboardTimeline(
     contentPath,
   });
 
-  return JSON.parse(result) as NarrationTimeline;
+  return parseTauriJson<NarrationTimeline>(result, "generate_storyboard_timeline");
 }
 
 function normalizeSegmentIds(
@@ -2799,6 +2825,11 @@ async function generateSlidesWithAi(
   }
 
   const requestSlides = async (strict: boolean): Promise<Slide[]> => {
+    const timeoutMs = getSlidesRequestTimeoutMs(
+      rawText,
+      timeline.segments.length,
+      strict,
+    );
     const result = await withTimeout(
       invokeTauri<string>("generate_slides", {
         apiUrl: settings.aiUrl,
@@ -2809,12 +2840,12 @@ async function generateSlidesWithAi(
           rawText,
         ),
       }),
-      45_000,
+      timeoutMs,
       strict ? "AI 分页规划请求（严格重试）" : "AI 分页规划请求",
     );
-    const parsed = JSON.parse(result) as {
+    const parsed = parseTauriJson<{
       slides?: Array<Record<string, unknown>>;
-    };
+    }>(result, strict ? "generate_slides(strict)" : "generate_slides");
 
     if (
       !parsed.slides ||
@@ -3869,7 +3900,10 @@ function EditorPage(props: {
       const result = await invokeTauri<string>("load_preview_project", {
         contentPath: project.contentPath,
       });
-      const preview = JSON.parse(result) as PreviewProjectResponse;
+      const preview = parseTauriJson<PreviewProjectResponse>(
+        result,
+        "load_preview_project",
+      );
 
       setPreviewData({
         template: preview.template || project.template,
@@ -3909,9 +3943,11 @@ function EditorPage(props: {
       await syncAudio(project);
 
       setRenderProgress("正在渲染视频...");
+      const renderSettings = loadSettings();
       const result = await invokeTauri<string>("render_video", {
         template: project.template,
         contentPath: project.contentPath,
+        outputDir: renderSettings.outputDir || null,
       });
       setRenderProgress(`渲染完成: ${result}`);
     } catch (cause) {
@@ -4745,6 +4781,18 @@ function SettingsPage(props: SettingsPageProps) {
                       normalizeSpeechRate(event.target.value),
                     )
                   }
+                  style={SOFT_INPUT_STYLE}
+                />
+              </div>
+
+              <div style={{ ...FIELD_GROUP_STYLE, marginTop: SPACING.md }}>
+                <label style={FIELD_LABEL_STYLE}>视频保存路径</label>
+                <input
+                  value={settings.outputDir ?? ""}
+                  onChange={(event) =>
+                    updateField("outputDir", event.target.value)
+                  }
+                  placeholder="留空则默认输出到桌面 outs 文件夹"
                   style={SOFT_INPUT_STYLE}
                 />
               </div>

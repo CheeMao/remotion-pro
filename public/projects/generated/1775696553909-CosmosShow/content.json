@@ -1,0 +1,149 @@
+{
+  "meta": {
+    "title": "Generated Video",
+    "template": "CosmosShow",
+    "voice_id": "S_PlTK120R1",
+    "full_narration": "今天给大家推荐8个实用 skill 涵盖设计、规划、安全多个方向。第一个， Frontend Design 来自 Anthropic 官方，27万多安装量，给 claude 注入完整的设计系统和设计哲学。",
+    "soundtrack_path": "projects/generated/1775696553909-CosmosShow/audio/narration.mp3",
+    "soundtrack_duration": 15.048,
+    "voiceId": "S_PlTK120R1",
+    "fullNarration": "今天给大家推荐8个实用 skill 涵盖设计、规划、安全多个方向。第一个， Frontend Design 来自 Anthropic 官方，27万多安装量，给 claude 注入完整的设计系统和设计哲学。",
+    "soundtrackPath": "projects/generated/1775696553909-CosmosShow/audio/narration.mp3",
+    "soundtrackDuration": 15.048
+  },
+  "slides": [
+    {
+      "audioDuration": 6,
+      "audioEnd": 6,
+      "audioStart": 0,
+      "data": {},
+      "durationInFrames": 180,
+      "elementTimings": [
+        {
+          "audioEnd": 0.8999999999999999,
+          "audioStart": 0,
+          "cue": "实用技能推荐",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 1.32,
+          "audioStart": 0.72,
+          "cue": "设计、规划与安全全覆盖",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "subtitle",
+          "type": "subtitle"
+        },
+        {
+          "audioEnd": 3.66,
+          "audioStart": 1.32,
+          "cue": "涵盖多方向的8个实用技能",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-0",
+          "index": 0,
+          "type": "custom"
+        },
+        {
+          "audioEnd": 6,
+          "audioStart": 3.66,
+          "cue": "聚焦设计、规划和安全领域",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-1",
+          "index": 1,
+          "type": "custom"
+        }
+      ],
+      "layout": "hero",
+      "narration": "今天给大家推荐8个实用 skill，涵盖设计、规划、安全多个方向。",
+      "points": [
+        "涵盖多方向的8个实用技能",
+        "聚焦设计、规划和安全领域"
+      ],
+      "segmentIds": [
+        "segment-1"
+      ],
+      "subtitle": "设计、规划与安全全覆盖",
+      "title": "实用技能推荐",
+      "type": "hero",
+      "audioPath": "projects/generated/1775696553909-CosmosShow/audio/slides/slide-001.mp3"
+    },
+    {
+      "audioDuration": 9.048,
+      "audioEnd": 15.048,
+      "audioStart": 6,
+      "data": {
+        "centerLabel": "VS",
+        "left": {
+          "label": "Before",
+          "points": [],
+          "title": "Frontend Design 是由 Anthropic 官方推出",
+          "value": "Frontend Design 是由 Anthropic 官方推出"
+        },
+        "right": {
+          "label": "After",
+          "points": [],
+          "title": "目前拥有27万用户",
+          "value": "目前拥有27万用户"
+        },
+        "vsText": "VS"
+      },
+      "durationInFrames": 271,
+      "elementTimings": [
+        {
+          "audioEnd": 7.2,
+          "audioStart": 6,
+          "cue": "第一个技能：Frontend Design",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 7.76,
+          "audioStart": 6.96,
+          "cue": "来自 Anthropic 官方的设计方案",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "subtitle",
+          "type": "subtitle"
+        },
+        {
+          "audioEnd": 11.354,
+          "audioStart": 7.66,
+          "cue": "Before",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "compare-left",
+          "type": "compare-left"
+        },
+        {
+          "audioEnd": 15.047999999999998,
+          "audioStart": 11.354,
+          "cue": "After",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "compare-right",
+          "type": "compare-right"
+        }
+      ],
+      "layout": "compare",
+      "narration": "第一个，Frontend Design 来自 Anthropic 官方，27万用户。",
+      "points": [
+        "Frontend Design 是由 Anthropic 官方推出",
+        "目前拥有27万用户"
+      ],
+      "segmentIds": [
+        "segment-2"
+      ],
+      "subtitle": "来自 Anthropic 官方的设计方案",
+      "title": "第一个技能：Frontend Design",
+      "type": "compare",
+      "audioPath": "projects/generated/1775696553909-CosmosShow/audio/slides/slide-002.mp3"
+    }
+  ]
+}

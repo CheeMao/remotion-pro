@@ -448,7 +448,7 @@ export const LiquidSlide: React.FC<{
 
       // ===== 对比 =====
       case 'compare': {
-        const compareData = data as { left?: { label: string; value: string; desc?: string }; right?: { label: string; value: string; desc?: string }; vsText?: string };
+        const compareData = data as { left?: { label: string; value: string; desc?: string }; right?: { label: string; value: string; desc?: string }; vsText?: string; vsLabel?: string };
         const leftProgress = spring({ frame: frame - 12, fps, config: { damping: 12 } });
         const rightProgress = spring({ frame: frame - 22, fps, config: { damping: 12 } });
         const coreProgress = spring({ frame: frame - 18, fps, config: { damping: 14, stiffness: 90 } });
@@ -556,7 +556,7 @@ export const LiquidSlide: React.FC<{
                   textTransform: "uppercase",
                 }}
               >
-                Old Rhythm
+                {compareData?.left?.label || "Old Rhythm"}
               </div>
             </div>
 
@@ -596,7 +596,7 @@ export const LiquidSlide: React.FC<{
                   marginBottom: 4,
                 }}
               >
-                FLOW
+                {compareData?.vsLabel || "FLOW"}
               </div>
               <div>{compareData?.vsText || "VS"}</div>
             </div>
@@ -677,7 +677,7 @@ export const LiquidSlide: React.FC<{
                   textTransform: "uppercase",
                 }}
               >
-                New Focus
+                {compareData?.right?.label || "New Focus"}
               </div>
             </div>
           </div>
@@ -735,33 +735,59 @@ export const LiquidSlide: React.FC<{
       // ===== 列表 =====
       case 'list': {
         const items = (data?.items as Array<{ icon?: string; text: string; desc?: string }>) || [];
+        const blobColors = [colors.blob1, colors.blob2, colors.blob3, colors.blob4, colors.blob5];
         return (
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 16, width: "100%", maxWidth: 750 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 14, width: "100%", maxWidth: 650 }}>
             {items.map((item, i) => {
               const itemProgress = spring({
-                frame: frame - 8 - i * 6,
+                frame: frame - 8 - i * 8,
                 fps,
                 config: { damping: 12, stiffness: 100 },
               });
+              const itemColor = blobColors[i % blobColors.length];
               return (
                 <div
                   key={i}
                   style={{
-                    background: "rgba(255,255,255,0.55)",
-                    backdropFilter: "blur(15px)",
-                    borderRadius: 22,
-                    border: "1px solid rgba(255,255,255,0.8)",
-                    padding: "24px 28px",
+                    display: "flex",
+                    gap: 18,
+                    alignItems: "center",
+                    background: "rgba(255,255,255,0.62)",
+                    backdropFilter: "blur(20px)",
+                    borderRadius: 20,
+                    padding: "20px 24px",
+                    border: "1px solid rgba(255,255,255,0.85)",
+                    boxShadow: `0 4px 16px rgba(0,0,0,0.06), 0 0 0 1px ${itemColor}18`,
                     opacity: itemProgress,
-                    transform: `translateY(${interpolate(itemProgress, [0, 1], [25, 0])}px) scale(${interpolate(itemProgress, [0, 1], [0.95, 1])})`,
-                    boxShadow: "0 2px 12px rgba(0,0,0,0.03)",
+                    transform: `translateY(${interpolate(itemProgress, [0, 1], [24, 0])}px)`,
                   }}
                 >
-                  <div style={{ fontSize: 36, marginBottom: 10 }}>{item.icon || "✓"}</div>
-                  <div style={{ fontSize: 24, fontWeight: 600, color: colors.text, marginBottom: 4 }}>{item.text}</div>
-                  {item.desc && (
-                    <div style={{ fontSize: 18, color: colors.muted }}>{item.desc}</div>
-                  )}
+                  {/* Colored icon circle */}
+                  <div
+                    style={{
+                      width: 48,
+                      height: 48,
+                      borderRadius: "50%",
+                      background: `${itemColor}22`,
+                      border: `2px solid ${itemColor}55`,
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      fontSize: 24,
+                      flexShrink: 0,
+                    }}
+                  >
+                    {item.icon || "✦"}
+                  </div>
+                  {/* Text */}
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: 26, fontWeight: 600, color: colors.text, lineHeight: 1.2 }}>{item.text}</div>
+                    {item.desc && (
+                      <div style={{ fontSize: 20, color: colors.muted, marginTop: 4 }}>{item.desc}</div>
+                    )}
+                  </div>
+                  {/* Color dot accent */}
+                  <div style={{ width: 10, height: 10, borderRadius: "50%", background: itemColor, flexShrink: 0 }} />
                 </div>
               );
             })}
@@ -935,7 +961,7 @@ export const LiquidSlide: React.FC<{
 
       // ===== CTA (行动收束页) =====
       case 'cta': {
-        const ctaData = data as { cta?: string; button?: string; items?: string[] };
+        const ctaData = data as { cta?: string; button?: string; items?: string[]; badge?: string };
         const ctaText = ctaData?.cta || ctaData?.button || '点赞收藏';
         const tags = Array.isArray(ctaData?.items) ? ctaData.items : [];
         const pulseScale = 1 + Math.sin(frame * 0.12) * 0.04;
@@ -961,7 +987,7 @@ export const LiquidSlide: React.FC<{
                 opacity: titleA,
               }}
             >
-              ◆ FIN
+              {ctaData?.badge ?? '◆ FIN'}
             </div>
             <h1
               style={{

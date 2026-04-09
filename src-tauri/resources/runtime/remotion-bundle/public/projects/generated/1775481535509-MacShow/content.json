@@ -1,0 +1,225 @@
+{
+  "meta": {
+    "title": "Generated Video",
+    "template": "MacShow",
+    "voice_id": "S_PlTK120R1",
+    "full_narration": "Gemini 的口碑一直很能打，但它到底好在哪里？不亲自试一试确实很难真正体会。有没有什么办法能让我们一分钱不花直接体验到它的满血版模型？今天这期视频就跟大家扒一扒少有人知道的官方免费渠道 ——Google AI Studio，只要你有谷歌账号就能免费使用。",
+    "soundtrack_path": "projects/generated/1775481535509-MacShow/audio/narration.mp3",
+    "soundtrack_duration": 22.728,
+    "voiceId": "S_PlTK120R1",
+    "fullNarration": "Gemini 的口碑一直很能打，但它到底好在哪里？不亲自试一试确实很难真正体会。有没有什么办法能让我们一分钱不花直接体验到它的满血版模型？今天这期视频就跟大家扒一扒少有人知道的官方免费渠道 ——Google AI Studio，只要你有谷歌账号就能免费使用。",
+    "soundtrackPath": "projects/generated/1775481535509-MacShow/audio/narration.mp3",
+    "soundtrackDuration": 22.728
+  },
+  "slides": [
+    {
+      "audioDuration": 3.888,
+      "audioEnd": 3.888,
+      "audioStart": 0,
+      "data": {
+        "badge": "先抛结论",
+        "cta": "往下看，直接看怎么免费体验"
+      },
+      "durationInFrames": 117,
+      "elementTimings": [
+        {
+          "audioEnd": 0.5831999999999999,
+          "audioStart": 0,
+          "cue": "Gemini 到底强在哪？",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 0.85536,
+          "audioStart": 0.46656,
+          "cue": "口碑很能打，但真正的优势，得亲自试过才知道",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "subtitle",
+          "type": "subtitle"
+        },
+        {
+          "audioEnd": 1.93664,
+          "audioStart": 0.96096,
+          "cue": "Gemini 口碑一直很强",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-0",
+          "index": 0,
+          "type": "custom"
+        },
+        {
+          "audioEnd": 2.91232,
+          "audioStart": 1.93664,
+          "cue": "真正的价值要上手才有感觉",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-1",
+          "index": 1,
+          "type": "custom"
+        },
+        {
+          "audioEnd": 3.888,
+          "audioStart": 2.91232,
+          "cue": "先别急着下结论",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-2",
+          "index": 2,
+          "type": "custom"
+        }
+      ],
+      "layout": "hero",
+      "narration": "Gemini 的口碑一直很能打，但它到底好在哪里？",
+      "points": [
+        "Gemini 口碑一直很强",
+        "真正的价值要上手才有感觉",
+        "先别急着下结论"
+      ],
+      "segmentIds": [
+        "segment-1"
+      ],
+      "subtitle": "口碑很能打，但真正的优势，得亲自试过才知道",
+      "title": "Gemini 到底强在哪？",
+      "type": "hero",
+      "audioPath": "projects/generated/1775481535509-MacShow/audio/slides/slide-001.mp3"
+    },
+    {
+      "audioDuration": 3.456,
+      "audioEnd": 7.343999999999999,
+      "audioStart": 3.888,
+      "data": {
+        "leftLabel": "看别人说",
+        "leftValue": "只能听描述",
+        "rightLabel": "自己亲手试",
+        "rightValue": "能直接感受到差异"
+      },
+      "durationInFrames": 104,
+      "elementTimings": [
+        {
+          "audioEnd": 4.5792,
+          "audioStart": 3.888,
+          "cue": "不试，真的很难懂",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 4.924799999999999,
+          "audioStart": 4.4064,
+          "cue": "纸面参数，不等于真实体验",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "subtitle",
+          "type": "subtitle"
+        }
+      ],
+      "layout": "compare",
+      "narration": "不亲自试一试，确实很难真正体会。",
+      "points": [
+        "听说和体验是两回事",
+        "亲自试一试，感受最直接",
+        "这一步决定你会不会被说服"
+      ],
+      "segmentIds": [
+        "segment-2"
+      ],
+      "subtitle": "纸面参数，不等于真实体验",
+      "title": "不试，真的很难懂",
+      "type": "compare",
+      "audioPath": "projects/generated/1775481535509-MacShow/audio/slides/slide-002.mp3"
+    },
+    {
+      "audioDuration": 5.352,
+      "audioEnd": 12.696,
+      "audioStart": 7.343999999999999,
+      "data": {
+        "bigNumber": "0 元",
+        "extra": "满血版模型",
+        "label": "直接体验门槛"
+      },
+      "durationInFrames": 161,
+      "elementTimings": [
+        {
+          "audioEnd": 8.414399999999999,
+          "audioStart": 7.343999999999999,
+          "cue": "免费体验满血版？",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 8.9496,
+          "audioStart": 8.146799999999999,
+          "cue": "关键问题来了：能不能一分钱不花直接上手",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "subtitle",
+          "type": "subtitle"
+        }
+      ],
+      "layout": "stats",
+      "narration": "有没有什么办法能让我们一分钱不花，直接体验到它的满血版模型？",
+      "points": [
+        "一分钱不花也能体验",
+        "目标是直接上满血版",
+        "方法要足够官方、足够省事"
+      ],
+      "segmentIds": [
+        "segment-3"
+      ],
+      "subtitle": "关键问题来了：能不能一分钱不花直接上手",
+      "title": "免费体验满血版？",
+      "type": "stats",
+      "audioPath": "projects/generated/1775481535509-MacShow/audio/slides/slide-003.mp3"
+    },
+    {
+      "audioDuration": 10.032,
+      "audioEnd": 22.728,
+      "audioStart": 12.696,
+      "data": {
+        "badge": "今天这期",
+        "focus": "Google AI Studio"
+      },
+      "durationInFrames": 301,
+      "elementTimings": [
+        {
+          "audioEnd": 14.7024,
+          "audioStart": 12.696,
+          "cue": "官方免费渠道",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 15.7056,
+          "audioStart": 14.2008,
+          "cue": "今天就来扒一扒少有人知道的入口",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "subtitle",
+          "type": "subtitle"
+        }
+      ],
+      "layout": "highlight",
+      "narration": "今天这期视频就跟大家扒一扒少有人知道的官方免费渠道——Google AI Studio。",
+      "points": [
+        "少有人知道的官方免费渠道",
+        "重点看 Google AI Studio",
+        "直接进入实操"
+      ],
+      "segmentIds": [
+        "segment-4"
+      ],
+      "subtitle": "今天就来扒一扒少有人知道的入口",
+      "title": "官方免费渠道",
+      "type": "highlight",
+      "audioPath": "projects/generated/1775481535509-MacShow/audio/slides/slide-004.mp3"
+    }
+  ]
+}

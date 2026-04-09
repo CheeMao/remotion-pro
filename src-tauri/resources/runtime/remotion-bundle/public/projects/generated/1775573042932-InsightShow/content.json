@@ -1,0 +1,1406 @@
+{
+  "meta": {
+    "title": "Generated Video",
+    "template": "InsightShow",
+    "voice_id": "S_PlTK120R1",
+    "full_narration": "很多人用了 Claude Code 一段时间都会发现一个问题：一开始很聪明，后面越用越笨，回答越来越乱，而且 token 消耗飞快。其实很多时候并不是模型本身的问题，而是不会用这五个最基础的命令。\n第一个命令是 config。这个命令可以说是 Claude Code 的控制中心，输入斜杠 config 可以查看和修改当前的各种配置，比如是否自动压缩会话，是否自动切换思考模式等。建议把每个配置项都了解一下。\n第二个命令是 model。如果想切换模型，直接输入斜杠 model 就可以看到当前支持的模型列表，直接选择就可以切换。普通任务可以选择 so net 模型，复杂任务可以选用 opus，性价比最高。\n第三个命令是 clear。很多人会发现一个问题，聊着聊着 Claude 回答开始抽风了，越来越乱，越来越慢，而且 token 消耗飞快。这其实是因为上下文太长了，这个时候只需要输入斜杠 clear 就可以清空当前对话的上下文，重新开始一个新的绘画。我建议每个独立的任务都可以开启一个新的绘画。\n第四个命令是 compact。如果不想完全清空对话，但是又想减少上下文的长度，那就用斜杠 compact，它会自动压缩历史绘画，保留关键的信息。简单理解就是给绘画做一次瘦身。\n第五个命令是 continue。有时候 Claude Code 会回答到一半的时候，因为意外的各种情况导致终端的窗口不小心被关闭了，很多人这个时候就会把之前的输入再重新来一遍，但其实大可不必如此。直接输入斜杠 continue，Claude 就会接着之前的回答继续输出。\n总结一下，学会这五个命令不仅可以让输出的质量更高，关键是还更省 token。你觉得哪个 Claude Code 的命令最好用？欢迎在评论区告诉我。我是新启，关注我，每天分享一个外部限定的小技巧。",
+    "soundtrack_path": "projects/generated/1775573042932-InsightShow/audio/narration.mp3",
+    "soundtrack_duration": 132.432,
+    "voiceId": "S_PlTK120R1",
+    "fullNarration": "很多人用了 Claude Code 一段时间都会发现一个问题：一开始很聪明，后面越用越笨，回答越来越乱，而且 token 消耗飞快。其实很多时候并不是模型本身的问题，而是不会用这五个最基础的命令。\n第一个命令是 config。这个命令可以说是 Claude Code 的控制中心，输入斜杠 config 可以查看和修改当前的各种配置，比如是否自动压缩会话，是否自动切换思考模式等。建议把每个配置项都了解一下。\n第二个命令是 model。如果想切换模型，直接输入斜杠 model 就可以看到当前支持的模型列表，直接选择就可以切换。普通任务可以选择 so net 模型，复杂任务可以选用 opus，性价比最高。\n第三个命令是 clear。很多人会发现一个问题，聊着聊着 Claude 回答开始抽风了，越来越乱，越来越慢，而且 token 消耗飞快。这其实是因为上下文太长了，这个时候只需要输入斜杠 clear 就可以清空当前对话的上下文，重新开始一个新的绘画。我建议每个独立的任务都可以开启一个新的绘画。\n第四个命令是 compact。如果不想完全清空对话，但是又想减少上下文的长度，那就用斜杠 compact，它会自动压缩历史绘画，保留关键的信息。简单理解就是给绘画做一次瘦身。\n第五个命令是 continue。有时候 Claude Code 会回答到一半的时候，因为意外的各种情况导致终端的窗口不小心被关闭了，很多人这个时候就会把之前的输入再重新来一遍，但其实大可不必如此。直接输入斜杠 continue，Claude 就会接着之前的回答继续输出。\n总结一下，学会这五个命令不仅可以让输出的质量更高，关键是还更省 token。你觉得哪个 Claude Code 的命令最好用？欢迎在评论区告诉我。我是新启，关注我，每天分享一个外部限定的小技巧。",
+    "soundtrackPath": "projects/generated/1775573042932-InsightShow/audio/narration.mp3",
+    "soundtrackDuration": 132.432
+  },
+  "slides": [
+    {
+      "audioDuration": 3.84,
+      "audioEnd": 3.84,
+      "audioStart": 0,
+      "data": {
+        "cta": "问题通常出在用法"
+      },
+      "durationInFrames": 115,
+      "elementTimings": [
+        {
+          "audioEnd": 0.576,
+          "audioStart": 0,
+          "cue": "越用越乱？",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 0.8448,
+          "audioStart": 0.4608,
+          "cue": "Claude Code 变笨，很多时候不是模型不行",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "subtitle",
+          "type": "subtitle"
+        },
+        {
+          "audioEnd": 2.3964,
+          "audioStart": 0.9528,
+          "cue": "前面聪明，后面开始乱",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-0",
+          "index": 0,
+          "type": "custom"
+        },
+        {
+          "audioEnd": 3.84,
+          "audioStart": 2.3964,
+          "cue": "不是模型坏了，是命令没用对",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-1",
+          "index": 1,
+          "type": "custom"
+        }
+      ],
+      "layout": "hero",
+      "narration": "很多人用了 Claude Code 一段时间都会发现一个问题：一开始很聪明，后面却越来越乱。",
+      "points": [
+        "前面聪明，后面开始乱",
+        "不是模型坏了，是命令没用对"
+      ],
+      "segmentIds": [
+        "segment-1"
+      ],
+      "subtitle": "Claude Code 变笨，很多时候不是模型不行",
+      "title": "越用越乱？",
+      "type": "hero",
+      "audioPath": "projects/generated/1775573042932-InsightShow/audio/slides/slide-001.mp3"
+    },
+    {
+      "audioDuration": 5.88,
+      "audioEnd": 9.719999999999999,
+      "audioStart": 3.84,
+      "data": {
+        "points": [
+          "最常见的误判：以为模型不稳定",
+          "真正缺的是这几个基础命令"
+        ]
+      },
+      "durationInFrames": 176,
+      "elementTimings": [
+        {
+          "audioEnd": 4.7219999999999995,
+          "audioStart": 3.84,
+          "cue": "根因不在模型",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 7.445279999999999,
+          "audioStart": 5.982959999999999,
+          "cue": "不是模型本身的问题",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-0",
+          "index": 0,
+          "type": "custom"
+        },
+        {
+          "audioEnd": 9.72,
+          "audioStart": 7.282799999999999,
+          "cue": "是不会用最基础的命令",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-1",
+          "index": 1,
+          "type": "custom"
+        }
+      ],
+      "layout": "default",
+      "narration": "其实很多时候并不是模型本身的问题，而是不会用这五个最基础的命令。",
+      "points": [
+        "不是模型本身的问题",
+        "是不会用最基础的命令"
+      ],
+      "segmentIds": [
+        "segment-2"
+      ],
+      "subtitle": "",
+      "title": "根因不在模型",
+      "type": "default",
+      "audioPath": "projects/generated/1775573042932-InsightShow/audio/slides/slide-002.mp3"
+    },
+    {
+      "audioDuration": 5.424,
+      "audioEnd": 15.143999999999998,
+      "audioStart": 9.719999999999999,
+      "data": {
+        "items": [
+          "配置",
+          "切模型",
+          "清上下文",
+          "压缩对话",
+          "继续输出"
+        ]
+      },
+      "durationInFrames": 163,
+      "elementTimings": [
+        {
+          "audioEnd": 10.533599999999998,
+          "audioStart": 9.72,
+          "cue": "先看这一组",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 10.91328,
+          "audioStart": 10.37088,
+          "cue": "5 个命令，直接决定体验上限",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "subtitle",
+          "type": "subtitle"
+        },
+        {
+          "audioEnd": 11.782464,
+          "audioStart": 10.94208,
+          "cue": "配置",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "highlight-0",
+          "index": 0,
+          "type": "highlight"
+        },
+        {
+          "audioEnd": 12.622848,
+          "audioStart": 11.782464,
+          "cue": "切模型",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "highlight-1",
+          "index": 1,
+          "type": "highlight"
+        },
+        {
+          "audioEnd": 13.463232,
+          "audioStart": 12.622848,
+          "cue": "清上下文",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "highlight-2",
+          "index": 2,
+          "type": "highlight"
+        },
+        {
+          "audioEnd": 14.303616,
+          "audioStart": 13.463232,
+          "cue": "压缩对话",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "highlight-3",
+          "index": 3,
+          "type": "highlight"
+        },
+        {
+          "audioEnd": 15.143999999999998,
+          "audioStart": 14.303615999999998,
+          "cue": "继续输出",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "highlight-4",
+          "index": 4,
+          "type": "highlight"
+        }
+      ],
+      "layout": "highlight",
+      "narration": "其实很多时候并不是模型本身的问题，而是不会用这五个最基础的命令。",
+      "points": [
+        "先把五个命令认全",
+        "后面每个都能救场"
+      ],
+      "segmentIds": [
+        "segment-3"
+      ],
+      "subtitle": "5 个命令，直接决定体验上限",
+      "title": "先看这一组",
+      "type": "highlight",
+      "audioPath": "projects/generated/1775573042932-InsightShow/audio/slides/slide-003.mp3"
+    },
+    {
+      "audioDuration": 1.848,
+      "audioEnd": 16.991999999999997,
+      "audioStart": 15.143999999999998,
+      "data": {
+        "badge": "控制中心",
+        "cta": "先把底层设置对"
+      },
+      "durationInFrames": 55,
+      "elementTimings": [
+        {
+          "audioEnd": 15.4212,
+          "audioStart": 15.143999999999998,
+          "cue": "第一个：config",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 16.328879999999998,
+          "audioStart": 15.66576,
+          "cue": "这是 Claude Code 的总开关",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-0",
+          "index": 0,
+          "type": "custom"
+        },
+        {
+          "audioEnd": 16.991999999999997,
+          "audioStart": 16.328879999999998,
+          "cue": "先配好，再谈效率",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-1",
+          "index": 1,
+          "type": "custom"
+        }
+      ],
+      "layout": "hero",
+      "narration": "第一个命令是 config。",
+      "points": [
+        "这是 Claude Code 的总开关",
+        "先配好，再谈效率"
+      ],
+      "segmentIds": [
+        "segment-4"
+      ],
+      "subtitle": "",
+      "title": "第一个：config",
+      "type": "hero",
+      "audioPath": "projects/generated/1775573042932-InsightShow/audio/slides/slide-004.mp3"
+    },
+    {
+      "audioDuration": 11.616,
+      "audioEnd": 28.607999999999997,
+      "audioStart": 16.991999999999997,
+      "data": {
+        "items": [
+          {
+            "desc": "把能调的地方一次看清",
+            "text": "查看配置项"
+          },
+          {
+            "desc": "让工具更像你自己的工作流",
+            "text": "按习惯改设置"
+          }
+        ]
+      },
+      "durationInFrames": 348,
+      "elementTimings": [
+        {
+          "audioEnd": 18.191999999999997,
+          "audioStart": 16.991999999999997,
+          "cue": "控制中心",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 18.752,
+          "audioStart": 17.951999999999998,
+          "cue": "斜杠 config，进到完整配置",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "subtitle",
+          "type": "subtitle"
+        },
+        {
+          "audioEnd": 23.629999999999995,
+          "audioStart": 18.651999999999997,
+          "cue": "查看配置项",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "item-0",
+          "index": 0,
+          "type": "item"
+        },
+        {
+          "audioEnd": 28.607999999999997,
+          "audioStart": 23.629999999999995,
+          "cue": "按习惯改设置",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "item-1",
+          "index": 1,
+          "type": "item"
+        }
+      ],
+      "layout": "list",
+      "narration": "这个命令可以说是 Claude Code 的控制中心，输入斜杠 config 可以看到完整的配置项。",
+      "points": [
+        "输入 /config",
+        "这里能看到完整配置项"
+      ],
+      "segmentIds": [
+        "segment-5"
+      ],
+      "subtitle": "斜杠 config，进到完整配置",
+      "title": "控制中心",
+      "type": "list",
+      "audioPath": "projects/generated/1775573042932-InsightShow/audio/slides/slide-005.mp3"
+    },
+    {
+      "audioDuration": 2.52,
+      "audioEnd": 31.127999999999997,
+      "audioStart": 28.607999999999997,
+      "data": {
+        "items": [
+          "每一项都要看",
+          "别只会默认跑"
+        ]
+      },
+      "durationInFrames": 76,
+      "elementTimings": [
+        {
+          "audioEnd": 28.985999999999997,
+          "audioStart": 28.607999999999997,
+          "cue": "先摸清设置",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 30.169199999999996,
+          "audioStart": 29.210399999999996,
+          "cue": "每一项都要看",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "highlight-0",
+          "index": 0,
+          "type": "highlight"
+        },
+        {
+          "audioEnd": 31.127999999999997,
+          "audioStart": 30.169199999999996,
+          "cue": "别只会默认跑",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "highlight-1",
+          "index": 1,
+          "type": "highlight"
+        }
+      ],
+      "layout": "highlight",
+      "narration": "建议把每个配置项都了解一下。",
+      "points": [
+        "了解每个配置项",
+        "别让默认值决定结果"
+      ],
+      "segmentIds": [
+        "segment-6"
+      ],
+      "subtitle": "",
+      "title": "先摸清设置",
+      "type": "highlight",
+      "audioPath": "projects/generated/1775573042932-InsightShow/audio/slides/slide-006.mp3"
+    },
+    {
+      "audioDuration": 2.448,
+      "audioEnd": 33.57599999999999,
+      "audioStart": 31.127999999999997,
+      "data": {
+        "badge": "切换模型",
+        "cta": "任务不同，模型也不同"
+      },
+      "durationInFrames": 73,
+      "elementTimings": [
+        {
+          "audioEnd": 31.495199999999997,
+          "audioStart": 31.127999999999997,
+          "cue": "第二个：model",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 32.64887999999999,
+          "audioStart": 31.721759999999996,
+          "cue": "不是所有任务都该用同一个模型",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-0",
+          "index": 0,
+          "type": "custom"
+        },
+        {
+          "audioEnd": 33.57599999999999,
+          "audioStart": 32.64887999999999,
+          "cue": "先选对，再开跑",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-1",
+          "index": 1,
+          "type": "custom"
+        }
+      ],
+      "layout": "hero",
+      "narration": "第二个命令是 model。",
+      "points": [
+        "不是所有任务都该用同一个模型",
+        "先选对，再开跑"
+      ],
+      "segmentIds": [
+        "segment-7"
+      ],
+      "subtitle": "",
+      "title": "第二个：model",
+      "type": "hero",
+      "audioPath": "projects/generated/1775573042932-InsightShow/audio/slides/slide-007.mp3"
+    },
+    {
+      "audioDuration": 7.944,
+      "audioEnd": 41.519999999999996,
+      "audioStart": 33.57599999999999,
+      "data": {
+        "steps": [
+          {
+            "description": "打开当前支持的模型列表",
+            "title": "输入 /model"
+          },
+          {
+            "description": "按任务切到更合适的模型",
+            "title": "直接选择"
+          }
+        ]
+      },
+      "durationInFrames": 238,
+      "elementTimings": [
+        {
+          "audioEnd": 34.767599999999995,
+          "audioStart": 33.57599999999999,
+          "cue": "直接换模型",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 35.323679999999996,
+          "audioStart": 34.52927999999999,
+          "cue": "斜杠 model，列表里直接选",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "subtitle",
+          "type": "subtitle"
+        },
+        {
+          "audioEnd": 38.37324,
+          "audioStart": 35.22647999999999,
+          "cue": "输入 /model",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "step-0",
+          "index": 0,
+          "type": "step"
+        },
+        {
+          "audioEnd": 41.18876210526315,
+          "audioStart": 40.52628631578947,
+          "cue": "直接选择",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "step-1",
+          "index": 1,
+          "type": "step"
+        }
+      ],
+      "layout": "steps",
+      "narration": "如果想切换模型，直接输入斜杠 model 就可以看到当前支持的模型列表，直接选择就行。",
+      "points": [
+        "看到可用模型列表",
+        "直接切换当前模型"
+      ],
+      "segmentIds": [
+        "segment-8"
+      ],
+      "subtitle": "斜杠 model，列表里直接选",
+      "title": "直接换模型",
+      "type": "steps",
+      "audioPath": "projects/generated/1775573042932-InsightShow/audio/slides/slide-008.mp3"
+    },
+    {
+      "audioDuration": 6.504,
+      "audioEnd": 48.023999999999994,
+      "audioStart": 41.519999999999996,
+      "data": {
+        "data": null,
+        "left": [
+          "普通任务",
+          "选 so net",
+          "更轻快"
+        ],
+        "right": [
+          "复杂任务",
+          "选 opus",
+          "更强"
+        ],
+        "vsText": "任务不同，模型不同"
+      },
+      "durationInFrames": 195,
+      "elementTimings": [
+        {
+          "audioEnd": 42.4956,
+          "audioStart": 41.52,
+          "cue": "普通和复杂，别混用",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 42.95087999999999,
+          "audioStart": 42.30047999999999,
+          "cue": "轻任务看效率，重任务看能力",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "subtitle",
+          "type": "subtitle"
+        },
+        {
+          "audioEnd": 42.92567999999999,
+          "audioStart": 42.92567999999999,
+          "cue": "",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "compare-left",
+          "type": "compare-left"
+        },
+        {
+          "audioEnd": 42.92567999999999,
+          "audioStart": 42.92567999999999,
+          "cue": "",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "compare-right",
+          "type": "compare-right"
+        }
+      ],
+      "layout": "compare",
+      "narration": "普通任务可以选择 so net 模型，复杂任务可以选用 opus，性价比最高。",
+      "points": [
+        "普通任务用更轻的",
+        "复杂任务上更强的"
+      ],
+      "segmentIds": [
+        "segment-9"
+      ],
+      "subtitle": "轻任务看效率，重任务看能力",
+      "title": "普通和复杂，别混用",
+      "type": "compare",
+      "audioPath": "projects/generated/1775573042932-InsightShow/audio/slides/slide-009.mp3"
+    },
+    {
+      "audioDuration": 2.976,
+      "audioEnd": 50.99999999999999,
+      "audioStart": 48.023999999999994,
+      "data": {
+        "badge": "清理现场",
+        "cta": "乱了就重开"
+      },
+      "durationInFrames": 89,
+      "elementTimings": [
+        {
+          "audioEnd": 48.47039999999999,
+          "audioStart": 48.023999999999994,
+          "cue": "第三个：clear",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 49.84056,
+          "audioStart": 48.68111999999999,
+          "cue": "对话开始失控时，先清掉",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-0",
+          "index": 0,
+          "type": "custom"
+        },
+        {
+          "audioEnd": 51,
+          "audioStart": 49.84056,
+          "cue": "别硬拖着继续聊",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-1",
+          "index": 1,
+          "type": "custom"
+        }
+      ],
+      "layout": "hero",
+      "narration": "第三个命令是 clear。",
+      "points": [
+        "对话开始失控时，先清掉",
+        "别硬拖着继续聊"
+      ],
+      "segmentIds": [
+        "segment-10"
+      ],
+      "subtitle": "",
+      "title": "第三个：clear",
+      "type": "hero",
+      "audioPath": "projects/generated/1775573042932-InsightShow/audio/slides/slide-010.mp3"
+    },
+    {
+      "audioDuration": 8.184,
+      "audioEnd": 59.18399999999999,
+      "audioStart": 50.99999999999999,
+      "data": {
+        "items": [
+          {
+            "desc": "前后不一致",
+            "text": "回答开始抽风"
+          },
+          {
+            "desc": "上下文拖太长",
+            "text": "速度越来越慢"
+          }
+        ]
+      },
+      "durationInFrames": 246,
+      "elementTimings": [
+        {
+          "audioEnd": 52.2,
+          "audioStart": 50.99999999999999,
+          "cue": "越聊越乱",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 52.75999999999999,
+          "audioStart": 51.959999999999994,
+          "cue": "越长的上下文，越容易跑偏",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "subtitle",
+          "type": "subtitle"
+        },
+        {
+          "audioEnd": 57.50639999999999,
+          "audioStart": 56.38799999999999,
+          "cue": "回答开始抽风",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "item-0",
+          "index": 0,
+          "type": "item"
+        },
+        {
+          "audioEnd": 59.18399999999999,
+          "audioStart": 55.92199999999999,
+          "cue": "速度越来越慢",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "item-1",
+          "index": 1,
+          "type": "item"
+        }
+      ],
+      "layout": "list",
+      "narration": "很多人会发现一个问题，聊着聊着 Claude 回答开始抽风了，越来越乱，越来越慢。",
+      "points": [
+        "聊久了会乱",
+        "也会越来越慢"
+      ],
+      "segmentIds": [
+        "segment-11"
+      ],
+      "subtitle": "越长的上下文，越容易跑偏",
+      "title": "越聊越乱",
+      "type": "list",
+      "audioPath": "projects/generated/1775573042932-InsightShow/audio/slides/slide-011.mp3"
+    },
+    {
+      "audioDuration": 9.552,
+      "audioEnd": 68.73599999999999,
+      "audioStart": 59.18399999999999,
+      "data": {
+        "steps": [
+          {
+            "description": "立刻清空当前对话",
+            "title": "输入 /clear"
+          },
+          {
+            "description": "换一个更干净的上下文",
+            "title": "重新开始"
+          }
+        ]
+      },
+      "durationInFrames": 287,
+      "elementTimings": [
+        {
+          "audioEnd": 60.38399999999999,
+          "audioStart": 59.18399999999999,
+          "cue": "直接清空",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 60.94399999999999,
+          "audioStart": 60.14399999999999,
+          "cue": "斜杠 clear，把当前对话重置",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "subtitle",
+          "type": "subtitle"
+        },
+        {
+          "audioEnd": 64.78999999999999,
+          "audioStart": 60.84399999999999,
+          "cue": "输入 /clear",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "step-0",
+          "index": 0,
+          "type": "step"
+        },
+        {
+          "audioEnd": 68.73599999999999,
+          "audioStart": 64.78999999999999,
+          "cue": "重新开始",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "step-1",
+          "index": 1,
+          "type": "step"
+        }
+      ],
+      "layout": "steps",
+      "narration": "这其实是因为上下文太长了，这个时候只需要输入斜杠 clear 就可以清空当前对话。",
+      "points": [
+        "上下文太长就清空",
+        "重新开一轮更稳"
+      ],
+      "segmentIds": [
+        "segment-12"
+      ],
+      "subtitle": "斜杠 clear，把当前对话重置",
+      "title": "直接清空",
+      "type": "steps",
+      "audioPath": "projects/generated/1775573042932-InsightShow/audio/slides/slide-012.mp3"
+    },
+    {
+      "audioDuration": 3.912,
+      "audioEnd": 72.648,
+      "audioStart": 68.73599999999999,
+      "data": {
+        "items": [
+          "一个独立任务，一次新对话"
+        ]
+      },
+      "durationInFrames": 117,
+      "elementTimings": [
+        {
+          "audioEnd": 69.32279999999999,
+          "audioStart": 68.73599999999999,
+          "cue": "任务要分开",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 72.648,
+          "audioStart": 69.50544,
+          "cue": "一个独立任务，一次新对话",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "highlight-0",
+          "index": 0,
+          "type": "highlight"
+        }
+      ],
+      "layout": "highlight",
+      "narration": "我建议每个独立的任务都可以开启一个新的对话。",
+      "points": [
+        "每个独立任务都建议新开",
+        "别把不同目标搅在一起"
+      ],
+      "segmentIds": [
+        "segment-13"
+      ],
+      "subtitle": "",
+      "title": "任务要分开",
+      "type": "highlight",
+      "audioPath": "projects/generated/1775573042932-InsightShow/audio/slides/slide-013.mp3"
+    },
+    {
+      "audioDuration": 2.328,
+      "audioEnd": 74.976,
+      "audioStart": 72.648,
+      "data": {
+        "badge": "瘦身",
+        "cta": "保留内容，缩短上下文"
+      },
+      "durationInFrames": 70,
+      "elementTimings": [
+        {
+          "audioEnd": 72.99719999999999,
+          "audioStart": 72.648,
+          "cue": "第四个：compact",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 74.10167999999999,
+          "audioStart": 73.22735999999999,
+          "cue": "不想全清，就做压缩",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-0",
+          "index": 0,
+          "type": "custom"
+        },
+        {
+          "audioEnd": 74.976,
+          "audioStart": 74.10167999999999,
+          "cue": "这一步很适合中途救场",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-1",
+          "index": 1,
+          "type": "custom"
+        }
+      ],
+      "layout": "hero",
+      "narration": "第四个命令是 compact。",
+      "points": [
+        "不想全清，就做压缩",
+        "这一步很适合中途救场"
+      ],
+      "segmentIds": [
+        "segment-14"
+      ],
+      "subtitle": "",
+      "title": "第四个：compact",
+      "type": "hero",
+      "audioPath": "projects/generated/1775573042932-InsightShow/audio/slides/slide-014.mp3"
+    },
+    {
+      "audioDuration": 9.576,
+      "audioEnd": 84.55199999999999,
+      "audioStart": 74.976,
+      "data": {
+        "steps": [
+          {
+            "description": "压缩当前对话长度",
+            "title": "输入 /compact"
+          },
+          {
+            "description": "减少冗余上下文",
+            "title": "保留关键信息"
+          }
+        ]
+      },
+      "durationInFrames": 287,
+      "elementTimings": [
+        {
+          "audioEnd": 76.176,
+          "audioStart": 74.976,
+          "cue": "压缩而不是清空",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 76.73599999999999,
+          "audioStart": 75.93599999999999,
+          "cue": "对话还要留着，但别太长",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "subtitle",
+          "type": "subtitle"
+        },
+        {
+          "audioEnd": 80.594,
+          "audioStart": 76.636,
+          "cue": "输入 /compact",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "step-0",
+          "index": 0,
+          "type": "step"
+        },
+        {
+          "audioEnd": 84.55199999999999,
+          "audioStart": 80.594,
+          "cue": "保留关键信息",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "step-1",
+          "index": 1,
+          "type": "step"
+        }
+      ],
+      "layout": "steps",
+      "narration": "如果不想完全清空对话，但是又想减少上下文的长度，那就用斜杠 compact，它会把对话压缩一下。",
+      "points": [
+        "不想完全清空",
+        "但想减少上下文长度"
+      ],
+      "segmentIds": [
+        "segment-15"
+      ],
+      "subtitle": "对话还要留着，但别太长",
+      "title": "压缩而不是清空",
+      "type": "steps",
+      "audioPath": "projects/generated/1775573042932-InsightShow/audio/slides/slide-015.mp3"
+    },
+    {
+      "audioDuration": 3.12,
+      "audioEnd": 87.672,
+      "audioStart": 84.55199999999999,
+      "data": {
+        "items": [
+          "保留重点",
+          "删掉拖累"
+        ]
+      },
+      "durationInFrames": 94,
+      "elementTimings": [
+        {
+          "audioEnd": 85.02,
+          "audioStart": 84.55199999999999,
+          "cue": "给对话瘦身",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 86.44919999999999,
+          "audioStart": 85.22639999999998,
+          "cue": "保留重点",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "highlight-0",
+          "index": 0,
+          "type": "highlight"
+        },
+        {
+          "audioEnd": 87.672,
+          "audioStart": 86.44919999999999,
+          "cue": "删掉拖累",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "highlight-1",
+          "index": 1,
+          "type": "highlight"
+        }
+      ],
+      "layout": "highlight",
+      "narration": "简单理解就是给对话做一次瘦身。",
+      "points": [
+        "本质就是瘦身",
+        "让对话轻下来"
+      ],
+      "segmentIds": [
+        "segment-16"
+      ],
+      "subtitle": "",
+      "title": "给对话瘦身",
+      "type": "highlight",
+      "audioPath": "projects/generated/1775573042932-InsightShow/audio/slides/slide-016.mp3"
+    },
+    {
+      "audioDuration": 2.928,
+      "audioEnd": 90.6,
+      "audioStart": 87.672,
+      "data": {
+        "badge": "接上断点",
+        "cta": "中断了也能续写"
+      },
+      "durationInFrames": 88,
+      "elementTimings": [
+        {
+          "audioEnd": 88.1112,
+          "audioStart": 87.672,
+          "cue": "第五个：continue",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 89.46168,
+          "audioStart": 88.32336,
+          "cue": "终端意外中断也不怕",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-0",
+          "index": 0,
+          "type": "custom"
+        },
+        {
+          "audioEnd": 90.6,
+          "audioStart": 89.46168,
+          "cue": "接着上次继续输出",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-1",
+          "index": 1,
+          "type": "custom"
+        }
+      ],
+      "layout": "hero",
+      "narration": "第五个命令是 continue。",
+      "points": [
+        "终端意外中断也不怕",
+        "接着上次继续输出"
+      ],
+      "segmentIds": [
+        "segment-17"
+      ],
+      "subtitle": "",
+      "title": "第五个：continue",
+      "type": "hero",
+      "audioPath": "projects/generated/1775573042932-InsightShow/audio/slides/slide-017.mp3"
+    },
+    {
+      "audioDuration": 20.088,
+      "audioEnd": 110.68799999999999,
+      "audioStart": 90.6,
+      "data": {
+        "items": [
+          {
+            "desc": "终端意外关掉也能救",
+            "text": "输出到一半中断"
+          },
+          {
+            "desc": "不用从头再来",
+            "text": "接着原位置继续"
+          }
+        ]
+      },
+      "durationInFrames": 603,
+      "elementTimings": [
+        {
+          "audioEnd": 91.8,
+          "audioStart": 90.6,
+          "cue": "断了别慌",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 92.36,
+          "audioStart": 91.56,
+          "cue": "中断、卡住、意外退出，都能接回去",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "subtitle",
+          "type": "subtitle"
+        },
+        {
+          "audioEnd": 101.474,
+          "audioStart": 92.26,
+          "cue": "输出到一半中断",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "item-0",
+          "index": 0,
+          "type": "item"
+        },
+        {
+          "audioEnd": 110.688,
+          "audioStart": 101.474,
+          "cue": "接着原位置继续",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "item-1",
+          "index": 1,
+          "type": "item"
+        }
+      ],
+      "layout": "list",
+      "narration": "有时候 Claude Code 会回答到一半的时候，因为意外的各种情况导致终端的输出中断。",
+      "points": [
+        "回答写到一半断掉",
+        "也可以继续接回去"
+      ],
+      "segmentIds": [
+        "segment-18"
+      ],
+      "subtitle": "中断、卡住、意外退出，都能接回去",
+      "title": "断了别慌",
+      "type": "list",
+      "audioPath": "projects/generated/1775573042932-InsightShow/audio/slides/slide-018.mp3"
+    },
+    {
+      "audioDuration": 4.872,
+      "audioEnd": 115.55999999999999,
+      "audioStart": 110.68799999999999,
+      "data": {
+        "steps": [
+          {
+            "description": "恢复上一次的输出状态",
+            "title": "输入 /continue"
+          },
+          {
+            "description": "接着断点往下输出",
+            "title": "继续写完"
+          }
+        ]
+      },
+      "durationInFrames": 146,
+      "elementTimings": [
+        {
+          "audioEnd": 111.4188,
+          "audioStart": 110.688,
+          "cue": "一键续上",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 111.75983999999998,
+          "audioStart": 111.27263999999998,
+          "cue": "斜杠 continue，接着之前的回答走",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "subtitle",
+          "type": "subtitle"
+        },
+        {
+          "audioEnd": 113.68811999999998,
+          "audioStart": 111.81623999999998,
+          "cue": "输入 /continue",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "step-0",
+          "index": 0,
+          "type": "step"
+        },
+        {
+          "audioEnd": 115.56,
+          "audioStart": 113.68811999999998,
+          "cue": "继续写完",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "step-1",
+          "index": 1,
+          "type": "step"
+        }
+      ],
+      "layout": "steps",
+      "narration": "直接输入斜杠 continue，Claude 就会接着之前的回答继续输出。",
+      "points": [
+        "直接续写",
+        "不用重开一轮"
+      ],
+      "segmentIds": [
+        "segment-19"
+      ],
+      "subtitle": "斜杠 continue，接着之前的回答走",
+      "title": "一键续上",
+      "type": "steps",
+      "audioPath": "projects/generated/1775573042932-InsightShow/audio/slides/slide-019.mp3"
+    },
+    {
+      "audioDuration": 7.08,
+      "audioEnd": 122.63999999999999,
+      "audioStart": 115.55999999999999,
+      "data": {
+        "author": "",
+        "quote": "学会这五个命令，输出更稳，token 也更省。"
+      },
+      "durationInFrames": 212,
+      "elementTimings": [
+        {
+          "audioEnd": 116.622,
+          "audioStart": 115.56,
+          "cue": "五个命令，值了",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 117.11759999999998,
+          "audioStart": 116.40959999999998,
+          "cue": "质量更高，也更省 token",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "subtitle",
+          "type": "subtitle"
+        },
+        {
+          "audioEnd": 122.64,
+          "audioStart": 117.06359999999998,
+          "cue": "学会这五个命令，输出更稳，token 也更省。",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "quote-text",
+          "type": "quote"
+        }
+      ],
+      "layout": "quote",
+      "narration": "总结一下，学会这五个命令不仅可以让输出的质量更高，关键是还更省 token。",
+      "points": [
+        "质量提升",
+        "token 更省"
+      ],
+      "segmentIds": [
+        "segment-20"
+      ],
+      "subtitle": "质量更高，也更省 token",
+      "title": "五个命令，值了",
+      "type": "quote",
+      "audioPath": "projects/generated/1775573042932-InsightShow/audio/slides/slide-020.mp3"
+    },
+    {
+      "audioDuration": 5.16,
+      "audioEnd": 127.79999999999998,
+      "audioStart": 122.63999999999999,
+      "data": {
+        "button": "评论区见",
+        "cta": "留言你的常用命令"
+      },
+      "durationInFrames": 155,
+      "elementTimings": [
+        {
+          "audioEnd": 123.414,
+          "audioStart": 122.64,
+          "cue": "你最常用哪个？",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 123.7752,
+          "audioStart": 123.2592,
+          "cue": "评论区聊聊，看看大家最常救场的是哪一个",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "subtitle",
+          "type": "subtitle"
+        },
+        {
+          "audioEnd": 125.80859999999998,
+          "audioStart": 123.8172,
+          "cue": "说说你最顺手的那个",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-0",
+          "index": 0,
+          "type": "custom"
+        },
+        {
+          "audioEnd": 127.79999999999998,
+          "audioStart": 125.80859999999998,
+          "cue": "一起补全使用经验",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-1",
+          "index": 1,
+          "type": "custom"
+        }
+      ],
+      "layout": "cta",
+      "narration": "你觉得哪个 Claude Code 的命令最好用？欢迎在评论区告诉我。",
+      "points": [
+        "说说你最顺手的那个",
+        "一起补全使用经验"
+      ],
+      "segmentIds": [
+        "segment-21",
+        "segment-22"
+      ],
+      "subtitle": "评论区聊聊，看看大家最常救场的是哪一个",
+      "title": "你最常用哪个？",
+      "type": "cta",
+      "audioPath": "projects/generated/1775573042932-InsightShow/audio/slides/slide-021.mp3"
+    },
+    {
+      "audioDuration": 4.632,
+      "audioEnd": 132.432,
+      "audioStart": 127.79999999999998,
+      "data": {
+        "button": "关注新启",
+        "cta": "持续更新实用技巧"
+      },
+      "durationInFrames": 139,
+      "elementTimings": [
+        {
+          "audioEnd": 128.4948,
+          "audioStart": 127.79999999999998,
+          "cue": "关注我",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 128.81903999999997,
+          "audioStart": 128.35583999999997,
+          "cue": "每天一个外部限定的小技巧",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "subtitle",
+          "type": "subtitle"
+        },
+        {
+          "audioEnd": 130.65972,
+          "audioStart": 128.88743999999997,
+          "cue": "每天一个小技巧",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-0",
+          "index": 0,
+          "type": "custom"
+        },
+        {
+          "audioEnd": 132.43200000000002,
+          "audioStart": 130.65972,
+          "cue": "持续更新实用内容",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-1",
+          "index": 1,
+          "type": "custom"
+        }
+      ],
+      "layout": "cta",
+      "narration": "我是新启，关注我，每天分享一个外部限定的小技巧。",
+      "points": [
+        "每天一个小技巧",
+        "持续更新实用内容"
+      ],
+      "segmentIds": [
+        "segment-23"
+      ],
+      "subtitle": "每天一个外部限定的小技巧",
+      "title": "关注我",
+      "type": "cta",
+      "audioPath": "projects/generated/1775573042932-InsightShow/audio/slides/slide-022.mp3"
+    }
+  ]
+}

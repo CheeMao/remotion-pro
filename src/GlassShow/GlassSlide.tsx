@@ -411,32 +411,54 @@ export const GlassSlide: React.FC<{
       // ===== 列表 =====
       case 'list': {
         const items = (data?.items as Array<{ icon?: string; text: string; desc?: string }>) || [];
+        const listColors = [colors.primary, colors.accent, colors.secondary, colors.warm, colors.success];
         return (
-          <div style={{ display: "grid", gridTemplateColumns: items.length > 4 ? "repeat(2, 1fr)" : "1fr", gap: 18, width: "100%", maxWidth: 800 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 0, width: "100%", maxWidth: 700 }}>
             {items.map((item, i) => {
               const itemProgress = spring({
-                frame: frame - 10 - i * 6,
+                frame: frame - 10 - i * 8,
                 fps,
                 config: { damping: 12, stiffness: 100 },
               });
+              const itemColor = listColors[i % listColors.length];
               return (
                 <div
                   key={i}
                   style={{
-                    background: "rgba(255,255,255,0.06)",
-                    backdropFilter: "blur(15px)",
-                    borderRadius: 24,
-                    border: "1px solid rgba(255,255,255,0.1)",
-                    padding: "28px 32px",
+                    display: "flex",
+                    gap: 20,
                     opacity: itemProgress,
-                    transform: `translateY(${interpolate(itemProgress, [0, 1], [30, 0])}px) scale(${interpolate(itemProgress, [0, 1], [0.95, 1])})`,
+                    transform: `translateX(${interpolate(itemProgress, [0, 1], [-30, 0])}px)`,
                   }}
                 >
-                  <div style={{ fontSize: 42, marginBottom: 12 }}>{item.icon || "✓"}</div>
-                  <div style={{ fontSize: 28, fontWeight: 600, color: "white", marginBottom: 6 }}>{item.text}</div>
-                  {item.desc && (
-                    <div style={{ fontSize: 22, color: "rgba(255,255,255,0.7)" }}>{item.desc}</div>
-                  )}
+                  {/* Icon circle + connector line */}
+                  <div style={{ display: "flex", flexDirection: "column", alignItems: "center", flexShrink: 0 }}>
+                    <div
+                      style={{
+                        width: 52,
+                        height: 52,
+                        borderRadius: "50%",
+                        background: `linear-gradient(135deg, ${itemColor}, ${itemColor}cc)`,
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        fontSize: 26,
+                        boxShadow: `0 8px 24px ${itemColor}50`,
+                      }}
+                    >
+                      {item.icon || "✦"}
+                    </div>
+                    {i < items.length - 1 && (
+                      <div style={{ width: 2, flex: 1, background: "rgba(255,255,255,0.12)", marginTop: 6 }} />
+                    )}
+                  </div>
+                  {/* Text content */}
+                  <div style={{ flex: 1, paddingBottom: i < items.length - 1 ? 22 : 0, paddingTop: 6 }}>
+                    <div style={{ fontSize: 30, fontWeight: 600, color: "white", marginBottom: 6, lineHeight: 1.2 }}>{item.text}</div>
+                    {item.desc && (
+                      <div style={{ fontSize: 22, color: "rgba(255,255,255,0.65)", lineHeight: 1.4 }}>{item.desc}</div>
+                    )}
+                  </div>
                 </div>
               );
             })}
@@ -611,7 +633,7 @@ export const GlassSlide: React.FC<{
 
       // ===== CTA (行动收束页) =====
       case 'cta': {
-        const ctaData = data as { cta?: string; button?: string; items?: string[] };
+        const ctaData = data as { cta?: string; button?: string; items?: string[]; badge?: string };
         const ctaText = ctaData?.cta || ctaData?.button || '点赞收藏';
         const tags = Array.isArray(ctaData?.items) ? ctaData.items : [];
         const pulseScale = 1 + Math.sin(frame * 0.12) * 0.04;
@@ -636,7 +658,7 @@ export const GlassSlide: React.FC<{
                 opacity: titleA,
               }}
             >
-              ↳ FIN
+              {ctaData?.badge ?? '↳ FIN'}
             </div>
             <h1
               style={{

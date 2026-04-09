@@ -5,11 +5,10 @@ import {
   useCurrentFrame,
   useVideoConfig,
 } from "remotion";
-import { loadFont } from "@remotion/google-fonts/Orbitron";
 import { getSlideMotionTiming } from "../templates/animationTiming";
 
-// 加载 Orbitron 字体
-const { fontFamily } = loadFont();
+// 使用系统等宽/科技风字体，避免从 Google CDN 加载
+const fontFamily = "'Courier New', 'Consolas', monospace";
 
 // 科技感配色
 const colors = {
@@ -846,6 +845,100 @@ export const TechSlide: React.FC<{
             </div>
           </HoloFrame>
         );
+
+      // ===== Hero 页 =====
+      case "hero": {
+        const titleGlitch = frame % 40 < 3;
+        const items = Array.isArray(data.items)
+          ? (data.items as string[])
+          : [];
+        return (
+          <div style={{ textAlign: "center", width: "90%" }}>
+            {typeof data.badge === 'string' && (
+              <div
+                style={{
+                  display: "inline-flex",
+                  padding: "10px 28px",
+                  border: `1px solid ${colors.primary}`,
+                  background: `${colors.primary}18`,
+                  boxShadow: `0 0 20px ${colors.primary}40, inset 0 0 14px ${colors.primary}10`,
+                  fontSize: 22,
+                  fontWeight: 700,
+                  color: colors.primary,
+                  textShadow: `0 0 10px ${colors.primary}`,
+                  letterSpacing: "0.12em",
+                  textTransform: "uppercase" as const,
+                  marginBottom: 36,
+                }}
+              >
+                {data.badge}
+              </div>
+            )}
+            <h1
+              style={{
+                fontSize: 84,
+                fontWeight: 900,
+                color: titleGlitch ? colors.accent : colors.text,
+                margin: 0,
+                textShadow: titleGlitch
+                  ? `3px 0 ${colors.primary}, -3px 0 ${colors.accent}`
+                  : `0 0 40px ${colors.primary}60`,
+                letterSpacing: "2px",
+                lineHeight: 1.05,
+                transform: titleGlitch ? `translateX(${Math.sin(frame)}px)` : "none",
+              }}
+            >
+              {String(data.title ?? "")}
+            </h1>
+            {typeof data.subtitle === 'string' && (
+              <p
+                style={{
+                  fontSize: 30,
+                  color: colors.muted,
+                  marginTop: 24,
+                  letterSpacing: "2px",
+                }}
+              >
+                {data.subtitle}
+              </p>
+            )}
+            {items.length > 0 && (
+              <div
+                style={{
+                  marginTop: 48,
+                  display: "flex",
+                  flexWrap: "wrap",
+                  gap: 16,
+                  justifyContent: "center",
+                }}
+              >
+                {items.map((item, i) => {
+                  const chipColors = [colors.primary, colors.secondary, colors.accent, colors.warning];
+                  const chipColor = chipColors[i % chipColors.length];
+                  return (
+                    <div
+                      key={i}
+                      style={{
+                        padding: "12px 26px",
+                        border: `1px solid ${chipColor}`,
+                        background: `${chipColor}15`,
+                        boxShadow: `0 0 14px ${chipColor}30`,
+                        fontSize: 24,
+                        fontWeight: 700,
+                        color: chipColor,
+                        textShadow: `0 0 8px ${chipColor}`,
+                        letterSpacing: "0.04em",
+                      }}
+                    >
+                      {item}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        );
+      }
 
       // ===== CTA 页 =====
       case "cta": {

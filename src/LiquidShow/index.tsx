@@ -6,107 +6,93 @@ import {
   useContentJson,
 } from '../hooks/useContentJson';
 import { getTemplateContentPath } from '../project-content';
+import { SubtitleOverlay } from '../renderers/SubtitleOverlay';
 
-// 演示各种知识类布局
+// ============================================================
+// DEMO 内容 — 修改这里可预览所有 11 种 layout 效果
+// ============================================================
+const DEMO = {
+  heroTitle:      'Claude Code',
+  heroBadge:      'AI 编程 · 2025',
+  heroSubtitle:   '命令行里的 AI 编程搭档',
+  heroCta:        '开始体验',
+
+  defaultTitle:   '为什么选 Claude Code',
+  defaultPoints:  ['不依赖 IDE，任何终端都能用', '开源透明，无黑盒操作', '支持 MCP 扩展，能力无上限', '一次描述，跨文件批量修改'],
+
+  listTitle:      '核心能力',
+  listItems:      [
+    { icon: '📂', text: '读写代码库', desc: '理解整个项目结构' },
+    { icon: '⚡', text: '执行命令',   desc: '直接运行测试和构建' },
+    { icon: '🔀', text: 'Git 操作',  desc: '自动化提交和分支管理' },
+    { icon: '✏️', text: '多文件编辑', desc: '跨文件重构一步完成' },
+  ],
+
+  statsTitle:     '数据说话',
+  stats:          [
+    { value: 58000, suffix: '+', label: 'GitHub Stars' },
+    { value: 10,    suffix: 'x', label: '开发效率提升' },
+    { value: 100,   suffix: '+', label: '支持语言数量' },
+  ],
+
+  compareTitle:   '效率对比',
+  compareLeft:    { label: '传统开发', value: '手写代码', desc: '重复劳动多、容易出错' },
+  compareRight:   { label: 'Claude Code', value: 'AI 辅助', desc: '自动生成、即时反馈' },
+  vsText:         'VS',
+
+  stepsTitle:     '快速上手',
+  steps:          [
+    { title: '安装工具',   description: 'npm install -g @anthropic-ai/claude-code' },
+    { title: '打开项目',   description: 'cd your-project && claude' },
+    { title: '描述需求',   description: '用自然语言告诉 Claude 要做什么' },
+    { title: '审查结果',   description: 'Claude 展示所有修改供你确认' },
+  ],
+
+  chartTitle:     '各场景提效幅度',
+  chartBars:      [
+    { label: '代码生成', value: 90 },
+    { label: 'Bug 排查', value: 82 },
+    { label: '文档编写', value: 88 },
+    { label: '测试编写', value: 78 },
+    { label: '代码重构', value: 85 },
+  ],
+
+  timelineTitle:  'AI 编程发展历程',
+  timeline:       [
+    { year: '2023', title: 'AI 初探',    description: 'GPT-4 带来第一波 Copilot 浪潮' },
+    { year: '2024', title: 'Cursor 崛起', description: 'AI 原生 IDE 开始主流化' },
+    { year: '2025', title: 'Agent 时代', description: 'Claude Code 引领命令行 AI' },
+    { year: '2026', title: '全面普及',   description: '80% 代码由 AI 辅助完成' },
+  ],
+
+  highlightTitle:  '关键词',
+  highlightItems:  ['AI 编程', 'Claude Code', '效率工具', '命令行', '代码审查', '自动化'],
+
+  quoteTitle:     '核心理念',
+  quoteText:      '不是 AI 会替代程序员，而是会用 AI 的程序员会替代不会用的。',
+  quoteAuthor:    'AI 编程箴言',
+
+  ctaTitle:       '关注 AI 编程系列',
+  ctaText:        '点赞收藏',
+  ctaTags:        ['Claude Code', 'Cursor', 'AI 编程', '效率工具'],
+};
+
 const defaultSlides = [
-  {
-    title: 'Liquid Glass',
-    subtitle: 'macOS 风格液态玻璃设计',
-    type: 'hero' as const,
-    data: {
-      badge: 'NEW DESIGN',
-      cta: '开始体验',
-    },
-  },
-  {
-    title: 'Fluid Motion',
-    subtitle: 'Shape the flow visually',
-    points: ['Organic transitions', 'Soft gradients', 'Layered movement'],
-  },
-  {
-    title: '核心数据',
-    subtitle: '2024年度统计',
-    type: 'stats' as const,
-    data: {
-      stats: [
-        { value: 25600, suffix: '+', label: '活跃用户' },
-        { value: 99, suffix: '%', label: '满意度' },
-        { value: 180, suffix: '天', label: '持续运营' },
-      ],
-    },
-  },
-  {
-    title: '方案对比',
-    type: 'compare' as const,
-    data: {
-      left: { label: '传统方案', value: '3-5天', desc: '手动处理流程' },
-      right: { label: '智能方案', value: '5分钟', desc: '自动化处理' },
-      vsText: 'VS',
-    },
-  },
-  {
-    title: '实现步骤',
-    subtitle: '三步完成部署',
-    type: 'steps' as const,
-    data: {
-      steps: [
-        { title: '配置环境', description: '安装依赖并配置参数' },
-        { title: '导入数据', description: '支持多种数据格式导入' },
-        { title: '一键部署', description: '自动化部署到云端' },
-      ],
-    },
-  },
-  {
-    title: '核心优势',
-    type: 'list' as const,
-    data: {
-      items: [
-        { icon: '⚡', text: '极速响应', desc: '毫秒级处理' },
-        { icon: '🔒', text: '安全可靠', desc: '端到端加密' },
-        { icon: '🎨', text: '精美设计', desc: '现代化UI' },
-        { icon: '📱', text: '跨平台', desc: '全端支持' },
-      ],
-    },
-  },
-  {
-    title: '性能指标',
-    type: 'chart' as const,
-    data: {
-      bars: [
-        { label: '响应速度', value: 96 },
-        { label: '稳定性', value: 92 },
-        { label: '用户体验', value: 95 },
-        { label: '安全性', value: 98 },
-      ],
-    },
-  },
-  {
-    title: '发展历程',
-    type: 'timeline' as const,
-    data: {
-      timeline: [
-        { year: '2021', title: '项目启动', description: '核心团队组建' },
-        { year: '2022', title: '产品发布', description: '首个版本上线' },
-        { year: '2023', title: '快速增长', description: '用户突破10万' },
-        { year: '2024', title: '全面升级', description: 'AI能力集成' },
-      ],
-    },
-  },
-  {
-    title: '关键词',
-    type: 'highlight' as const,
-    data: {
-      items: ['高效', '智能', '安全', '易用', '专业', '创新'],
-    },
-  },
-  {
-    title: '创新改变世界，技术成就未来',
-    type: 'quote' as const,
-    data: {
-      quote: '最好的代码是没有代码，最好的设计是看不见的设计。',
-      author: '极简主义原则',
-    },
-  },
+  { title: DEMO.heroTitle, subtitle: DEMO.heroSubtitle, type: 'hero' as const,
+    data: { badge: DEMO.heroBadge, cta: DEMO.heroCta } },
+  { title: DEMO.defaultTitle, type: 'default' as const, points: DEMO.defaultPoints },
+  { title: DEMO.listTitle, type: 'list' as const, data: { items: DEMO.listItems } },
+  { title: DEMO.statsTitle, type: 'stats' as const, data: { stats: DEMO.stats } },
+  { title: DEMO.compareTitle, type: 'compare' as const,
+    data: { left: DEMO.compareLeft, right: DEMO.compareRight, vsText: DEMO.vsText } },
+  { title: DEMO.stepsTitle, type: 'steps' as const, data: { steps: DEMO.steps } },
+  { title: DEMO.chartTitle, type: 'chart' as const, data: { bars: DEMO.chartBars } },
+  { title: DEMO.timelineTitle, type: 'timeline' as const, data: { timeline: DEMO.timeline } },
+  { title: DEMO.highlightTitle, type: 'highlight' as const, data: { items: DEMO.highlightItems } },
+  { title: DEMO.quoteTitle, type: 'quote' as const,
+    data: { quote: DEMO.quoteText, author: DEMO.quoteAuthor } },
+  { title: DEMO.ctaTitle, type: 'cta' as const,
+    data: { cta: DEMO.ctaText, items: DEMO.ctaTags } },
 ];
 
 const DEFAULT_SLIDE_DURATION = 150;
@@ -123,21 +109,16 @@ export const LiquidShow: React.FC = () => {
   return (
     <AbsoluteFill style={{ background: '#e8e8ed' }}>
       {soundtrackSrc ? <Audio src={staticFile(soundtrackSrc)} /> : null}
+      <SubtitleOverlay slides={slides} template="LiquidShow" />
       {slides.map((slide, index) => {
-        const { from, duration } = getSlideTiming(
-          slides,
-          index,
-          fps,
-          DEFAULT_SLIDE_DURATION
-        );
-
+        const { from, duration } = getSlideTiming(slides, index, fps, DEFAULT_SLIDE_DURATION);
         return (
           <Sequence key={index} from={from} durationInFrames={duration}>
             <LiquidSlide
               title={slide.title || ''}
               subtitle={slide.subtitle}
               points={(slide as { points?: string[] }).points}
-              type={(slide as { type?: string }).type as 'default' | 'steps' | 'timeline' | 'chart' | 'highlight' | 'list' | 'compare' | 'stats' | 'quote' | 'hero' | undefined}
+              type={(slide as { type?: string }).type as React.ComponentProps<typeof LiquidSlide>['type']}
               data={(slide as { data?: Record<string, unknown> }).data}
               index={index}
               totalSlides={slides.length}

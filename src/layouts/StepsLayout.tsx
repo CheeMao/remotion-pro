@@ -80,7 +80,7 @@ export const StepsLayout: React.FC<SharedLayoutProps> = ({
             marginBottom: 18,
           }}
         >
-          STEP FLOW
+          {(slide.data?.stepsLabel as string | undefined) ?? 'STEP FLOW'}
         </div>
         <h1
           style={{

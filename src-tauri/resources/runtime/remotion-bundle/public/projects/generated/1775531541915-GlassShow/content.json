@@ -1,0 +1,263 @@
+{
+  "meta": {
+    "title": "Generated Video",
+    "template": "GlassShow",
+    "voice_id": "S_PlTK120R1",
+    "full_narration": "Gemini 的口碑一直很能打，但它到底好在哪里？不亲自试一试确实很难真正体会。有没有什么办法能让我们一分钱不花直接体验到它的满血版模型？今天这期视频就跟大家扒一扒少有人知道的官方免费渠道 ——Google AI Studio，只要你有谷歌账号就能免费使用。",
+    "soundtrack_path": "projects/generated/1775531541915-GlassShow/audio/narration.mp3",
+    "soundtrack_duration": 21.312
+  },
+  "slides": [
+    {
+      "audioDuration": 4.008,
+      "audioEnd": 4.008,
+      "audioStart": 0,
+      "data": {
+        "cta": "先看它值不值得你试"
+      },
+      "durationInFrames": 120,
+      "elementTimings": [
+        {
+          "audioEnd": 0.6012,
+          "audioStart": 0,
+          "cue": "Gemini 到底强在哪",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 0.8817600000000001,
+          "audioStart": 0.48096,
+          "cue": "口碑一直很能打，但真正的差别不在宣传里",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "subtitle",
+          "type": "subtitle"
+        },
+        {
+          "audioEnd": 2.49468,
+          "audioStart": 0.98136,
+          "cue": "口碑背后到底是什么体验",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-0",
+          "index": 0,
+          "type": "custom"
+        },
+        {
+          "audioEnd": 4.008,
+          "audioStart": 2.49468,
+          "cue": "先把“强”说清楚",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-1",
+          "index": 1,
+          "type": "custom"
+        }
+      ],
+      "layout": "hero",
+      "narration": "Gemini 的口碑一直很能打，但它到底好在哪里？先别急着下结论，我们先把这个“强”到底强在哪说清楚。",
+      "points": [
+        "口碑背后到底是什么体验",
+        "先把“强”说清楚"
+      ],
+      "segmentIds": [
+        "segment-1"
+      ],
+      "subtitle": "口碑一直很能打，但真正的差别不在宣传里",
+      "title": "Gemini 到底强在哪",
+      "type": "hero"
+    },
+    {
+      "audioDuration": 3.3120000000000003,
+      "audioEnd": 7.32,
+      "audioStart": 4.008,
+      "data": {
+        "items": [
+          "体验感比描述更直接",
+          "上手后才知道值不值"
+        ]
+      },
+      "durationInFrames": 99,
+      "elementTimings": [
+        {
+          "audioEnd": 4.5048,
+          "audioStart": 4.008,
+          "cue": "亲手试，差别才明显",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 4.73664,
+          "audioStart": 4.4054400000000005,
+          "cue": "光听别人说，不如自己上手感受一次",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "subtitle",
+          "type": "subtitle"
+        },
+        {
+          "audioEnd": 6.0955200000000005,
+          "audioStart": 4.871040000000001,
+          "cue": "体验感比描述更直接",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "highlight-0",
+          "index": 0,
+          "type": "highlight"
+        },
+        {
+          "audioEnd": 7.32,
+          "audioStart": 6.0955200000000005,
+          "cue": "上手后才知道值不值",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "highlight-1",
+          "index": 1,
+          "type": "highlight"
+        }
+      ],
+      "layout": "highlight",
+      "narration": "不亲自试一试，确实很难真正体会。很多功能到底有没有那么强，只有你自己上手之后才会有答案。",
+      "points": [
+        "真正的判断来自实际体验",
+        "不是听说，是感受"
+      ],
+      "segmentIds": [
+        "segment-2"
+      ],
+      "subtitle": "光听别人说，不如自己上手感受一次",
+      "title": "亲手试，差别才明显",
+      "type": "highlight"
+    },
+    {
+      "audioDuration": 5.280000000000001,
+      "audioEnd": 12.6,
+      "audioStart": 7.32,
+      "data": {
+        "left": "只看介绍",
+        "right": "直接体验满血版",
+        "vsText": "差别立刻出来"
+      },
+      "durationInFrames": 158,
+      "elementTimings": [
+        {
+          "audioEnd": 8.112,
+          "audioStart": 7.32,
+          "cue": "免费体验满血版",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 8.4816,
+          "audioStart": 7.953600000000001,
+          "cue": "一分钱不花，也能摸到核心能力",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "subtitle",
+          "type": "subtitle"
+        },
+        {
+          "audioEnd": 8.517600000000002,
+          "audioStart": 8.517600000000002,
+          "cue": "",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "compare-left",
+          "type": "compare-left"
+        },
+        {
+          "audioEnd": 8.517600000000002,
+          "audioStart": 8.517600000000002,
+          "cue": "",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "compare-right",
+          "type": "compare-right"
+        }
+      ],
+      "layout": "compare",
+      "narration": "有没有什么办法，能让我们一分钱不花，直接体验到它的满血版模型？这才是最实用的地方。",
+      "points": [
+        "免费渠道比单纯围观更有用",
+        "直接体验核心模型"
+      ],
+      "segmentIds": [
+        "segment-3"
+      ],
+      "subtitle": "一分钱不花，也能摸到核心能力",
+      "title": "免费体验满血版",
+      "type": "compare"
+    },
+    {
+      "audioDuration": 8.712,
+      "audioEnd": 21.312,
+      "audioStart": 12.6,
+      "data": {
+        "points": [
+          "少有人知道的官方入口",
+          "直接上手，不绕路",
+          "把免费体验真正落到方法上"
+        ]
+      },
+      "durationInFrames": 261,
+      "elementTimings": [
+        {
+          "audioEnd": 13.8,
+          "audioStart": 12.6,
+          "cue": "官方免费渠道",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 14.360000000000005,
+          "audioStart": 13.560000000000002,
+          "cue": "少有人知道，但路径是官方的",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "subtitle",
+          "type": "subtitle"
+        },
+        {
+          "audioEnd": 17.786,
+          "audioStart": 14.260000000000003,
+          "cue": "核心信息是官方免费渠道",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-0",
+          "index": 0,
+          "type": "custom"
+        },
+        {
+          "audioEnd": 21.312,
+          "audioStart": 17.786,
+          "cue": "重点从“想知道”推进到“怎么做”",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-1",
+          "index": 1,
+          "type": "custom"
+        }
+      ],
+      "layout": "default",
+      "narration": "今天这期视频就跟大家扒一扒少有人知道的官方免费渠道——Google AI St...",
+      "points": [
+        "核心信息是官方免费渠道",
+        "重点从“想知道”推进到“怎么做”"
+      ],
+      "segmentIds": [
+        "segment-4"
+      ],
+      "subtitle": "少有人知道，但路径是官方的",
+      "title": "官方免费渠道",
+      "type": "default"
+    }
+  ]
+}

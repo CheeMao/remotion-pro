@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "target": "ES2019",
+    "module": "commonjs",
+    "jsx": "react-jsx",
+    "strict": true,
+    "outDir": ".sidecar-build",
+    "rootDir": ".",
+    "lib": ["es2019", "dom"],
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "noUnusedLocals": false,
+    "declaration": false,
+    "sourceMap": false
+  },
+  "include": ["src/**/*"],
+  "exclude": ["app", "src-tauri", "node_modules"]
+}

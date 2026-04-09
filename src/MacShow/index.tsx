@@ -7,6 +7,7 @@ import {
   useContentJson,
 } from '../hooks/useContentJson';
 import { getTemplateContentPath } from '../project-content';
+import { SubtitleOverlay } from '../renderers/SubtitleOverlay';
 
 const defaultSlides = [
   {
@@ -67,6 +68,7 @@ export const MacShow: React.FC = () => {
   return (
     <AbsoluteFill style={{ background: '#eef2f7' }}>
       {soundtrackSrc ? <Audio src={staticFile(soundtrackSrc)} /> : null}
+      <SubtitleOverlay slides={slides} template="MacShow" />
       {slides.map((slide, index) => {
         const { from, duration } = getSlideTiming(
           slides,

@@ -52,6 +52,7 @@ export interface AudioSlideData extends TimelineFields {
   subtitle?: string;
   points?: string[];
   narration?: string;
+  segmentIds?: string[];
   type?: string;
   data?: Record<string, unknown>;
   elementTimings?: ElementTiming[];

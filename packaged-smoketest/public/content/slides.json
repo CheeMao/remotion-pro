@@ -1,0 +1,128 @@
+{
+  "meta": {
+    "title": "Generated Video",
+    "template": "LiquidShow",
+    "voice_id": "cosyvoice-v3.5-plus-bailian-d9e80a08150f4986ae260fde904fe0ae",
+    "full_narration": "今天这个视频教你无痛安装Claude Code，在国内的网络环境下用上Claude GPT等国外的顶尖模型。\nClaude Code 可以说是现在最强的 AI 编程工具，再加上最近爆火的 Skill 加持，很多人也用它写作、学习、做数据分析、办公等等。Claude Code 可以说是现在最火热的 AI 助手之一。\n网上有很多的安装教程，但实际安装时会发现网络限制、安装配置中出现的各种问题让人焦头烂额。我结合自身安装过程中遇到的坑，整理了一份 Claude Code 在国内网络环境下的安装使用指南，能帮你省下几个小时的折腾时间。",
+    "voiceId": "smoke",
+    "fullNarration": "今天这个视频教你无痛安装Claude Code，在国内的网络环境下用上Claude GPT等国外的顶尖模型。\nClaude Code 可以说是现在最强的 AI 编程工具，再加上最近爆火的 Skill 加持，很多人也用它写作、学习、做数据分析、办公等等。Claude Code 可以说是现在最火热的 AI 助手之一。\n网上有很多的安装教程，但实际安装时会发现网络限制、安装配置中出现的各种问题让人焦头烂额。我结合自身安装过程中遇到的坑，整理了一份 Claude Code 在国内网络环境下的安装使用指南，能帮你省下几个小时的折腾时间。",
+    "soundtrackPath": "F:\\My Apps\\AI-remotion\\packaged-smoketest\\public\\audio\\narration.mp3",
+    "soundtrackDuration": 6.216
+  },
+  "slides": [
+    {
+      "narration": "今天这个视频教你无痛安装Claude Code，在国内的网络环境下用上Claude GPT等国外的顶尖模型。",
+      "points": [
+        "国内网络环境可用",
+        "省去数小时折腾"
+      ],
+      "subtitle": "无痛部署，告别网络限制",
+      "title": "Claude Code 国内安装指南",
+      "audioDuration": 0.777,
+      "durationInFrames": 23,
+      "audioStart": 0,
+      "audioEnd": 0.777,
+      "audioPath": "F:\\My Apps\\AI-remotion\\packaged-smoketest\\public\\audio\\narration.mp3"
+    },
+    {
+      "narration": "Claude Code 可以说是现在最强的 AI 编程工具，",
+      "points": [
+        "AI 编程领域标杆",
+        "代码理解与生成"
+      ],
+      "subtitle": "Claude Code 核心能力",
+      "title": "最强 AI 编程工具",
+      "audioDuration": 0.777,
+      "durationInFrames": 23,
+      "audioStart": 0.777,
+      "audioEnd": 1.554,
+      "audioPath": "F:\\My Apps\\AI-remotion\\packaged-smoketest\\public\\audio\\narration.mp3"
+    },
+    {
+      "narration": "再加上最近爆火的 Skill 加持，",
+      "points": [
+        "近期爆火功能",
+        "多场景应用支持"
+      ],
+      "subtitle": "能力边界大幅拓展",
+      "title": "Skill 加持",
+      "audioDuration": 0.777,
+      "durationInFrames": 23,
+      "audioStart": 1.554,
+      "audioEnd": 2.331,
+      "audioPath": "F:\\My Apps\\AI-remotion\\packaged-smoketest\\public\\audio\\narration.mp3"
+    },
+    {
+      "narration": "很多人也用它写作、学习、做数据分析、办公等等。",
+      "points": [
+        "写作辅助",
+        "学习答疑",
+        "数据分析",
+        "办公提效"
+      ],
+      "subtitle": "全能 AI 助手",
+      "title": "不止于编程",
+      "audioDuration": 0.777,
+      "durationInFrames": 23,
+      "audioStart": 2.331,
+      "audioEnd": 3.108,
+      "audioPath": "F:\\My Apps\\AI-remotion\\packaged-smoketest\\public\\audio\\narration.mp3"
+    },
+    {
+      "narration": "Claude Code 可以说是现在最火热的 AI 助手之一。",
+      "points": [
+        "用户增长迅猛",
+        "社区讨论度高"
+      ],
+      "subtitle": "当前市场热度",
+      "title": "最火热的 AI 助手",
+      "audioDuration": 0.777,
+      "durationInFrames": 23,
+      "audioStart": 3.108,
+      "audioEnd": 3.8850000000000002,
+      "audioPath": "F:\\My Apps\\AI-remotion\\packaged-smoketest\\public\\audio\\narration.mp3"
+    },
+    {
+      "narration": "网上有很多的安装教程，但实际安装时会发现网络限制、安装配置中出现的各种问题让人焦头烂额。",
+      "points": [
+        "网络限制阻碍",
+        "配置问题频发"
+      ],
+      "subtitle": "现有教程的局限",
+      "title": "安装痛点",
+      "audioDuration": 0.777,
+      "durationInFrames": 23,
+      "audioStart": 3.8850000000000002,
+      "audioEnd": 4.662,
+      "audioPath": "F:\\My Apps\\AI-remotion\\packaged-smoketest\\public\\audio\\narration.mp3"
+    },
+    {
+      "narration": "我结合自身安装过程中遇到的坑，",
+      "points": [
+        "真实安装经历",
+        "问题逐一攻克"
+      ],
+      "subtitle": "踩坑后的解决方案",
+      "title": "实战经验沉淀",
+      "audioDuration": 0.777,
+      "durationInFrames": 23,
+      "audioStart": 4.662,
+      "audioEnd": 5.439,
+      "audioPath": "F:\\My Apps\\AI-remotion\\packaged-smoketest\\public\\audio\\narration.mp3"
+    },
+    {
+      "narration": "整理了一份 Claude Code 在国内网络环境下的安装使用指南，能帮你省下几个小时的折腾时间。",
+      "points": [
+        "国内环境专属优化",
+        "节省数小时时间"
+      ],
+      "subtitle": "即开即用的解决方案",
+      "title": "完整使用指南",
+      "audioDuration": 0.777,
+      "durationInFrames": 23,
+      "audioStart": 5.439,
+      "audioEnd": 6.216,
+      "audioPath": "F:\\My Apps\\AI-remotion\\packaged-smoketest\\public\\audio\\narration.mp3"
+    }
+  ]
+}

@@ -3,6 +3,7 @@ import { AbsoluteFill, Audio, Sequence, staticFile, useCurrentFrame, useVideoCon
 import { getSlideTiming, getStaticAssetPath } from '../hooks/useContentJson';
 import { SceneRenderer } from './SceneRenderer';
 import type { AudioSlideData } from '../templates/types';
+import { SubtitleOverlay } from './SubtitleOverlay';
 
 interface SlideTimelineProps {
   slides: AudioSlideData[];
@@ -11,6 +12,7 @@ interface SlideTimelineProps {
   template?: string;
   themeId?: string;
   background?: string;
+  subtitlesEnabled?: boolean;
   renderFallback?: (
     slide: AudioSlideData,
     index: number,
@@ -32,7 +34,10 @@ const resolveAudioSrc = (soundtrackPath?: string): string | undefined => {
     soundtrackSrc.startsWith('https://') ||
     soundtrackSrc.startsWith('file://') ||
     soundtrackSrc.startsWith('tauri://') ||
-    soundtrackSrc.startsWith('asset://')
+    soundtrackSrc.startsWith('asset://') ||
+    /^[A-Za-z]:[\\/]/.test(soundtrackSrc) ||
+    soundtrackSrc.startsWith('\\\\') ||
+    (soundtrackSrc.startsWith('/') && !soundtrackSrc.startsWith('//'))
   ) {
     return soundtrackSrc;
   }
@@ -78,6 +83,7 @@ export const SlideTimeline: React.FC<SlideTimelineProps> = ({
   template,
   themeId,
   background = '#050816',
+  subtitlesEnabled = true,
   renderFallback,
 }) => {
   const { fps } = useVideoConfig();
@@ -86,6 +92,13 @@ export const SlideTimeline: React.FC<SlideTimelineProps> = ({
   return (
     <AbsoluteFill style={{ background }}>
       {soundtrackSrc ? <Audio src={soundtrackSrc} /> : null}
+      {subtitlesEnabled ? (
+        <SubtitleOverlay
+          slides={slides}
+          themeId={themeId}
+          template={template}
+        />
+      ) : null}
       {slides.map((slide, index) => {
         const { from, duration } = getSlideTiming(
           slides,

@@ -21,6 +21,38 @@ const countUnescapedQuotes = (line: string): number => {
   return count;
 };
 
+const stripBom = (content: string): string => {
+  return content.replace(/^\uFEFF/, '');
+};
+
+const extractJsonFromCodeFence = (content: string): string | null => {
+  const match = content.match(/```(?:json)?\s*([\s\S]*?)\s*```/i);
+  return match?.[1]?.trim() || null;
+};
+
+const extractBalancedJsonBlock = (content: string): string | null => {
+  const trimmed = content.trim();
+  const objectStart = trimmed.indexOf('{');
+  const objectEnd = trimmed.lastIndexOf('}');
+  const arrayStart = trimmed.indexOf('[');
+  const arrayEnd = trimmed.lastIndexOf(']');
+
+  const objectCandidate =
+    objectStart >= 0 && objectEnd > objectStart
+      ? trimmed.slice(objectStart, objectEnd + 1).trim()
+      : null;
+  const arrayCandidate =
+    arrayStart >= 0 && arrayEnd > arrayStart
+      ? trimmed.slice(arrayStart, arrayEnd + 1).trim()
+      : null;
+
+  if (objectCandidate && arrayCandidate) {
+    return objectStart <= arrayStart ? objectCandidate : arrayCandidate;
+  }
+
+  return objectCandidate || arrayCandidate;
+};
+
 export const repairMissingTrailingQuotes = (content: string): string | null => {
   const lines = content.split(/\r?\n/);
   let changed = false;
@@ -59,29 +91,57 @@ export const repairMissingTrailingQuotes = (content: string): string | null => {
   return changed ? repaired.join('\n') : null;
 };
 
+const buildJsonCandidates = (content: string): string[] => {
+  const normalized = stripBom(content).trim();
+  const candidates = new Set<string>();
+
+  if (normalized) {
+    candidates.add(normalized);
+  }
+
+  const fenced = extractJsonFromCodeFence(normalized);
+  if (fenced) {
+    candidates.add(fenced);
+  }
+
+  const block = extractBalancedJsonBlock(normalized);
+  if (block) {
+    candidates.add(block);
+  }
+
+  return Array.from(candidates);
+};
+
 export const parseJsonWithRepair = <T>(content: string, sourceLabel: string): {
   data: T;
   repairedContent?: string;
 } => {
-  try {
-    return { data: JSON.parse(content) as T };
-  } catch (error) {
-    const repairedContent = repairMissingTrailingQuotes(content);
+  const candidates = buildJsonCandidates(content);
+  let lastError: unknown;
+
+  for (const candidate of candidates) {
+    try {
+      return { data: JSON.parse(candidate) as T };
+    } catch (error) {
+      lastError = error;
+    }
+
+    const repairedContent = repairMissingTrailingQuotes(candidate);
     if (repairedContent) {
       try {
         return {
           data: JSON.parse(repairedContent) as T,
           repairedContent,
         };
-      } catch {
-        // Fall through to the original parser error below.
+      } catch (error) {
+        lastError = error;
       }
     }
-
-    if (error instanceof Error) {
-      throw new Error(`Failed to parse JSON from ${sourceLabel}: ${error.message}`);
-    }
-
-    throw error;
   }
+
+  if (lastError instanceof Error) {
+    throw new Error(`Failed to parse JSON from ${sourceLabel}: ${lastError.message}`);
+  }
+
+  throw new Error(`Failed to parse JSON from ${sourceLabel}: Unknown parse error`);
 };

@@ -1,0 +1,86 @@
+{
+  "meta": {
+    "title": "CosmosShow 示例",
+    "template": "CosmosShow"
+  },
+  "slides": [
+    {
+      "type": "hero",
+      "title": "个火爆且好用的\nMCP",
+      "subtitle": "让 AI 真正连接外部世界的利器",
+      "narration": "2026年，6个火爆且好用的MCP工具，让AI真正连接外部世界。",
+      "data": {
+        "badge": "MODEL CONTEXT PROTOCOL · 2026",
+        "accentWord": "6",
+        "stats": [
+          { "numericValue": 2.6, "decimals": 1, "suffix": "M+", "label": "周下载总量" },
+          { "numericValue": 6, "suffix": "", "label": "精选必装" },
+          { "displayValue": "48K+", "label": "最高 GitHub ⭐" }
+        ]
+      }
+    },
+    {
+      "type": "list",
+      "title": "精选 MCP 工具",
+      "subtitle": "高频必装，效率翻倍",
+      "narration": "这6个MCP工具，每一个都能大幅提升你的AI使用效率。",
+      "data": {
+        "items": [
+          { "icon": "🔍", "text": "Browser MCP", "desc": "让 AI 真正操控浏览器" },
+          { "icon": "📁", "text": "Filesystem MCP", "desc": "读写本地文件，无缝集成" },
+          { "icon": "🗄️", "text": "Database MCP", "desc": "自然语言查询数据库" },
+          { "icon": "🐙", "text": "GitHub MCP", "desc": "代码仓库一键管理" },
+          { "icon": "📧", "text": "Email MCP", "desc": "邮件自动化处理" },
+          { "icon": "🔗", "text": "API MCP", "desc": "接入任意外部服务" }
+        ]
+      }
+    },
+    {
+      "type": "steps",
+      "title": "快速安装 MCP",
+      "subtitle": "三步完成配置",
+      "narration": "安装MCP非常简单，只需三步即可完成。",
+      "data": {
+        "steps": [
+          { "title": "选择 MCP 服务", "description": "访问官方仓库，找到需要的工具" },
+          { "title": "配置到 Claude", "description": "在设置中添加 MCP 服务器地址" },
+          { "title": "开始使用", "description": "直接在对话中调用外部能力" }
+        ]
+      }
+    },
+    {
+      "type": "compare",
+      "title": "效率对比",
+      "subtitle": "用了 MCP 之后",
+      "narration": "接入MCP之后，AI不再只是聊天工具，而是真正的执行者。",
+      "data": {
+        "left": { "label": "传统 AI", "value": "仅聊天", "desc": "只能提供建议，无法实际操作" },
+        "right": { "label": "接入 MCP", "value": "真执行", "desc": "直接操控工具，完成实际任务" },
+        "vsText": "VS"
+      }
+    },
+    {
+      "type": "stats",
+      "title": "数据说话",
+      "subtitle": "MCP 生态增长",
+      "narration": "MCP生态正在爆炸式增长，数据令人震撼。",
+      "data": {
+        "stats": [
+          { "numericValue": 2600000, "suffix": "+", "label": "周下载量", "color": "#f5a623" },
+          { "numericValue": 48000, "suffix": "+", "label": "GitHub Stars", "color": "#a78bfa" },
+          { "numericValue": 200, "suffix": "+", "label": "可用服务器", "color": "#22d3ee" },
+          { "numericValue": 96, "suffix": "%", "label": "用户好评率", "color": "#34d399" }
+        ]
+      }
+    },
+    {
+      "type": "quote",
+      "title": "核心价值",
+      "narration": "MCP让AI不再只会聊天，能真正操控计算机、连接世界。",
+      "data": {
+        "quote": "MCP 让 AI 不再只会聊天，能真正操控计算机、连接世界。",
+        "author": "— AI 干货局"
+      }
+    }
+  ]
+}

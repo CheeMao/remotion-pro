@@ -1,0 +1,116 @@
+{
+  "meta": {
+    "title": "GlassShow Demo",
+    "template": "GlassShow",
+    "soundtrack_path": "projects/GlassShow/audio/narration.mp3"
+  },
+  "slides": [
+    {
+      "title": "Glass Interface",
+      "subtitle": "玻璃风信息表达",
+      "type": "hero",
+      "data": {
+        "badge": "NEW DESIGN",
+        "cta": "立即体验"
+      }
+    },
+    {
+      "title": "核心数据",
+      "subtitle": "多维度指标一屏展示",
+      "type": "stats",
+      "data": {
+        "stats": [
+          { "value": 12800, "suffix": "+", "label": "活跃用户" },
+          { "value": 98, "suffix": "%", "label": "满意度" },
+          { "value": 365, "suffix": "天", "label": "持续运行" }
+        ]
+      }
+    },
+    {
+      "title": "方案对比",
+      "subtitle": "传统流程 vs 智能流程",
+      "type": "compare",
+      "data": {
+        "left": {
+          "label": "传统方案",
+          "value": "3-5 天",
+          "desc": "人工串联多个步骤"
+        },
+        "right": {
+          "label": "智能方案",
+          "value": "10 分钟",
+          "desc": "自动化完成处理"
+        },
+        "vsText": "VS"
+      }
+    },
+    {
+      "title": "实现步骤",
+      "subtitle": "三步完成部署",
+      "type": "steps",
+      "data": {
+        "steps": [
+          { "title": "配置环境", "description": "安装依赖并初始化参数" },
+          { "title": "导入数据", "description": "支持多种数据格式接入" },
+          { "title": "一键部署", "description": "自动发布到目标环境" }
+        ]
+      }
+    },
+    {
+      "title": "核心优势",
+      "subtitle": "把复杂能力拆成清晰卡片",
+      "type": "list",
+      "data": {
+        "items": [
+          { "icon": "01", "text": "极速响应", "desc": "毫秒级处理链路" },
+          { "icon": "02", "text": "安全可靠", "desc": "端到端权限控制" },
+          { "icon": "03", "text": "界面精致", "desc": "更强的视觉层次" },
+          { "icon": "04", "text": "跨端协同", "desc": "桌面与视频一体化" }
+        ]
+      }
+    },
+    {
+      "title": "性能图表",
+      "subtitle": "关键指标一目了然",
+      "type": "chart",
+      "data": {
+        "bars": [
+          { "label": "响应速度", "value": 95 },
+          { "label": "稳定性", "value": 88 },
+          { "label": "体验感", "value": 92 },
+          { "label": "安全性", "value": 97 }
+        ]
+      }
+    },
+    {
+      "title": "发展历程",
+      "subtitle": "从起步到全面升级",
+      "type": "timeline",
+      "data": {
+        "timeline": [
+          { "year": "2021", "title": "项目启动", "description": "核心团队搭建完成" },
+          { "year": "2022", "title": "产品发布", "description": "首个版本正式上线" },
+          { "year": "2023", "title": "快速增长", "description": "用户规模持续扩张" },
+          { "year": "2024", "title": "全面升级", "description": "AI 能力深度接入" }
+        ]
+      }
+    },
+    {
+      "title": "关键标签",
+      "subtitle": "适合结论强化页",
+      "type": "highlight",
+      "data": {
+        "items": ["高效", "智能", "安全", "易用", "专业", "创新"]
+      }
+    },
+    {
+      "title": "结论",
+      "subtitle": "一句话完成收束",
+      "type": "quote",
+      "data": {
+        "quote": "好的信息视频，不是每一页都做列表，而是让结构和节奏先成立。",
+        "author": "GlassShow Template"
+      }
+    }
+  ]
+}

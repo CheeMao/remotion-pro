@@ -116,6 +116,10 @@ const clearDir = (dir: string) => {
 };
 
 const toRelativePublicPath = (filePath: string): string => {
+  if (process.env.REMOTION_FORCE_FILE_URLS === '1') {
+    return resolve(filePath);
+  }
+
   const normalized = filePath.replace(/\\/g, '/');
   const publicIndex = normalized.indexOf('/public/');
   if (publicIndex >= 0) {
@@ -151,8 +155,9 @@ const concatenateAudioFiles = (files: string[], outputFile: string): void => {
   writeFileSync(listFile, fileList, 'utf-8');
 
   try {
+    const ffmpegBinary = process.env.FFMPEG_PATH || 'ffmpeg';
     execFileSync(
-      'ffmpeg',
+      ffmpegBinary,
       [
         '-y',
         '-f',

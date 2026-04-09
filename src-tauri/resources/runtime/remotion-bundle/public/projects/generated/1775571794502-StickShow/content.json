@@ -1,0 +1,608 @@
+{
+  "meta": {
+    "title": "Generated Video",
+    "template": "StickShow",
+    "voice_id": "S_PlTK120R1",
+    "full_narration": "在 github 狂揽三万颗星，scrapling 彻底火了，它被开发者称为爬虫界的终结者。以前写爬虫要学反爬、学代理，还要应付动态网页，代码还没跑通 ip 就被封了。scrapling 出现后把所有工具都集成到了一起，不管网页多难搞，一套 api 全部搞定。很多人问 ai 助手不是自带 websearch 吗？ai 搜索只是看一眼简介，而 scraping 是承建制的数据挖掘机。普通人怎么用？它原生支持 mcp 协议，这意味着只要把它的插件传给 ai，不用写一行代码，ai 就能替你去全网进货。抢不到演唱会门票、监控价格变动，或者给自己的私人 ai 喂垂直领域的干货数据，scraping 都能帮你。这是 ai 时代数据采集的最后一块拼图。关注我，带你玩转最强 ai 工具。",
+    "soundtrack_path": "projects/generated/1775571794502-StickShow/audio/narration.mp3",
+    "soundtrack_duration": 55.776
+  },
+  "slides": [
+    {
+      "audioDuration": 7.008,
+      "audioEnd": 7.008,
+      "audioStart": 0,
+      "data": {
+        "cta": "一个工具，把复杂网页采集变简单"
+      },
+      "durationInFrames": 210,
+      "elementTimings": [
+        {
+          "audioEnd": 1.0512,
+          "audioStart": 0,
+          "cue": "3万星，火了",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 1.54176,
+          "audioStart": 0.8409599999999999,
+          "cue": "scrapling 直接把爬虫门槛拉平了",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "subtitle",
+          "type": "subtitle"
+        },
+        {
+          "audioEnd": 3.33024,
+          "audioStart": 1.49136,
+          "cue": "github 狂揽三万颗星",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-0",
+          "index": 0,
+          "type": "custom"
+        },
+        {
+          "audioEnd": 5.1691199999999995,
+          "audioStart": 3.33024,
+          "cue": "开发者口中的爬虫利器",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-1",
+          "index": 1,
+          "type": "custom"
+        },
+        {
+          "audioEnd": 7.007999999999999,
+          "audioStart": 5.1691199999999995,
+          "cue": "热度来自“真能用”",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-2",
+          "index": 2,
+          "type": "custom"
+        }
+      ],
+      "layout": "hero",
+      "narration": "在 GitHub 狂揽三万颗星，scrapling 彻底火了，它被开发者称为爬虫利器。",
+      "points": [
+        "github 狂揽三万颗星",
+        "开发者口中的爬虫利器",
+        "热度来自“真能用”"
+      ],
+      "segmentIds": [
+        "segment-1"
+      ],
+      "subtitle": "scrapling 直接把爬虫门槛拉平了",
+      "title": "3万星，火了",
+      "type": "hero"
+    },
+    {
+      "audioDuration": 7.871999999999999,
+      "audioEnd": 14.88,
+      "audioStart": 7.008,
+      "data": {
+        "left": {
+          "items": [
+            "学反爬",
+            "学代理",
+            "应付动态网页"
+          ],
+          "title": "老办法"
+        },
+        "right": {
+          "items": [
+            "代码没跑通",
+            "IP 先被封",
+            "效率很低"
+          ],
+          "title": "结果"
+        },
+        "vsText": "写得出来，不代表跑得起来"
+      },
+      "durationInFrames": 236,
+      "elementTimings": [
+        {
+          "audioEnd": 8.1888,
+          "audioStart": 7.008,
+          "cue": "以前太折腾",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 8.73984,
+          "audioStart": 7.95264,
+          "cue": "反爬、代理、动态页，先把人逼疯",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "subtitle",
+          "type": "subtitle"
+        },
+        {
+          "audioEnd": 8.64624,
+          "audioStart": 8.64624,
+          "cue": "",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "compare-left",
+          "type": "compare-left"
+        },
+        {
+          "audioEnd": 8.64624,
+          "audioStart": 8.64624,
+          "cue": "",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "compare-right",
+          "type": "compare-right"
+        }
+      ],
+      "layout": "compare",
+      "narration": "以前写爬虫要学反爬、学代理，还要应付动态网页，代码还没跑通，IP 就被封了。",
+      "points": [
+        "反爬要学",
+        "代理要配",
+        "网页还会变",
+        "没跑通先封 IP"
+      ],
+      "segmentIds": [
+        "segment-2"
+      ],
+      "subtitle": "反爬、代理、动态页，先把人逼疯",
+      "title": "以前太折腾",
+      "type": "compare"
+    },
+    {
+      "audioDuration": 7.727999999999998,
+      "audioEnd": 22.607999999999997,
+      "audioStart": 14.88,
+      "data": {
+        "steps": [
+          {
+            "description": "不再东拼西凑多种工具",
+            "title": "统一入口"
+          },
+          {
+            "description": "把复杂页面的处理能力集成进去",
+            "title": "难网页也能处理"
+          },
+          {
+            "description": "调用方式更简单，使用门槛更低",
+            "title": "一套 API 走到底"
+          }
+        ]
+      },
+      "durationInFrames": 232,
+      "elementTimings": [
+        {
+          "audioEnd": 16.039199999999997,
+          "audioStart": 14.88,
+          "cue": "一套 API 搞定",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 16.58016,
+          "audioStart": 15.80736,
+          "cue": "把采集里最麻烦的东西，尽量收进一个入口",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "subtitle",
+          "type": "subtitle"
+        },
+        {
+          "audioEnd": 18.53184,
+          "audioStart": 16.493759999999998,
+          "cue": "统一入口",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "step-0",
+          "index": 0,
+          "type": "step"
+        },
+        {
+          "audioEnd": 20.56992,
+          "audioStart": 18.53184,
+          "cue": "难网页也能处理",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "step-1",
+          "index": 1,
+          "type": "step"
+        },
+        {
+          "audioEnd": 22.607999999999997,
+          "audioStart": 20.569919999999996,
+          "cue": "一套 API 走到底",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "step-2",
+          "index": 2,
+          "type": "step"
+        }
+      ],
+      "layout": "steps",
+      "narration": "scrapling 出现后把所有工具都集成到了一起，不管网页多难搞，一套 API 就能处理。",
+      "points": [
+        "工具集成到一起",
+        "复杂网页也能处理",
+        "用一套 API 解决采集"
+      ],
+      "segmentIds": [
+        "segment-3"
+      ],
+      "subtitle": "把采集里最麻烦的东西，尽量收进一个入口",
+      "title": "一套 API 搞定",
+      "type": "steps"
+    },
+    {
+      "audioDuration": 8.496000000000002,
+      "audioEnd": 31.104,
+      "audioStart": 22.607999999999997,
+      "data": {
+        "left": {
+          "items": [
+            "快速浏览",
+            "看简介",
+            "浅层信息"
+          ],
+          "title": "AI websearch"
+        },
+        "right": {
+          "items": [
+            "深入抓取",
+            "批量采集",
+            "可沉淀数据"
+          ],
+          "title": "scraping"
+        },
+        "vsText": "看一眼 vs 承建制挖掘"
+      },
+      "durationInFrames": 255,
+      "elementTimings": [
+        {
+          "audioEnd": 23.807999999999996,
+          "audioStart": 22.607999999999997,
+          "cue": "不是一回事",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 24.368,
+          "audioStart": 23.568,
+          "cue": "AI 搜索是看一眼，采集是把数据搬回来",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "subtitle",
+          "type": "subtitle"
+        },
+        {
+          "audioEnd": 24.267999999999997,
+          "audioStart": 24.267999999999997,
+          "cue": "",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "compare-left",
+          "type": "compare-left"
+        },
+        {
+          "audioEnd": 24.267999999999997,
+          "audioStart": 24.267999999999997,
+          "cue": "",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "compare-right",
+          "type": "compare-right"
+        }
+      ],
+      "layout": "compare",
+      "narration": "很多人问，AI 助手不是自带 websearch 吗？AI 搜索只是看一眼简介，而 scraping 是承建制的数据挖掘机。",
+      "points": [
+        "AI 搜索只是看一眼简介",
+        "scraping 是数据挖掘机",
+        "用途和深度完全不同"
+      ],
+      "segmentIds": [
+        "segment-4",
+        "segment-5"
+      ],
+      "subtitle": "AI 搜索是看一眼，采集是把数据搬回来",
+      "title": "不是一回事",
+      "type": "compare"
+    },
+    {
+      "audioDuration": 9.959999999999994,
+      "audioEnd": 41.06399999999999,
+      "audioStart": 31.104,
+      "data": {
+        "steps": [
+          {
+            "description": "原生接入 AI 工作流",
+            "title": "支持 MCP"
+          },
+          {
+            "description": "把能力直接交给助手",
+            "title": "传插件给 AI"
+          },
+          {
+            "description": "让 AI 自己去执行采集",
+            "title": "不用写代码"
+          }
+        ]
+      },
+      "durationInFrames": 299,
+      "elementTimings": [
+        {
+          "audioEnd": 32.304,
+          "audioStart": 31.104,
+          "cue": "普通人也能用",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 32.864,
+          "audioStart": 32.064,
+          "cue": "MCP 把工具直接接给 AI，几乎不用写代码",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "subtitle",
+          "type": "subtitle"
+        },
+        {
+          "audioEnd": 35.23634042553191,
+          "audioStart": 34.35336170212766,
+          "cue": "支持 MCP",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "step-0",
+          "index": 0,
+          "type": "step"
+        },
+        {
+          "audioEnd": 38.29733333333333,
+          "audioStart": 35.53066666666666,
+          "cue": "传插件给 AI",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "step-1",
+          "index": 1,
+          "type": "step"
+        },
+        {
+          "audioEnd": 41.06399999999999,
+          "audioStart": 38.29733333333333,
+          "cue": "不用写代码",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "step-2",
+          "index": 2,
+          "type": "step"
+        }
+      ],
+      "layout": "steps",
+      "narration": "普通人怎么用？它原生支持 MCP 协议，这意味着只要把它的插件传给 AI，不用写一行代码，AI 也能帮你去采集。",
+      "points": [
+        "原生支持 MCP",
+        "插件直接给 AI",
+        "不写代码也能用"
+      ],
+      "segmentIds": [
+        "segment-6",
+        "segment-7"
+      ],
+      "subtitle": "MCP 把工具直接接给 AI，几乎不用写代码",
+      "title": "普通人也能用",
+      "type": "steps"
+    },
+    {
+      "audioDuration": 8.688000000000002,
+      "audioEnd": 49.751999999999995,
+      "audioStart": 41.06399999999999,
+      "data": {
+        "items": [
+          {
+            "desc": "比如演唱会门票抢不到，就做自动化采集和监控",
+            "text": "抢票"
+          },
+          {
+            "desc": "商品价格变动一出现，就能及时捕捉",
+            "text": "盯价格"
+          },
+          {
+            "desc": "给私人 AI 填充垂直领域的数据和干货",
+            "text": "喂 AI"
+          }
+        ]
+      },
+      "durationInFrames": 261,
+      "elementTimings": [
+        {
+          "audioEnd": 42.264,
+          "audioStart": 41.06399999999999,
+          "cue": "三个高频场景",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 42.82399999999999,
+          "audioStart": 42.023999999999994,
+          "cue": "不是只给程序员，很多实际需求都能直接上",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "subtitle",
+          "type": "subtitle"
+        },
+        {
+          "audioEnd": 45.066666666666656,
+          "audioStart": 42.72399999999999,
+          "cue": "抢票",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "item-0",
+          "index": 0,
+          "type": "item"
+        },
+        {
+          "audioEnd": 47.40933333333332,
+          "audioStart": 45.066666666666656,
+          "cue": "盯价格",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "item-1",
+          "index": 1,
+          "type": "item"
+        },
+        {
+          "audioEnd": 49.751999999999995,
+          "audioStart": 47.40933333333333,
+          "cue": "喂 AI",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "item-2",
+          "index": 2,
+          "type": "item"
+        }
+      ],
+      "layout": "list",
+      "narration": "抢不到演唱会门票、监控价格变动，或者给自己的私人 AI 喂垂直领域的干货数据，scrapling 都能派上用场。",
+      "points": [
+        "抢不到门票",
+        "监控价格变动",
+        "给私人 AI 喂数据"
+      ],
+      "segmentIds": [
+        "segment-8"
+      ],
+      "subtitle": "不是只给程序员，很多实际需求都能直接上",
+      "title": "三个高频场景",
+      "type": "list"
+    },
+    {
+      "audioDuration": 3.0960000000000036,
+      "audioEnd": 52.848,
+      "audioStart": 49.751999999999995,
+      "data": {
+        "author": "",
+        "quote": "这是 AI 时代数据采集的最后一块拼图。"
+      },
+      "durationInFrames": 93,
+      "elementTimings": [
+        {
+          "audioEnd": 50.21639999999999,
+          "audioStart": 49.751999999999995,
+          "cue": "最后一块拼图",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 50.43312,
+          "audioStart": 50.12352,
+          "cue": "AI 时代，数据采集终于补齐了",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "subtitle",
+          "type": "subtitle"
+        },
+        {
+          "audioEnd": 52.848,
+          "audioStart": 50.57832,
+          "cue": "这是 AI 时代数据采集的最后一块拼图。",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "quote-text",
+          "type": "quote"
+        }
+      ],
+      "layout": "quote",
+      "narration": "这是 AI 时代数据采集的最后一块拼图。",
+      "points": [
+        "采集能力补齐",
+        "AI 工作流更完整",
+        "工具链更闭环"
+      ],
+      "segmentIds": [
+        "segment-9"
+      ],
+      "subtitle": "AI 时代，数据采集终于补齐了",
+      "title": "最后一块拼图",
+      "type": "quote"
+    },
+    {
+      "audioDuration": 2.9279999999999973,
+      "audioEnd": 55.776,
+      "audioStart": 52.848,
+      "data": {
+        "button": "关注我，带你玩转最强 AI 工具",
+        "cta": "关注我，带你玩转最强 AI 工具"
+      },
+      "durationInFrames": 88,
+      "elementTimings": [
+        {
+          "audioEnd": 53.2872,
+          "audioStart": 52.848,
+          "cue": "关注我",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 53.49216,
+          "audioStart": 53.19936,
+          "cue": "继续看最强 AI 工具怎么用",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "subtitle",
+          "type": "subtitle"
+        },
+        {
+          "audioEnd": 54.71088,
+          "audioStart": 53.64576,
+          "cue": "想继续看工具实战",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-0",
+          "index": 0,
+          "type": "custom"
+        },
+        {
+          "audioEnd": 55.776,
+          "audioStart": 54.71088,
+          "cue": "关注获取更多 AI 工具内容",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-1",
+          "index": 1,
+          "type": "custom"
+        }
+      ],
+      "layout": "cta",
+      "narration": "关注我，带你玩转最强 AI 工具。",
+      "points": [
+        "想继续看工具实战",
+        "关注获取更多 AI 工具内容"
+      ],
+      "segmentIds": [
+        "segment-10"
+      ],
+      "subtitle": "继续看最强 AI 工具怎么用",
+      "title": "关注我",
+      "type": "cta"
+    }
+  ]
+}

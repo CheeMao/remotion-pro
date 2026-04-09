@@ -327,8 +327,97 @@ export const StickSlide: React.FC<Props> = ({
       case 'cta':
         return renderCtaCards();
       default:
-        return renderListCards();
+        return renderDefaultCards();
     }
+  };
+
+  const renderDefaultCards = () => {
+    const bulletPoints = Array.isArray(points) && points.length > 0
+      ? points
+      : Array.isArray((data as { points?: string[] })?.points)
+        ? (data as { points?: string[] }).points!
+        : [];
+    return (
+      <>
+        <div
+          style={{
+            position: 'absolute',
+            top: SAFE_TOP + 60,
+            left: SAFE_LEFT,
+            right: SAFE_LEFT,
+            fontFamily: STICK.fontHeading,
+            color: STICK.ink,
+            textAlign: 'center',
+          }}
+        >
+          <div
+            style={{
+              fontSize: 72,
+              fontWeight: 800,
+              lineHeight: 1.1,
+              opacity: ease(frame, 8, 30),
+              transform: `translateY(${(1 - ease(frame, 8, 30)) * 24}px)`,
+            }}
+          >
+            {title}
+          </div>
+          {subtitle ? (
+            <div
+              style={{
+                fontSize: 30,
+                color: STICK.inkDim,
+                marginTop: 14,
+                opacity: ease(frame, 18, 38),
+              }}
+            >
+              {subtitle}
+            </div>
+          ) : null}
+        </div>
+        {bulletPoints.length > 0 ? (
+          <div
+            style={{
+              position: 'absolute',
+              top: 520,
+              left: SAFE_LEFT,
+              right: SAFE_LEFT,
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 16,
+              fontFamily: STICK.fontHeading,
+            }}
+          >
+            {bulletPoints.slice(0, 5).map((pt, i) => {
+              const t = 30 + i * 18;
+              const a = ease(frame, t, t + 22);
+              const bulletColors = [STICK.yellow, STICK.cyan, STICK.pink, STICK.green, STICK.red];
+              const color = bulletColors[i % bulletColors.length];
+              return (
+                <div
+                  key={`${pt}-${i}`}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'flex-start',
+                    gap: 22,
+                    padding: '14px 18px',
+                    borderBottom: `2px dashed ${STICK.inkFaint}`,
+                    opacity: a,
+                    transform: `translateX(${(1 - a) * -24}px)`,
+                  }}
+                >
+                  <span style={{ fontSize: 42, color, fontWeight: 900, lineHeight: 1.1, flexShrink: 0 }}>
+                    ✦
+                  </span>
+                  <span style={{ fontSize: 34, color: STICK.ink, fontWeight: 700, lineHeight: 1.3 }}>
+                    {pt}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        ) : null}
+      </>
+    );
   };
 
   const renderHeroCards = () => (

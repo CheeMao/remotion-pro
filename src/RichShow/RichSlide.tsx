@@ -397,6 +397,204 @@ export const RichSlide: React.FC<{
           </div>
         );
 
+      // ===== 步骤页 =====
+      case "steps": {
+        const steps = (data.steps as Array<{ title: string; description?: string }>) || [];
+        return (
+          <div style={{ width: "92%" }}>
+            <h2 style={{ fontSize: 48, fontWeight: 800, color: colors.text, margin: "0 0 32px 0", textAlign: "left" }}>
+              {String(data.title ?? "")}
+            </h2>
+            <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
+              {steps.map((step, i) => {
+                const accentColors = [colors.accent1, colors.accent2, colors.accent3, colors.accent4];
+                const accent = accentColors[i % accentColors.length];
+                const gradients = [colors.gradient1, colors.gradient2, colors.gradient3, colors.gradient4];
+                const itemProgress = (() => {
+                  const frame = i;
+                  void frame;
+                  return 1;
+                })();
+                void itemProgress;
+                return (
+                  <BentoCard
+                    key={i}
+                    delay={10 + i * 10}
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "center",
+                      gap: 28,
+                      padding: "28px 36px",
+                      background: `linear-gradient(135deg, ${accent}18 0%, rgba(255,255,255,0.04) 100%)`,
+                      border: `1px solid ${accent}50`,
+                    }}
+                  >
+                    <div
+                      style={{
+                        minWidth: 72,
+                        height: 72,
+                        borderRadius: "50%",
+                        background: gradients[i % gradients.length],
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        fontSize: 30,
+                        fontWeight: 900,
+                        color: "#fff",
+                        flexShrink: 0,
+                        boxShadow: `0 4px 20px ${accent}50`,
+                      }}
+                    >
+                      {String(i + 1).padStart(2, "0")}
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontSize: 30, fontWeight: 800, color: colors.text, lineHeight: 1.2 }}>
+                        {step.title}
+                      </div>
+                      {step.description && (
+                        <div style={{ fontSize: 22, color: colors.muted, marginTop: 8, lineHeight: 1.5 }}>
+                          {step.description}
+                        </div>
+                      )}
+                    </div>
+                  </BentoCard>
+                );
+              })}
+            </div>
+          </div>
+        );
+      }
+
+      // ===== 时间线页 =====
+      case "timeline": {
+        const timeline = (data.timeline as Array<{ year: string; title: string; description?: string }>) || [];
+        return (
+          <div style={{ width: "92%" }}>
+            <h2 style={{ fontSize: 48, fontWeight: 800, color: colors.text, margin: "0 0 32px 0", textAlign: "left" }}>
+              {String(data.title ?? "")}
+            </h2>
+            <div style={{ position: "relative", paddingLeft: 32 }}>
+              {/* 连接线 */}
+              <div
+                style={{
+                  position: "absolute",
+                  left: 0,
+                  top: 16,
+                  bottom: 16,
+                  width: 2,
+                  background: `linear-gradient(180deg, ${colors.accent1} 0%, ${colors.accent2} 50%, ${colors.accent3} 100%)`,
+                  borderRadius: 2,
+                }}
+              />
+              <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                {timeline.map((item, i) => {
+                  const accentColors = [colors.accent1, colors.accent2, colors.accent3, colors.accent4];
+                  const accent = accentColors[i % accentColors.length];
+                  return (
+                    <div key={i} style={{ position: "relative" }}>
+                      {/* 时间点 */}
+                      <div
+                        style={{
+                          position: "absolute",
+                          left: -39,
+                          top: 20,
+                          width: 16,
+                          height: 16,
+                          borderRadius: "50%",
+                          background: accent,
+                          boxShadow: `0 0 12px ${accent}`,
+                        }}
+                      />
+                      <BentoCard
+                        delay={10 + i * 10}
+                        style={{
+                          padding: "22px 28px",
+                          background: `linear-gradient(135deg, ${accent}12 0%, rgba(255,255,255,0.04) 100%)`,
+                          border: `1px solid ${accent}40`,
+                        }}
+                      >
+                        <div
+                          style={{
+                            display: "inline-flex",
+                            padding: "6px 18px",
+                            borderRadius: 999,
+                            background: `${accent}25`,
+                            border: `1px solid ${accent}50`,
+                            fontSize: 20,
+                            fontWeight: 800,
+                            color: accent,
+                            marginBottom: 12,
+                          }}
+                        >
+                          {item.year}
+                        </div>
+                        <div style={{ fontSize: 28, fontWeight: 800, color: colors.text, lineHeight: 1.2 }}>
+                          {item.title}
+                        </div>
+                        {item.description && (
+                          <div style={{ fontSize: 21, color: colors.muted, marginTop: 8, lineHeight: 1.5 }}>
+                            {item.description}
+                          </div>
+                        )}
+                      </BentoCard>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        );
+      }
+
+      // ===== Hero 页 =====
+      case "hero": {
+        return (
+          <div style={{ textAlign: "center", maxWidth: 900 }}>
+            {typeof data.badge === 'string' && (
+              <div
+                style={{
+                  display: "inline-flex",
+                  padding: "10px 28px",
+                  borderRadius: 999,
+                  background: `linear-gradient(135deg, ${colors.accent1}40, ${colors.accent2}40)`,
+                  border: `1px solid ${colors.accent1}60`,
+                  fontSize: 24,
+                  fontWeight: 700,
+                  color: colors.accent3,
+                  marginBottom: 36,
+                  letterSpacing: "0.06em",
+                  boxShadow: `0 0 30px ${colors.accent1}30`,
+                }}
+              >
+                {data.badge}
+              </div>
+            )}
+            <h1
+              style={{
+                fontSize: 90,
+                fontWeight: 900,
+                color: colors.text,
+                margin: 0,
+                marginBottom: 32,
+                background: `linear-gradient(135deg, ${colors.text} 0%, ${colors.accent3} 60%, ${colors.accent2} 100%)`,
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+                backgroundClip: "text",
+                letterSpacing: "-2px",
+                lineHeight: 1.04,
+              }}
+            >
+              {String(data.title ?? "")}
+            </h1>
+            {typeof data.subtitle === 'string' && (
+              <p style={{ fontSize: 40, color: colors.muted, margin: 0, lineHeight: 1.5 }}>
+                {data.subtitle}
+              </p>
+            )}
+          </div>
+        );
+      }
+
       // ===== CTA 页 =====
       case "cta": {
         const pulseScale = 1 + Math.sin(frame * 0.08) * 0.02;

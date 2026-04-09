@@ -1,0 +1,116 @@
+{
+  "meta": {
+    "title": "LiquidShow Demo",
+    "template": "LiquidShow",
+    "soundtrack_path": "projects/LiquidShow/audio/narration.mp3"
+  },
+  "slides": [
+    {
+      "title": "Liquid Glass",
+      "subtitle": "流动层次与柔光质感的开场展示",
+      "type": "hero",
+      "data": {
+        "badge": "FLUID UI",
+        "cta": "进入画面"
+      }
+    },
+    {
+      "title": "关键数据",
+      "subtitle": "用通透卡片展示核心结果",
+      "type": "stats",
+      "data": {
+        "stats": [
+          { "value": 24600, "suffix": "+", "label": "月活用户" },
+          { "value": 94, "suffix": "%", "label": "完播率" },
+          { "value": 7, "suffix": "天", "label": "上线周期" }
+        ]
+      }
+    },
+    {
+      "title": "方案对比",
+      "subtitle": "传统堆砌 vs 液态信息编排",
+      "type": "compare",
+      "data": {
+        "left": {
+          "label": "传统页面",
+          "value": "信息拥挤",
+          "desc": "内容平铺，层次不清"
+        },
+        "right": {
+          "label": "LiquidShow",
+          "value": "视觉聚焦",
+          "desc": "重点信息被自然放大"
+        },
+        "vsText": "VS"
+      }
+    },
+    {
+      "title": "制作流程",
+      "subtitle": "拆成清晰的三段动作",
+      "type": "steps",
+      "data": {
+        "steps": [
+          { "title": "提炼主线", "description": "先锁定这一页只讲一个重点" },
+          { "title": "匹配版式", "description": "数据、对比、步骤分别用不同页型" },
+          { "title": "增强节奏", "description": "让页面切换时始终有新鲜感" }
+        ]
+      }
+    },
+    {
+      "title": "页面亮点",
+      "subtitle": "列表页只在适合的时候出现",
+      "type": "list",
+      "data": {
+        "items": [
+          { "icon": "01", "text": "柔和高光", "desc": "更适合包装重点信息" },
+          { "icon": "02", "text": "流动背景", "desc": "增强镜头层次" },
+          { "icon": "03", "text": "卡片聚焦", "desc": "避免全屏信息同权" },
+          { "icon": "04", "text": "版式切换", "desc": "让十几页内容不再雷同" }
+        ]
+      }
+    },
+    {
+      "title": "表现力评分",
+      "subtitle": "一页图表承接抽象评价",
+      "type": "chart",
+      "data": {
+        "bars": [
+          { "label": "层次感", "value": 95 },
+          { "label": "辨识度", "value": 91 },
+          { "label": "流畅度", "value": 93 },
+          { "label": "高级感", "value": 97 }
+        ]
+      }
+    },
+    {
+      "title": "迭代节奏",
+      "subtitle": "适合讲清楚过程和阶段变化",
+      "type": "timeline",
+      "data": {
+        "timeline": [
+          { "year": "阶段 1", "title": "抓住主题", "description": "先确定这一屏的核心信息" },
+          { "year": "阶段 2", "title": "切换布局", "description": "按内容选 compare / stats / steps" },
+          { "year": "阶段 3", "title": "强化节奏", "description": "避免连续出现同一类页面" },
+          { "year": "阶段 4", "title": "统一收口", "description": "最后用一句结论完成记忆点" }
+        ]
+      }
+    },
+    {
+      "title": "核心关键词",
+      "subtitle": "用于强化记忆点",
+      "type": "highlight",
+      "data": {
+        "items": ["流动", "通透", "层次", "聚焦", "节奏", "质感"]
+      }
+    },
+    {
+      "title": "收束页",
+      "subtitle": "最后一句话把节奏收住",
+      "type": "quote",
+      "data": {
+        "quote": "好看的 LiquidShow，不是每一页都在堆列表，而是每一页都有自己的视觉任务。",
+        "author": "LiquidShow Template"
+      }
+    }
+  ]
+}

@@ -16,6 +16,28 @@ const baseMotion = {
 };
 
 export const THEME_REGISTRY: Record<string, ThemeDefinition> = {
+  cosmos: {
+    id: 'cosmos',
+    label: 'Cosmos',
+    palette: {
+      background: 'radial-gradient(ellipse 1400px 2000px at 50% 30%, #0e0a1a 0%, #07070f 80%)',
+      surface: 'rgba(255, 255, 255, 0.05)',
+      surfaceAlt: 'rgba(245, 166, 35, 0.08)',
+      text: '#ffffff',
+      muted: '#8a94b0',
+      border: 'rgba(255, 255, 255, 0.07)',
+      accents: ['#f5a623', '#a78bfa', '#22d3ee', '#34d399'],
+    },
+    typography: {
+      fontFamily: "'SF Pro Display', 'PingFang SC', sans-serif",
+      ...baseTypography,
+      titleSize: 80,
+      subtitleSize: 34,
+    },
+    motion: { ...baseMotion, damping: 18, stiffness: 80 },
+    effects: { grid: false, glass: false, glow: true },
+    radius: { panel: 28, chip: 999 },
+  },
   glass: {
     id: 'glass',
     label: 'Glass',
@@ -165,9 +187,35 @@ export const THEME_REGISTRY: Record<string, ThemeDefinition> = {
     effects: { grid: true, glass: false, glow: true },
     radius: { panel: 28, chip: 999 },
   },
+  project: {
+    id: 'project',
+    label: 'Project',
+    palette: {
+      background: 'linear-gradient(180deg, #0c1629 0%, #0d1b30 100%)',
+      surface: 'rgba(255, 255, 255, 0.04)',
+      surfaceAlt: 'rgba(74, 159, 213, 0.08)',
+      text: '#e8f0fe',
+      muted: '#64748b',
+      border: 'rgba(100, 160, 220, 0.2)',
+      accents: ['#4a9fd5', '#87ceeb', '#f5821f', '#fbbf24'],
+    },
+    typography: {
+      fontFamily: "'SF Pro Display', 'PingFang SC', sans-serif",
+      titleSize: 82,
+      subtitleSize: 34,
+      bodySize: 28,
+      overlineSize: 15,
+      titleWeight: 900,
+      bodyWeight: 600,
+    },
+    motion: { damping: 16, stiffness: 100, staggerFrames: 6 },
+    effects: { grid: false, glass: false, glow: false },
+    radius: { panel: 12, chip: 999 },
+  },
 };
 
 const TEMPLATE_THEME_MAP: Record<string, string> = {
+  CosmosShow: 'cosmos',
   GlassShow: 'glass',
   LiquidShow: 'liquid',
   LiquidBriefShow: 'liquid',
@@ -180,6 +228,7 @@ const TEMPLATE_THEME_MAP: Record<string, string> = {
   TechShow: 'tech',
   GeneratedVideo: 'tech',
   RichShow: 'glass',
+  ProjectShow: 'project',
 };
 
 export const getThemeDefinition = (themeId?: string): ThemeDefinition => {

@@ -8,6 +8,7 @@ interface SharedVideoProps {
   template?: string;
   soundtrackPath?: string;
   defaultSlideDuration?: number;
+  subtitlesEnabled?: boolean;
 }
 
 export const SharedVideo: React.FC<SharedVideoProps> = ({
@@ -15,6 +16,7 @@ export const SharedVideo: React.FC<SharedVideoProps> = ({
   template,
   soundtrackPath,
   defaultSlideDuration = 150,
+  subtitlesEnabled = true,
 }) => {
   const themeId = getThemeIdForTemplate(template);
   const theme = getThemeDefinition(themeId);
@@ -27,6 +29,7 @@ export const SharedVideo: React.FC<SharedVideoProps> = ({
       template={template}
       themeId={themeId}
       background={theme.palette.background}
+      subtitlesEnabled={subtitlesEnabled}
     />
   );
 };

@@ -2,6 +2,8 @@ import React from 'react';
 import { EditorialSlide } from '../EditorialShow/EditorialSlide';
 import { InsightSlide } from '../InsightShow/InsightSlide';
 import { StickSlide } from '../StickShow/StickSlide';
+import { CosmosSlide } from '../CosmosShow/CosmosSlide';
+import { ProjectSlide } from '../ProjectShow/ProjectSlide';
 import { GlassSlide } from '../GlassShow/GlassSlide';
 import { KnowledgeSlide } from '../KnowledgeShow/KnowledgeSlide';
 import { LiquidBriefSlide } from '../LiquidBriefShow/LiquidBriefSlide';
@@ -266,7 +268,19 @@ const ensureChart = (slide: SharedLayoutSlide): ChartData | undefined => {
     };
   }
 
-  return undefined;
+  // Fallback: generate descending bars from points
+  const pts = slide.points || [];
+  if (pts.length === 0) return undefined;
+  return {
+    type: 'progress' as const,
+    values: pts.map((point, i) => {
+      const parsed = splitPoint(point);
+      return {
+        label: parsed.title,
+        value: Math.round(90 - (i / Math.max(pts.length - 1, 1)) * 50),
+      };
+    }),
+  };
 };
 
 const ensureStats = (slide: SharedLayoutSlide) => {
@@ -307,7 +321,18 @@ const ensureStats = (slide: SharedLayoutSlide) => {
       .filter((item): item is NonNullable<typeof item> => item !== null);
   }
 
-  return [];
+  // Fallback: parse points as stats. Try to extract a leading number, otherwise use sequential index.
+  return (slide.points || []).map((point, i) => {
+    const parsed = splitPoint(point);
+    const numMatch = parsed.title.match(/^([\d,]+\.?\d*)\s*([%+万亿kKmM]*)/);
+    if (numMatch) {
+      const value = parseFloat(numMatch[1].replace(/,/g, ''));
+      const suffix = numMatch[2] || undefined;
+      const label = parsed.title.slice(numMatch[0].length).trim() || parsed.description || parsed.title;
+      return { value: isNaN(value) ? i + 1 : value, suffix, label, note: parsed.description };
+    }
+    return { value: i + 1, suffix: undefined, label: parsed.title, note: parsed.description };
+  });
 };
 
 const ensureCompare = (slide: SharedLayoutSlide) => {
@@ -681,7 +706,15 @@ const toTechRichBars = (slide: SharedLayoutSlide) => {
       .filter((item): item is NonNullable<typeof item> => item !== null);
   }
 
-  return [];
+  // Fallback: generate bars from points
+  return (slide.points || []).map((point, i, arr) => {
+    const parsed = splitPoint(point);
+    return {
+      label: parsed.title,
+      percent: Math.round(90 - (i / Math.max(arr.length - 1, 1)) * 50),
+      value: Math.round(90 - (i / Math.max(arr.length - 1, 1)) * 50),
+    };
+  });
 };
 
 const renderTechScene = ({ slide, index, totalSlides, durationInFrames }: TemplateSceneProps) => {
@@ -922,6 +955,44 @@ const renderStickScene = ({ slide, index, totalSlides, durationInFrames }: Templ
   );
 };
 
+const renderCosmosScene = ({ slide, index, totalSlides, durationInFrames }: TemplateSceneProps) => {
+  const layout = getLayout(slide);
+  if (!LANDSCAPE_SUPPORTED_LAYOUTS.has(layout)) {
+    return null;
+  }
+  return (
+    <CosmosSlide
+      title={slide.title || ''}
+      subtitle={slide.subtitle}
+      points={slide.points}
+      type={layout}
+      data={slide.data as Record<string, unknown> | undefined}
+      index={index}
+      totalSlides={totalSlides}
+      durationInFrames={durationInFrames}
+    />
+  );
+};
+
+const renderProjectScene = ({ slide, index, totalSlides, durationInFrames }: TemplateSceneProps) => {
+  const layout = getLayout(slide);
+  if (!LANDSCAPE_SUPPORTED_LAYOUTS.has(layout)) {
+    return null;
+  }
+  return (
+    <ProjectSlide
+      title={slide.title || ''}
+      subtitle={slide.subtitle}
+      points={slide.points}
+      type={layout}
+      data={slide.data as Record<string, unknown> | undefined}
+      index={index}
+      totalSlides={totalSlides}
+      durationInFrames={durationInFrames}
+    />
+  );
+};
+
 export const renderTemplateScene = (props: TemplateSceneProps): React.ReactNode | null => {
   switch (props.template) {
     case 'GlassShow':
@@ -946,6 +1017,10 @@ export const renderTemplateScene = (props: TemplateSceneProps): React.ReactNode 
       return renderInsightScene(props);
     case 'StickShow':
       return renderStickScene(props);
+    case 'CosmosShow':
+      return renderCosmosScene(props);
+    case 'ProjectShow':
+      return renderProjectScene(props);
     default:
       return null;
   }

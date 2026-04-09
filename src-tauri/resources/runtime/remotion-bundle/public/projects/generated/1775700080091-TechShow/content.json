@@ -1,0 +1,129 @@
+{
+  "meta": {
+    "title": "Generated Video",
+    "template": "TechShow",
+    "voice_id": "S_PlTK120R1",
+    "full_narration": "今天给大家推荐8个实用 skill 涵盖设计、规划、安全多个方向。第一个， Frontend Design 来自 Anthropic 官方，27万多安装量，给 claude 注入完整的设计系统和设计哲学。",
+    "soundtrack_path": "projects/generated/1775700080091-TechShow/audio/narration.mp3",
+    "soundtrack_duration": 16.32,
+    "voiceId": "S_PlTK120R1",
+    "fullNarration": "今天给大家推荐8个实用 skill 涵盖设计、规划、安全多个方向。第一个， Frontend Design 来自 Anthropic 官方，27万多安装量，给 claude 注入完整的设计系统和设计哲学。",
+    "soundtrackPath": "projects/generated/1775700080091-TechShow/audio/narration.mp3",
+    "soundtrackDuration": 16.32
+  },
+  "slides": [
+    {
+      "audioDuration": 6.864,
+      "audioEnd": 6.864,
+      "audioStart": 0,
+      "data": {},
+      "durationInFrames": 206,
+      "elementTimings": [
+        {
+          "audioEnd": 1.0295999999999998,
+          "audioStart": 0,
+          "cue": "8大实用技能推荐",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 3.99384,
+          "audioStart": 1.12368,
+          "cue": "涵盖设计、规划、安全多领域",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-0",
+          "index": 0,
+          "type": "custom"
+        },
+        {
+          "audioEnd": 6.863999999999999,
+          "audioStart": 3.99384,
+          "cue": "帮你快速提升职场竞争力",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-1",
+          "index": 1,
+          "type": "custom"
+        }
+      ],
+      "layout": "hero",
+      "narration": "今天给大家推荐8个实用skill，涵盖设计、规划、安全多个方向。",
+      "points": [
+        "涵盖设计、规划、安全多领域",
+        "帮你快速提升职场竞争力"
+      ],
+      "segmentIds": [
+        "segment-1"
+      ],
+      "subtitle": "",
+      "title": "8大实用技能推荐",
+      "type": "hero",
+      "audioPath": "projects/generated/1775700080091-TechShow/audio/slides/slide-001.mp3"
+    },
+    {
+      "audioDuration": 9.456,
+      "audioEnd": 16.32,
+      "audioStart": 6.864,
+      "data": {},
+      "durationInFrames": 284,
+      "elementTimings": [
+        {
+          "audioEnd": 8.064,
+          "audioStart": 6.864,
+          "cue": "第1技能：Frontend Design",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 12.763245283018868,
+          "audioStart": 10.752905660377358,
+          "cue": "来自Anthropic官方",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-0",
+          "index": 0,
+          "type": "custom"
+        },
+        {
+          "audioEnd": 13.588,
+          "audioStart": 10.856,
+          "cue": "覆盖27万+关键设计要素",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-1",
+          "index": 1,
+          "type": "custom"
+        },
+        {
+          "audioEnd": 16.32,
+          "audioStart": 13.588,
+          "cue": "适合前端界面快速设计",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-2",
+          "index": 2,
+          "type": "custom"
+        }
+      ],
+      "layout": "default",
+      "narration": "第一个，Frontend Design，来自Anthropic官方，涵盖27万多个关键设计元素，特别适合前端界面设计。",
+      "points": [
+        "来自Anthropic官方",
+        "覆盖27万+关键设计要素",
+        "适合前端界面快速设计"
+      ],
+      "segmentIds": [
+        "segment-2"
+      ],
+      "subtitle": "",
+      "title": "第1技能：Frontend Design",
+      "type": "default",
+      "audioPath": "projects/generated/1775700080091-TechShow/audio/slides/slide-002.mp3"
+    }
+  ]
+}

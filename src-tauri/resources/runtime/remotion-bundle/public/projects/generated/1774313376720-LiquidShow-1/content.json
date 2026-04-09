@@ -1,0 +1,256 @@
+{
+  "meta": {
+    "title": "Generated Video",
+    "template": "LiquidShow-1",
+    "voice_id": "cosyvoice-v3.5-plus-bailian-d9e80a08150f4986ae260fde904fe0ae",
+    "full_narration": "Skills装完先别急着用，技能商店上万个 Skills，但真正的底座就这 6 个，排行榜安装量最高的一条命令全装完。\n第一个：agent-browser 浏览器自动化\n让 AI 自己去操控浏览器，点按钮填表单，截图下文件，连动态渲染的页面都能读，相当于给 AI 装了一双手。\n第二个：heavily searchAI 专属联网\n搜索返回结果没广告，结构化输出直接给 AI 消费，网页正文自动提炼关键信息，你的 AI 终于不用靠过期知识回答问题了。\n第三个：self-improving agent 自我进化\n记住你的代码风格和习惯，从每次出错中学习自动修复，跨绘画保持记忆，越用越懂，效率越来越高。\n第四个：find skills 技能发现神器\n像逛应用商店一样搜索 skill，自然语言描述需求就能匹配，排行榜推荐加批量管理升级，回退一站搞定。\n第五个：skill-vendor 安全审查官\n装任何 skill 之前先让它扫一遍，检测恶意代码，拦截权限越界，阻止隐私泄露，出具安全评分报告，相当于给工具链装了个门禁。\n第六个：email-managemen 邮件管家\nAI 帮你读邮件写回复，自动分类整理，常规邮件直接帮你发送，Gmail、Outlook、163、QQ 全都支持。",
+    "soundtrack_path": "projects/generated/1774313376720-LiquidShow-1/audio/narration.mp3",
+    "soundtrack_duration": 90.8277551020408,
+    "voiceId": "cosyvoice-v3.5-plus-bailian-d9e80a08150f4986ae260fde904fe0ae",
+    "fullNarration": "Skills装完先别急着用，技能商店上万个 Skills，但真正的底座就这 6 个，排行榜安装量最高的一条命令全装完。\n第一个：agent-browser 浏览器自动化\n让 AI 自己去操控浏览器，点按钮填表单，截图下文件，连动态渲染的页面都能读，相当于给 AI 装了一双手。\n第二个：heavily searchAI 专属联网\n搜索返回结果没广告，结构化输出直接给 AI 消费，网页正文自动提炼关键信息，你的 AI 终于不用靠过期知识回答问题了。\n第三个：self-improving agent 自我进化\n记住你的代码风格和习惯，从每次出错中学习自动修复，跨绘画保持记忆，越用越懂，效率越来越高。\n第四个：find skills 技能发现神器\n像逛应用商店一样搜索 skill，自然语言描述需求就能匹配，排行榜推荐加批量管理升级，回退一站搞定。\n第五个：skill-vendor 安全审查官\n装任何 skill 之前先让它扫一遍，检测恶意代码，拦截权限越界，阻止隐私泄露，出具安全评分报告，相当于给工具链装了个门禁。\n第六个：email-managemen 邮件管家\nAI 帮你读邮件写回复，自动分类整理，常规邮件直接帮你发送，Gmail、Outlook、163、QQ 全都支持。",
+    "soundtrackPath": "projects/generated/1774313376720-LiquidShow-1/audio/narration.mp3",
+    "soundtrackDuration": 90.82775510204081
+  },
+  "slides": [
+    {
+      "audioDuration": 9.560816326530611,
+      "audioEnd": 9.560816326530611,
+      "audioStart": 0,
+      "durationInFrames": 287,
+      "narration": "Skills装完先别急着用，技能商店上万个Skills，但真正的底座就这6个，排行榜安装量最高的一条命令全装完。",
+      "points": [
+        "技能商店上万个Skills",
+        "真正底座就这6个",
+        "排行榜安装量最高"
+      ],
+      "segmentIds": [
+        "segment-1"
+      ],
+      "subtitle": "一条命令全装完",
+      "title": "6大核心技能底座",
+      "audioPath": "projects/generated/1774313376720-LiquidShow-1/audio/slides/slide-001.mp3"
+    },
+    {
+      "audioDuration": 3.474285714285714,
+      "audioEnd": 13.035102040816327,
+      "audioStart": 9.560816326530611,
+      "durationInFrames": 104,
+      "narration": "第一个：agent-browser浏览器自动化",
+      "points": [
+        "AI操控浏览器",
+        "点按钮填表单",
+        "截图下载文件"
+      ],
+      "segmentIds": [
+        "segment-2",
+        "segment-3"
+      ],
+      "subtitle": "浏览器自动化",
+      "title": "第1个：Agent-Browser",
+      "audioPath": "projects/generated/1774313376720-LiquidShow-1/audio/slides/slide-002.mp3"
+    },
+    {
+      "audioDuration": 10.866938775510205,
+      "audioEnd": 23.902040816326533,
+      "audioStart": 13.035102040816327,
+      "durationInFrames": 326,
+      "narration": "让AI自己去操控浏览器，点按钮填表单，截图下文件，连动态渲染的页面都能读，相当于给AI装了一双手。",
+      "points": [
+        "动态渲染页面可读",
+        "自动操控浏览器",
+        "相当于AI的双手"
+      ],
+      "segmentIds": [
+        "segment-4"
+      ],
+      "subtitle": "Agent-Browser核心能力",
+      "title": "给AI装上一双手",
+      "audioPath": "projects/generated/1774313376720-LiquidShow-1/audio/slides/slide-003.mp3"
+    },
+    {
+      "audioDuration": 3.6310204081632653,
+      "audioEnd": 27.5330612244898,
+      "audioStart": 23.902040816326533,
+      "durationInFrames": 109,
+      "narration": "第二个：heavily search，AI专属联网",
+      "points": [
+        "搜索无广告",
+        "结构化输出",
+        "自动提炼关键信息"
+      ],
+      "segmentIds": [
+        "segment-5",
+        "segment-6"
+      ],
+      "subtitle": "AI专属联网搜索",
+      "title": "第2个：Heavily Search",
+      "audioPath": "projects/generated/1774313376720-LiquidShow-1/audio/slides/slide-004.mp3"
+    },
+    {
+      "audioDuration": 9.926530612244898,
+      "audioEnd": 37.459591836734695,
+      "audioStart": 27.5330612244898,
+      "durationInFrames": 298,
+      "narration": "搜索返回结果没广告，结构化输出直接给AI消费，网页正文自动提炼关键信息，你的AI终于不用靠过期知识回答问题了。",
+      "points": [
+        "网页正文自动提炼",
+        "结果直接给AI消费",
+        "实时联网不依赖旧数据"
+      ],
+      "segmentIds": [
+        "segment-7"
+      ],
+      "subtitle": "Heavily Search优势",
+      "title": "告别过期知识",
+      "audioPath": "projects/generated/1774313376720-LiquidShow-1/audio/slides/slide-005.mp3"
+    },
+    {
+      "audioDuration": 4.153469387755102,
+      "audioEnd": 41.6130612244898,
+      "audioStart": 37.459591836734695,
+      "durationInFrames": 125,
+      "narration": "第三个：self-improving agent自我进化",
+      "points": [
+        "记住代码风格",
+        "从错误中学习",
+        "跨绘画保持记忆"
+      ],
+      "segmentIds": [
+        "segment-8",
+        "segment-9"
+      ],
+      "subtitle": "自我进化能力",
+      "title": "第3个：Self-Improving Agent",
+      "audioPath": "projects/generated/1774313376720-LiquidShow-1/audio/slides/slide-006.mp3"
+    },
+    {
+      "audioDuration": 9.11673469387755,
+      "audioEnd": 50.729795918367344,
+      "audioStart": 41.6130612244898,
+      "durationInFrames": 274,
+      "narration": "记住你的代码风格和习惯，从每次出错中学习自动修复，跨绘画保持记忆，越用越懂，效率越来越高。",
+      "points": [
+        "自动修复错误",
+        "效率越来越高",
+        "个性化习惯记忆"
+      ],
+      "segmentIds": [
+        "segment-10"
+      ],
+      "subtitle": "Self-Improving Agent特性",
+      "title": "越用越懂你的AI",
+      "audioPath": "projects/generated/1774313376720-LiquidShow-1/audio/slides/slide-007.mp3"
+    },
+    {
+      "audioDuration": 3.6310204081632653,
+      "audioEnd": 54.36081632653061,
+      "audioStart": 50.729795918367344,
+      "durationInFrames": 109,
+      "narration": "第四个：find skills技能发现神器",
+      "points": [
+        "像逛应用商店",
+        "自然语言搜索",
+        "排行榜推荐"
+      ],
+      "segmentIds": [
+        "segment-11",
+        "segment-12"
+      ],
+      "subtitle": "技能发现神器",
+      "title": "第4个：Find Skills",
+      "audioPath": "projects/generated/1774313376720-LiquidShow-1/audio/slides/slide-008.mp3"
+    },
+    {
+      "audioDuration": 9.273469387755101,
+      "audioEnd": 63.63428571428571,
+      "audioStart": 54.36081632653061,
+      "durationInFrames": 278,
+      "narration": "像逛应用商店一样搜索skill，自然语言描述需求就能匹配，排行榜推荐加批量管理升级，回退一站搞定。",
+      "points": [
+        "批量管理升级",
+        "回退一站搞定",
+        "智能匹配需求"
+      ],
+      "segmentIds": [
+        "segment-13"
+      ],
+      "subtitle": "Find Skills功能",
+      "title": "一站式技能管理",
+      "audioPath": "projects/generated/1774313376720-LiquidShow-1/audio/slides/slide-009.mp3"
+    },
+    {
+      "audioDuration": 3.2653061224489797,
+      "audioEnd": 66.89959183673469,
+      "audioStart": 63.63428571428571,
+      "durationInFrames": 98,
+      "narration": "第五个：skill-vendor安全审查官",
+      "points": [
+        "安装前安全扫描",
+        "检测恶意代码",
+        "拦截权限越界"
+      ],
+      "segmentIds": [
+        "segment-14",
+        "segment-15"
+      ],
+      "subtitle": "安全审查官",
+      "title": "第5个：Skill-Vendor",
+      "audioPath": "projects/generated/1774313376720-LiquidShow-1/audio/slides/slide-010.mp3"
+    },
+    {
+      "audioDuration": 9.848163265306123,
+      "audioEnd": 76.74775510204081,
+      "audioStart": 66.89959183673469,
+      "durationInFrames": 295,
+      "narration": "装任何skill之前先让它扫一遍，检测恶意代码，拦截权限越界，阻止隐私泄露，出具安全评分报告，相当于给工具链装了个门禁。",
+      "points": [
+        "阻止隐私泄露",
+        "出具安全评分",
+        "全方位安全检测"
+      ],
+      "segmentIds": [
+        "segment-16"
+      ],
+      "subtitle": "Skill-Vendor防护能力",
+      "title": "工具链安全门禁",
+      "audioPath": "projects/generated/1774313376720-LiquidShow-1/audio/slides/slide-011.mp3"
+    },
+    {
+      "audioDuration": 3.500408163265306,
+      "audioEnd": 80.24816326530612,
+      "audioStart": 76.74775510204081,
+      "durationInFrames": 105,
+      "narration": "第六个：email-management邮件管家",
+      "points": [
+        "AI读邮件写回复",
+        "自动分类整理",
+        "常规邮件自动发送"
+      ],
+      "segmentIds": [
+        "segment-17",
+        "segment-18"
+      ],
+      "subtitle": "邮件管家",
+      "title": "第6个：Email-Management",
+      "audioPath": "projects/generated/1774313376720-LiquidShow-1/audio/slides/slide-012.mp3"
+    },
+    {
+      "audioDuration": 10.579591836734695,
+      "audioEnd": 90.82775510204081,
+      "audioStart": 80.24816326530612,
+      "durationInFrames": 317,
+      "narration": "AI帮你读邮件写回复，自动分类整理，常规邮件直接帮你发送，Gmail、Outlook、163、QQ全都支持。",
+      "points": [
+        "Gmail、Outlook",
+        "163、QQ邮箱",
+        "主流平台全覆盖"
+      ],
+      "segmentIds": [
+        "segment-19"
+      ],
+      "subtitle": "Email-Management兼容",
+      "title": "全平台邮件支持",
+      "audioPath": "projects/generated/1774313376720-LiquidShow-1/audio/slides/slide-013.mp3"
+    }
+  ]
+}

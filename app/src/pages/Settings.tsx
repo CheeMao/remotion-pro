@@ -30,6 +30,7 @@ interface Settings {
   volcengineAccessKey: string;
   defaultVoiceId: string;
   defaultTemplate: string;
+  outputDir: string;
 }
 
 const TEMPLATES = [
@@ -38,6 +39,7 @@ const TEMPLATES = [
   { label: "新拟态", value: "NeuShow" },
   { label: "丰富特效", value: "RichShow" },
   { label: "科技感特效", value: "TechShow" },
+  { label: "项目展示", value: "ProjectShow" },
 ];
 
 export default function Settings() {
@@ -46,6 +48,7 @@ export default function Settings() {
     volcengineAccessKey: "",
     defaultVoiceId: "",
     defaultTemplate: "SlideShow",
+    outputDir: "",
   });
 
   useEffect(() => {
@@ -60,6 +63,7 @@ export default function Settings() {
             parsed.volcengineAccessKey || parsed.voiceApiKey || "",
           defaultVoiceId: parsed.defaultVoiceId || parsed.voiceId || "",
           defaultTemplate: parsed.defaultTemplate || "SlideShow",
+          outputDir: parsed.outputDir || "",
         });
         return;
       }
@@ -151,6 +155,19 @@ export default function Settings() {
                   </Select.Option>
                 ))}
               </Select>
+            </Form.Item>
+
+            <Form.Item label="视频保存路径">
+              <Input
+                value={settings.outputDir}
+                onChange={(value) =>
+                  setSettings({ ...settings, outputDir: value })
+                }
+                placeholder="留空则默认保存到桌面 outs 文件夹"
+              />
+              <Text type="secondary" style={{ fontSize: 12 }}>
+                生成的视频将保存到此目录。留空时默认输出到桌面的 outs 文件夹。
+              </Text>
             </Form.Item>
 
             <Form.Item>

@@ -476,7 +476,7 @@ export const KnowledgeSlide: React.FC<{
                     ) : null}
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, fontWeight: 900, color: colors.accent5, opacity: spring({ frame: frame - 32, fps: 30 }) }}>
-                    VS
+                    {(data as { vsText?: string })?.vsText ?? 'VS'}
                   </div>
                   <div
                     style={{
@@ -631,7 +631,9 @@ export const KnowledgeSlide: React.FC<{
               getProgress={resolveProgress}
             />
           ) : null}
-          {steps && steps.length > 0 ? (
+
+          {/* ===== steps (prop-driven, non-type-gated) ===== */}
+          {steps && steps.length > 0 && type !== 'steps' ? (
             <StepsFlow
               steps={steps}
               frame={frame}
@@ -639,7 +641,99 @@ export const KnowledgeSlide: React.FC<{
               getProgress={resolveProgress}
             />
           ) : null}
-          {timeline && timeline.length > 0 ? (
+
+          {/* ===== steps (type-gated, reads data.steps or steps prop) ===== */}
+          {type === 'steps' ? (
+            (() => {
+              const stepsData: StepItem[] = (
+                Array.isArray(data?.steps) ? data.steps as StepItem[] :
+                steps && steps.length > 0 ? steps :
+                (points ?? []).map((p) => ({ title: p }))
+              );
+              return stepsData.length > 0 ? (
+                <div style={{ display: 'grid', gap: 0 }}>
+                  {stepsData.map((step, i) => {
+                    const progress = resolveProgress(`step-${i}`, 15 + i * 10);
+                    const accent = chipPalette[i % chipPalette.length];
+                    const isLast = i === stepsData.length - 1;
+                    return (
+                      <div
+                        key={i}
+                        style={{
+                          display: 'grid',
+                          gridTemplateColumns: '72px 1fr',
+                          gap: 18,
+                          alignItems: 'stretch',
+                          opacity: progress,
+                          transform: `translateX(${interpolate(progress, [0, 1], [-36, 0])}px)`,
+                        }}
+                      >
+                        {/* Left: number + connector line */}
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                          <div
+                            style={{
+                              width: 56,
+                              height: 56,
+                              borderRadius: '50%',
+                              background: `linear-gradient(135deg, ${accent}, ${accent}bb)`,
+                              display: 'flex',
+                              justifyContent: 'center',
+                              alignItems: 'center',
+                              color: 'white',
+                              fontSize: 22,
+                              fontWeight: 900,
+                              flexShrink: 0,
+                              boxShadow: `0 8px 20px ${accent}40`,
+                            }}
+                          >
+                            {String(i + 1).padStart(2, '0')}
+                          </div>
+                          {!isLast ? (
+                            <div
+                              style={{
+                                width: 2,
+                                flex: 1,
+                                minHeight: 20,
+                                background: `linear-gradient(180deg, ${accent}88, ${chipPalette[(i + 1) % chipPalette.length]}44)`,
+                                margin: '4px 0',
+                              }}
+                            />
+                          ) : null}
+                        </div>
+                        {/* Right: content */}
+                        <div
+                          style={{
+                            padding: '10px 18px 18px 0',
+                            paddingBottom: isLast ? 0 : 18,
+                          }}
+                        >
+                          <div
+                            style={{
+                              fontSize: 28,
+                              fontWeight: 800,
+                              color: colors.text,
+                              lineHeight: 1.3,
+                              marginBottom: step.description ? 6 : 0,
+                            }}
+                          >
+                            {step.title}
+                          </div>
+                          {step.description ? (
+                            <div style={{ fontSize: 21, color: colors.muted, lineHeight: 1.5 }}>
+                              {step.description}
+                            </div>
+                          ) : null}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : null;
+            })()
+          ) : null}
+
+          {/* ===== timeline (prop-driven, non-type-gated) ===== */}
+          {timeline && timeline.length > 0 && type !== 'timeline' ? (
             <TimelineView
               items={timeline}
               frame={frame}
@@ -647,7 +741,92 @@ export const KnowledgeSlide: React.FC<{
               getProgress={resolveProgress}
             />
           ) : null}
-          {chart ? (
+
+          {/* ===== timeline (type-gated, reads data.timeline or timeline prop) ===== */}
+          {type === 'timeline' ? (
+            (() => {
+              const tlData: TimelineItem[] = (
+                Array.isArray(data?.timeline) ? data.timeline as TimelineItem[] :
+                timeline && timeline.length > 0 ? timeline :
+                []
+              );
+              return tlData.length > 0 ? (
+                <div style={{ display: 'grid', gap: 12 }}>
+                  {tlData.map((item, i) => {
+                    const progress = resolveProgress(`timeline-${i}`, 15 + i * 10);
+                    const accent = chipPalette[i % chipPalette.length];
+                    return (
+                      <div
+                        key={i}
+                        style={{
+                          display: 'grid',
+                          gridTemplateColumns: '110px 28px 1fr',
+                          gap: 12,
+                          alignItems: 'center',
+                          opacity: progress,
+                          transform: `translateX(${interpolate(progress, [0, 1], [i % 2 === 0 ? -28 : 28, 0])}px)`,
+                        }}
+                      >
+                        <div
+                          style={{
+                            fontSize: 20,
+                            fontWeight: 900,
+                            color: accent,
+                            textAlign: 'right',
+                            letterSpacing: '-0.01em',
+                          }}
+                        >
+                          {item.year}
+                        </div>
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0 }}>
+                          <div
+                            style={{
+                              width: 16,
+                              height: 16,
+                              borderRadius: '50%',
+                              background: accent,
+                              boxShadow: `0 0 12px ${accent}`,
+                              flexShrink: 0,
+                            }}
+                          />
+                          {i < tlData.length - 1 ? (
+                            <div
+                              style={{
+                                width: 2,
+                                height: 32,
+                                background: `linear-gradient(180deg, ${accent}66, transparent)`,
+                                marginTop: 2,
+                              }}
+                            />
+                          ) : null}
+                        </div>
+                        <div
+                          style={{
+                            padding: '12px 16px',
+                            borderRadius: 16,
+                            background: colors.panel,
+                            border: `1px solid ${accent}28`,
+                          }}
+                        >
+                          <div style={{ fontSize: 22, fontWeight: 800, color: colors.text, marginBottom: item.description ? 4 : 0 }}>
+                            {item.title}
+                          </div>
+                          {item.description ? (
+                            <div style={{ fontSize: 18, color: colors.muted, lineHeight: 1.5 }}>
+                              {item.description}
+                            </div>
+                          ) : null}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : null;
+            })()
+          ) : null}
+
+          {/* ===== chart (prop-driven, non-type-gated) ===== */}
+          {chart && type !== 'chart' ? (
             <ChartView
               chart={chart}
               frame={frame}
@@ -656,8 +835,211 @@ export const KnowledgeSlide: React.FC<{
             />
           ) : null}
 
+          {/* ===== chart (type-gated, reads data.chart or chart prop) ===== */}
+          {type === 'chart' ? (
+            (() => {
+              const chartData: ChartData | undefined =
+                data?.chart && typeof (data.chart as ChartData).type === 'string'
+                  ? data.chart as ChartData
+                  : chart;
+              return chartData ? (
+                <ChartView
+                  chart={chartData}
+                  frame={frame}
+                  delay={15}
+                  getProgress={resolveProgress}
+                />
+              ) : null;
+            })()
+          ) : null}
+
+          {/* ===== list ===== */}
+          {type === 'list' ? (
+            (() => {
+              type ListItem = { icon?: string; title: string; description?: string };
+              const listItems: ListItem[] = Array.isArray(data?.items)
+                ? (data.items as ListItem[])
+                : (points ?? []).map((p) => ({ title: p }));
+              return listItems.length > 0 ? (
+                <div style={{ display: 'grid', gap: 14 }}>
+                  {listItems.map((item, i) => {
+                    const progress = resolveProgress(`list-${i}`, 15 + i * 8);
+                    const accent = chipPalette[i % chipPalette.length];
+                    return (
+                      <div
+                        key={i}
+                        style={{
+                          display: 'grid',
+                          gridTemplateColumns: item.icon ? '60px 1fr' : '1fr',
+                          gap: 16,
+                          alignItems: 'flex-start',
+                          padding: '18px 20px',
+                          borderRadius: 20,
+                          background: colors.panel,
+                          border: `1px solid ${accent}28`,
+                          boxShadow: `0 4px 16px rgba(0,0,0,0.18)`,
+                          opacity: progress,
+                          transform: `translateY(${interpolate(progress, [0, 1], [24, 0])}px) scale(${interpolate(progress, [0, 1], [0.97, 1])})`,
+                        }}
+                      >
+                        {item.icon ? (
+                          <div
+                            style={{
+                              width: 52,
+                              height: 52,
+                              borderRadius: 14,
+                              background: `linear-gradient(135deg, ${accent}28, ${accent}14)`,
+                              border: `1px solid ${accent}44`,
+                              display: 'flex',
+                              justifyContent: 'center',
+                              alignItems: 'center',
+                              fontSize: 26,
+                              flexShrink: 0,
+                            }}
+                          >
+                            {item.icon}
+                          </div>
+                        ) : null}
+                        {!item.icon ? (
+                          <div style={{ display: 'flex', alignItems: 'flex-start', gap: 14 }}>
+                            <div
+                              style={{
+                                width: 10,
+                                height: 10,
+                                borderRadius: '50%',
+                                background: accent,
+                                boxShadow: `0 0 10px ${accent}`,
+                                marginTop: 11,
+                                flexShrink: 0,
+                              }}
+                            />
+                            <div>
+                              <div style={{ fontSize: 28, fontWeight: 800, color: colors.text, lineHeight: 1.35 }}>
+                                {item.title}
+                              </div>
+                              {item.description ? (
+                                <div style={{ marginTop: 4, fontSize: 21, color: colors.muted, lineHeight: 1.5 }}>
+                                  {item.description}
+                                </div>
+                              ) : null}
+                            </div>
+                          </div>
+                        ) : (
+                          <div>
+                            <div style={{ fontSize: 28, fontWeight: 800, color: colors.text, lineHeight: 1.35 }}>
+                              {item.title}
+                            </div>
+                            {item.description ? (
+                              <div style={{ marginTop: 4, fontSize: 21, color: colors.muted, lineHeight: 1.5 }}>
+                                {item.description}
+                              </div>
+                            ) : null}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : null;
+            })()
+          ) : null}
+
+          {/* ===== default ===== */}
+          {type === 'default' ? (
+            (() => {
+              const hasPoints = points && points.length > 0;
+              if (hasPoints) {
+                return (
+                  <div style={{ display: 'grid', gap: 14 }}>
+                    {(points ?? []).map((point, i) => {
+                      const progress = resolveProgress(`point-${i}`, timing.pointsStart + i * timing.pointStagger);
+                      const accent = chipPalette[i % chipPalette.length];
+                      return (
+                        <div
+                          key={i}
+                          style={{
+                            display: 'grid',
+                            gridTemplateColumns: '14px 1fr',
+                            gap: 14,
+                            alignItems: 'center',
+                            padding: '16px 18px',
+                            borderRadius: 18,
+                            background: colors.panel,
+                            border: `1px solid ${accent}22`,
+                            opacity: progress,
+                            transform: `translateX(${interpolate(progress, [0, 1], [-30, 0])}px)`,
+                          }}
+                        >
+                          <div
+                            style={{
+                              width: 12,
+                              height: 12,
+                              borderRadius: '50%',
+                              background: accent,
+                              boxShadow: `0 0 10px ${accent}`,
+                            }}
+                          />
+                          <div style={{ fontSize: 26, color: colors.text, fontWeight: 600, lineHeight: 1.42 }}>
+                            {point}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                );
+              }
+              // No points: centered title + subtitle
+              const extraTitle = typeof data?.title === 'string' ? data.title : undefined;
+              const cp = spring({ frame: frame - 18, fps: 30, config: { damping: 16 } });
+              return (
+                <div
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: 18,
+                    padding: '24px 12px',
+                    textAlign: 'center',
+                  }}
+                >
+                  {extraTitle ? (
+                    <div
+                      style={{
+                        fontSize: 44,
+                        fontWeight: 900,
+                        color: colors.text,
+                        lineHeight: 1.2,
+                        letterSpacing: '-0.03em',
+                        opacity: cp,
+                        transform: `translateY(${interpolate(cp, [0, 1], [20, 0])}px)`,
+                      }}
+                    >
+                      {extraTitle}
+                    </div>
+                  ) : null}
+                  {subtitle ? (
+                    <div
+                      style={{
+                        fontSize: 26,
+                        color: colors.muted,
+                        lineHeight: 1.5,
+                        maxWidth: 640,
+                        opacity: spring({ frame: frame - 28, fps: 30, config: { damping: 16 } }),
+                      }}
+                    >
+                      {subtitle}
+                    </div>
+                  ) : null}
+                </div>
+              );
+            })()
+          ) : null}
+
+          {/* ===== generic points fallback (no special type or data) ===== */}
           {points && points.length > 0 && !highlights && !steps && !timeline && !chart &&
-          type !== 'compare' && type !== 'quote' && type !== 'cta' ? (
+          type !== 'compare' && type !== 'quote' && type !== 'cta' &&
+          type !== 'list' && type !== 'steps' && type !== 'timeline' && type !== 'chart' && type !== 'default' ? (
             <div style={{ display: "grid", gap: 14 }}>
               {points.map((point, i) => {
                 const progress = resolveProgress(

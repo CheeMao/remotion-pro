@@ -1,0 +1,180 @@
+{
+  "meta": {
+    "title": "Generated Video",
+    "template": "GlassShow",
+    "voice_id": "S_PlTK120R1",
+    "full_narration": "Gemini 的口碑一直很能打，但它到底好在哪里？不亲自试一试确实很难真正体会。有没有什么办法能让我们一分钱不花直接体验到它的满血版模型？今天这期视频就跟大家扒一扒少有人知道的官方免费渠道 ——Google AI Studio，只要你有谷歌账号就能免费使用。\n首先看看它的界面布局，大家可能会觉得满屏英文有点懵，没关系可以使用浏览器自带的翻译功能或者翻译扩展，具体方法网上教程很多，这里就不展开了。把它切成 3 大块来看：最左边这一溜是导航栏，核心就在 Playground，除了这个还能看到 Build（给我们直接从零构建一整套应用）、Dashboard（看平时用了多少额度、API 调用情况），最底下 Get API key 是用来申请模型 API 的，新手小伙伴不着急掌握。\n"
+  },
+  "slides": [
+    {
+      "audioDuration": 3.912,
+      "audioEnd": 3.912,
+      "audioStart": 0,
+      "data": {
+        "badge": "免费体验切入口",
+        "cta": "往下看官方渠道"
+      },
+      "durationInFrames": 117,
+      "narration": "Gemini 的口碑一直很能打，但它到底好在哪里？",
+      "segmentIds": [
+        "segment-1"
+      ],
+      "subtitle": "口碑很能打，但得亲自体验才知道",
+      "title": "Gemini 到底强在哪？",
+      "type": "hero"
+    },
+    {
+      "audioDuration": 3.24,
+      "audioEnd": 7.152,
+      "audioStart": 3.912,
+      "data": {
+        "author": "",
+        "quote": "不亲自试一试，确实很难真正体会。"
+      },
+      "durationInFrames": 97,
+      "narration": "不亲自试一试确实很难真正体会。",
+      "segmentIds": [
+        "segment-2"
+      ],
+      "subtitle": "体验感往往比听说更直接",
+      "title": "不试，真的很难有感觉",
+      "type": "quote"
+    },
+    {
+      "audioDuration": 4.680000000000001,
+      "audioEnd": 11.832,
+      "audioStart": 7.152,
+      "data": {
+        "items": [
+          "一分钱不花",
+          "直接体验",
+          "满血版模型"
+        ]
+      },
+      "durationInFrames": 140,
+      "narration": "有没有什么办法能让我们一分钱不花直接体验到它的满血版模型？",
+      "segmentIds": [
+        "segment-3"
+      ],
+      "subtitle": "有没有办法一分钱不花就能直接上手？",
+      "title": "零成本体验满血版",
+      "type": "highlight"
+    },
+    {
+      "audioDuration": 8.759999999999998,
+      "audioEnd": 20.592,
+      "audioStart": 11.832,
+      "data": {
+        "badge": "Google AI Studio",
+        "cta": "继续看怎么用"
+      },
+      "durationInFrames": 263,
+      "narration": "今天这期视频就跟大家扒一扒少有人知道的官方免费渠道——Google AI Studio。",
+      "segmentIds": [
+        "segment-4"
+      ],
+      "subtitle": "这期就来扒一扒少有人知道的入口",
+      "title": "官方免费渠道来了",
+      "type": "hero"
+    },
+    {
+      "audioDuration": 11.616,
+      "audioEnd": 32.208,
+      "audioStart": 20.592,
+      "data": {
+        "points": [
+          "界面布局先认识一下",
+          "满屏英文不用慌",
+          "直接用浏览器自带翻译就行"
+        ]
+      },
+      "durationInFrames": 348,
+      "narration": "首先看看它的界面布局，大家可能会觉得满屏英文有点懵，没关系可以使用浏览器自带的翻译。",
+      "segmentIds": [
+        "segment-5"
+      ],
+      "subtitle": "浏览器翻译能帮你快速入门",
+      "title": "先看界面，别被英文吓到",
+      "type": "default"
+    },
+    {
+      "audioDuration": 2.112000000000002,
+      "audioEnd": 34.32,
+      "audioStart": 32.208,
+      "data": {
+        "items": [
+          {
+            "desc": "先从这里开始找功能入口",
+            "text": "最左边这一溜是导航栏"
+          }
+        ]
+      },
+      "durationInFrames": 63,
+      "narration": "把它切成 3 大块来看：最左边这一溜是导航栏。",
+      "segmentIds": [
+        "segment-6"
+      ],
+      "subtitle": "导航栏是入口集中区",
+      "title": "先看最左边",
+      "type": "list"
+    },
+    {
+      "audioDuration": 19.08,
+      "audioEnd": 53.4,
+      "audioStart": 34.32,
+      "data": {
+        "items": [
+          "Playground",
+          "核心入口"
+        ]
+      },
+      "durationInFrames": 572,
+      "narration": "核心就在 Playground。",
+      "segmentIds": [
+        "segment-7"
+      ],
+      "subtitle": "主要操作入口一眼先看它",
+      "title": "核心就在 Playground",
+      "type": "highlight"
+    },
+    {
+      "data": {
+        "left": "中间区域",
+        "right": "右侧区域",
+        "title": "把页面拆成三大块更好懂",
+        "vsText": "看功能分区"
+      },
+      "narration": "除...",
+      "segmentIds": [],
+      "subtitle": "三大块一起理解更清楚",
+      "title": "中间是操作区，右边看结果",
+      "type": "compare"
+    },
+    {
+      "data": {
+        "timeline": [
+          {
+            "description": "先找入口",
+            "title": "左侧导航栏",
+            "year": "1"
+          },
+          {
+            "description": "核心操作区",
+            "title": "中间 Playground",
+            "year": "2"
+          },
+          {
+            "description": "查看输出内容",
+            "title": "右侧结果区",
+            "year": "3"
+          }
+        ]
+      },
+      "narration": "除...",
+      "segmentIds": [],
+      "subtitle": "按结构理解，使用会更顺手",
+      "title": "继续看页面分区",
+      "type": "timeline"
+    }
+  ]
+}

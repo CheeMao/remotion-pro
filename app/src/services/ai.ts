@@ -1,5 +1,6 @@
 import { Slide } from '../stores/project';
 import { generateAIPrompt, normalizeAISlides } from '../../../src/templates/templateRegistry';
+import { parseJsonWithRepair } from '@remotion-root/utils/json-repair';
 
 // 动态导入 Tauri API，避免在非 Tauri 环境中报错
 async function invokeTauri<T>(cmd: string, args: Record<string, unknown>): Promise<T> {
@@ -27,7 +28,10 @@ export async function generateSlides(
       templateId,
     });
 
-    const data = JSON.parse(result);
+    const data = parseJsonWithRepair<{ slides?: Array<Record<string, unknown>> }>(
+      result,
+      'generate_slides'
+    ).data;
 
     if (data.slides && Array.isArray(data.slides)) {
       // 规范化slides（新格式 -> 旧格式）

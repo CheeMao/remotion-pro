@@ -1,5 +1,4 @@
 import { readFileSync, writeFileSync } from 'fs';
-import { join } from 'path';
 import { contentToVideoConfig, parseContentFile } from './parse-content';
 import { prepareSlidesForRender } from '../templates/autoLayout';
 import {
@@ -91,9 +90,6 @@ export async function generateFromContent(options: GenerateOptions): Promise<voi
   console.log('3. Creating video configuration...');
   content = parseContentFile(options.contentFile);
   const videoConfig = contentToVideoConfig(content);
-
-  const configPath = join(process.cwd(), 'video-config.json');
-  writeFileSync(configPath, JSON.stringify(videoConfig, null, 2));
 
   const totalFrames = videoConfig.slides.reduce(
     (sum, slide) => sum + (slide.durationInFrames || videoConfig.defaultDurationPerSlide),

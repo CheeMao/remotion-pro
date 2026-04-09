@@ -1,0 +1,211 @@
+{
+  "meta": {
+    "title": "Generated Video",
+    "template": "FrostedShow",
+    "voice_id": "cosyvoice-v3.5-plus-bailian-d9e80a08150f4986ae260fde904fe0ae",
+    "full_narration": "给大家介绍两个超级简单但非常好用的提示词。不管你用的是chatgpt，豆包，还是deepseek，几秒钟就能让你的AI输出的质量有很大的提升。现在大部分人用AI可能还是直接在打开对话框写一句文字，说帮我写一个什么样的文案，输出一个什么样的活动策划方案等等啊。但是问题在于AI对你还完全不了解，他不知道你是谁，你是干嘛的，想要什么样的结果。他只会给你那种放在什么行业都成立的这样的标准答案。那如果你想把AI变得非常好用，只需要删除第一步先让AI彻底的了解你打开你常用的AI工具，直接念出下面这一段话啊，记住啊用语音会比你打字方便。你就跟AI这样说，我想让你彻底的了解我我是做什么什么样的工作，我的岗位、我的职业，我的公司主营什么样的业务。接着说现在请你问我所有需要的问题，直到你对我完全的了解，知道我的业务目标客户群体以及我现在最真实的控点。发出去之后啊，接下来的半个小时你就需要认认真真的去回答A提出的每一个问题。大家千万不要觉得烦啊，这一步非常重要，而且你只需要做一次就行了。因为你讲的越清楚，哎，就会越懂，也就能给你越有价值的建议。",
+    "soundtrack_path": "projects/generated/1774866511627-FrostedShow/audio/narration.mp3",
+    "soundtrack_duration": 78.86367346938775,
+    "voiceId": "cosyvoice-v3.5-plus-bailian-d9e80a08150f4986ae260fde904fe0ae",
+    "fullNarration": "给大家介绍两个超级简单但非常好用的提示词。不管你用的是chatgpt，豆包，还是deepseek，几秒钟就能让你的AI输出的质量有很大的提升。现在大部分人用AI可能还是直接在打开对话框写一句文字，说帮我写一个什么样的文案，输出一个什么样的活动策划方案等等啊。但是问题在于AI对你还完全不了解，他不知道你是谁，你是干嘛的，想要什么样的结果。他只会给你那种放在什么行业都成立的这样的标准答案。那如果你想把AI变得非常好用，只需要删除第一步先让AI彻底的了解你打开你常用的AI工具，直接念出下面这一段话啊，记住啊用语音会比你打字方便。你就跟AI这样说，我想让你彻底的了解我我是做什么什么样的工作，我的岗位、我的职业，我的公司主营什么样的业务。接着说现在请你问我所有需要的问题，直到你对我完全的了解，知道我的业务目标客户群体以及我现在最真实的控点。发出去之后啊，接下来的半个小时你就需要认认真真的去回答A提出的每一个问题。大家千万不要觉得烦啊，这一步非常重要，而且你只需要做一次就行了。因为你讲的越清楚，哎，就会越懂，也就能给你越有价值的建议。",
+    "soundtrackPath": "projects/generated/1774866511627-FrostedShow/audio/narration.mp3",
+    "soundtrackDuration": 78.86367346938775
+  },
+  "slides": [
+    {
+      "audioDuration": 3.813877551020408,
+      "audioEnd": 3.813877551020408,
+      "audioStart": 0,
+      "durationInFrames": 114,
+      "narration": "给大家介绍两个超级简单但非常好用的提示词。",
+      "points": [
+        "介绍两个超级简单但非常好用的提示词"
+      ],
+      "segmentIds": [
+        "segment-1"
+      ],
+      "subtitle": "简单但好用的AI技巧",
+      "title": "两个超级提示词",
+      "audioPath": "projects/generated/1774866511627-FrostedShow/audio/slides/slide-001.mp3"
+    },
+    {
+      "audioDuration": 7.523265306122449,
+      "audioEnd": 11.337142857142856,
+      "audioStart": 3.813877551020408,
+      "durationInFrames": 226,
+      "narration": "不管你用的是ChatGPT、豆包，还是DeepSeek，几秒钟就能让你的AI输出的质量有很大的提升。",
+      "points": [
+        "几秒钟让AI输出质量大幅提升",
+        "适用于主流AI工具"
+      ],
+      "segmentIds": [
+        "segment-2"
+      ],
+      "subtitle": "ChatGPT/豆包/DeepSeek",
+      "title": "全平台通用",
+      "audioPath": "projects/generated/1774866511627-FrostedShow/audio/slides/slide-002.mp3"
+    },
+    {
+      "audioDuration": 10.004897959183673,
+      "audioEnd": 21.34204081632653,
+      "audioStart": 11.337142857142856,
+      "durationInFrames": 300,
+      "narration": "现在大部分人用AI可能还是直接在打开对话框写一句文字，说帮我写一个什么样的文案，输出一个什么样的活动策划方案等等啊。",
+      "points": [
+        "打开对话框直接写需求",
+        "帮我写文案/出策划方案",
+        "这是大多数人的使用方式"
+      ],
+      "segmentIds": [
+        "segment-3"
+      ],
+      "subtitle": "直接丢需求给AI",
+      "title": "常见错误用法",
+      "audioPath": "projects/generated/1774866511627-FrostedShow/audio/slides/slide-003.mp3"
+    },
+    {
+      "audioDuration": 7.026938775510204,
+      "audioEnd": 28.368979591836734,
+      "audioStart": 21.34204081632653,
+      "durationInFrames": 211,
+      "narration": "但是问题在于AI对你还完全不了解，他不知道你是谁，你是干嘛的，想要什么样的结果。",
+      "points": [
+        "AI完全不了解你",
+        "不知道你是谁、做什么",
+        "不清楚你想要什么结果"
+      ],
+      "segmentIds": [
+        "segment-4"
+      ],
+      "subtitle": "AI对你一无所知",
+      "title": "核心问题",
+      "audioPath": "projects/generated/1774866511627-FrostedShow/audio/slides/slide-004.mp3"
+    },
+    {
+      "audioDuration": 4.101224489795919,
+      "audioEnd": 32.47020408163265,
+      "audioStart": 28.368979591836734,
+      "durationInFrames": 123,
+      "narration": "他只会给你那种放在什么行业都成立的这样的标准答案。",
+      "points": [
+        "AI只会给通用答案",
+        "放在任何行业都成立",
+        "缺乏针对性和价值"
+      ],
+      "segmentIds": [
+        "segment-5"
+      ],
+      "subtitle": "放之四海而皆空",
+      "title": "结果：标准答案",
+      "audioPath": "projects/generated/1774866511627-FrostedShow/audio/slides/slide-005.mp3"
+    },
+    {
+      "audioDuration": 13.191836734693878,
+      "audioEnd": 45.66204081632653,
+      "audioStart": 32.47020408163265,
+      "durationInFrames": 396,
+      "narration": "那如果你想把AI变得非常好用，只需要做第一步：先让AI彻底的了解你。打开你常用的AI工具，直接念出下面这一段话啊，记住啊，用语音会比你打字方便。",
+      "points": [
+        "想让AI好用，先做这一步",
+        "删除旧习惯，建立新流程",
+        "语音输入比打字更方便"
+      ],
+      "segmentIds": [
+        "segment-6"
+      ],
+      "subtitle": "关键转折点",
+      "title": "第一步：让AI了解你",
+      "audioPath": "projects/generated/1774866511627-FrostedShow/audio/slides/slide-006.mp3"
+    },
+    {
+      "audioDuration": 8.25469387755102,
+      "audioEnd": 53.91673469387755,
+      "audioStart": 45.66204081632653,
+      "durationInFrames": 248,
+      "narration": "你就跟AI这样说：我想让你彻底的了解我，我是做什么什么样的工作，我的岗位、我的职业，我的公司主营什么样的业务。",
+      "points": [
+        "我想让你彻底的了解我",
+        "说明你的工作、岗位、职业",
+        "介绍公司主营业务"
+      ],
+      "segmentIds": [
+        "segment-7"
+      ],
+      "subtitle": "告诉AI你是谁",
+      "title": "提示词第一部分",
+      "audioPath": "projects/generated/1774866511627-FrostedShow/audio/slides/slide-007.mp3"
+    },
+    {
+      "audioDuration": 8.986122448979591,
+      "audioEnd": 62.902857142857144,
+      "audioStart": 53.91673469387755,
+      "durationInFrames": 270,
+      "narration": "接着说：现在请你问我所有需要的问题，直到你对我完全的了解，知道我的业务、目标客户群体以及我现在最真实的痛点。",
+      "points": [
+        "请AI问你所有需要的问题",
+        "直到完全了解你",
+        "包括业务、客户、真实痛点"
+      ],
+      "segmentIds": [
+        "segment-8"
+      ],
+      "subtitle": "让AI主动追问",
+      "title": "提示词第二部分",
+      "audioPath": "projects/generated/1774866511627-FrostedShow/audio/slides/slide-008.mp3"
+    },
+    {
+      "audioDuration": 5.642448979591837,
+      "audioEnd": 68.54530612244898,
+      "audioStart": 62.902857142857144,
+      "durationInFrames": 169,
+      "narration": "发出去之后啊，接下来的半个小时你就需要认认真真的去回答AI提出的每一个问题。",
+      "points": [
+        "发出去后进入问答环节",
+        "接下来半小时认真回答",
+        "每个问题都要用心回应"
+      ],
+      "segmentIds": [
+        "segment-9"
+      ],
+      "subtitle": "认真回答30分钟",
+      "title": "执行关键",
+      "audioPath": "projects/generated/1774866511627-FrostedShow/audio/slides/slide-009.mp3"
+    },
+    {
+      "audioDuration": 5.485714285714286,
+      "audioEnd": 74.03102040816326,
+      "audioStart": 68.54530612244898,
+      "durationInFrames": 165,
+      "narration": "大家千万不要觉得烦啊，这一步非常重要，而且你只需要做一次就行了。",
+      "points": [
+        "千万不要觉得烦",
+        "这一步非常重要",
+        "只需要做一次就够了"
+      ],
+      "segmentIds": [
+        "segment-10"
+      ],
+      "subtitle": "一次投入，长期受益",
+      "title": "别嫌烦",
+      "audioPath": "projects/generated/1774866511627-FrostedShow/audio/slides/slide-010.mp3"
+    },
+    {
+      "audioDuration": 4.83265306122449,
+      "audioEnd": 78.86367346938775,
+      "audioStart": 74.03102040816326,
+      "durationInFrames": 145,
+      "narration": "因为你讲得越清楚，AI就会越懂，也就能给你越有价值的建议。",
+      "points": [
+        "你讲得越清楚",
+        "AI就越懂你",
+        "建议越有价值"
+      ],
+      "segmentIds": [
+        "segment-11"
+      ],
+      "subtitle": "价值回报公式",
+      "title": "越清楚，越懂你",
+      "audioPath": "projects/generated/1774866511627-FrostedShow/audio/slides/slide-011.mp3"
+    }
+  ]
+}

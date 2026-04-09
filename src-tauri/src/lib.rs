@@ -21,6 +21,7 @@ use rsa::pkcs8::DecodePrivateKey;
 use rsa::{Oaep, RsaPrivateKey};
 use sha1::Sha1;
 use sha2::{Digest, Sha256};
+use tauri::Manager;
 
 #[cfg(target_os = "windows")]
 use std::os::windows::process::CommandExt;
@@ -296,6 +297,14 @@ struct QiniuConfig {
     upload_url: String,
 }
 
+/// Create a Command that never shows a console window on Windows.
+fn silent_command(program: impl AsRef<std::ffi::OsStr>) -> Command {
+    let mut cmd = Command::new(program);
+    #[cfg(target_os = "windows")]
+    cmd.creation_flags(0x08000000); // CREATE_NO_WINDOW
+    cmd
+}
+
 fn append_debug_log(message: &str) {
     let log_dir = std::env::temp_dir().join("ai-remotion-debug");
     let log_file = log_dir.join("ai-generate-slides.log");
@@ -443,7 +452,7 @@ fn current_device_name() -> String {
 fn read_windows_machine_guid() -> Option<String> {
     #[cfg(target_os = "windows")]
     {
-        let output = Command::new("reg")
+        let output = silent_command("reg")
             .args(["query", r"HKLM\SOFTWARE\Microsoft\Cryptography", "/v", "MachineGuid"])
             .output()
             .ok()?;
@@ -472,7 +481,7 @@ fn read_windows_machine_guid() -> Option<String> {
 fn read_mac_decimal() -> Option<String> {
     #[cfg(target_os = "windows")]
     {
-        let output = Command::new("getmac")
+        let output = silent_command("getmac")
             .args(["/fo", "csv", "/nh"])
             .output()
             .ok()?;
@@ -1054,12 +1063,16 @@ fn find_first_douyin_item(value: &Value) -> Option<Value> {
 }
 
 fn load_qiniu_config() -> Result<Option<QiniuConfig>, String> {
-    let access_key = std::env::var("QINIU_ACCESS_KEY").unwrap_or_default();
-    let secret_key = std::env::var("QINIU_SECRET_KEY").unwrap_or_default();
-    let bucket = std::env::var("QINIU_BUCKET").unwrap_or_default();
-    let domain = std::env::var("QINIU_DOMAIN").unwrap_or_default();
+    let access_key = std::env::var("QINIU_ACCESS_KEY")
+        .unwrap_or_else(|_| option_env!("COMPILED_QINIU_ACCESS_KEY").unwrap_or_default().to_string());
+    let secret_key = std::env::var("QINIU_SECRET_KEY")
+        .unwrap_or_else(|_| option_env!("COMPILED_QINIU_SECRET_KEY").unwrap_or_default().to_string());
+    let bucket = std::env::var("QINIU_BUCKET")
+        .unwrap_or_else(|_| option_env!("COMPILED_QINIU_BUCKET").unwrap_or_default().to_string());
+    let domain = std::env::var("QINIU_DOMAIN")
+        .unwrap_or_else(|_| option_env!("COMPILED_QINIU_DOMAIN").unwrap_or_default().to_string());
     let upload_url = std::env::var("QINIU_UPLOAD_URL")
-        .unwrap_or_else(|_| "https://up.qiniup.com".to_string());
+        .unwrap_or_else(|_| option_env!("COMPILED_QINIU_UPLOAD_URL").unwrap_or_else(|| "https://up.qiniup.com").to_string());
 
     if [access_key.as_str(), secret_key.as_str(), bucket.as_str(), domain.as_str()]
         .iter()
@@ -1153,7 +1166,7 @@ async fn download_file(url: &str, target_path: &Path) -> Result<(), String> {
 
 fn extract_audio_with_ffmpeg(video_path: &Path, audio_path: &Path) -> Result<(), String> {
     let ffmpeg_path = std::env::var("FFMPEG_PATH").unwrap_or_else(|_| "F:\\ffmpeg\\bin\\ffmpeg.exe".to_string());
-    let output = Command::new(ffmpeg_path)
+    let output = silent_command(ffmpeg_path)
         .args([
             "-y",
             "-i",
@@ -1184,7 +1197,7 @@ fn extract_audio_with_ffmpeg(video_path: &Path, audio_path: &Path) -> Result<(),
 
 fn validate_audio_with_ffprobe(audio_path: &Path) -> Result<(), String> {
     let ffprobe_path = std::env::var("FFPROBE_PATH").unwrap_or_else(|_| "F:\\ffmpeg\\bin\\ffprobe.exe".to_string());
-    let output = Command::new(ffprobe_path)
+    let output = silent_command(ffprobe_path)
         .args([
             "-v",
             "error",
@@ -1469,6 +1482,30 @@ async fn parse_douyin_url(
     })
 }
 
+/// 本地下载视频 → 提取音频 → 返回 base64 字符串
+/// 用于没有外部存储时直接将音频数据内嵌到 ASR 请求中
+async fn extract_audio_as_base64(video_url: &str) -> Result<String, String> {
+    let temp_dir = create_douyin_temp_dir()?;
+    let timestamp = chrono::Utc::now().timestamp_millis();
+    let video_path = temp_dir.join(format!("asr-{}.mp4", timestamp));
+    let audio_path = temp_dir.join(format!("asr-{}.mp3", timestamp));
+
+    let result = async {
+        download_file(video_url, &video_path).await?;
+        extract_audio_with_ffmpeg(&video_path, &audio_path)?;
+        validate_audio_with_ffprobe(&audio_path)?;
+        let bytes = fs::read(&audio_path)
+            .map_err(|e| format!("读取音频文件失败: {}", e))?;
+        Ok(base64::engine::general_purpose::STANDARD.encode(&bytes))
+    }
+    .await;
+
+    let _ = fs::remove_file(&video_path);
+    let _ = fs::remove_file(&audio_path);
+
+    result
+}
+
 /// 使用火山引擎豆包语音识别服务转写抖音视频
 #[tauri::command]
 async fn transcribe_douyin_video(
@@ -1482,9 +1519,20 @@ async fn transcribe_douyin_video(
         return Err("请先配置火山引擎 Access Key（在设置页面）".to_string());
     }
 
-    let transcription_source_url = prepare_douyin_transcription_url(&video_url)
-        .await?
-        .unwrap_or(video_url.clone());
+    // 火山引擎 ASR 异步接口只支持公开 URL，需要先将音频上传到可公开访问的存储。
+    // 优先使用七牛云；若未配置则返回明确错误提示。
+    let public_url = match prepare_douyin_transcription_url(&video_url).await? {
+        Some(url) => url,
+        None => {
+            return Err(
+                "转写抖音视频需要配置七牛云存储（火山引擎 ASR 服务无法访问抖音 CDN 链接）。\n\
+                 请在设置页面填写七牛云 Access Key / Secret Key / Bucket / 域名后重试。"
+                    .to_string(),
+            );
+        }
+    };
+
+    let audio_field = serde_json::json!({ "format": "mp3", "url": public_url });
 
     let task_id = uuid::Uuid::new_v4().to_string();
     let client = reqwest::Client::new();
@@ -1492,7 +1540,7 @@ async fn transcribe_douyin_video(
     // Step 1: 提交转写任务
     let mut submit_headers = reqwest::header::HeaderMap::new();
     submit_headers.insert("Content-Type", "application/json".parse().unwrap());
-    
+
     // 判断使用新版还是旧版认证方式
     if let Some(ref app_id_value) = app_id {
         if !app_id_value.is_empty() {
@@ -1507,7 +1555,7 @@ async fn transcribe_douyin_video(
         // 新版控制台：只使用 API Key
         submit_headers.insert("X-Api-Key", access_key.parse().unwrap());
     }
-    
+
     submit_headers.insert("X-Api-Resource-Id", "volc.seedasr.auc".parse().unwrap());
     submit_headers.insert("X-Api-Request-Id", task_id.parse().unwrap());
     submit_headers.insert("X-Api-Sequence", "-1".parse().unwrap());
@@ -1516,10 +1564,7 @@ async fn transcribe_douyin_video(
         "user": {
             "uid": "ai-remotion-user"
         },
-        "audio": {
-            "format": "mp3",
-            "url": transcription_source_url
-        },
+        "audio": audio_field,
         "request": {
             "model_name": "bigmodel",
             "enable_itn": true,
@@ -1652,6 +1697,14 @@ Ok(TranscriptionResult {
 }
 
 const REMOTION_PORT: u16 = 32123;
+const PACKAGED_WORKSPACE_DIR: &str = "workspace";
+
+#[derive(Debug, Clone)]
+struct PackagedRuntime {
+    runtime_root: PathBuf,
+    sidecar_binary: PathBuf,
+    workspace_root: PathBuf,
+}
 
 fn normalize_repo_relative_path(path: &str) -> String {
     path.replace('\\', "/").trim_start_matches('/').to_string()
@@ -1695,6 +1748,174 @@ fn derive_project_paths(
         audio_repo_relative,
         audio_static_path,
     ))
+}
+
+fn ensure_directory(path: &Path) -> Result<(), String> {
+    if !path.exists() {
+        fs::create_dir_all(path)
+            .map_err(|e| format!("Failed to create directory {}: {}", path.display(), e))?;
+    }
+
+    Ok(())
+}
+
+fn packaged_sidecar_filename() -> &'static str {
+    #[cfg(target_os = "windows")]
+    {
+        "cli.exe"
+    }
+
+    #[cfg(target_os = "macos")]
+    {
+        "cli"
+    }
+
+    #[cfg(all(not(target_os = "windows"), not(target_os = "macos")))]
+    {
+        "cli"
+    }
+}
+
+fn detect_packaged_runtime(app: &tauri::AppHandle) -> Option<PackagedRuntime> {
+    // `tauri dev` can still have a copied sidecar in `target/debug`, and this
+    // repo may already contain `src-tauri/resources/runtime` after packaging.
+    // Without this guard, development builds get misclassified as packaged and
+    // preview/save/render stop using the repo workspace.
+    if cfg!(debug_assertions) {
+        return None;
+    }
+
+    // Derive runtime_root from the exe directory — this is always reliable.
+    // NSIS places resources at {exe_dir}/resources/runtime/
+    // (Tauri resource_dir() may return exe_dir itself or exe_dir/resources,
+    //  so we try both and use whichever actually exists.)
+    let exe_dir = std::env::current_exe()
+        .ok()?
+        .parent()
+        .map(Path::to_path_buf)?;
+
+    let sidecar_binary = exe_dir.join(packaged_sidecar_filename());
+
+    let cli_check = |root: &PathBuf| {
+        root.join("app").join("src").join("cli").join("index.js").exists()
+            && root.join("remotion-bundle").exists()
+    };
+
+    let runtime_root = [
+        exe_dir.join("resources").join("runtime"), // NSIS default
+        exe_dir.join("runtime"),                   // fallback / other layouts
+        app.path().resource_dir().ok()?.join("runtime"),
+    ]
+    .into_iter()
+    .find(cli_check)?;
+
+    if !sidecar_binary.exists() {
+        return None;
+    }
+
+    let workspace_root = app
+        .path()
+        .app_data_dir()
+        .ok()?
+        .join(PACKAGED_WORKSPACE_DIR);
+
+    Some(PackagedRuntime {
+        runtime_root,
+        sidecar_binary,
+        workspace_root,
+    })
+}
+
+fn get_storage_root(app: &tauri::AppHandle) -> Result<PathBuf, String> {
+    if let Some(runtime) = detect_packaged_runtime(app) {
+        ensure_directory(&runtime.workspace_root)?;
+        ensure_directory(&runtime.workspace_root.join("public"))?;
+        ensure_directory(&runtime.workspace_root.join("public").join("projects"))?;
+        ensure_directory(&runtime.workspace_root.join("out"))?;
+        return Ok(runtime.workspace_root);
+    }
+
+    get_project_dir()
+}
+
+fn run_cli_command(
+    app: &tauri::AppHandle,
+    working_dir: &Path,
+    args: &[String],
+    extra_envs: &[(String, String)],
+) -> Result<std::process::Output, String> {
+    if let Some(runtime) = detect_packaged_runtime(app) {
+        let cli_script = runtime
+            .runtime_root
+            .join("app")
+            .join("src")
+            .join("cli")
+            .join("index.js");
+
+        let mut command = Command::new(&runtime.sidecar_binary);
+        command.arg(&cli_script);
+        command.current_dir(&runtime.runtime_root);
+        command.env(
+            "REMOTION_BUNDLE_DIR",
+            runtime.runtime_root.join("remotion-bundle"),
+        );
+        command.env("REMOTION_FORCE_FILE_URLS", "1");
+        command.env("NODE_ENV", "production");
+
+        let ffmpeg_binary = runtime.runtime_root.join("ffmpeg").join(if cfg!(target_os = "windows") {
+            "ffmpeg.exe"
+        } else {
+            "ffmpeg"
+        });
+        if ffmpeg_binary.exists() {
+            command.env("FFMPEG_PATH", ffmpeg_binary);
+        }
+
+        for (key, value) in extra_envs {
+            command.env(key, value);
+        }
+
+        for arg in args {
+            command.arg(arg);
+        }
+
+        #[cfg(target_os = "windows")]
+        {
+            command.creation_flags(0x08000000);
+        }
+
+        return command
+            .output()
+            .map_err(|e| format!("Failed to run packaged runtime command: {}", e));
+    }
+
+    #[cfg(target_os = "windows")]
+    let mut command = {
+        let mut command = Command::new("cmd");
+        command.args(["/C", "npx", "tsx", "src/cli/index.ts"]);
+        command.creation_flags(0x08000000); // CREATE_NO_WINDOW
+        command
+    };
+
+    #[cfg(not(target_os = "windows"))]
+    let mut command = {
+        let mut command = Command::new("npx");
+        command.args(["tsx", "src/cli/index.ts"]);
+        command
+    };
+
+    for (key, value) in extra_envs {
+        command.env(key, value);
+    }
+
+    for arg in args {
+        command.arg(arg);
+    }
+
+    command
+        .current_dir(working_dir)
+        .output()
+        .map_err(|e| format!("Failed to run development runtime command: {}", e))
 }
 
 fn looks_like_repo_root(path: &Path) -> bool {
@@ -1913,6 +2134,7 @@ async fn generate_slides(
 
 #[tauri::command(rename_all = "camelCase")]
 async fn save_slides(
+    app: tauri::AppHandle,
     template: String,
     voice_id: String,
     raw_text: String,
@@ -1923,7 +2145,7 @@ async fn save_slides(
     state: tauri::State<'_, AuthState>,
 ) -> Result<String, String> {
     let _session = require_valid_license(&state).await?;
-    let project_dir = get_project_dir()?;
+    let project_dir = get_storage_root(&app)?;
     let content_file = resolve_project_path(&project_dir, &content_path);
     let content_dir = content_file
         .parent()
@@ -2004,8 +2226,17 @@ async fn check_remotion_running(state: tauri::State<'_, AuthState>) -> Result<bo
 }
 
 #[tauri::command(rename_all = "camelCase")]
-async fn start_remotion(state: tauri::State<'_, AuthState>) -> Result<String, String> {
+async fn start_remotion(
+    app: tauri::AppHandle,
+    state: tauri::State<'_, AuthState>,
+) -> Result<String, String> {
     let _session = require_valid_license(&state).await?;
+    if detect_packaged_runtime(&app).is_some() {
+        return Err(
+            "Packaged build does not ship Remotion Studio. Use the built-in preview instead."
+                .to_string(),
+        );
+    }
     if let Some(port) = find_remotion_port().await? {
         return Ok(format!("Remotion is already running on port {}.", port));
     }
@@ -2024,9 +2255,16 @@ async fn start_remotion(state: tauri::State<'_, AuthState>) -> Result<String, St
 
 #[tauri::command(rename_all = "camelCase")]
 async fn ensure_remotion_running(
+    app: tauri::AppHandle,
     state: tauri::State<'_, AuthState>,
 ) -> Result<RemotionStartupResult, String> {
     let _session = require_valid_license(&state).await?;
+    if detect_packaged_runtime(&app).is_some() {
+        return Err(
+            "Packaged build does not ship Remotion Studio. Use the built-in preview instead."
+                .to_string(),
+        );
+    }
     if let Some(port) = find_remotion_port().await? {
         return Ok(RemotionStartupResult {
             port,
@@ -2053,6 +2291,7 @@ async fn ensure_remotion_running(
 
 #[tauri::command(rename_all = "camelCase")]
 async fn generate_audio(
+    app: tauri::AppHandle,
     voice_id: String,
     access_key: String,
     app_id: String,
@@ -2062,7 +2301,7 @@ async fn generate_audio(
     state: tauri::State<'_, AuthState>,
 ) -> Result<String, String> {
     let _session = require_valid_license(&state).await?;
-    let project_dir = get_project_dir()?;
+    let project_dir = get_storage_root(&app)?;
     let (content_file, _, audio_file, _, _) =
         derive_project_paths(&project_dir, &content_path)?;
 
@@ -2077,74 +2316,45 @@ async fn generate_audio(
         }
     }
 
-    let content_repo_relative = repo_relative_path(&project_dir, &content_file)?;
-    let audio_dir_repo_relative = audio_file
-        .parent()
-        .map(|path| repo_relative_path(&project_dir, path))
-        .transpose()?
-        .unwrap_or_else(|| "public/audio".to_string());
-
-    #[cfg(target_os = "windows")]
-    let output = {
-        let mut command = Command::new("cmd");
-        command.args([
-            "/C",
-            "npx",
-            "tsx",
-            "src/cli/index.ts",
-            "audio",
-            &content_repo_relative,
-            "-v",
-            &voice_id,
-            "-o",
-            &audio_dir_repo_relative,
-            "-k",
-            &access_key,
-            "--app-id",
-            &app_id,
-            "--resource-id",
-            &resource_id,
-        ]);
-
-        if let Some(rate) = speech_rate {
-            command.arg("--speech-rate").arg(rate.to_string());
-        }
-
-        command
-            .current_dir(&project_dir)
-            .output()
-            .map_err(|e| format!("Failed to generate audio: {}", e))?
+    let content_arg = if detect_packaged_runtime(&app).is_some() {
+        content_file.to_string_lossy().to_string()
+    } else {
+        repo_relative_path(&project_dir, &content_file)?
+    };
+    let audio_dir_arg = if detect_packaged_runtime(&app).is_some() {
+        audio_file
+            .parent()
+            .map(|path| path.to_string_lossy().to_string())
+            .unwrap_or_else(|| project_dir.join("public").join("audio").to_string_lossy().to_string())
+    } else {
+        audio_file
+            .parent()
+            .map(|path| repo_relative_path(&project_dir, path))
+            .transpose()?
+            .unwrap_or_else(|| "public/audio".to_string())
     };
 
-    #[cfg(not(target_os = "windows"))]
-    let output = {
-        let mut command = Command::new("npx");
-        command.args([
-            "tsx",
-            "src/cli/index.ts",
-            "audio",
-            &content_repo_relative,
-            "-v",
-            &voice_id,
-            "-o",
-            &audio_dir_repo_relative,
-            "-k",
-            &access_key,
-            "--app-id",
-            &app_id,
-            "--resource-id",
-            &resource_id,
-        ]);
+    let mut args = vec![
+        "audio".to_string(),
+        content_arg,
+        "-v".to_string(),
+        voice_id.clone(),
+        "-o".to_string(),
+        audio_dir_arg,
+        "-k".to_string(),
+        access_key.clone(),
+        "--app-id".to_string(),
+        app_id.clone(),
+        "--resource-id".to_string(),
+        resource_id.clone(),
+    ];
 
-        if let Some(rate) = speech_rate {
-            command.arg("--speech-rate").arg(rate.to_string());
-        }
+    if let Some(rate) = speech_rate {
+        args.push("--speech-rate".to_string());
+        args.push(rate.to_string());
+    }
 
-        command
-            .current_dir(&project_dir)
-            .output()
-            .map_err(|e| format!("Failed to generate audio: {}", e))?
-    };
+    let output = run_cli_command(&app, &project_dir, &args, &[])?;
 
     let stdout = String::from_utf8_lossy(&output.stdout).to_string();
     let stderr = String::from_utf8_lossy(&output.stderr).to_string();
@@ -2158,6 +2368,7 @@ async fn generate_audio(
 
 #[tauri::command(rename_all = "camelCase")]
 async fn generate_narration(
+    app: tauri::AppHandle,
     raw_text: String,
     voice_id: String,
     access_key: String,
@@ -2172,7 +2383,7 @@ async fn generate_narration(
         return Err("Narration text is empty.".to_string());
     }
 
-    let project_dir = get_project_dir()?;
+    let project_dir = get_storage_root(&app)?;
     let (content_file, text_file, audio_file, audio_repo_relative, _) =
         derive_project_paths(&project_dir, &content_path)?;
     let content_dir = content_file
@@ -2195,69 +2406,38 @@ async fn generate_narration(
     fs::write(&text_file, raw_text)
         .map_err(|e| format!("Failed to write narration text: {}", e))?;
 
-    let text_repo_relative = repo_relative_path(&project_dir, &text_file)?;
-
-    #[cfg(target_os = "windows")]
-    let output = {
-        let mut command = Command::new("cmd");
-        command.args([
-            "/C",
-            "npx",
-            "tsx",
-            "src/cli/index.ts",
-            "narrate",
-            &text_repo_relative,
-            "-v",
-            &voice_id,
-            "-o",
-            &audio_repo_relative,
-            "-k",
-            &access_key,
-            "--app-id",
-            &app_id,
-            "--resource-id",
-            &resource_id,
-        ]);
-
-        if let Some(rate) = speech_rate {
-            command.arg("--speech-rate").arg(rate.to_string());
-        }
-
-        command
-            .current_dir(&project_dir)
-            .output()
-            .map_err(|e| format!("Failed to generate narration: {}", e))?
+    let text_arg = if detect_packaged_runtime(&app).is_some() {
+        text_file.to_string_lossy().to_string()
+    } else {
+        repo_relative_path(&project_dir, &text_file)?
+    };
+    let audio_arg = if detect_packaged_runtime(&app).is_some() {
+        audio_file.to_string_lossy().to_string()
+    } else {
+        audio_repo_relative
     };
 
-    #[cfg(not(target_os = "windows"))]
-    let output = {
-        let mut command = Command::new("npx");
-        command.args([
-            "tsx",
-            "src/cli/index.ts",
-            "narrate",
-            &text_repo_relative,
-            "-v",
-            &voice_id,
-            "-o",
-            &audio_repo_relative,
-            "-k",
-            &access_key,
-            "--app-id",
-            &app_id,
-            "--resource-id",
-            &resource_id,
-        ]);
+    let mut args = vec![
+        "narrate".to_string(),
+        text_arg,
+        "-v".to_string(),
+        voice_id.clone(),
+        "-o".to_string(),
+        audio_arg,
+        "-k".to_string(),
+        access_key.clone(),
+        "--app-id".to_string(),
+        app_id.clone(),
+        "--resource-id".to_string(),
+        resource_id.clone(),
+    ];
 
-        if let Some(rate) = speech_rate {
-            command.arg("--speech-rate").arg(rate.to_string());
-        }
+    if let Some(rate) = speech_rate {
+        args.push("--speech-rate".to_string());
+        args.push(rate.to_string());
+    }
 
-        command
-            .current_dir(&project_dir)
-            .output()
-            .map_err(|e| format!("Failed to generate narration: {}", e))?
-    };
+    let output = run_cli_command(&app, &project_dir, &args, &[])?;
 
     let stdout = String::from_utf8_lossy(&output.stdout).to_string();
     let stderr = String::from_utf8_lossy(&output.stderr).to_string();
@@ -2275,6 +2455,7 @@ async fn generate_narration(
 
 #[tauri::command(rename_all = "camelCase")]
 async fn generate_storyboard_timeline(
+    app: tauri::AppHandle,
     raw_text: String,
     voice_id: String,
     access_key: String,
@@ -2289,7 +2470,7 @@ async fn generate_storyboard_timeline(
         return Err("Narration text is empty.".to_string());
     }
 
-    let project_dir = get_project_dir()?;
+    let project_dir = get_storage_root(&app)?;
     let (content_file, text_file, _audio_file, _audio_repo_relative, _) =
         derive_project_paths(&project_dir, &content_path)?;
     let content_dir = content_file
@@ -2311,70 +2492,38 @@ async fn generate_storyboard_timeline(
     fs::write(&text_file, raw_text)
         .map_err(|e| format!("Failed to write narration text: {}", e))?;
 
-    let text_repo_relative = repo_relative_path(&project_dir, &text_file)?;
-    let audio_dir_repo_relative = repo_relative_path(&project_dir, &audio_dir)?;
-
-    #[cfg(target_os = "windows")]
-    let output = {
-        let mut command = Command::new("cmd");
-        command.args([
-            "/C",
-            "npx",
-            "tsx",
-            "src/cli/index.ts",
-            "narrate-timeline",
-            &text_repo_relative,
-            "-v",
-            &voice_id,
-            "-o",
-            &audio_dir_repo_relative,
-            "-k",
-            &access_key,
-            "--app-id",
-            &app_id,
-            "--resource-id",
-            &resource_id,
-        ]);
-
-        if let Some(rate) = speech_rate {
-            command.arg("--speech-rate").arg(rate.to_string());
-        }
-
-        command
-            .current_dir(&project_dir)
-            .output()
-            .map_err(|e| format!("Failed to generate narration timeline: {}", e))?
+    let text_arg = if detect_packaged_runtime(&app).is_some() {
+        text_file.to_string_lossy().to_string()
+    } else {
+        repo_relative_path(&project_dir, &text_file)?
+    };
+    let audio_dir_arg = if detect_packaged_runtime(&app).is_some() {
+        audio_dir.to_string_lossy().to_string()
+    } else {
+        repo_relative_path(&project_dir, &audio_dir)?
     };
 
-    #[cfg(not(target_os = "windows"))]
-    let output = {
-        let mut command = Command::new("npx");
-        command.args([
-            "tsx",
-            "src/cli/index.ts",
-            "narrate-timeline",
-            &text_repo_relative,
-            "-v",
-            &voice_id,
-            "-o",
-            &audio_dir_repo_relative,
-            "-k",
-            &access_key,
-            "--app-id",
-            &app_id,
-            "--resource-id",
-            &resource_id,
-        ]);
+    let mut args = vec![
+        "narrate-timeline".to_string(),
+        text_arg,
+        "-v".to_string(),
+        voice_id.clone(),
+        "-o".to_string(),
+        audio_dir_arg,
+        "-k".to_string(),
+        access_key.clone(),
+        "--app-id".to_string(),
+        app_id.clone(),
+        "--resource-id".to_string(),
+        resource_id.clone(),
+    ];
 
-        if let Some(rate) = speech_rate {
-            command.arg("--speech-rate").arg(rate.to_string());
-        }
+    if let Some(rate) = speech_rate {
+        args.push("--speech-rate".to_string());
+        args.push(rate.to_string());
+    }
 
-        command
-            .current_dir(&project_dir)
-            .output()
-            .map_err(|e| format!("Failed to generate narration timeline: {}", e))?
-    };
+    let output = run_cli_command(&app, &project_dir, &args, &[])?;
 
     let stdout = String::from_utf8_lossy(&output.stdout).to_string();
     let stderr = String::from_utf8_lossy(&output.stderr).to_string();
@@ -2391,15 +2540,15 @@ async fn generate_storyboard_timeline(
 
 #[tauri::command(rename_all = "camelCase")]
 async fn sync_timeline(
+    app: tauri::AppHandle,
     voice_id: String,
     content_path: String,
     state: tauri::State<'_, AuthState>,
 ) -> Result<String, String> {
     let _session = require_valid_license(&state).await?;
-    let project_dir = get_project_dir()?;
+    let project_dir = get_storage_root(&app)?;
     let (content_file, _, soundtrack_file, soundtrack_repo_relative, soundtrack_static_path) =
         derive_project_paths(&project_dir, &content_path)?;
-    let content_repo_relative = repo_relative_path(&project_dir, &content_file)?;
 
     if !content_file.exists() {
         return Err("Content JSON does not exist. Generate slides first.".to_string());
@@ -2409,43 +2558,34 @@ async fn sync_timeline(
         return Err("narration.mp3 does not exist. Generate narration first.".to_string());
     }
 
-    #[cfg(target_os = "windows")]
-    let output = Command::new("cmd")
-        .args([
-            "/C",
-            "npx",
-            "tsx",
-            "src/cli/index.ts",
-            "timeline",
-            &content_repo_relative,
-            "-s",
-            &soundtrack_repo_relative,
-            "-p",
-            &soundtrack_static_path,
-            "-v",
-            &voice_id,
-        ])
-        .current_dir(&project_dir)
-        .output()
-        .map_err(|e| format!("Failed to sync timeline: {}", e))?;
+    let content_arg = if detect_packaged_runtime(&app).is_some() {
+        content_file.to_string_lossy().to_string()
+    } else {
+        repo_relative_path(&project_dir, &content_file)?
+    };
+    let soundtrack_arg = if detect_packaged_runtime(&app).is_some() {
+        soundtrack_file.to_string_lossy().to_string()
+    } else {
+        soundtrack_repo_relative
+    };
+    let soundtrack_path_arg = if detect_packaged_runtime(&app).is_some() {
+        soundtrack_file.to_string_lossy().to_string()
+    } else {
+        soundtrack_static_path
+    };
 
-    #[cfg(not(target_os = "windows"))]
-    let output = Command::new("npx")
-        .args([
-            "tsx",
-            "src/cli/index.ts",
-            "timeline",
-            &content_repo_relative,
-            "-s",
-            &soundtrack_repo_relative,
-            "-p",
-            &soundtrack_static_path,
-            "-v",
-            &voice_id,
-        ])
-        .current_dir(&project_dir)
-        .output()
-        .map_err(|e| format!("Failed to sync timeline: {}", e))?;
+    let args = vec![
+        "timeline".to_string(),
+        content_arg,
+        "-s".to_string(),
+        soundtrack_arg,
+        "-p".to_string(),
+        soundtrack_path_arg,
+        "-v".to_string(),
+        voice_id.clone(),
+    ];
+
+    let output = run_cli_command(&app, &project_dir, &args, &[])?;
 
     let stdout = String::from_utf8_lossy(&output.stdout).to_string();
     let stderr = String::from_utf8_lossy(&output.stderr).to_string();
@@ -2459,11 +2599,12 @@ async fn sync_timeline(
 
 #[tauri::command(rename_all = "camelCase")]
 async fn load_preview_project(
+    app: tauri::AppHandle,
     content_path: String,
     state: tauri::State<'_, AuthState>,
 ) -> Result<String, String> {
     let _session = require_valid_license(&state).await?;
-    let project_dir = get_project_dir()?;
+    let project_dir = get_storage_root(&app)?;
     let (content_file, _, soundtrack_file, _, _) =
         derive_project_paths(&project_dir, &content_path)?;
 
@@ -2503,60 +2644,66 @@ async fn load_preview_project(
 
 #[tauri::command]
 async fn render_video(
+    app: tauri::AppHandle,
     template: String,
     content_path: String,
+    output_dir: Option<String>,
     state: tauri::State<'_, AuthState>,
 ) -> Result<String, String> {
     let _session = require_valid_license(&state).await?;
-    let project_dir = get_project_dir()?;
+    let project_dir = get_storage_root(&app)?;
     let timestamp = chrono::Local::now().format("%Y%m%d_%H%M%S");
-    let output_file = format!("out/video_{}.mp4", timestamp);
-    let content_repo_relative = normalize_repo_relative_path(&content_path);
-    let out_dir = project_dir.join("out");
+
+    // Resolve output directory: use provided path, or default to Desktop/outs
+    let out_dir = if let Some(dir) = output_dir.filter(|d| !d.trim().is_empty()) {
+        std::path::PathBuf::from(dir)
+    } else {
+        // Default: ~/Desktop/outs
+        dirs::desktop_dir()
+            .unwrap_or_else(|| project_dir.join("out"))
+            .join("outs")
+    };
+
+    let output_file = out_dir
+        .join(format!("video_{}.mp4", timestamp))
+        .to_string_lossy()
+        .to_string();
 
     if !out_dir.exists() {
         fs::create_dir_all(&out_dir)
             .map_err(|e| format!("Failed to create output directory: {}", e))?;
     }
 
-    #[cfg(target_os = "windows")]
-    let output = Command::new("cmd")
-        .args([
-            "/C",
-            "npx",
-            "tsx",
-            "src/cli/index.ts",
-            "render",
-            &content_repo_relative,
-            "-t",
-            &template,
-            "-o",
-            &output_file,
-        ])
-        .current_dir(&project_dir)
-        .output()
-        .map_err(|e| format!("Failed to render video: {}", e))?;
+    let content_arg = if detect_packaged_runtime(&app).is_some() {
+        resolve_project_path(&project_dir, &content_path)
+            .to_string_lossy()
+            .to_string()
+    } else {
+        normalize_repo_relative_path(&content_path)
+    };
 
-    #[cfg(not(target_os = "windows"))]
-    let output = Command::new("npx")
-        .args([
-            "tsx",
-            "src/cli/index.ts",
-            "render",
-            &content_repo_relative,
-            "-t",
-            &template,
-            "-o",
-            &output_file,
-        ])
-        .current_dir(&project_dir)
-        .output()
-        .map_err(|e| format!("Failed to render video: {}", e))?;
+    let args = vec![
+        "render".to_string(),
+        content_arg,
+        "-t".to_string(),
+        template.clone(),
+        "-o".to_string(),
+        output_file.clone(),
+    ];
+
+    let output = run_cli_command(&app, &project_dir, &args, &[])?;
 
     if output.status.success() {
         Ok(output_file)
     } else {
-        Err(String::from_utf8_lossy(&output.stderr).to_string())
+        let stderr = String::from_utf8_lossy(&output.stderr).to_string();
+        let stdout = String::from_utf8_lossy(&output.stdout).to_string();
+        // Include stdout so diagnostic logs (BrowserTest, etc.) are visible in the error popup
+        if stdout.trim().is_empty() {
+            Err(stderr)
+        } else {
+            Err(format!("[stdout]\n{}\n[stderr]\n{}", stdout.trim(), stderr.trim()))
+        }
     }
 }
 

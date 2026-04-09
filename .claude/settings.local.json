@@ -90,7 +90,17 @@
       "Bash(pkill -f \"tauri dev\")",
       "Bash(node -e \"const m = require\\('@tauri-apps/api/dpi'\\); console.log\\(Object.keys\\(m\\)\\)\")",
       "Bash(node -e \"const m = require\\('@tauri-apps/api/window'\\); console.log\\(Object.keys\\(m\\).join\\(', '\\)\\)\")",
-      "Bash(cargo check:*)"
+      "Bash(cargo check:*)",
+      "Bash(xargs grep:*)",
+      "Bash(mkdir -p \"F:\\\\My Apps\\\\AI-remotion\\\\src\\\\CosmosShow\")",
+      "Bash(mkdir -p \"F:\\\\My Apps\\\\AI-remotion\\\\public\\\\projects\\\\CosmosShow\")",
+      "Bash(cmd:*)",
+      "Bash(cat -n \"F:\\\\My Apps\\\\AI-remotion\\\\app\\\\src\\\\stores\"/*.ts)",
+      "Bash(node node_modules/typescript/bin/tsc -p tsconfig.sidecar.json --noEmit)",
+      "Bash(node:*)",
+      "Bash(\"C:\\\\Program Files \\(x86\\)\\\\Microsoft\\\\Edge\\\\Application\\\\msedge.exe\" --headless=new --use-gl=swiftshader --remote-debugging-port=9222 --user-data-dir=C:\\\\Temp\\\\test-profile about:blank)",
+      "Bash(echo \"exit code: $?\")",
+      "Bash(grep:*)"
     ]
   }
 }

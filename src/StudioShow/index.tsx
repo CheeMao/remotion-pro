@@ -3,6 +3,7 @@ import { AbsoluteFill, Audio, Sequence, staticFile, useVideoConfig } from "remot
 import { StudioSlide } from "./StudioSlide";
 import { getSlideTiming, getStaticAssetPath, useContentJson } from "../hooks/useContentJson";
 import { getTemplateContentPath } from "../project-content";
+import { SubtitleOverlay } from "../renderers/SubtitleOverlay";
 
 const defaultSlides = [
   {
@@ -61,6 +62,7 @@ export const StudioShow: React.FC = () => {
   return (
     <AbsoluteFill style={{ background: "#060914" }}>
       {soundtrackSrc ? <Audio src={staticFile(soundtrackSrc)} /> : null}
+      <SubtitleOverlay slides={slides} template="StudioShow" />
       {slides.map((slide, index) => {
         const { from, duration } = getSlideTiming(slides, index, fps, DEFAULT_SLIDE_DURATION);
 

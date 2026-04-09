@@ -1,42 +1,30 @@
 {
-  "template": "InsightShow",
+  "template": "MacShow",
   "slides": [
     {
       "id": "slide-0",
-      "title": "越用越乱？",
-      "subtitle": "Claude Code 变笨，很多时候不是模型不行",
+      "title": "用 Claude 写代码设计，怎么提高效率？",
+      "subtitle": "",
       "points": [
-        "前面聪明，后面开始乱",
-        "不是模型坏了，是命令没用对"
+        "多数人只停留在简单输出代码和界面",
+        "如何把效率与质量真正提升？"
       ],
-      "narration": "很多人用了 Claude Code 一段时间都会发现一个问题：一开始很聪明，后面却越来越乱。",
+      "narration": "很多人用 Claude 写代码、设计界面，但如何真正提升效率和质量？",
       "type": "hero",
-      "data": {
-        "cta": "问题通常出在用法"
-      },
       "elementTimings": [
         {
-          "audioEnd": 0.576,
+          "audioEnd": 0.7956,
           "audioStart": 0,
-          "cue": "越用越乱？",
+          "cue": "用 Claude 写代码设计，怎么提高效率？",
           "entryDelay": 0,
           "entryDuration": 0.5,
           "id": "title",
           "type": "title"
         },
         {
-          "audioEnd": 0.8448,
-          "audioStart": 0.4608,
-          "cue": "Claude Code 变笨，很多时候不是模型不行",
-          "entryDelay": 0,
-          "entryDuration": 0.4,
-          "id": "subtitle",
-          "type": "subtitle"
-        },
-        {
-          "audioEnd": 2.3964,
-          "audioStart": 0.9528,
-          "cue": "前面聪明，后面开始乱",
+          "audioEnd": 3.1202400000000003,
+          "audioStart": 0.93648,
+          "cue": "多数人只停留在简单输出代码和界面",
           "entryDelay": 0,
           "entryDuration": 0.4,
           "id": "point-0",
@@ -44,9 +32,9 @@
           "type": "custom"
         },
         {
-          "audioEnd": 3.84,
-          "audioStart": 2.3964,
-          "cue": "不是模型坏了，是命令没用对",
+          "audioEnd": 5.304,
+          "audioStart": 3.1202400000000003,
+          "cue": "如何把效率与质量真正提升？",
           "entryDelay": 0,
           "entryDuration": 0.4,
           "id": "point-1",
@@ -54,41 +42,35 @@
           "type": "custom"
         }
       ],
-      "audioDuration": 3.84,
-      "durationInFrames": 115,
+      "audioDuration": 5.304,
+      "durationInFrames": 159,
       "audioStart": 0,
-      "audioEnd": 3.84
+      "audioEnd": 5.304
     },
     {
       "id": "slide-1",
-      "title": "根因不在模型",
+      "title": "8个爆用的 Cloud Code 技巧",
       "subtitle": "",
       "points": [
-        "不是模型本身的问题",
-        "是不会用最基础的命令"
+        "覆盖设计、规划、执行到安全",
+        "实操价值极高，马上用得上"
       ],
-      "narration": "其实很多时候并不是模型本身的问题，而是不会用这五个最基础的命令。",
-      "type": "default",
-      "data": {
-        "points": [
-          "最常见的误判：以为模型不稳定",
-          "真正缺的是这几个基础命令"
-        ]
-      },
+      "narration": "今天直接告诉你8个实用到爆的 Cloud Code Skill，覆盖设计、规划、...",
+      "type": "hero",
       "elementTimings": [
         {
-          "audioEnd": 4.7219999999999995,
-          "audioStart": 3.84,
-          "cue": "根因不在模型",
+          "audioEnd": 6.504,
+          "audioStart": 5.304,
+          "cue": "8个爆用的 Cloud Code 技巧",
           "entryDelay": 0,
           "entryDuration": 0.5,
           "id": "title",
           "type": "title"
         },
         {
-          "audioEnd": 7.445279999999999,
-          "audioStart": 5.982959999999999,
-          "cue": "不是模型本身的问题",
+          "audioEnd": 10.314,
+          "audioStart": 6.564,
+          "cue": "覆盖设计、规划、执行到安全",
           "entryDelay": 0,
           "entryDuration": 0.4,
           "id": "point-0",
@@ -96,9 +78,9 @@
           "type": "custom"
         },
         {
-          "audioEnd": 9.72,
-          "audioStart": 7.282799999999999,
-          "cue": "是不会用最基础的命令",
+          "audioEnd": 14.064,
+          "audioStart": 10.314,
+          "cue": "实操价值极高，马上用得上",
           "entryDelay": 0,
           "entryDuration": 0.4,
           "id": "point-1",
@@ -106,53 +88,720 @@
           "type": "custom"
         }
       ],
-      "audioDuration": 5.88,
-      "durationInFrames": 176,
-      "audioStart": 3.84,
-      "audioEnd": 9.719999999999999
+      "audioDuration": 8.76,
+      "durationInFrames": 263,
+      "audioStart": 5.304,
+      "audioEnd": 14.064
     },
     {
       "id": "slide-2",
-      "title": "先看这一组",
-      "subtitle": "5 个命令，直接决定体验上限",
+      "title": "1. Frontend Design：官方神器",
+      "subtitle": "",
       "points": [
-        "先把五个命令认全",
-        "后面每个都能救场"
+        "Anthropic 官方出品",
+        "让你写界面高级感爆棚"
       ],
-      "narration": "其实很多时候并不是模型本身的问题，而是不会用这五个最基础的命令。",
-      "type": "highlight",
-      "data": {
-        "items": [
-          "配置",
-          "切模型",
-          "清上下文",
-          "压缩对话",
-          "继续输出"
-        ]
-      },
+      "narration": "先说第一个，Frontend Design，Anthropic 官方出品，装的人...",
+      "type": "hero",
       "elementTimings": [
         {
-          "audioEnd": 10.533599999999998,
-          "audioStart": 9.72,
-          "cue": "先看这一组",
+          "audioEnd": 15.018,
+          "audioStart": 14.064,
+          "cue": "1. Frontend Design：官方神器",
           "entryDelay": 0,
           "entryDuration": 0.5,
           "id": "title",
           "type": "title"
         },
         {
-          "audioEnd": 10.91328,
-          "audioStart": 10.37088,
-          "cue": "5 个命令，直接决定体验上限",
+          "audioEnd": 19.969988571428573,
+          "audioStart": 18.002605714285714,
+          "cue": "Anthropic 官方出品",
           "entryDelay": 0,
           "entryDuration": 0.4,
-          "id": "subtitle",
-          "type": "subtitle"
+          "id": "point-0",
+          "index": 0,
+          "type": "custom"
         },
         {
-          "audioEnd": 11.782464,
-          "audioStart": 10.94208,
-          "cue": "配置",
+          "audioEnd": 20.424,
+          "audioStart": 17.7756,
+          "cue": "让你写界面高级感爆棚",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-1",
+          "index": 1,
+          "type": "custom"
+        }
+      ],
+      "audioDuration": 6.36,
+      "durationInFrames": 191,
+      "audioStart": 14.064,
+      "audioEnd": 20.424
+    },
+    {
+      "id": "slide-3",
+      "title": "设计系统注入，界面瞬间高级",
+      "subtitle": "",
+      "points": [
+        "内置完整设计哲学",
+        "不是随便写，而是有品味、有结构"
+      ],
+      "narration": "它给 Claude 注入一个完整的设计系统和哲学，写界面一下子高级起来，不是简单...",
+      "type": "default",
+      "elementTimings": [
+        {
+          "audioEnd": 21.624,
+          "audioStart": 20.424,
+          "cue": "设计系统注入，界面瞬间高级",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 25.626,
+          "audioStart": 21.684,
+          "cue": "内置完整设计哲学",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-0",
+          "index": 0,
+          "type": "custom"
+        },
+        {
+          "audioEnd": 29.568,
+          "audioStart": 25.626,
+          "cue": "不是随便写，而是有品味、有结构",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-1",
+          "index": 1,
+          "type": "custom"
+        }
+      ],
+      "audioDuration": 9.144,
+      "durationInFrames": 274,
+      "audioStart": 20.424,
+      "audioEnd": 29.567999999999998
+    },
+    {
+      "id": "slide-4",
+      "title": "2. Superpowers：4万+星爆款",
+      "subtitle": "",
+      "points": [
+        "作者 Oobra 独家打造",
+        "用超能力玩转任务管理"
+      ],
+      "narration": "第二个，Superpowers，作者 Oobra，4万多 stars。",
+      "type": "hero",
+      "elementTimings": [
+        {
+          "audioEnd": 30.2736,
+          "audioStart": 29.568,
+          "cue": "2. Superpowers：4万+星爆款",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 32.352239999999995,
+          "audioStart": 30.43248,
+          "cue": "作者 Oobra 独家打造",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-0",
+          "index": 0,
+          "type": "custom"
+        },
+        {
+          "audioEnd": 34.27199999999999,
+          "audioStart": 32.352239999999995,
+          "cue": "用超能力玩转任务管理",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-1",
+          "index": 1,
+          "type": "custom"
+        }
+      ],
+      "audioDuration": 4.704,
+      "durationInFrames": 141,
+      "audioStart": 29.567999999999998,
+      "audioEnd": 34.272
+    },
+    {
+      "id": "slide-5",
+      "title": "任务自动拆解+并行执行",
+      "subtitle": "",
+      "points": [
+        "自动拆解复杂任务",
+        "并行执行节省时间",
+        "自我检查避免错误"
+      ],
+      "narration": "它能让 Claude 自动拆任务、并行执行，还能自我检查，极大提升开发多 Age...",
+      "type": "default",
+      "elementTimings": [
+        {
+          "audioEnd": 35.4204,
+          "audioStart": 34.272,
+          "cue": "任务自动拆解+并行执行",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 37.63648,
+          "audioStart": 35.490719999999996,
+          "cue": "自动拆解复杂任务",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-0",
+          "index": 0,
+          "type": "custom"
+        },
+        {
+          "audioEnd": 39.78224,
+          "audioStart": 37.63648,
+          "cue": "并行执行节省时间",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-1",
+          "index": 1,
+          "type": "custom"
+        },
+        {
+          "audioEnd": 41.928,
+          "audioStart": 39.782239999999994,
+          "cue": "自我检查避免错误",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-2",
+          "index": 2,
+          "type": "custom"
+        }
+      ],
+      "audioDuration": 7.656,
+      "durationInFrames": 230,
+      "audioStart": 34.272,
+      "audioEnd": 41.928
+    },
+    {
+      "id": "slide-6",
+      "title": "3. Planning with Files：解决混乱",
+      "subtitle": "",
+      "points": [
+        "13000+ stars，社区认可",
+        "关键是让复杂任务有序展开"
+      ],
+      "narration": "第三是 Planning with Files，13000+ stars。你知道复杂任务最怕乱？",
+      "type": "hero",
+      "elementTimings": [
+        {
+          "audioEnd": 42.8784,
+          "audioStart": 41.928,
+          "cue": "3. Planning with Files：解决混乱",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 45.62616,
+          "audioStart": 42.988319999999995,
+          "cue": "13000+ stars，社区认可",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-0",
+          "index": 0,
+          "type": "custom"
+        },
+        {
+          "audioEnd": 48.264,
+          "audioStart": 45.62616,
+          "cue": "关键是让复杂任务有序展开",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-1",
+          "index": 1,
+          "type": "custom"
+        }
+      ],
+      "audioDuration": 6.336,
+      "durationInFrames": 190,
+      "audioStart": 41.928,
+      "audioEnd": 48.263999999999996
+    },
+    {
+      "id": "slide-7",
+      "title": "用文件规划，降低错误率",
+      "subtitle": "",
+      "points": [
+        "结构化规划，理清步骤",
+        "先画路，再动手做事"
+      ],
+      "narration": "它用文件帮 Claude 做结构化规划，先理清步骤再干活，降低错误率不止一点点。",
+      "type": "default",
+      "elementTimings": [
+        {
+          "audioEnd": 49.2936,
+          "audioStart": 48.264,
+          "cue": "用文件规划，降低错误率",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 52.257839999999995,
+          "audioStart": 49.38768,
+          "cue": "结构化规划，理清步骤",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-0",
+          "index": 0,
+          "type": "custom"
+        },
+        {
+          "audioEnd": 55.12799999999999,
+          "audioStart": 52.257839999999995,
+          "cue": "先画路，再动手做事",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-1",
+          "index": 1,
+          "type": "custom"
+        }
+      ],
+      "audioDuration": 6.864,
+      "durationInFrames": 206,
+      "audioStart": 48.263999999999996,
+      "audioEnd": 55.12799999999999
+    },
+    {
+      "id": "slide-8",
+      "title": "4. Agent Browser：官方自动化利器",
+      "subtitle": "",
+      "points": [
+        "Anthropic 官方力作",
+        "让 Claude 能操控浏览器"
+      ],
+      "narration": "第四，Agent Browser，也是 Anthropic 官方力作。",
+      "type": "hero",
+      "elementTimings": [
+        {
+          "audioEnd": 55.862399999999994,
+          "audioStart": 55.12799999999999,
+          "cue": "4. Agent Browser：官方自动化利器",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 60.023999999999994,
+          "audioStart": 58.22709517241378,
+          "cue": "Anthropic 官方力作",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-0",
+          "index": 0,
+          "type": "custom"
+        },
+        {
+          "audioEnd": 60.023999999999994,
+          "audioStart": 58.01975999999999,
+          "cue": "让 Claude 能操控浏览器",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-1",
+          "index": 1,
+          "type": "custom"
+        }
+      ],
+      "audioDuration": 4.896,
+      "durationInFrames": 147,
+      "audioStart": 55.12799999999999,
+      "audioEnd": 60.023999999999994
+    },
+    {
+      "id": "slide-9",
+      "title": "网页测试、数据抓取一条龙",
+      "subtitle": "",
+      "points": [
+        "基于 Playwright 自动化技术",
+        "测试网站，爬数据，自动填写"
+      ],
+      "narration": "基于 Playwright，Claude 可以直接控制浏览器测试网页、抓数据、填...",
+      "type": "default",
+      "elementTimings": [
+        {
+          "audioEnd": 61.224,
+          "audioStart": 60.023999999999994,
+          "cue": "网页测试、数据抓取一条龙",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 64.97399999999999,
+          "audioStart": 61.28399999999999,
+          "cue": "基于 Playwright 自动化技术",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-0",
+          "index": 0,
+          "type": "custom"
+        },
+        {
+          "audioEnd": 68.66399999999999,
+          "audioStart": 64.97399999999999,
+          "cue": "测试网站，爬数据，自动填写",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-1",
+          "index": 1,
+          "type": "custom"
+        }
+      ],
+      "audioDuration": 8.64,
+      "durationInFrames": 259,
+      "audioStart": 60.023999999999994,
+      "audioEnd": 68.66399999999999
+    },
+    {
+      "id": "slide-10",
+      "title": "5. Web Interface Guidelines：设计标准库",
+      "subtitle": "",
+      "points": [
+        "22000+ stars，设计规范集",
+        "快速参考，避免踩坑"
+      ],
+      "narration": "第五，Web Interface Guidelines，22000+ stars...",
+      "type": "hero",
+      "elementTimings": [
+        {
+          "audioEnd": 69.86399999999999,
+          "audioStart": 68.66399999999999,
+          "cue": "5. Web Interface Guidelines：设计标准库",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 75.76199999999999,
+          "audioStart": 69.92399999999998,
+          "cue": "22000+ stars，设计规范集",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-0",
+          "index": 0,
+          "type": "custom"
+        },
+        {
+          "audioEnd": 81.6,
+          "audioStart": 75.76199999999999,
+          "cue": "快速参考，避免踩坑",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-1",
+          "index": 1,
+          "type": "custom"
+        }
+      ],
+      "audioDuration": 12.936,
+      "durationInFrames": 388,
+      "audioStart": 68.66399999999999,
+      "audioEnd": 81.6
+    },
+    {
+      "id": "slide-11",
+      "title": "6. UIUX Pro Max：超级设计资源库",
+      "subtitle": "",
+      "points": [
+        "海量设计资源一次备齐",
+        "支持多场景设计工作"
+      ],
+      "narration": "第六，UIUX Pro Max，设计资源超全：67种设计风格，96个调色板，57...",
+      "type": "list",
+      "data": {
+        "items": [
+          {
+            "desc": "多样化风格灵活应用",
+            "text": "67种设计风格"
+          },
+          {
+            "desc": "配色方案应有尽有",
+            "text": "96个调色板"
+          },
+          {
+            "desc": "组件完备，配合设计系统",
+            "text": "57个UI组件"
+          }
+        ]
+      },
+      "elementTimings": [
+        {
+          "audioEnd": 82.8,
+          "audioStart": 81.6,
+          "cue": "6. UIUX Pro Max：超级设计资源库",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 92.26909090909088,
+          "audioStart": 89.63454545454545,
+          "cue": "67种设计风格",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "item-0",
+          "index": 0,
+          "type": "item"
+        },
+        {
+          "audioEnd": 94.52727272727272,
+          "audioStart": 92.26909090909088,
+          "cue": "96个调色板",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "item-1",
+          "index": 1,
+          "type": "item"
+        },
+        {
+          "audioEnd": 95.28,
+          "audioStart": 91.14,
+          "cue": "57个UI组件",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "item-2",
+          "index": 2,
+          "type": "item"
+        }
+      ],
+      "audioDuration": 13.68,
+      "durationInFrames": 410,
+      "audioStart": 81.6,
+      "audioEnd": 95.28
+    },
+    {
+      "id": "slide-12",
+      "title": "7. Security Audit：专业安全检测",
+      "subtitle": "",
+      "points": [
+        "Trail of Bits 出品",
+        "找出代码安全漏洞"
+      ],
+      "narration": "第七是 Security Audit，来自 Trail of Bits 专业安全...",
+      "type": "hero",
+      "elementTimings": [
+        {
+          "audioEnd": 95.97119999999998,
+          "audioStart": 95.28,
+          "cue": "7. Security Audit：专业安全检测",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 98.01048,
+          "audioStart": 96.13295999999998,
+          "cue": "Trail of Bits 出品",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-0",
+          "index": 0,
+          "type": "custom"
+        },
+        {
+          "audioEnd": 99.888,
+          "audioStart": 98.01048,
+          "cue": "找出代码安全漏洞",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-1",
+          "index": 1,
+          "type": "custom"
+        }
+      ],
+      "audioDuration": 4.608,
+      "durationInFrames": 138,
+      "audioStart": 95.28,
+      "audioEnd": 99.888
+    },
+    {
+      "id": "slide-13",
+      "title": "自动扫描+即时修复",
+      "subtitle": "",
+      "points": [
+        "写完代码立刻跑检测",
+        "安全问题马上修复"
+      ],
+      "narration": "它自动扫常见漏洞，写完代码就跑一遍，安全问题一发现，立马修复，很省心。",
+      "type": "default",
+      "elementTimings": [
+        {
+          "audioEnd": 100.9392,
+          "audioStart": 99.888,
+          "cue": "自动扫描+即时修复",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 103.96248,
+          "audioStart": 101.02895999999998,
+          "cue": "写完代码立刻跑检测",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-0",
+          "index": 0,
+          "type": "custom"
+        },
+        {
+          "audioEnd": 106.896,
+          "audioStart": 103.96248,
+          "cue": "安全问题马上修复",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-1",
+          "index": 1,
+          "type": "custom"
+        }
+      ],
+      "audioDuration": 7.008,
+      "durationInFrames": 210,
+      "audioStart": 99.888,
+      "audioEnd": 106.896
+    },
+    {
+      "id": "slide-14",
+      "title": "8. Software Architecture：架构清晰",
+      "subtitle": "",
+      "points": [
+        "内置 Clean Architecture 原则",
+        "代码更可维护、可扩展"
+      ],
+      "narration": "最后，第八个，Software Architecture，内置 Clean Ar...",
+      "type": "hero",
+      "elementTimings": [
+        {
+          "audioEnd": 108.096,
+          "audioStart": 106.896,
+          "cue": "8. Software Architecture：架构清晰",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 111.55799999999998,
+          "audioStart": 108.15599999999998,
+          "cue": "内置 Clean Architecture 原则",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-0",
+          "index": 0,
+          "type": "custom"
+        },
+        {
+          "audioEnd": 114.95999999999998,
+          "audioStart": 111.55799999999998,
+          "cue": "代码更可维护、可扩展",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-1",
+          "index": 1,
+          "type": "custom"
+        }
+      ],
+      "audioDuration": 8.064,
+      "durationInFrames": 242,
+      "audioStart": 106.896,
+      "audioEnd": 114.96000000000001
+    },
+    {
+      "id": "slide-15",
+      "title": "架构决定项目生命力",
+      "subtitle": "",
+      "points": [
+        "不仅能跑，更要结构讲究",
+        "避免项目后期变成难维护大坑"
+      ],
+      "narration": "不仅代码能跑，更有结构讲究，保证项目可维护、可扩展。",
+      "type": "default",
+      "elementTimings": [
+        {
+          "audioEnd": 115.7988,
+          "audioStart": 114.95999999999998,
+          "cue": "架构决定项目生命力",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 118.24151999999998,
+          "audioStart": 115.93103999999998,
+          "cue": "不仅能跑，更要结构讲究",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-0",
+          "index": 0,
+          "type": "custom"
+        },
+        {
+          "audioEnd": 120.55199999999998,
+          "audioStart": 118.24151999999998,
+          "cue": "避免项目后期变成难维护大坑",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-1",
+          "index": 1,
+          "type": "custom"
+        }
+      ],
+      "audioDuration": 5.592,
+      "durationInFrames": 168,
+      "audioStart": 114.96000000000001,
+      "audioEnd": 120.552
+    },
+    {
+      "id": "slide-16",
+      "title": "这8个技能，远超写代码",
+      "subtitle": "",
+      "points": [],
+      "narration": "这8个 Skill，绝对是让你用 Claude 不止是“写写代码”，而是真正高效...",
+      "type": "highlight",
+      "data": {
+        "items": [
+          "效率质感双提升",
+          "设计、规划、执行、安全全覆盖",
+          "不只是写代码，而是工作升级"
+        ]
+      },
+      "elementTimings": [
+        {
+          "audioEnd": 121.59959999999998,
+          "audioStart": 120.55199999999998,
+          "cue": "这8个技能，远超写代码",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 123.63871999999998,
+          "audioStart": 121.69007999999998,
+          "cue": "效率质感双提升",
           "entryDelay": 0,
           "entryDuration": 0.4,
           "id": "highlight-0",
@@ -160,9 +809,9 @@
           "type": "highlight"
         },
         {
-          "audioEnd": 12.622848,
-          "audioStart": 11.782464,
-          "cue": "切模型",
+          "audioEnd": 125.58735999999998,
+          "audioStart": 123.63871999999998,
+          "cue": "设计、规划、执行、安全全覆盖",
           "entryDelay": 0,
           "entryDuration": 0.4,
           "id": "highlight-1",
@@ -170,1143 +819,99 @@
           "type": "highlight"
         },
         {
-          "audioEnd": 13.463232,
-          "audioStart": 12.622848,
-          "cue": "清上下文",
+          "audioEnd": 127.53599999999996,
+          "audioStart": 125.58735999999998,
+          "cue": "不只是写代码，而是工作升级",
           "entryDelay": 0,
           "entryDuration": 0.4,
           "id": "highlight-2",
           "index": 2,
           "type": "highlight"
-        },
-        {
-          "audioEnd": 14.303616,
-          "audioStart": 13.463232,
-          "cue": "压缩对话",
-          "entryDelay": 0,
-          "entryDuration": 0.4,
-          "id": "highlight-3",
-          "index": 3,
-          "type": "highlight"
-        },
-        {
-          "audioEnd": 15.143999999999998,
-          "audioStart": 14.303615999999998,
-          "cue": "继续输出",
-          "entryDelay": 0,
-          "entryDuration": 0.4,
-          "id": "highlight-4",
-          "index": 4,
-          "type": "highlight"
         }
       ],
-      "audioDuration": 5.424,
-      "durationInFrames": 163,
-      "audioStart": 9.719999999999999,
-      "audioEnd": 15.143999999999998
-    },
-    {
-      "id": "slide-3",
-      "title": "第一个：config",
-      "subtitle": "",
-      "points": [
-        "这是 Claude Code 的总开关",
-        "先配好，再谈效率"
-      ],
-      "narration": "第一个命令是 config。",
-      "type": "hero",
-      "data": {
-        "badge": "控制中心",
-        "cta": "先把底层设置对"
-      },
-      "elementTimings": [
-        {
-          "audioEnd": 15.4212,
-          "audioStart": 15.143999999999998,
-          "cue": "第一个：config",
-          "entryDelay": 0,
-          "entryDuration": 0.5,
-          "id": "title",
-          "type": "title"
-        },
-        {
-          "audioEnd": 16.328879999999998,
-          "audioStart": 15.66576,
-          "cue": "这是 Claude Code 的总开关",
-          "entryDelay": 0,
-          "entryDuration": 0.4,
-          "id": "point-0",
-          "index": 0,
-          "type": "custom"
-        },
-        {
-          "audioEnd": 16.991999999999997,
-          "audioStart": 16.328879999999998,
-          "cue": "先配好，再谈效率",
-          "entryDelay": 0,
-          "entryDuration": 0.4,
-          "id": "point-1",
-          "index": 1,
-          "type": "custom"
-        }
-      ],
-      "audioDuration": 1.848,
-      "durationInFrames": 55,
-      "audioStart": 15.143999999999998,
-      "audioEnd": 16.991999999999997
-    },
-    {
-      "id": "slide-4",
-      "title": "控制中心",
-      "subtitle": "斜杠 config，进到完整配置",
-      "points": [
-        "输入 /config",
-        "这里能看到完整配置项"
-      ],
-      "narration": "这个命令可以说是 Claude Code 的控制中心，输入斜杠 config 可以看到完整的配置项。",
-      "type": "list",
-      "data": {
-        "items": [
-          {
-            "desc": "把能调的地方一次看清",
-            "text": "查看配置项"
-          },
-          {
-            "desc": "让工具更像你自己的工作流",
-            "text": "按习惯改设置"
-          }
-        ]
-      },
-      "elementTimings": [
-        {
-          "audioEnd": 18.191999999999997,
-          "audioStart": 16.991999999999997,
-          "cue": "控制中心",
-          "entryDelay": 0,
-          "entryDuration": 0.5,
-          "id": "title",
-          "type": "title"
-        },
-        {
-          "audioEnd": 18.752,
-          "audioStart": 17.951999999999998,
-          "cue": "斜杠 config，进到完整配置",
-          "entryDelay": 0,
-          "entryDuration": 0.4,
-          "id": "subtitle",
-          "type": "subtitle"
-        },
-        {
-          "audioEnd": 23.629999999999995,
-          "audioStart": 18.651999999999997,
-          "cue": "查看配置项",
-          "entryDelay": 0,
-          "entryDuration": 0.4,
-          "id": "item-0",
-          "index": 0,
-          "type": "item"
-        },
-        {
-          "audioEnd": 28.607999999999997,
-          "audioStart": 23.629999999999995,
-          "cue": "按习惯改设置",
-          "entryDelay": 0,
-          "entryDuration": 0.4,
-          "id": "item-1",
-          "index": 1,
-          "type": "item"
-        }
-      ],
-      "audioDuration": 11.616,
-      "durationInFrames": 348,
-      "audioStart": 16.991999999999997,
-      "audioEnd": 28.607999999999997
-    },
-    {
-      "id": "slide-5",
-      "title": "先摸清设置",
-      "subtitle": "",
-      "points": [
-        "了解每个配置项",
-        "别让默认值决定结果"
-      ],
-      "narration": "建议把每个配置项都了解一下。",
-      "type": "highlight",
-      "data": {
-        "items": [
-          "每一项都要看",
-          "别只会默认跑"
-        ]
-      },
-      "elementTimings": [
-        {
-          "audioEnd": 28.985999999999997,
-          "audioStart": 28.607999999999997,
-          "cue": "先摸清设置",
-          "entryDelay": 0,
-          "entryDuration": 0.5,
-          "id": "title",
-          "type": "title"
-        },
-        {
-          "audioEnd": 30.169199999999996,
-          "audioStart": 29.210399999999996,
-          "cue": "每一项都要看",
-          "entryDelay": 0,
-          "entryDuration": 0.4,
-          "id": "highlight-0",
-          "index": 0,
-          "type": "highlight"
-        },
-        {
-          "audioEnd": 31.127999999999997,
-          "audioStart": 30.169199999999996,
-          "cue": "别只会默认跑",
-          "entryDelay": 0,
-          "entryDuration": 0.4,
-          "id": "highlight-1",
-          "index": 1,
-          "type": "highlight"
-        }
-      ],
-      "audioDuration": 2.52,
-      "durationInFrames": 76,
-      "audioStart": 28.607999999999997,
-      "audioEnd": 31.127999999999997
-    },
-    {
-      "id": "slide-6",
-      "title": "第二个：model",
-      "subtitle": "",
-      "points": [
-        "不是所有任务都该用同一个模型",
-        "先选对，再开跑"
-      ],
-      "narration": "第二个命令是 model。",
-      "type": "hero",
-      "data": {
-        "badge": "切换模型",
-        "cta": "任务不同，模型也不同"
-      },
-      "elementTimings": [
-        {
-          "audioEnd": 31.495199999999997,
-          "audioStart": 31.127999999999997,
-          "cue": "第二个：model",
-          "entryDelay": 0,
-          "entryDuration": 0.5,
-          "id": "title",
-          "type": "title"
-        },
-        {
-          "audioEnd": 32.64887999999999,
-          "audioStart": 31.721759999999996,
-          "cue": "不是所有任务都该用同一个模型",
-          "entryDelay": 0,
-          "entryDuration": 0.4,
-          "id": "point-0",
-          "index": 0,
-          "type": "custom"
-        },
-        {
-          "audioEnd": 33.57599999999999,
-          "audioStart": 32.64887999999999,
-          "cue": "先选对，再开跑",
-          "entryDelay": 0,
-          "entryDuration": 0.4,
-          "id": "point-1",
-          "index": 1,
-          "type": "custom"
-        }
-      ],
-      "audioDuration": 2.448,
-      "durationInFrames": 73,
-      "audioStart": 31.127999999999997,
-      "audioEnd": 33.57599999999999
-    },
-    {
-      "id": "slide-7",
-      "title": "直接换模型",
-      "subtitle": "斜杠 model，列表里直接选",
-      "points": [
-        "看到可用模型列表",
-        "直接切换当前模型"
-      ],
-      "narration": "如果想切换模型，直接输入斜杠 model 就可以看到当前支持的模型列表，直接选择就行。",
-      "type": "steps",
-      "data": {
-        "steps": [
-          {
-            "description": "打开当前支持的模型列表",
-            "title": "输入 /model"
-          },
-          {
-            "description": "按任务切到更合适的模型",
-            "title": "直接选择"
-          }
-        ]
-      },
-      "elementTimings": [
-        {
-          "audioEnd": 34.767599999999995,
-          "audioStart": 33.57599999999999,
-          "cue": "直接换模型",
-          "entryDelay": 0,
-          "entryDuration": 0.5,
-          "id": "title",
-          "type": "title"
-        },
-        {
-          "audioEnd": 35.323679999999996,
-          "audioStart": 34.52927999999999,
-          "cue": "斜杠 model，列表里直接选",
-          "entryDelay": 0,
-          "entryDuration": 0.4,
-          "id": "subtitle",
-          "type": "subtitle"
-        },
-        {
-          "audioEnd": 38.37324,
-          "audioStart": 35.22647999999999,
-          "cue": "输入 /model",
-          "entryDelay": 0,
-          "entryDuration": 0.4,
-          "id": "step-0",
-          "index": 0,
-          "type": "step"
-        },
-        {
-          "audioEnd": 41.18876210526315,
-          "audioStart": 40.52628631578947,
-          "cue": "直接选择",
-          "entryDelay": 0,
-          "entryDuration": 0.4,
-          "id": "step-1",
-          "index": 1,
-          "type": "step"
-        }
-      ],
-      "audioDuration": 7.944,
-      "durationInFrames": 238,
-      "audioStart": 33.57599999999999,
-      "audioEnd": 41.519999999999996
-    },
-    {
-      "id": "slide-8",
-      "title": "普通和复杂，别混用",
-      "subtitle": "轻任务看效率，重任务看能力",
-      "points": [
-        "普通任务用更轻的",
-        "复杂任务上更强的"
-      ],
-      "narration": "普通任务可以选择 so net 模型，复杂任务可以选用 opus，性价比最高。",
-      "type": "compare",
-      "data": {
-        "data": null,
-        "left": [
-          "普通任务",
-          "选 so net",
-          "更轻快"
-        ],
-        "right": [
-          "复杂任务",
-          "选 opus",
-          "更强"
-        ],
-        "vsText": "任务不同，模型不同"
-      },
-      "elementTimings": [
-        {
-          "audioEnd": 42.4956,
-          "audioStart": 41.52,
-          "cue": "普通和复杂，别混用",
-          "entryDelay": 0,
-          "entryDuration": 0.5,
-          "id": "title",
-          "type": "title"
-        },
-        {
-          "audioEnd": 42.95087999999999,
-          "audioStart": 42.30047999999999,
-          "cue": "轻任务看效率，重任务看能力",
-          "entryDelay": 0,
-          "entryDuration": 0.4,
-          "id": "subtitle",
-          "type": "subtitle"
-        },
-        {
-          "audioEnd": 42.92567999999999,
-          "audioStart": 42.92567999999999,
-          "cue": "",
-          "entryDelay": 0,
-          "entryDuration": 0.4,
-          "id": "compare-left",
-          "type": "compare-left"
-        },
-        {
-          "audioEnd": 42.92567999999999,
-          "audioStart": 42.92567999999999,
-          "cue": "",
-          "entryDelay": 0,
-          "entryDuration": 0.4,
-          "id": "compare-right",
-          "type": "compare-right"
-        }
-      ],
-      "audioDuration": 6.504,
-      "durationInFrames": 195,
-      "audioStart": 41.519999999999996,
-      "audioEnd": 48.023999999999994
-    },
-    {
-      "id": "slide-9",
-      "title": "第三个：clear",
-      "subtitle": "",
-      "points": [
-        "对话开始失控时，先清掉",
-        "别硬拖着继续聊"
-      ],
-      "narration": "第三个命令是 clear。",
-      "type": "hero",
-      "data": {
-        "badge": "清理现场",
-        "cta": "乱了就重开"
-      },
-      "elementTimings": [
-        {
-          "audioEnd": 48.47039999999999,
-          "audioStart": 48.023999999999994,
-          "cue": "第三个：clear",
-          "entryDelay": 0,
-          "entryDuration": 0.5,
-          "id": "title",
-          "type": "title"
-        },
-        {
-          "audioEnd": 49.84056,
-          "audioStart": 48.68111999999999,
-          "cue": "对话开始失控时，先清掉",
-          "entryDelay": 0,
-          "entryDuration": 0.4,
-          "id": "point-0",
-          "index": 0,
-          "type": "custom"
-        },
-        {
-          "audioEnd": 51,
-          "audioStart": 49.84056,
-          "cue": "别硬拖着继续聊",
-          "entryDelay": 0,
-          "entryDuration": 0.4,
-          "id": "point-1",
-          "index": 1,
-          "type": "custom"
-        }
-      ],
-      "audioDuration": 2.976,
-      "durationInFrames": 89,
-      "audioStart": 48.023999999999994,
-      "audioEnd": 50.99999999999999
-    },
-    {
-      "id": "slide-10",
-      "title": "越聊越乱",
-      "subtitle": "越长的上下文，越容易跑偏",
-      "points": [
-        "聊久了会乱",
-        "也会越来越慢"
-      ],
-      "narration": "很多人会发现一个问题，聊着聊着 Claude 回答开始抽风了，越来越乱，越来越慢。",
-      "type": "list",
-      "data": {
-        "items": [
-          {
-            "desc": "前后不一致",
-            "text": "回答开始抽风"
-          },
-          {
-            "desc": "上下文拖太长",
-            "text": "速度越来越慢"
-          }
-        ]
-      },
-      "elementTimings": [
-        {
-          "audioEnd": 52.2,
-          "audioStart": 50.99999999999999,
-          "cue": "越聊越乱",
-          "entryDelay": 0,
-          "entryDuration": 0.5,
-          "id": "title",
-          "type": "title"
-        },
-        {
-          "audioEnd": 52.75999999999999,
-          "audioStart": 51.959999999999994,
-          "cue": "越长的上下文，越容易跑偏",
-          "entryDelay": 0,
-          "entryDuration": 0.4,
-          "id": "subtitle",
-          "type": "subtitle"
-        },
-        {
-          "audioEnd": 57.50639999999999,
-          "audioStart": 56.38799999999999,
-          "cue": "回答开始抽风",
-          "entryDelay": 0,
-          "entryDuration": 0.4,
-          "id": "item-0",
-          "index": 0,
-          "type": "item"
-        },
-        {
-          "audioEnd": 59.18399999999999,
-          "audioStart": 55.92199999999999,
-          "cue": "速度越来越慢",
-          "entryDelay": 0,
-          "entryDuration": 0.4,
-          "id": "item-1",
-          "index": 1,
-          "type": "item"
-        }
-      ],
-      "audioDuration": 8.184,
-      "durationInFrames": 246,
-      "audioStart": 50.99999999999999,
-      "audioEnd": 59.18399999999999
-    },
-    {
-      "id": "slide-11",
-      "title": "直接清空",
-      "subtitle": "斜杠 clear，把当前对话重置",
-      "points": [
-        "上下文太长就清空",
-        "重新开一轮更稳"
-      ],
-      "narration": "这其实是因为上下文太长了，这个时候只需要输入斜杠 clear 就可以清空当前对话。",
-      "type": "steps",
-      "data": {
-        "steps": [
-          {
-            "description": "立刻清空当前对话",
-            "title": "输入 /clear"
-          },
-          {
-            "description": "换一个更干净的上下文",
-            "title": "重新开始"
-          }
-        ]
-      },
-      "elementTimings": [
-        {
-          "audioEnd": 60.38399999999999,
-          "audioStart": 59.18399999999999,
-          "cue": "直接清空",
-          "entryDelay": 0,
-          "entryDuration": 0.5,
-          "id": "title",
-          "type": "title"
-        },
-        {
-          "audioEnd": 60.94399999999999,
-          "audioStart": 60.14399999999999,
-          "cue": "斜杠 clear，把当前对话重置",
-          "entryDelay": 0,
-          "entryDuration": 0.4,
-          "id": "subtitle",
-          "type": "subtitle"
-        },
-        {
-          "audioEnd": 64.78999999999999,
-          "audioStart": 60.84399999999999,
-          "cue": "输入 /clear",
-          "entryDelay": 0,
-          "entryDuration": 0.4,
-          "id": "step-0",
-          "index": 0,
-          "type": "step"
-        },
-        {
-          "audioEnd": 68.73599999999999,
-          "audioStart": 64.78999999999999,
-          "cue": "重新开始",
-          "entryDelay": 0,
-          "entryDuration": 0.4,
-          "id": "step-1",
-          "index": 1,
-          "type": "step"
-        }
-      ],
-      "audioDuration": 9.552,
-      "durationInFrames": 287,
-      "audioStart": 59.18399999999999,
-      "audioEnd": 68.73599999999999
-    },
-    {
-      "id": "slide-12",
-      "title": "任务要分开",
-      "subtitle": "",
-      "points": [
-        "每个独立任务都建议新开",
-        "别把不同目标搅在一起"
-      ],
-      "narration": "我建议每个独立的任务都可以开启一个新的对话。",
-      "type": "highlight",
-      "data": {
-        "items": [
-          "一个独立任务，一次新对话"
-        ]
-      },
-      "elementTimings": [
-        {
-          "audioEnd": 69.32279999999999,
-          "audioStart": 68.73599999999999,
-          "cue": "任务要分开",
-          "entryDelay": 0,
-          "entryDuration": 0.5,
-          "id": "title",
-          "type": "title"
-        },
-        {
-          "audioEnd": 72.648,
-          "audioStart": 69.50544,
-          "cue": "一个独立任务，一次新对话",
-          "entryDelay": 0,
-          "entryDuration": 0.4,
-          "id": "highlight-0",
-          "index": 0,
-          "type": "highlight"
-        }
-      ],
-      "audioDuration": 3.912,
-      "durationInFrames": 117,
-      "audioStart": 68.73599999999999,
-      "audioEnd": 72.648
-    },
-    {
-      "id": "slide-13",
-      "title": "第四个：compact",
-      "subtitle": "",
-      "points": [
-        "不想全清，就做压缩",
-        "这一步很适合中途救场"
-      ],
-      "narration": "第四个命令是 compact。",
-      "type": "hero",
-      "data": {
-        "badge": "瘦身",
-        "cta": "保留内容，缩短上下文"
-      },
-      "elementTimings": [
-        {
-          "audioEnd": 72.99719999999999,
-          "audioStart": 72.648,
-          "cue": "第四个：compact",
-          "entryDelay": 0,
-          "entryDuration": 0.5,
-          "id": "title",
-          "type": "title"
-        },
-        {
-          "audioEnd": 74.10167999999999,
-          "audioStart": 73.22735999999999,
-          "cue": "不想全清，就做压缩",
-          "entryDelay": 0,
-          "entryDuration": 0.4,
-          "id": "point-0",
-          "index": 0,
-          "type": "custom"
-        },
-        {
-          "audioEnd": 74.976,
-          "audioStart": 74.10167999999999,
-          "cue": "这一步很适合中途救场",
-          "entryDelay": 0,
-          "entryDuration": 0.4,
-          "id": "point-1",
-          "index": 1,
-          "type": "custom"
-        }
-      ],
-      "audioDuration": 2.328,
-      "durationInFrames": 70,
-      "audioStart": 72.648,
-      "audioEnd": 74.976
-    },
-    {
-      "id": "slide-14",
-      "title": "压缩而不是清空",
-      "subtitle": "对话还要留着，但别太长",
-      "points": [
-        "不想完全清空",
-        "但想减少上下文长度"
-      ],
-      "narration": "如果不想完全清空对话，但是又想减少上下文的长度，那就用斜杠 compact，它会把对话压缩一下。",
-      "type": "steps",
-      "data": {
-        "steps": [
-          {
-            "description": "压缩当前对话长度",
-            "title": "输入 /compact"
-          },
-          {
-            "description": "减少冗余上下文",
-            "title": "保留关键信息"
-          }
-        ]
-      },
-      "elementTimings": [
-        {
-          "audioEnd": 76.176,
-          "audioStart": 74.976,
-          "cue": "压缩而不是清空",
-          "entryDelay": 0,
-          "entryDuration": 0.5,
-          "id": "title",
-          "type": "title"
-        },
-        {
-          "audioEnd": 76.73599999999999,
-          "audioStart": 75.93599999999999,
-          "cue": "对话还要留着，但别太长",
-          "entryDelay": 0,
-          "entryDuration": 0.4,
-          "id": "subtitle",
-          "type": "subtitle"
-        },
-        {
-          "audioEnd": 80.594,
-          "audioStart": 76.636,
-          "cue": "输入 /compact",
-          "entryDelay": 0,
-          "entryDuration": 0.4,
-          "id": "step-0",
-          "index": 0,
-          "type": "step"
-        },
-        {
-          "audioEnd": 84.55199999999999,
-          "audioStart": 80.594,
-          "cue": "保留关键信息",
-          "entryDelay": 0,
-          "entryDuration": 0.4,
-          "id": "step-1",
-          "index": 1,
-          "type": "step"
-        }
-      ],
-      "audioDuration": 9.576,
-      "durationInFrames": 287,
-      "audioStart": 74.976,
-      "audioEnd": 84.55199999999999
-    },
-    {
-      "id": "slide-15",
-      "title": "给对话瘦身",
-      "subtitle": "",
-      "points": [
-        "本质就是瘦身",
-        "让对话轻下来"
-      ],
-      "narration": "简单理解就是给对话做一次瘦身。",
-      "type": "highlight",
-      "data": {
-        "items": [
-          "保留重点",
-          "删掉拖累"
-        ]
-      },
-      "elementTimings": [
-        {
-          "audioEnd": 85.02,
-          "audioStart": 84.55199999999999,
-          "cue": "给对话瘦身",
-          "entryDelay": 0,
-          "entryDuration": 0.5,
-          "id": "title",
-          "type": "title"
-        },
-        {
-          "audioEnd": 86.44919999999999,
-          "audioStart": 85.22639999999998,
-          "cue": "保留重点",
-          "entryDelay": 0,
-          "entryDuration": 0.4,
-          "id": "highlight-0",
-          "index": 0,
-          "type": "highlight"
-        },
-        {
-          "audioEnd": 87.672,
-          "audioStart": 86.44919999999999,
-          "cue": "删掉拖累",
-          "entryDelay": 0,
-          "entryDuration": 0.4,
-          "id": "highlight-1",
-          "index": 1,
-          "type": "highlight"
-        }
-      ],
-      "audioDuration": 3.12,
-      "durationInFrames": 94,
-      "audioStart": 84.55199999999999,
-      "audioEnd": 87.672
-    },
-    {
-      "id": "slide-16",
-      "title": "第五个：continue",
-      "subtitle": "",
-      "points": [
-        "终端意外中断也不怕",
-        "接着上次继续输出"
-      ],
-      "narration": "第五个命令是 continue。",
-      "type": "hero",
-      "data": {
-        "badge": "接上断点",
-        "cta": "中断了也能续写"
-      },
-      "elementTimings": [
-        {
-          "audioEnd": 88.1112,
-          "audioStart": 87.672,
-          "cue": "第五个：continue",
-          "entryDelay": 0,
-          "entryDuration": 0.5,
-          "id": "title",
-          "type": "title"
-        },
-        {
-          "audioEnd": 89.46168,
-          "audioStart": 88.32336,
-          "cue": "终端意外中断也不怕",
-          "entryDelay": 0,
-          "entryDuration": 0.4,
-          "id": "point-0",
-          "index": 0,
-          "type": "custom"
-        },
-        {
-          "audioEnd": 90.6,
-          "audioStart": 89.46168,
-          "cue": "接着上次继续输出",
-          "entryDelay": 0,
-          "entryDuration": 0.4,
-          "id": "point-1",
-          "index": 1,
-          "type": "custom"
-        }
-      ],
-      "audioDuration": 2.928,
-      "durationInFrames": 88,
-      "audioStart": 87.672,
-      "audioEnd": 90.6
+      "audioDuration": 6.984,
+      "durationInFrames": 210,
+      "audioStart": 120.552,
+      "audioEnd": 127.536
     },
     {
       "id": "slide-17",
-      "title": "断了别慌",
-      "subtitle": "中断、卡住、意外退出，都能接回去",
+      "title": "你还用哪些好工具？",
+      "subtitle": "",
       "points": [
-        "回答写到一半断掉",
-        "也可以继续接回去"
+        "分享你的爆款利器",
+        "提升团队协作和个人效率"
       ],
-      "narration": "有时候 Claude Code 会回答到一半的时候，因为意外的各种情况导致终端的输出中断。",
-      "type": "list",
-      "data": {
-        "items": [
-          {
-            "desc": "终端意外关掉也能救",
-            "text": "输出到一半中断"
-          },
-          {
-            "desc": "不用从头再来",
-            "text": "接着原位置继续"
-          }
-        ]
-      },
+      "narration": "你还有哪些好用的工具？",
+      "type": "hero",
       "elementTimings": [
         {
-          "audioEnd": 91.8,
-          "audioStart": 90.6,
-          "cue": "断了别慌",
+          "audioEnd": 127.85639999999998,
+          "audioStart": 127.53599999999996,
+          "cue": "你还用哪些好工具？",
           "entryDelay": 0,
           "entryDuration": 0.5,
           "id": "title",
           "type": "title"
         },
         {
-          "audioEnd": 92.36,
-          "audioStart": 91.56,
-          "cue": "中断、卡住、意外退出，都能接回去",
+          "audioEnd": 128.88215999999997,
+          "audioStart": 128.09231999999997,
+          "cue": "分享你的爆款利器",
           "entryDelay": 0,
           "entryDuration": 0.4,
-          "id": "subtitle",
-          "type": "subtitle"
-        },
-        {
-          "audioEnd": 101.474,
-          "audioStart": 92.26,
-          "cue": "输出到一半中断",
-          "entryDelay": 0,
-          "entryDuration": 0.4,
-          "id": "item-0",
+          "id": "point-0",
           "index": 0,
-          "type": "item"
+          "type": "custom"
         },
         {
-          "audioEnd": 110.688,
-          "audioStart": 101.474,
-          "cue": "接着原位置继续",
+          "audioEnd": 129.67199999999997,
+          "audioStart": 128.88215999999997,
+          "cue": "提升团队协作和个人效率",
           "entryDelay": 0,
           "entryDuration": 0.4,
-          "id": "item-1",
+          "id": "point-1",
           "index": 1,
-          "type": "item"
+          "type": "custom"
         }
       ],
-      "audioDuration": 20.088,
-      "durationInFrames": 603,
-      "audioStart": 90.6,
-      "audioEnd": 110.68799999999999
+      "audioDuration": 2.136,
+      "durationInFrames": 64,
+      "audioStart": 127.536,
+      "audioEnd": 129.672
     },
     {
       "id": "slide-18",
-      "title": "一键续上",
-      "subtitle": "斜杠 continue，接着之前的回答走",
-      "points": [
-        "直接续写",
-        "不用重开一轮"
-      ],
-      "narration": "直接输入斜杠 continue，Claude 就会接着之前的回答继续输出。",
-      "type": "steps",
-      "data": {
-        "steps": [
-          {
-            "description": "恢复上一次的输出状态",
-            "title": "输入 /continue"
-          },
-          {
-            "description": "接着断点往下输出",
-            "title": "继续写完"
-          }
-        ]
-      },
-      "elementTimings": [
-        {
-          "audioEnd": 111.4188,
-          "audioStart": 110.688,
-          "cue": "一键续上",
-          "entryDelay": 0,
-          "entryDuration": 0.5,
-          "id": "title",
-          "type": "title"
-        },
-        {
-          "audioEnd": 111.75983999999998,
-          "audioStart": 111.27263999999998,
-          "cue": "斜杠 continue，接着之前的回答走",
-          "entryDelay": 0,
-          "entryDuration": 0.4,
-          "id": "subtitle",
-          "type": "subtitle"
-        },
-        {
-          "audioEnd": 113.68811999999998,
-          "audioStart": 111.81623999999998,
-          "cue": "输入 /continue",
-          "entryDelay": 0,
-          "entryDuration": 0.4,
-          "id": "step-0",
-          "index": 0,
-          "type": "step"
-        },
-        {
-          "audioEnd": 115.56,
-          "audioStart": 113.68811999999998,
-          "cue": "继续写完",
-          "entryDelay": 0,
-          "entryDuration": 0.4,
-          "id": "step-1",
-          "index": 1,
-          "type": "step"
-        }
-      ],
-      "audioDuration": 4.872,
-      "durationInFrames": 146,
-      "audioStart": 110.68799999999999,
-      "audioEnd": 115.55999999999999
-    },
-    {
-      "id": "slide-19",
-      "title": "五个命令，值了",
-      "subtitle": "质量更高，也更省 token",
-      "points": [
-        "质量提升",
-        "token 更省"
-      ],
-      "narration": "总结一下，学会这五个命令不仅可以让输出的质量更高，关键是还更省 token。",
-      "type": "quote",
-      "data": {
-        "author": "",
-        "quote": "学会这五个命令，输出更稳，token 也更省。"
-      },
-      "elementTimings": [
-        {
-          "audioEnd": 116.622,
-          "audioStart": 115.56,
-          "cue": "五个命令，值了",
-          "entryDelay": 0,
-          "entryDuration": 0.5,
-          "id": "title",
-          "type": "title"
-        },
-        {
-          "audioEnd": 117.11759999999998,
-          "audioStart": 116.40959999999998,
-          "cue": "质量更高，也更省 token",
-          "entryDelay": 0,
-          "entryDuration": 0.4,
-          "id": "subtitle",
-          "type": "subtitle"
-        },
-        {
-          "audioEnd": 122.64,
-          "audioStart": 117.06359999999998,
-          "cue": "学会这五个命令，输出更稳，token 也更省。",
-          "entryDelay": 0,
-          "entryDuration": 0.4,
-          "id": "quote-text",
-          "type": "quote"
-        }
-      ],
-      "audioDuration": 7.08,
-      "durationInFrames": 212,
-      "audioStart": 115.55999999999999,
-      "audioEnd": 122.63999999999999
-    },
-    {
-      "id": "slide-20",
-      "title": "你最常用哪个？",
-      "subtitle": "评论区聊聊，看看大家最常救场的是哪一个",
-      "points": [
-        "说说你最顺手的那个",
-        "一起补全使用经验"
-      ],
-      "narration": "你觉得哪个 Claude Code 的命令最好用？欢迎在评论区告诉我。",
+      "title": "评论区见，一起交流",
+      "subtitle": "",
+      "points": [],
+      "narration": "评论区分享，我们一起交流！",
       "type": "cta",
       "data": {
-        "button": "评论区见",
-        "cta": "留言你的常用命令"
+        "button": "评论区留言，分享你的实用技巧",
+        "cta": "评论区留言，分享你的实用技巧"
       },
       "elementTimings": [
         {
-          "audioEnd": 123.414,
-          "audioStart": 122.64,
-          "cue": "你最常用哪个？",
+          "audioEnd": 130.19039999999998,
+          "audioStart": 129.67199999999997,
+          "cue": "评论区见，一起交流",
           "entryDelay": 0,
           "entryDuration": 0.5,
           "id": "title",
           "type": "title"
-        },
-        {
-          "audioEnd": 123.7752,
-          "audioStart": 123.2592,
-          "cue": "评论区聊聊，看看大家最常救场的是哪一个",
-          "entryDelay": 0,
-          "entryDuration": 0.4,
-          "id": "subtitle",
-          "type": "subtitle"
-        },
-        {
-          "audioEnd": 125.80859999999998,
-          "audioStart": 123.8172,
-          "cue": "说说你最顺手的那个",
-          "entryDelay": 0,
-          "entryDuration": 0.4,
-          "id": "point-0",
-          "index": 0,
-          "type": "custom"
-        },
-        {
-          "audioEnd": 127.79999999999998,
-          "audioStart": 125.80859999999998,
-          "cue": "一起补全使用经验",
-          "entryDelay": 0,
-          "entryDuration": 0.4,
-          "id": "point-1",
-          "index": 1,
-          "type": "custom"
         }
       ],
-      "audioDuration": 5.16,
-      "durationInFrames": 155,
-      "audioStart": 122.63999999999999,
-      "audioEnd": 127.79999999999998
-    },
-    {
-      "id": "slide-21",
-      "title": "关注我",
-      "subtitle": "每天一个外部限定的小技巧",
-      "points": [
-        "每天一个小技巧",
-        "持续更新实用内容"
-      ],
-      "narration": "我是新启，关注我，每天分享一个外部限定的小技巧。",
-      "type": "cta",
-      "data": {
-        "button": "关注新启",
-        "cta": "持续更新实用技巧"
-      },
-      "elementTimings": [
-        {
-          "audioEnd": 128.4948,
-          "audioStart": 127.79999999999998,
-          "cue": "关注我",
-          "entryDelay": 0,
-          "entryDuration": 0.5,
-          "id": "title",
-          "type": "title"
-        },
-        {
-          "audioEnd": 128.81903999999997,
-          "audioStart": 128.35583999999997,
-          "cue": "每天一个外部限定的小技巧",
-          "entryDelay": 0,
-          "entryDuration": 0.4,
-          "id": "subtitle",
-          "type": "subtitle"
-        },
-        {
-          "audioEnd": 130.65972,
-          "audioStart": 128.88743999999997,
-          "cue": "每天一个小技巧",
-          "entryDelay": 0,
-          "entryDuration": 0.4,
-          "id": "point-0",
-          "index": 0,
-          "type": "custom"
-        },
-        {
-          "audioEnd": 132.43200000000002,
-          "audioStart": 130.65972,
-          "cue": "持续更新实用内容",
-          "entryDelay": 0,
-          "entryDuration": 0.4,
-          "id": "point-1",
-          "index": 1,
-          "type": "custom"
-        }
-      ],
-      "audioDuration": 4.632,
-      "durationInFrames": 139,
-      "audioStart": 127.79999999999998,
-      "audioEnd": 132.432
+      "audioDuration": 2.592,
+      "durationInFrames": 78,
+      "audioStart": 129.672,
+      "audioEnd": 132.264
     }
   ],
   "fps": 30,
   "width": 1920,
   "height": 1080,
   "defaultDurationPerSlide": 150,
-  "soundtrackPath": "projects/generated/1775573042932-InsightShow/audio/narration.mp3",
-  "soundtrackDuration": 132.432
+  "soundtrackPath": "projects/generated/1775629715545-MacShow/audio/narration.mp3",
+  "soundtrackDuration": 132.264
 }
