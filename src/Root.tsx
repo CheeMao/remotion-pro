@@ -23,6 +23,8 @@ interface LoadedJsonData {
   slides: ContentSlide[];
   template: string;
   soundtrackPath?: string;
+  generationMode?: "standard" | "director";
+  directorStyle?: Record<string, unknown>;
 }
 
 interface CurrentProjectReference {
@@ -36,6 +38,8 @@ interface GeneratedVideoProps {
   soundtrackPath?: string;
   defaultSlideDuration?: number;
   contentPath?: string;
+  generationMode?: "standard" | "director";
+  directorStyle?: Record<string, unknown>;
 }
 
 const DEFAULT_TEMPLATE = "GlassShow";
@@ -67,6 +71,18 @@ const getQueryParam = (name: string): string | undefined => {
 
 const getTemplateProjectContentPath = (template: string): string => {
   return getTemplateContentPath(template);
+};
+
+const normalizeGenerationMode = (
+  value?: string,
+): "standard" | "director" => {
+  return value === "director" ? "director" : "standard";
+};
+
+const shouldPreferSharedLayout = (
+  generationMode?: "standard" | "director",
+): boolean => {
+  return generationMode === "director";
 };
 
 const loadCurrentProjectReference =
@@ -115,6 +131,9 @@ const toAudioSlides = (content: ContentFile): AudioSlideData[] => {
     segmentIds: slide.segmentIds,
     type: slide.type,
     data: slide.data,
+    media: slide.media,
+    motionPreset: slide.motionPreset,
+    motion: slide.motion,
     elementTimings: slide.elementTimings,
     audioDuration: slide.audioDuration,
     durationInFrames: slide.durationInFrames,
@@ -133,6 +152,9 @@ const coerceToAudioSlides = (slides: ContentSlide[]): AudioSlideData[] => {
     segmentIds: slide.segmentIds,
     type: slide.type,
     data: slide.data,
+    media: slide.media,
+    motionPreset: slide.motionPreset,
+    motion: slide.motion,
     elementTimings: slide.elementTimings,
     audioDuration: slide.audioDuration,
     durationInFrames: slide.durationInFrames,
@@ -170,6 +192,11 @@ const loadSlidesFromJson = async (
       slides: prepareSlidesForRender(data.slides),
       template: resolvedTemplate,
       soundtrackPath: data.meta.soundtrackPath || data.meta.soundtrack_path,
+      generationMode: normalizeGenerationMode(
+        data.meta.generationMode || data.meta.generation_mode,
+      ),
+      directorStyle:
+        data.meta.directorStyle || data.meta.director_style || undefined,
     };
   } catch {
     return {
@@ -177,6 +204,7 @@ const loadSlidesFromJson = async (
         defaultSlides as unknown as ContentSlide[],
       ),
       template: DEFAULT_TEMPLATE,
+      generationMode: "standard",
     };
   }
 };
@@ -215,6 +243,8 @@ const resolveGeneratedVideoData = async (
       slides: props.slides as unknown as ContentSlide[],
       template: props.template || DEFAULT_TEMPLATE,
       soundtrackPath: props.soundtrackPath,
+      generationMode: normalizeGenerationMode(props.generationMode),
+      directorStyle: props.directorStyle,
     };
   }
 
@@ -233,6 +263,8 @@ const DynamicLoader: React.FC<GeneratedVideoProps> = ({
   soundtrackPath,
   defaultSlideDuration = DEFAULT_DURATION,
   contentPath,
+  generationMode,
+  directorStyle,
 }) => {
   const [data, setData] = useState<LoadedJsonData | null>(null);
   const [handle] = useState(() => delayRender("load video json"));
@@ -244,6 +276,8 @@ const DynamicLoader: React.FC<GeneratedVideoProps> = ({
       soundtrackPath,
       defaultSlideDuration,
       contentPath,
+      generationMode,
+      directorStyle,
     }).then((loadedData) => {
       setData(loadedData);
       continueRender(handle);
@@ -255,6 +289,8 @@ const DynamicLoader: React.FC<GeneratedVideoProps> = ({
     slides,
     soundtrackPath,
     template,
+    generationMode,
+    directorStyle,
   ]);
 
   if (!data) {
@@ -267,6 +303,9 @@ const DynamicLoader: React.FC<GeneratedVideoProps> = ({
       template={data.template}
       soundtrackPath={data.soundtrackPath}
       defaultSlideDuration={defaultSlideDuration}
+      preferSharedLayout={shouldPreferSharedLayout(
+        data.generationMode || generationMode,
+      )}
     />
   );
 };

@@ -1,4 +1,8 @@
-import type { ElementTiming } from '../templates/types';
+import type {
+  ElementTiming,
+  SlideMediaAsset,
+  SlideMotionConfig,
+} from '../templates/types';
 import type { ThemeDefinition } from '../themes/types';
 
 export interface SharedLayoutSlide {
@@ -9,6 +13,9 @@ export interface SharedLayoutSlide {
   type?: string;
   layout?: string;
   data?: Record<string, unknown>;
+  media?: SlideMediaAsset[];
+  motionPreset?: string;
+  motion?: SlideMotionConfig;
   audioStart?: number;
   elementTimings?: ElementTiming[];
 }

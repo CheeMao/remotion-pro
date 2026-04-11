@@ -1,7 +1,8 @@
 import React from 'react';
-import { AbsoluteFill, interpolate } from 'remotion';
+import { AbsoluteFill, interpolate, useVideoConfig } from 'remotion';
 import { getSlideMotionTiming } from '../templates/animationTiming';
 import { getElementProgress } from '../templates/runtimeTiming';
+import { getSafeAreaInsets } from './safeArea';
 import type { SharedLayoutProps } from './types';
 
 interface ChartBar {
@@ -25,6 +26,8 @@ export const ChartLayout: React.FC<SharedLayoutProps> = ({
   totalSlides,
   durationInFrames,
 }) => {
+  const { width, height } = useVideoConfig();
+  const safeArea = getSafeAreaInsets(width, height);
   const chart = (slide.data?.chart as ChartDataShape | undefined) || (slide.data as ChartDataShape | undefined);
   const items = (chart?.values || chart?.bars || []).slice(0, 5);
   const chartType = chart?.type || (chart?.values ? 'bar' : 'progress');
@@ -47,14 +50,14 @@ export const ChartLayout: React.FC<SharedLayoutProps> = ({
         background: theme.palette.background,
         color: theme.palette.text,
         fontFamily: theme.typography.fontFamily,
-        padding: '58px 54px',
+        padding: `${safeArea.top}px ${safeArea.right}px ${safeArea.bottom}px ${safeArea.left}px`,
       }}
     >
       <div
         style={{
           position: 'absolute',
-          top: 38,
-          right: 44,
+          top: safeArea.headerTop,
+          right: safeArea.headerSide,
           color: theme.palette.muted,
           fontSize: 22,
           fontWeight: 800,

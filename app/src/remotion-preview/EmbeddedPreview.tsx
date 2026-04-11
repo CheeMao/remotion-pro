@@ -12,6 +12,8 @@ export interface PreviewProjectData {
   template: string;
   slides: Array<Record<string, unknown>>;
   soundtrackUrl?: string;
+  generationMode?: 'standard' | 'director';
+  directorStyle?: Record<string, unknown>;
 }
 
 const toAudioSlides = (slides: Array<Record<string, unknown>>): AudioSlideData[] => {
@@ -25,6 +27,13 @@ const toAudioSlides = (slides: Array<Record<string, unknown>>): AudioSlideData[]
     narration: typeof slide.narration === 'string' ? slide.narration : undefined,
     type: typeof slide.type === 'string' ? slide.type : slide.layout,
     data: slide.data,
+    media: Array.isArray(slide.media) ? slide.media : undefined,
+    motionPreset:
+      typeof slide.motionPreset === 'string' ? slide.motionPreset : undefined,
+    motion:
+      slide.motion && typeof slide.motion === 'object'
+        ? (slide.motion as AudioSlideData['motion'])
+        : undefined,
     elementTimings: slide.elementTimings,
     audioDuration: slide.audioDuration,
     durationInFrames: slide.durationInFrames,
@@ -53,18 +62,27 @@ const SharedVideoComponent = SharedVideo as unknown as React.ComponentType<{
   template?: string;
   soundtrackPath?: string;
   defaultSlideDuration?: number;
+  preferSharedLayout?: boolean;
 }>;
+
+const normalizeGenerationMode = (
+  value?: string,
+): 'standard' | 'director' => {
+  return value === 'director' ? 'director' : 'standard';
+};
 
 const PreviewComposition: React.FC<PreviewProjectData> = ({
   template,
   slides,
   soundtrackUrl,
+  generationMode,
 }) => {
   return React.createElement(SharedVideoComponent, {
     slides: toAudioSlides(slides),
     template,
     soundtrackPath: soundtrackUrl,
     defaultSlideDuration: DEFAULT_SLIDE_DURATION,
+    preferSharedLayout: normalizeGenerationMode(generationMode) === 'director',
   });
 };
 

@@ -4,7 +4,9 @@ import {
   Easing,
   interpolate,
   useCurrentFrame,
+  useVideoConfig,
 } from "remotion";
+import { getSafeAreaInsets } from "../layouts/safeArea";
 import {
   getCta,
   getQuote,
@@ -106,6 +108,8 @@ const EditorialChrome: React.FC<{
   sectionLabel: string;
   children: React.ReactNode;
 }> = ({ frame, index, totalSlides, sectionLabel, children }) => {
+  const { width, height } = useVideoConfig();
+  const safeArea = getSafeAreaInsets(width, height);
   const headerOpacity = ease(frame, 0, 22);
   const footerOpacity = ease(frame, 4, 26);
   const rulesGrow = easeOut(frame, 6, 36);
@@ -116,9 +120,9 @@ const EditorialChrome: React.FC<{
       <div
         style={{
           position: "absolute",
-          top: 70,
-          left: 100,
-          right: 100,
+          top: safeArea.headerTop + 28,
+          left: safeArea.left,
+          right: safeArea.right,
           height: 1,
           background: EDITORIAL.rule,
           transformOrigin: "left center",
@@ -128,9 +132,9 @@ const EditorialChrome: React.FC<{
       <div
         style={{
           position: "absolute",
-          top: 76,
-          left: 100,
-          right: 100,
+          top: safeArea.headerTop + 34,
+          left: safeArea.left,
+          right: safeArea.right,
           height: 1,
           background: EDITORIAL.rule,
           transformOrigin: "right center",
@@ -143,9 +147,9 @@ const EditorialChrome: React.FC<{
       <div
         style={{
           position: "absolute",
-          top: 36,
-          left: 100,
-          right: 100,
+          top: safeArea.headerTop - 6,
+          left: safeArea.left,
+          right: safeArea.right,
           display: "flex",
           alignItems: "center",
           opacity: headerOpacity,
@@ -171,10 +175,10 @@ const EditorialChrome: React.FC<{
       <div
         style={{
           position: "absolute",
-          left: 100,
-          right: 100,
-          top: 110,
-          bottom: 110,
+          left: safeArea.left,
+          right: safeArea.right,
+          top: safeArea.top,
+          bottom: safeArea.bottom,
           fontFamily: EDITORIAL.serif,
           color: EDITORIAL.ink,
         }}
@@ -186,9 +190,9 @@ const EditorialChrome: React.FC<{
       <div
         style={{
           position: "absolute",
-          bottom: 76,
-          left: 100,
-          right: 100,
+          bottom: safeArea.headerTop + 34,
+          left: safeArea.left,
+          right: safeArea.right,
           height: 1,
           background: EDITORIAL.rule,
           transformOrigin: "right center",
@@ -198,9 +202,9 @@ const EditorialChrome: React.FC<{
       <div
         style={{
           position: "absolute",
-          bottom: 70,
-          left: 100,
-          right: 100,
+          bottom: safeArea.headerTop + 28,
+          left: safeArea.left,
+          right: safeArea.right,
           height: 1,
           background: EDITORIAL.rule,
           transformOrigin: "left center",
@@ -213,9 +217,9 @@ const EditorialChrome: React.FC<{
       <div
         style={{
           position: "absolute",
-          bottom: 32,
-          left: 100,
-          right: 100,
+          bottom: safeArea.headerTop - 10,
+          left: safeArea.left,
+          right: safeArea.right,
           display: "flex",
           alignItems: "center",
           opacity: footerOpacity,

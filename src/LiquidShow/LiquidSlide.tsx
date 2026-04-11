@@ -6,6 +6,7 @@ import {
   useVideoConfig,
 } from "remotion";
 import { getSlideMotionTiming } from "../templates/animationTiming";
+import { getSafeAreaInsets } from "../layouts/safeArea";
 
 // macOS 26 液态玻璃配色
 const colors = {
@@ -362,7 +363,8 @@ export const LiquidSlide: React.FC<{
   durationInFrames: number;
 }> = ({ title, subtitle, points, type = 'default', data, index, totalSlides, durationInFrames }) => {
   const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
+  const { fps, width, height } = useVideoConfig();
+  const safeArea = getSafeAreaInsets(width, height);
 
   // 根据 type 计算动画元素数量
   const getAnimCount = () => {
@@ -1177,7 +1179,7 @@ export const LiquidSlide: React.FC<{
           flexDirection: "column",
           justifyContent: "center",
           alignItems: "center",
-          padding: "50px",
+          padding: `${safeArea.top}px ${safeArea.right}px ${safeArea.bottom}px ${safeArea.left}px`,
           zIndex: 10,
         }}
       >
@@ -1185,9 +1187,9 @@ export const LiquidSlide: React.FC<{
         <div
           style={{
             position: "absolute",
-            top: 50,
-            left: 50,
-            right: 50,
+            top: safeArea.headerTop,
+            left: safeArea.left,
+            right: safeArea.right,
             display: "flex",
             justifyContent: "flex-end",
             alignItems: "center",
@@ -1279,7 +1281,7 @@ export const LiquidSlide: React.FC<{
         <div
           style={{
             position: "absolute",
-            bottom: 50,
+            bottom: Math.max(28, safeArea.bottom - 18),
             display: "flex",
             gap: 8,
           }}

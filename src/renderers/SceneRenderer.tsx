@@ -1,4 +1,5 @@
 import React from 'react';
+import { AbsoluteFill } from 'remotion';
 import {
   ChartLayout,
   CompareLayout,
@@ -15,11 +16,14 @@ import {
 import type { SharedLayoutSlide } from '../layouts';
 import { renderTemplateScene } from './templateSceneRegistry';
 import { getThemeDefinition } from '../themes/registry';
+import { SlideMediaOverlay, slideHasRenderableMedia } from './SlideMediaOverlay';
+import { SceneMotionLayer, SceneMotionShell, hasSceneMotionLayer } from './SceneMotionLayer';
 
 interface SceneRendererProps {
   slide: SharedLayoutSlide;
   template?: string;
   themeId?: string;
+  preferSharedLayout?: boolean;
   frame: number;
   fps: number;
   index: number;
@@ -32,6 +36,7 @@ export const SceneRenderer: React.FC<SceneRendererProps> = ({
   slide,
   template,
   themeId,
+  preferSharedLayout = false,
   frame,
   fps,
   index,
@@ -39,23 +44,65 @@ export const SceneRenderer: React.FC<SceneRendererProps> = ({
   durationInFrames,
   fallback = null,
 }) => {
-  const templateScene = renderTemplateScene({
-    template,
-    slide,
-    index,
-    totalSlides,
-    durationInFrames,
-  });
+  const theme = getThemeDefinition(themeId);
 
-  if (templateScene) {
-    return <>{templateScene}</>;
+  const wrapScene = (content: React.ReactNode) => {
+    const hasMedia = slideHasRenderableMedia(slide);
+    const hasMotion = hasSceneMotionLayer(slide, index);
+
+    if (!hasMedia && !hasMotion) {
+      return <>{content}</>;
+    }
+
+    return (
+      <AbsoluteFill>
+        {hasMotion ? (
+          <SceneMotionLayer
+            slide={slide}
+            theme={theme}
+            frame={frame}
+            fps={fps}
+            index={index}
+          />
+        ) : null}
+        {hasMotion ? (
+          <SceneMotionShell
+            slide={slide}
+            theme={theme}
+            frame={frame}
+            fps={fps}
+            index={index}
+          >
+            {content}
+          </SceneMotionShell>
+        ) : (
+          content
+        )}
+        {hasMedia ? <SlideMediaOverlay slide={slide} frame={frame} fps={fps} /> : null}
+      </AbsoluteFill>
+    );
+  };
+
+  if (!preferSharedLayout) {
+    const templateScene = renderTemplateScene({
+      template,
+      slide,
+      index,
+      totalSlides,
+      durationInFrames,
+    });
+
+    if (templateScene) {
+      return wrapScene(templateScene);
+    }
   }
 
-  const theme = getThemeDefinition(themeId);
   const layout = slide.layout || slide.type || 'default';
 
+  let content: React.ReactNode = fallback;
+
   if (layout === 'steps') {
-    return (
+    content = (
       <StepsLayout
         slide={slide}
         theme={theme}
@@ -69,7 +116,7 @@ export const SceneRenderer: React.FC<SceneRendererProps> = ({
   }
 
   if (layout === 'hero' || layout === 'cover') {
-    return (
+    content = (
       <HeroLayout
         slide={slide}
         theme={theme}
@@ -83,7 +130,7 @@ export const SceneRenderer: React.FC<SceneRendererProps> = ({
   }
 
   if (layout === 'compare') {
-    return (
+    content = (
       <CompareLayout
         slide={slide}
         theme={theme}
@@ -97,7 +144,7 @@ export const SceneRenderer: React.FC<SceneRendererProps> = ({
   }
 
   if (layout === 'highlight') {
-    return (
+    content = (
       <HighlightLayout
         slide={slide}
         theme={theme}
@@ -111,7 +158,7 @@ export const SceneRenderer: React.FC<SceneRendererProps> = ({
   }
 
   if (layout === 'list' || layout === 'cards') {
-    return (
+    content = (
       <ListLayout
         slide={slide}
         theme={theme}
@@ -125,7 +172,7 @@ export const SceneRenderer: React.FC<SceneRendererProps> = ({
   }
 
   if (layout === 'stats') {
-    return (
+    content = (
       <StatsLayout
         slide={slide}
         theme={theme}
@@ -139,7 +186,7 @@ export const SceneRenderer: React.FC<SceneRendererProps> = ({
   }
 
   if (layout === 'timeline') {
-    return (
+    content = (
       <TimelineLayout
         slide={slide}
         theme={theme}
@@ -153,7 +200,7 @@ export const SceneRenderer: React.FC<SceneRendererProps> = ({
   }
 
   if (layout === 'chart') {
-    return (
+    content = (
       <ChartLayout
         slide={slide}
         theme={theme}
@@ -167,7 +214,7 @@ export const SceneRenderer: React.FC<SceneRendererProps> = ({
   }
 
   if (layout === 'progress') {
-    return (
+    content = (
       <ChartLayout
         slide={slide}
         theme={theme}
@@ -181,7 +228,7 @@ export const SceneRenderer: React.FC<SceneRendererProps> = ({
   }
 
   if (layout === 'quote') {
-    return (
+    content = (
       <QuoteLayout
         slide={slide}
         theme={theme}
@@ -195,7 +242,7 @@ export const SceneRenderer: React.FC<SceneRendererProps> = ({
   }
 
   if (layout === 'cta') {
-    return (
+    content = (
       <CtaLayout
         slide={slide}
         theme={theme}
@@ -209,7 +256,7 @@ export const SceneRenderer: React.FC<SceneRendererProps> = ({
   }
 
   if (layout === 'default' || !layout) {
-    return (
+    content = (
       <DefaultLayout
         slide={slide}
         theme={theme}
@@ -222,5 +269,5 @@ export const SceneRenderer: React.FC<SceneRendererProps> = ({
     );
   }
 
-  return <>{fallback}</>;
+  return wrapScene(content);
 };

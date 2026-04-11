@@ -6,6 +6,7 @@ import {
   useCurrentFrame,
   useVideoConfig,
 } from "remotion";
+import { getSafeAreaInsets } from "../layouts/safeArea";
 import {
   getCta,
   getQuote,
@@ -133,6 +134,8 @@ const StudioFrame: React.FC<{
   children: React.ReactNode;
   durationInFrames: number;
 }> = ({ frame, index, totalSlides, layoutLabel, children, durationInFrames }) => {
+  const { width, height } = useVideoConfig();
+  const safeArea = getSafeAreaInsets(width, height);
   const topAppear = ease(frame, 0, 14);
   const sideAppear = ease(frame, 6, 22);
   const bottomAppear = ease(frame, 4, 18);
@@ -144,13 +147,13 @@ const StudioFrame: React.FC<{
       <div
         style={{
           position: "absolute",
-          top: 0,
-          left: 0,
-          right: 0,
+          top: safeArea.headerTop - 42,
+          left: safeArea.left,
+          right: safeArea.right,
           height: 56,
           display: "flex",
           alignItems: "center",
-          padding: "0 48px",
+          padding: "0 32px",
           borderBottom: `1px solid ${STUDIO.borderFaint}`,
           opacity: topAppear,
           transform: `translateY(${(1 - topAppear) * -10}px)`,
@@ -205,9 +208,9 @@ const StudioFrame: React.FC<{
       <div
         style={{
           position: "absolute",
-          left: 14,
-          top: 80,
-          bottom: 80,
+          left: Math.max(12, safeArea.left - 42),
+          top: safeArea.top,
+          bottom: safeArea.bottom,
           width: 32,
           display: "flex",
           alignItems: "center",
@@ -235,10 +238,10 @@ const StudioFrame: React.FC<{
       <div
         style={{
           position: "absolute",
-          left: 88,
-          right: 48,
-          top: 84,
-          bottom: 84,
+          left: safeArea.left + 30,
+          right: safeArea.right,
+          top: safeArea.top,
+          bottom: safeArea.bottom,
           fontFamily: STUDIO.sansFont,
           color: STUDIO.ink,
         }}

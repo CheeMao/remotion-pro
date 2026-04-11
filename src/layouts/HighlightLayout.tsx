@@ -1,7 +1,8 @@
 import React from 'react';
-import { AbsoluteFill, interpolate } from 'remotion';
+import { AbsoluteFill, interpolate, useVideoConfig } from 'remotion';
 import { getSlideMotionTiming } from '../templates/animationTiming';
 import { getElementProgress } from '../templates/runtimeTiming';
+import { getSafeAreaInsets } from './safeArea';
 import type { SharedLayoutProps } from './types';
 
 interface HighlightItem {
@@ -18,6 +19,8 @@ export const HighlightLayout: React.FC<SharedLayoutProps> = ({
   totalSlides,
   durationInFrames,
 }) => {
+  const { width, height } = useVideoConfig();
+  const safeArea = getSafeAreaInsets(width, height);
   const items: HighlightItem[] =
     ((slide.data?.highlights as HighlightItem[] | undefined) || []).length > 0
       ? ((slide.data?.highlights as HighlightItem[] | undefined) || [])
@@ -43,15 +46,15 @@ export const HighlightLayout: React.FC<SharedLayoutProps> = ({
         background: theme.palette.background,
         color: theme.palette.text,
         fontFamily: theme.typography.fontFamily,
-        padding: '66px 62px',
+        padding: `${safeArea.top}px ${safeArea.right}px ${safeArea.bottom}px ${safeArea.left}px`,
         justifyContent: 'center',
       }}
     >
       <div
         style={{
           position: 'absolute',
-          top: 38,
-          right: 44,
+          top: safeArea.headerTop,
+          right: safeArea.headerSide,
           color: theme.palette.muted,
           fontSize: 22,
           fontWeight: 800,

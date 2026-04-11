@@ -6,6 +6,7 @@ import {
   useVideoConfig,
 } from "remotion";
 import { getSlideMotionTiming } from "../templates/animationTiming";
+import { getSafeAreaInsets } from "../layouts/safeArea";
 
 // 配色方案
 const colors = {
@@ -189,7 +190,8 @@ export const GlassSlide: React.FC<{
   durationInFrames: number;
 }> = ({ title, subtitle, points, type = 'default', data, index, totalSlides, durationInFrames }) => {
   const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
+  const { fps, width, height } = useVideoConfig();
+  const safeArea = getSafeAreaInsets(width, height);
 
   // 根据 type 计算动画元素数量
   const getAnimCount = () => {
@@ -870,7 +872,7 @@ export const GlassSlide: React.FC<{
           flexDirection: "column",
           justifyContent: "center",
           alignItems: "center",
-          padding: "88px 54px 108px",
+          padding: `${safeArea.top}px ${safeArea.right}px ${safeArea.bottom}px ${safeArea.left}px`,
           zIndex: 10,
         }}
       >

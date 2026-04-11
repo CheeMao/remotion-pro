@@ -1,0 +1,418 @@
+{
+  "meta": {
+    "title": "Generated Video",
+    "template": "GlassShow",
+    "voice_id": "S_PlTK120R1",
+    "full_narration": "今天给大家推荐8个实用 skill 涵盖设计、规划、安全多个方向。第一个， Frontend Design 来自 Anthropic 官方，27万多安装量，给 claude 注入完整的设计系统和设计哲学。有了它，Cloud 写出的界面质量直接上一个台阶。第二个， Superpowers 作者 Oobabooga 4万多 stars 目前最完整的多 Agent 开发工作流。它能让 Claude 自动拆解任务。并行执行，自我检查。",
+    "generation_mode": "director",
+    "director_style": {
+      "goal": "",
+      "referenceImageNames": [],
+      "source": "template",
+      "strength": "medium"
+    },
+    "soundtrack_path": "projects/generated/1775874252535-GlassShow/audio/narration.mp3",
+    "soundtrack_duration": 33.19199999999999,
+    "voiceId": "S_PlTK120R1",
+    "fullNarration": "今天给大家推荐8个实用 skill 涵盖设计、规划、安全多个方向。第一个， Frontend Design 来自 Anthropic 官方，27万多安装量，给 claude 注入完整的设计系统和设计哲学。有了它，Cloud 写出的界面质量直接上一个台阶。第二个， Superpowers 作者 Oobabooga 4万多 stars 目前最完整的多 Agent 开发工作流。它能让 Claude 自动拆解任务。并行执行，自我检查。",
+    "soundtrackPath": "projects/generated/1775874252535-GlassShow/audio/narration.mp3",
+    "soundtrackDuration": 33.192
+  },
+  "slides": [
+    {
+      "audioDuration": 5.808,
+      "audioEnd": 5.808,
+      "audioStart": 0,
+      "durationInFrames": 174,
+      "elementTimings": [
+        {
+          "audioEnd": 0.8712,
+          "audioStart": 0,
+          "cue": "8个实用技能来了",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 1.27776,
+          "audioStart": 0.69696,
+          "cue": "覆盖设计、规划、安全多方向",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "subtitle",
+          "type": "subtitle"
+        },
+        {
+          "audioEnd": 5.808,
+          "audioStart": 1.28736,
+          "cue": "精挑细选，直接提升工作效率",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "point-0",
+          "index": 0,
+          "type": "custom"
+        }
+      ],
+      "layout": "hero",
+      "narration": "今天给大家推荐8个实用 skill，涵盖设计、规划、安全多个方向。",
+      "points": [
+        "精挑细选，直接提升工作效率"
+      ],
+      "segmentIds": [
+        "segment-1"
+      ],
+      "subtitle": "覆盖设计、规划、安全多方向",
+      "title": "8个实用技能来了",
+      "type": "hero",
+      "audioPath": "projects/generated/1775874252535-GlassShow/audio/slides/slide-001.mp3"
+    },
+    {
+      "audioDuration": 9.648,
+      "audioEnd": 15.456,
+      "audioStart": 5.808,
+      "data": {
+        "items": [
+          {
+            "desc": "用户数多，社区活跃",
+            "text": "Anthropic官方项目"
+          },
+          {
+            "desc": "界面更专业、符合标准",
+            "text": "设计质量显著提升"
+          }
+        ]
+      },
+      "durationInFrames": 289,
+      "elementTimings": [
+        {
+          "audioEnd": 7.008,
+          "audioStart": 5.808,
+          "cue": "技能#1：Frontend Design",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 7.568,
+          "audioStart": 6.768,
+          "cue": "官方出品，27万星好评",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "subtitle",
+          "type": "subtitle"
+        },
+        {
+          "audioEnd": 11.462,
+          "audioStart": 7.468,
+          "cue": "Anthropic官方项目",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "item-0",
+          "index": 0,
+          "type": "item"
+        },
+        {
+          "audioEnd": 15.456,
+          "audioStart": 11.462,
+          "cue": "设计质量显著提升",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "item-1",
+          "index": 1,
+          "type": "item"
+        }
+      ],
+      "layout": "list",
+      "narration": "第一个， Frontend Design 来自 Anthropic 官方，27万...",
+      "points": [
+        "官方背书，广受好评"
+      ],
+      "segmentIds": [
+        "segment-2"
+      ],
+      "subtitle": "官方出品，27万星好评",
+      "title": "技能#1：Frontend Design",
+      "type": "list",
+      "audioPath": "projects/generated/1775874252535-GlassShow/audio/slides/slide-002.mp3"
+    },
+    {
+      "audioDuration": 4.176,
+      "audioEnd": 19.631999999999998,
+      "audioStart": 15.456,
+      "data": {
+        "items": [
+          "设计更精致",
+          "交互更流畅",
+          "整体质感提升"
+        ]
+      },
+      "durationInFrames": 125,
+      "elementTimings": [
+        {
+          "audioEnd": 16.0824,
+          "audioStart": 15.456,
+          "cue": "界面质量提升有多明显？",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 17.38208,
+          "audioStart": 16.25712,
+          "cue": "设计更精致",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "highlight-0",
+          "index": 0,
+          "type": "highlight"
+        },
+        {
+          "audioEnd": 18.507039999999996,
+          "audioStart": 17.38208,
+          "cue": "交互更流畅",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "highlight-1",
+          "index": 1,
+          "type": "highlight"
+        },
+        {
+          "audioEnd": 19.632,
+          "audioStart": 18.50704,
+          "cue": "整体质感提升",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "highlight-2",
+          "index": 2,
+          "type": "highlight"
+        }
+      ],
+      "layout": "highlight",
+      "narration": "有了它，Cloud 写出的界面质量直接上一个台阶。",
+      "points": [
+        "Cloud 用了它，效果直线上升"
+      ],
+      "segmentIds": [
+        "segment-3"
+      ],
+      "subtitle": "",
+      "title": "界面质量提升有多明显？",
+      "type": "highlight",
+      "audioPath": "projects/generated/1775874252535-GlassShow/audio/slides/slide-003.mp3"
+    },
+    {
+      "audioDuration": 8.376,
+      "audioEnd": 28.007999999999996,
+      "audioStart": 19.631999999999998,
+      "data": {
+        "items": [
+          {
+            "desc": "社区支持强大",
+            "text": "作者Oobabooga出品"
+          },
+          {
+            "desc": "提高执行效率",
+            "text": "自动拆解复杂任务"
+          }
+        ]
+      },
+      "durationInFrames": 251,
+      "elementTimings": [
+        {
+          "audioEnd": 20.831999999999997,
+          "audioStart": 19.632,
+          "cue": "技能#2：Superpowers",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 21.392,
+          "audioStart": 20.592,
+          "cue": "4万多星，任务自动拆解神器",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "subtitle",
+          "type": "subtitle"
+        },
+        {
+          "audioEnd": 24.65,
+          "audioStart": 21.292,
+          "cue": "作者Oobabooga出品",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "item-0",
+          "index": 0,
+          "type": "item"
+        },
+        {
+          "audioEnd": 28.007999999999996,
+          "audioStart": 24.65,
+          "cue": "自动拆解复杂任务",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "item-1",
+          "index": 1,
+          "type": "item"
+        }
+      ],
+      "layout": "list",
+      "narration": "第二个， Superpowers 作者 Oobabooga 4万多 stars ...",
+      "points": [
+        "实用价值高，备受认可"
+      ],
+      "segmentIds": [
+        "segment-4"
+      ],
+      "subtitle": "4万多星，任务自动拆解神器",
+      "title": "技能#2：Superpowers",
+      "type": "list",
+      "audioPath": "projects/generated/1775874252535-GlassShow/audio/slides/slide-004.mp3"
+    },
+    {
+      "audioDuration": 2.736,
+      "audioEnd": 30.743999999999996,
+      "audioStart": 28.007999999999996,
+      "data": {
+        "steps": [
+          {
+            "description": "自动分解复杂工作",
+            "title": "拆解任务"
+          },
+          {
+            "description": "多线同步跑，提升速度",
+            "title": "并行执行"
+          },
+          {
+            "description": "自动校验，保证质量",
+            "title": "自我检查"
+          }
+        ]
+      },
+      "durationInFrames": 82,
+      "elementTimings": [
+        {
+          "audioEnd": 28.418399999999995,
+          "audioStart": 28.007999999999996,
+          "cue": "拆任务，自动又智能",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 30.010893913043475,
+          "audioStart": 29.644340869565216,
+          "cue": "拆解任务",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "step-0",
+          "index": 0,
+          "type": "step"
+        },
+        {
+          "audioEnd": 30.377446956521737,
+          "audioStart": 30.010893913043475,
+          "cue": "并行执行",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "step-1",
+          "index": 1,
+          "type": "step"
+        },
+        {
+          "audioEnd": 30.743999999999996,
+          "audioStart": 30.377446956521737,
+          "cue": "自我检查",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "step-2",
+          "index": 2,
+          "type": "step"
+        }
+      ],
+      "layout": "steps",
+      "narration": "它能让 Claude 自动拆解任务。并行执行，自我检查。",
+      "points": [
+        "真正减轻你的脑力负担"
+      ],
+      "segmentIds": [
+        "segment-5"
+      ],
+      "subtitle": "",
+      "title": "拆任务，自动又智能",
+      "type": "steps",
+      "audioPath": "projects/generated/1775874252535-GlassShow/audio/slides/slide-005.mp3"
+    },
+    {
+      "audioDuration": 2.448,
+      "audioEnd": 33.19199999999999,
+      "audioStart": 30.743999999999996,
+      "data": {
+        "items": [
+          "自动拆解",
+          "并行执行",
+          "自检保障"
+        ]
+      },
+      "durationInFrames": 73,
+      "elementTimings": [
+        {
+          "audioEnd": 31.111199999999997,
+          "audioStart": 30.743999999999996,
+          "cue": "让执行更轻松高效",
+          "entryDelay": 0,
+          "entryDuration": 0.5,
+          "id": "title",
+          "type": "title"
+        },
+        {
+          "audioEnd": 31.955839999999995,
+          "audioStart": 31.337759999999996,
+          "cue": "自动拆解",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "highlight-0",
+          "index": 0,
+          "type": "highlight"
+        },
+        {
+          "audioEnd": 32.26487999999999,
+          "audioStart": 31.337759999999996,
+          "cue": "并行执行",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "highlight-1",
+          "index": 1,
+          "type": "highlight"
+        },
+        {
+          "audioEnd": 33.19199999999999,
+          "audioStart": 32.573919999999994,
+          "cue": "自检保障",
+          "entryDelay": 0,
+          "entryDuration": 0.4,
+          "id": "highlight-2",
+          "index": 2,
+          "type": "highlight"
+        }
+      ],
+      "layout": "highlight",
+      "narration": "并行执行，自我检查。",
+      "points": [
+        "执行力和质量双提升"
+      ],
+      "segmentIds": [
+        "segment-6"
+      ],
+      "subtitle": "",
+      "title": "让执行更轻松高效",
+      "type": "highlight",
+      "audioPath": "projects/generated/1775874252535-GlassShow/audio/slides/slide-006.mp3"
+    }
+  ]
+}

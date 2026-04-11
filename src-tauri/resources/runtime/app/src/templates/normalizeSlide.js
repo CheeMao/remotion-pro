@@ -27,6 +27,10 @@ const DATA_FIELDS = [
     'bars',
     'cover',
     'cards',
+    'media',
+    'image',
+    'backgroundImage',
+    'coverImage',
 ];
 /**
  * 将扁平化字段构建为data对象

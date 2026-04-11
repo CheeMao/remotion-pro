@@ -38,12 +38,81 @@ exports.calculateDurationFromTimestamps = calculateDurationFromTimestamps;
 exports.findCueInTimestamps = findCueInTimestamps;
 const fs_1 = require("fs");
 const path_1 = require("path");
-const child_process_1 = require("child_process");
-const PYTHON_SCRIPT = (0, path_1.join)(process.cwd(), 'scripts', 'volcengine_tts.py');
-/**
- * 火山引擎TTS客户端
- * 支持字级时间戳返回
- */
+const VOLCENGINE_TTS_URL = 'https://openspeech.bytedance.com/api/v3/tts/unidirectional';
+const normalizeResponseLine = (line) => {
+    const trimmed = line.trim();
+    return trimmed.startsWith('data:') ? trimmed.slice(5).trim() : trimmed;
+};
+const parseVolcEngineStreamResponse = (payload) => {
+    const trimmedPayload = payload.trim();
+    if (!trimmedPayload) {
+        throw new Error('VolcEngine returned an empty response.');
+    }
+    const lines = trimmedPayload
+        .split(/\r?\n/)
+        .map(normalizeResponseLine)
+        .filter(Boolean);
+    const audioChunks = [];
+    const timestamps = [];
+    let duration = 0;
+    let upstreamError = null;
+    for (const line of lines) {
+        let data;
+        try {
+            data = JSON.parse(line);
+        }
+        catch {
+            continue;
+        }
+        const code = typeof data.code === 'number'
+            ? data.code
+            : typeof data.code === 'string'
+                ? Number(data.code)
+                : 0;
+        if (code === 0 && typeof data.data === 'string' && data.data.length > 0) {
+            audioChunks.push(Buffer.from(data.data, 'base64'));
+            continue;
+        }
+        const sentence = data.sentence && typeof data.sentence === 'object'
+            ? data.sentence
+            : null;
+        if (code === 0 && Array.isArray(sentence === null || sentence === void 0 ? void 0 : sentence.words)) {
+            for (const word of sentence.words) {
+                if (!word || typeof word !== 'object') {
+                    continue;
+                }
+                const normalizedWord = word;
+                const timestamp = {
+                    word: typeof normalizedWord.word === 'string' ? normalizedWord.word : '',
+                    startTime: typeof normalizedWord.startTime === 'number' ? normalizedWord.startTime : 0,
+                    endTime: typeof normalizedWord.endTime === 'number' ? normalizedWord.endTime : 0,
+                    confidence: typeof normalizedWord.confidence === 'number' ? normalizedWord.confidence : 1,
+                };
+                timestamps.push(timestamp);
+                duration = Math.max(duration, timestamp.endTime);
+            }
+            continue;
+        }
+        if (code === 20000000) {
+            break;
+        }
+        if (code > 0) {
+            upstreamError = data;
+            break;
+        }
+    }
+    if (audioChunks.length === 0) {
+        if (upstreamError !== null) {
+            throw new Error(`No audio data received. Upstream error: ${JSON.stringify(upstreamError)}`);
+        }
+        throw new Error(`No audio data received. Raw response: ${trimmedPayload.slice(0, 500)}`);
+    }
+    return {
+        audio: Buffer.concat(audioChunks),
+        duration,
+        timestamps,
+    };
+};
 class VolcEngineTTSClient {
     constructor(config) {
         this.config = {
@@ -52,16 +121,12 @@ class VolcEngineTTSClient {
             ...config,
         };
     }
-    /**
-     * 合成语音（带时间戳）
-     */
     async synthesize(text, voiceId, speechRate) {
         var _a;
         const normalizedText = text.trim();
         if (!normalizedText) {
             throw new Error('Cannot synthesize empty text.');
         }
-        // 检查中文字符
         if (!/[\u4e00-\u9fa5a-zA-Z0-9]/.test(normalizedText)) {
             throw new Error('Cannot synthesize text without letters or numbers.');
         }
@@ -72,7 +137,6 @@ class VolcEngineTTSClient {
         }
         const speaker = voiceId || this.config.voiceId || 'zh_female_shuangkuaisisi_moon_bigtts';
         const rate = (_a = speechRate !== null && speechRate !== void 0 ? speechRate : this.config.speechRate) !== null && _a !== void 0 ? _a : 1.0;
-        // 构建请求参数
         const requestData = {
             user: {
                 uid: this.config.uid || 'default-user',
@@ -85,87 +149,55 @@ class VolcEngineTTSClient {
                     format: this.config.format || 'mp3',
                     sample_rate: this.config.sampleRate || 24000,
                     speech_rate: rate,
-                    enable_timestamp: true, // 关键：启用时间戳
+                    enable_timestamp: true,
                 },
             },
         };
         try {
-            const result = await this.callPythonScript(requestData, outputPath);
-            return result;
+            return await this.callVolcEngineApi(requestData, outputPath);
         }
         catch (error) {
             throw new Error(`VolcEngine TTS synthesis failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
         }
     }
-    /**
-     * 调用Python脚本进行TTS合成
-     */
-    async callPythonScript(requestData, outputPath) {
-        return new Promise((resolve, reject) => {
-            const requestJson = JSON.stringify(requestData);
-            const env = {
-                ...process.env,
-                VOLCENGINE_APP_ID: this.config.appId,
-                VOLCENGINE_ACCESS_KEY: this.config.apiKey || this.config.accessKey,
-                VOLCENGINE_RESOURCE_ID: this.config.resourceId || 'seed-tts-1.0',
-            };
-            if (!env.VOLCENGINE_APP_ID || !env.VOLCENGINE_ACCESS_KEY) {
-                reject(new Error('VOLCENGINE_APP_ID and VOLCENGINE_ACCESS_KEY are required'));
-                return;
-            }
-            const pythonProcess = (0, child_process_1.spawn)('python', [
-                PYTHON_SCRIPT,
-                '--request', requestJson,
-                '--output', outputPath,
-            ], {
-                env,
-                stdio: ['pipe', 'pipe', 'pipe'],
-            });
-            let stdout = '';
-            let stderr = '';
-            pythonProcess.stdout.on('data', (data) => {
-                stdout += data.toString();
-            });
-            pythonProcess.stderr.on('data', (data) => {
-                stderr += data.toString();
-            });
-            pythonProcess.on('close', (code) => {
-                if (code !== 0) {
-                    reject(new Error(`Python script failed: ${stderr || stdout}`));
-                    return;
-                }
-                try {
-                    // 解析最后几行JSON输出
-                    const lines = stdout.trim().split('\n');
-                    const lastLine = lines[lines.length - 1];
-                    const result = JSON.parse(lastLine);
-                    if (result.success) {
-                        resolve({
-                            audioPath: outputPath,
-                            duration: result.duration || 0,
-                            timestamps: result.timestamps,
-                            fromCache: false,
-                        });
-                    }
-                    else {
-                        reject(new Error(result.error || 'TTS synthesis failed'));
-                    }
-                }
-                catch {
-                    reject(new Error(`Failed to parse result: ${stdout}`));
-                }
-            });
-            pythonProcess.on('error', (err) => {
-                reject(new Error(`Failed to spawn Python: ${err.message}`));
-            });
+    async callVolcEngineApi(requestData, outputPath) {
+        const appId = this.config.appId;
+        const accessKey = this.config.apiKey || this.config.accessKey;
+        const resourceId = this.config.resourceId || 'seed-tts-1.0';
+        if (!appId || !accessKey) {
+            throw new Error('VOLCENGINE_APP_ID and VOLCENGINE_ACCESS_KEY are required');
+        }
+        const response = await fetch(VOLCENGINE_TTS_URL, {
+            method: 'POST',
+            headers: {
+                'X-Api-App-Id': appId,
+                'X-Api-Access-Key': accessKey,
+                'X-Api-Resource-Id': resourceId,
+                'Content-Type': 'application/json',
+                Connection: 'keep-alive',
+            },
+            body: JSON.stringify(requestData),
         });
+        const responseText = await response.text();
+        if (!response.ok) {
+            throw new Error(`API request failed: ${response.status} - ${responseText.slice(0, 500)}`);
+        }
+        const result = parseVolcEngineStreamResponse(responseText);
+        const { writeFileSync } = await Promise.resolve().then(() => __importStar(require('fs')));
+        writeFileSync(outputPath, result.audio);
+        writeFileSync(outputPath.replace('.mp3', '_timestamps.json'), JSON.stringify({
+            timestamps: result.timestamps,
+            duration: result.duration,
+        }, null, 2), 'utf-8');
+        return {
+            audioPath: outputPath,
+            duration: result.duration,
+            timestamps: result.timestamps,
+            fromCache: false,
+        };
     }
-    /**
-     * 合成到指定文件
-     */
     async synthesizeToFile(text, outputPath, voiceId, speechRate) {
         const result = await this.synthesize(text, voiceId, speechRate);
-        // 如果输出路径不同，复制文件
         if (result.audioPath !== outputPath) {
             const { copyFileSync } = await Promise.resolve().then(() => __importStar(require('fs')));
             copyFileSync(result.audioPath, outputPath);
@@ -174,9 +206,6 @@ class VolcEngineTTSClient {
     }
 }
 exports.VolcEngineTTSClient = VolcEngineTTSClient;
-/**
- * 从时间戳计算音频时长
- */
 function calculateDurationFromTimestamps(timestamps) {
     if (!timestamps || timestamps.length === 0) {
         return 0;
@@ -184,23 +213,17 @@ function calculateDurationFromTimestamps(timestamps) {
     const lastWord = timestamps[timestamps.length - 1];
     return lastWord.endTime;
 }
-/**
- * 在时间戳中查找cue的起始和结束时间
- */
 function findCueInTimestamps(cue, timestamps) {
     if (!cue || !timestamps || timestamps.length === 0) {
         return null;
     }
-    // 将cue拆分为字数组
     const cueChars = cue.split('').filter((c) => /[\u4e00-\u9fa5a-zA-Z0-9]/.test(c));
     if (cueChars.length === 0) {
         return null;
     }
-    // 在时间戳中查找匹配
-    for (let i = 0; i <= timestamps.length - cueChars.length; i++) {
+    for (let i = 0; i <= timestamps.length - cueChars.length; i += 1) {
         const window = timestamps.slice(i, i + cueChars.length);
         const windowText = window.map((t) => t.word).join('');
-        // 模糊匹配：检查windowText是否包含cue的所有关键字
         if (windowText.includes(cue) || cue.includes(windowText)) {
             return {
                 start: window[0].startTime,
@@ -208,8 +231,6 @@ function findCueInTimestamps(cue, timestamps) {
             };
         }
     }
-    // 如果没有精确匹配，返回近似位置
-    // 基于字数比例估算
     const cuePosition = timestamps.findIndex((t) => cue.includes(t.word) || t.word.includes(cue[0]));
     if (cuePosition >= 0) {
         const endPosition = Math.min(cuePosition + cueChars.length, timestamps.length);

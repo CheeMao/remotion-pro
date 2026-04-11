@@ -40,9 +40,21 @@ struct Meta {
     #[serde(skip_serializing_if = "Option::is_none")]
     full_narration: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
+    generation_mode: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    director_style: Option<Value>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     soundtrack_path: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     soundtrack_duration: Option<f64>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct AiReferenceImage {
+    data_url: String,
+    mime_type: Option<String>,
+    name: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -72,6 +84,8 @@ struct CurrentProjectData {
 struct PreviewProjectData {
     template: String,
     slides: Vec<Value>,
+    generation_mode: Option<String>,
+    director_style: Option<Value>,
     soundtrack_file: Option<String>,
     soundtrack_data_url: Option<String>,
     soundtrack_duration: Option<f64>,
@@ -1117,6 +1131,77 @@ fn load_runtime_env() {
             break;
         }
     }
+
+    if std::env::var_os("FFMPEG_PATH").is_none() {
+        if let Some(path) = resolve_packaged_runtime_binary("ffmpeg") {
+            std::env::set_var("FFMPEG_PATH", path);
+        }
+    }
+
+    if std::env::var_os("FFPROBE_PATH").is_none() {
+        if let Some(path) = resolve_packaged_runtime_binary("ffprobe") {
+            std::env::set_var("FFPROBE_PATH", path);
+        }
+    }
+}
+
+fn resolve_packaged_runtime_root_from_exe() -> Option<PathBuf> {
+    let exe_dir = std::env::current_exe()
+        .ok()?
+        .parent()
+        .map(Path::to_path_buf)?;
+
+    let cli_check = |root: &PathBuf| {
+        root.join("app").join("src").join("cli").join("index.js").exists()
+            && root.join("remotion-bundle").exists()
+    };
+
+    [
+        exe_dir.join("resources").join("runtime"),
+        exe_dir.join("runtime"),
+    ]
+    .into_iter()
+    .find(cli_check)
+}
+
+fn resolve_packaged_runtime_binary(tool_name: &str) -> Option<PathBuf> {
+    let runtime_root = resolve_packaged_runtime_root_from_exe()?;
+
+    #[cfg(target_os = "windows")]
+    let file_name = format!("{}.exe", tool_name);
+
+    #[cfg(not(target_os = "windows"))]
+    let file_name = tool_name.to_string();
+
+    let candidate = runtime_root.join("ffmpeg").join(file_name);
+    if candidate.exists() {
+        Some(candidate)
+    } else {
+        None
+    }
+}
+
+fn resolve_runtime_command_path(env_var: &str, tool_name: &str) -> PathBuf {
+    if let Some(value) = std::env::var_os(env_var) {
+        let path = PathBuf::from(value);
+        if path.exists() {
+            return path;
+        }
+    }
+
+    if let Some(path) = resolve_packaged_runtime_binary(tool_name) {
+        return path;
+    }
+
+    #[cfg(target_os = "windows")]
+    {
+        PathBuf::from(format!("{}.exe", tool_name))
+    }
+
+    #[cfg(not(target_os = "windows"))]
+    {
+        PathBuf::from(tool_name)
+    }
 }
 
 fn create_douyin_temp_dir() -> Result<PathBuf, String> {
@@ -1165,8 +1250,8 @@ async fn download_file(url: &str, target_path: &Path) -> Result<(), String> {
 }
 
 fn extract_audio_with_ffmpeg(video_path: &Path, audio_path: &Path) -> Result<(), String> {
-    let ffmpeg_path = std::env::var("FFMPEG_PATH").unwrap_or_else(|_| "F:\\ffmpeg\\bin\\ffmpeg.exe".to_string());
-    let output = silent_command(ffmpeg_path)
+    let ffmpeg_path = resolve_runtime_command_path("FFMPEG_PATH", "ffmpeg");
+    let output = silent_command(&ffmpeg_path)
         .args([
             "-y",
             "-i",
@@ -1183,7 +1268,7 @@ fn extract_audio_with_ffmpeg(video_path: &Path, audio_path: &Path) -> Result<(),
             &audio_path.to_string_lossy(),
         ])
         .output()
-        .map_err(|e| format!("Failed to run ffmpeg: {}", e))?;
+        .map_err(|e| format!("Failed to run ffmpeg ({}): {}", ffmpeg_path.display(), e))?;
 
     if !output.status.success() {
         return Err(format!(
@@ -1196,8 +1281,8 @@ fn extract_audio_with_ffmpeg(video_path: &Path, audio_path: &Path) -> Result<(),
 }
 
 fn validate_audio_with_ffprobe(audio_path: &Path) -> Result<(), String> {
-    let ffprobe_path = std::env::var("FFPROBE_PATH").unwrap_or_else(|_| "F:\\ffmpeg\\bin\\ffprobe.exe".to_string());
-    let output = silent_command(ffprobe_path)
+    let ffprobe_path = resolve_runtime_command_path("FFPROBE_PATH", "ffprobe");
+    let output = silent_command(&ffprobe_path)
         .args([
             "-v",
             "error",
@@ -1208,7 +1293,7 @@ fn validate_audio_with_ffprobe(audio_path: &Path) -> Result<(), String> {
             &audio_path.to_string_lossy(),
         ])
         .output()
-        .map_err(|e| format!("Failed to run ffprobe: {}", e))?;
+        .map_err(|e| format!("Failed to run ffprobe ({}): {}", ffprobe_path.display(), e))?;
 
     if !output.status.success() {
         return Err(format!(
@@ -1776,6 +1861,34 @@ fn packaged_sidecar_filename() -> &'static str {
     }
 }
 
+fn find_packaged_sidecar_binary(exe_dir: &Path) -> Option<PathBuf> {
+    let direct_path = exe_dir.join(packaged_sidecar_filename());
+    if direct_path.exists() {
+        return Some(direct_path);
+    }
+
+    let entries = fs::read_dir(exe_dir).ok()?;
+    for entry in entries {
+        let path = entry.ok()?.path();
+        let Some(file_name) = path.file_name().and_then(|name| name.to_str()) else {
+            continue;
+        };
+        let normalized = file_name.to_ascii_lowercase();
+
+        #[cfg(target_os = "windows")]
+        let matches = normalized.starts_with("cli") && normalized.ends_with(".exe");
+
+        #[cfg(not(target_os = "windows"))]
+        let matches = normalized == "cli" || normalized.starts_with("cli-");
+
+        if matches {
+            return Some(path);
+        }
+    }
+
+    None
+}
+
 fn detect_packaged_runtime(app: &tauri::AppHandle) -> Option<PackagedRuntime> {
     // `tauri dev` can still have a copied sidecar in `target/debug`, and this
     // repo may already contain `src-tauri/resources/runtime` after packaging.
@@ -1794,7 +1907,7 @@ fn detect_packaged_runtime(app: &tauri::AppHandle) -> Option<PackagedRuntime> {
         .parent()
         .map(Path::to_path_buf)?;
 
-    let sidecar_binary = exe_dir.join(packaged_sidecar_filename());
+    let sidecar_binary = find_packaged_sidecar_binary(&exe_dir)?;
 
     let cli_check = |root: &PathBuf| {
         root.join("app").join("src").join("cli").join("index.js").exists()
@@ -1808,10 +1921,6 @@ fn detect_packaged_runtime(app: &tauri::AppHandle) -> Option<PackagedRuntime> {
     ]
     .into_iter()
     .find(cli_check)?;
-
-    if !sidecar_binary.exists() {
-        return None;
-    }
 
     let workspace_root = app
         .path()
@@ -1871,6 +1980,15 @@ fn run_cli_command(
             command.env("FFMPEG_PATH", ffmpeg_binary);
         }
 
+        let ffprobe_binary = runtime.runtime_root.join("ffmpeg").join(if cfg!(target_os = "windows") {
+            "ffprobe.exe"
+        } else {
+            "ffprobe"
+        });
+        if ffprobe_binary.exists() {
+            command.env("FFPROBE_PATH", ffprobe_binary);
+        }
+
         for (key, value) in extra_envs {
             command.env(key, value);
         }
@@ -1887,6 +2005,12 @@ fn run_cli_command(
         return command
             .output()
             .map_err(|e| format!("Failed to run packaged runtime command: {}", e));
+    }
+
+    if !cfg!(debug_assertions) {
+        return Err(
+            "Packaged runtime is missing or incomplete. The app could not find its built-in CLI/Node runtime. Please reinstall the app.".to_string(),
+        );
     }
 
     #[cfg(target_os = "windows")]
@@ -2013,6 +2137,7 @@ async fn generate_slides(
     access_key: String,
     model: String,
     prompt: String,
+    reference_images: Option<Vec<AiReferenceImage>>,
     state: tauri::State<'_, AuthState>,
 ) -> Result<String, String> {
     let _session = require_valid_license(&state).await?;
@@ -2053,6 +2178,34 @@ async fn generate_slides(
         .map_err(|e| format!("Failed to create AI HTTP client: {}", e))?;
 
     let before_send = Instant::now();
+    let content_payload = if let Some(images) = reference_images.as_ref() {
+        let mut items = vec![serde_json::json!({
+            "type": "text",
+            "text": prompt
+        })];
+
+        for image in images.iter().take(5) {
+            if image.data_url.trim().is_empty() {
+                continue;
+            }
+
+            items.push(serde_json::json!({
+                "type": "image_url",
+                "image_url": {
+                    "url": image.data_url
+                }
+            }));
+        }
+
+        if items.len() > 1 {
+            serde_json::Value::Array(items)
+        } else {
+            serde_json::Value::String(prompt.clone())
+        }
+    } else {
+        serde_json::Value::String(prompt.clone())
+    };
+
     let response = client
         .post(&url)
         .header("Authorization", format!("Bearer {}", access_key))
@@ -2063,7 +2216,7 @@ async fn generate_slides(
             "messages": [
                 {
                     "role": "user",
-                    "content": prompt
+                    "content": content_payload
                 }
             ]
         }))
@@ -2113,9 +2266,22 @@ async fn generate_slides(
     let json: serde_json::Value = serde_json::from_str(&body_text)
         .map_err(|e| format!("Failed to parse AI response JSON: {}. Body: {}", e, body_text))?;
 
-    let content = json["choices"][0]["message"]["content"]
-        .as_str()
-        .ok_or_else(|| format!("Unexpected AI response: {}", json))?;
+    let content_value = &json["choices"][0]["message"]["content"];
+    let content = if let Some(text) = content_value.as_str() {
+        text.to_string()
+    } else if let Some(items) = content_value.as_array() {
+        items
+            .iter()
+            .filter_map(|item| {
+                item.get("text")
+                    .and_then(|value| value.as_str())
+                    .map(|value| value.to_string())
+            })
+            .collect::<Vec<String>>()
+            .join("\n")
+    } else {
+        return Err(format!("Unexpected AI response: {}", json));
+    };
 
     let json_start = content.find('{').unwrap_or(0);
     let json_end = content
@@ -2140,6 +2306,8 @@ async fn save_slides(
     raw_text: String,
     slides: Vec<Value>,
     content_path: String,
+    generation_mode: Option<String>,
+    director_style: Option<Value>,
     soundtrack_path: Option<String>,
     soundtrack_duration: Option<f64>,
     state: tauri::State<'_, AuthState>,
@@ -2176,6 +2344,16 @@ async fn save_slides(
             } else {
                 Some(raw_text)
             },
+            generation_mode: generation_mode.or_else(|| {
+                existing_meta
+                    .as_ref()
+                    .and_then(|meta| meta.generation_mode.clone())
+            }),
+            director_style: director_style.or_else(|| {
+                existing_meta
+                    .as_ref()
+                    .and_then(|meta| meta.director_style.clone())
+            }),
             soundtrack_path: soundtrack_path.or_else(|| {
                 existing_meta
                     .as_ref()
@@ -2620,6 +2798,8 @@ async fn load_preview_project(
     let preview = PreviewProjectData {
         template: data.meta.template,
         slides: data.slides,
+        generation_mode: data.meta.generation_mode,
+        director_style: data.meta.director_style,
         soundtrack_file: if soundtrack_file.exists() {
             Some(soundtrack_file.to_string_lossy().to_string())
         } else {

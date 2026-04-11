@@ -16,9 +16,16 @@ import {
   getTemplateOrientation,
   type TemplateOrientation,
 } from "@remotion-root/templates/templateSpecs";
+import {
+  MOTION_PRESET_LABELS,
+  getMotionPresetOptionsForLayout,
+} from "@remotion-root/templates/motionPresets";
 import type {
   ContentSlide,
   ElementTiming,
+  SlideMediaAsset,
+  SlideMotionConfig,
+  SlideMotionIntensity,
 } from "@remotion-root/templates/types";
 import qingjianLogo from "./assets/qingjian-logo.png";
 
@@ -31,6 +38,9 @@ type SimpleSlide = {
   layout?: string;
   type?: string;
   data?: Record<string, unknown>;
+  media?: SlideMediaAsset[];
+  motionPreset?: string;
+  motion?: SlideMotionConfig;
   elementTimings?: ElementTiming[];
   segmentIds?: string[];
   audioStart?: number;
@@ -51,6 +61,9 @@ type ComplexSlide = {
   badge?: string;
   items?: Array<Record<string, unknown>>;
   narration?: string;
+  media?: SlideMediaAsset[];
+  motionPreset?: string;
+  motion?: SlideMotionConfig;
   segmentIds?: string[];
   audioStart?: number;
   audioEnd?: number;
@@ -66,6 +79,14 @@ type Project = {
   slides: Slide[];
   template: string;
   contentPath: string;
+  generationMode?: GenerationMode;
+  directorStyle?: PersistedDirectorStyle;
+};
+
+const MOTION_INTENSITY_LABELS: Record<SlideMotionIntensity, string> = {
+  soft: "柔和",
+  medium: "标准",
+  strong: "强烈",
 };
 
 type SettingsData = {
@@ -195,9 +216,32 @@ type RewriteStyle = {
 type PreviewProjectResponse = {
   template: string;
   slides: Array<Record<string, unknown>>;
+  generationMode?: GenerationMode;
+  directorStyle?: Record<string, unknown>;
   soundtrackFile?: string;
   soundtrackDataUrl?: string;
   soundtrackDuration?: number;
+};
+
+type GenerationMode = "standard" | "director";
+
+type DirectorStyleSource = "template" | "free" | "image" | "mixed";
+
+type DirectorStyleStrength = "low" | "medium" | "high";
+
+type DirectorReferenceImage = {
+  id: string;
+  name: string;
+  mimeType: string;
+  dataUrl: string;
+  size: number;
+};
+
+type PersistedDirectorStyle = {
+  source: DirectorStyleSource;
+  strength: DirectorStyleStrength;
+  goal?: string;
+  referenceImageNames?: string[];
 };
 
 type HomeDraft = {
@@ -206,6 +250,10 @@ type HomeDraft = {
   editedText: string;
   template: string;
   selectedRewriteStyleId: string;
+  generationMode: GenerationMode;
+  directorStyleSource: DirectorStyleSource;
+  directorStyleStrength: DirectorStyleStrength;
+  directorGoal: string;
 };
 
 const FPS = 30;
@@ -425,14 +473,100 @@ function normalizeTemplate(template?: string): string {
   return ACTIVE_TEMPLATES.has(template) ? template : DEFAULT_TEMPLATE;
 }
 
+function normalizeGenerationMode(value?: string): GenerationMode {
+  return value === "director" ? "director" : "standard";
+}
+
+function normalizeDirectorStyleSource(value?: string): DirectorStyleSource {
+  return value === "free" ||
+    value === "image" ||
+    value === "mixed"
+    ? value
+    : "template";
+}
+
+function normalizeDirectorStyleStrength(value?: string): DirectorStyleStrength {
+  return value === "low" || value === "high" ? value : "medium";
+}
+
+function normalizePersistedDirectorStyle(
+  value: Partial<PersistedDirectorStyle> | null | undefined,
+): PersistedDirectorStyle | undefined {
+  if (!value) {
+    return undefined;
+  }
+
+  const goal = typeof value.goal === "string" ? value.goal : "";
+  const referenceImageNames = Array.isArray(value.referenceImageNames)
+    ? value.referenceImageNames.filter(
+        (item): item is string => typeof item === "string" && item.trim().length > 0,
+      )
+    : [];
+
+  return {
+    source: normalizeDirectorStyleSource(value.source),
+    strength: normalizeDirectorStyleStrength(value.strength),
+    goal,
+    referenceImageNames,
+  };
+}
+
 function getDefaultTemplateForOrientation(
   orientation: TemplateOrientation,
 ): string {
   return (
     ACTIVE_TEMPLATE_OPTIONS.find((option) => option.orientation === orientation)
-      ?.value || DEFAULT_TEMPLATE
+    ?.value || DEFAULT_TEMPLATE
   );
 }
+
+const GENERATION_MODE_OPTIONS: Array<{
+  value: GenerationMode;
+  label: string;
+}> = [
+  { value: "standard", label: "标准生成" },
+  { value: "director", label: "AI 导演生成" },
+];
+
+const DIRECTOR_STYLE_SOURCE_OPTIONS: Array<{
+  value: DirectorStyleSource;
+  label: string;
+}> = [
+  { value: "template", label: "参考模板" },
+  { value: "free", label: "自由创作" },
+  { value: "image", label: "参考图片" },
+  { value: "mixed", label: "混合参考" },
+];
+
+const DIRECTOR_STYLE_STRENGTH_OPTIONS: Array<{
+  value: DirectorStyleStrength;
+  label: string;
+}> = [
+  { value: "low", label: "弱参考" },
+  { value: "medium", label: "中参考" },
+  { value: "high", label: "强参考" },
+];
+
+const TEMPLATE_STYLE_BRIEFS: Record<string, string> = {
+  GlassShow:
+    "通透玻璃质感、留白克制、信息层级清晰、画面高级但不过度炫技，适合把重点做得干净利落。",
+  LiquidShow:
+    "流体高光、柔和渐变、节奏更感性，适合做有氛围的知识短片和偏视觉化的讲解页面。",
+  LiquidBriefShow:
+    "简洁流体、卡片感更强、结构更利落，适合更快节奏的短视频讲解和收束表达。",
+  TechShow:
+    "信息流科技感、对比明确、密度偏高、数据与结构表达要更锋利，适合证据页和拆解页。",
+  RichShow:
+    "内容饱满、层次丰富、页面信息量更高，但仍要维持节奏，不要做成堆字说明页。",
+  KnowledgeShow:
+    "知识讲解导向、重点提炼明确、适合结论页、步骤页和记忆点页，整体清晰可信。",
+  MacShow:
+    "发布会感、极简、节奏平滑、排版干净，适合把核心结论做成更像产品展示的镜头。",
+  StudioShow:
+    "横屏演播室感、结构均衡、适合做专业讲解和整洁的内容递进。",
+  EditorialShow:
+    "杂志 editorial 风、版面更讲构图和留白，适合更强观点表达和高级感收束。",
+};
 
 const DEFAULT_REWRITE_STYLES: RewriteStyle[] = [
   {
@@ -1268,6 +1402,87 @@ function getSlideLayout(slide: Slide): string {
   return slide.layout || slide.type || "default";
 }
 
+function normalizeMotionPresetValue(value: unknown): string | undefined {
+  if (typeof value !== "string") {
+    return undefined;
+  }
+
+  const trimmed = value.trim();
+  return trimmed ? trimmed : undefined;
+}
+
+function normalizeMotionIntensityValue(value: unknown): SlideMotionIntensity {
+  if (value === "soft" || value === "strong") {
+    return value;
+  }
+
+  return "medium";
+}
+
+function getSlideMotionConfig(slide: Slide): SlideMotionConfig | undefined {
+  if (slide.motion && typeof slide.motion === "object") {
+    return slide.motion;
+  }
+
+  return undefined;
+}
+
+function getSlideMotionPresetValue(slide: Slide): string {
+  return (
+    normalizeMotionPresetValue(slide.motionPreset) ||
+    normalizeMotionPresetValue(getSlideMotionConfig(slide)?.preset) ||
+    ""
+  );
+}
+
+function getSlideMotionIntensityValue(slide: Slide): SlideMotionIntensity {
+  return normalizeMotionIntensityValue(getSlideMotionConfig(slide)?.intensity);
+}
+
+function isSlideMotionDisabled(slide: Slide): boolean {
+  return getSlideMotionConfig(slide)?.disabled === true;
+}
+
+function applySlideMotionPatch<T extends Slide>(
+  slide: T,
+  patch: {
+    preset?: string;
+    intensity?: SlideMotionIntensity;
+    disabled?: boolean;
+  },
+): T {
+  const nextPreset =
+    patch.preset !== undefined
+      ? normalizeMotionPresetValue(patch.preset)
+      : normalizeMotionPresetValue(slide.motionPreset) ||
+        normalizeMotionPresetValue(getSlideMotionConfig(slide)?.preset);
+  const nextIntensity =
+    patch.intensity ?? getSlideMotionIntensityValue(slide);
+  const nextDisabled = patch.disabled ?? isSlideMotionDisabled(slide);
+  const hasCustomMotion =
+    Boolean(nextPreset) || nextIntensity !== "medium" || nextDisabled;
+
+  let nextMotion: SlideMotionConfig | undefined;
+  if (hasCustomMotion) {
+    nextMotion = {
+      intensity: nextIntensity,
+    };
+
+    if (nextPreset) {
+      nextMotion.preset = nextPreset;
+    }
+    if (nextDisabled) {
+      nextMotion.disabled = true;
+    }
+  }
+
+  return {
+    ...slide,
+    motionPreset: nextPreset,
+    motion: nextMotion,
+  } as T;
+}
+
 function splitEditorLine(line: string): {
   title: string;
   description?: string;
@@ -1755,6 +1970,8 @@ function loadProject(): Project | null {
       ...parsed,
       template,
       contentPath: parsed.contentPath || getProjectContentPath(template),
+      generationMode: normalizeGenerationMode(parsed.generationMode),
+      directorStyle: normalizePersistedDirectorStyle(parsed.directorStyle),
     };
   } catch {
     return null;
@@ -1791,6 +2008,14 @@ function loadHomeDraft(): HomeDraft | null {
         )
           ? parsed.selectedRewriteStyleId
           : settings.defaultRewriteStyleId,
+      generationMode: normalizeGenerationMode(parsed.generationMode),
+      directorStyleSource: normalizeDirectorStyleSource(
+        parsed.directorStyleSource,
+      ),
+      directorStyleStrength: normalizeDirectorStyleStrength(
+        parsed.directorStyleStrength,
+      ),
+      directorGoal: typeof parsed.directorGoal === "string" ? parsed.directorGoal : "",
     };
   } catch {
     return null;
@@ -2052,10 +2277,101 @@ function replaceToken(source: string, token: string, value: string): string {
   return source.split(token).join(value);
 }
 
+function getDirectorStrengthInstruction(
+  strength: DirectorStyleStrength,
+): string {
+  switch (strength) {
+    case "low":
+      return "弱参考：只吸收气质，不要过度贴近参考风格。";
+    case "high":
+      return "强参考：明显吸收参考风格，但仍然要服务内容表达，不要为了像而牺牲信息。";
+    default:
+      return "中参考：保持明显风格关联，但优先保证内容表达和页面节奏。";
+  }
+}
+
+function buildDirectorStyleBrief(
+  template: string,
+  directorStyle: PersistedDirectorStyle | undefined,
+  referenceImages: DirectorReferenceImage[],
+): string {
+  const style = directorStyle || {
+    source: "template" as DirectorStyleSource,
+    strength: "medium" as DirectorStyleStrength,
+    goal: "",
+    referenceImageNames: [],
+  };
+
+  const lines: string[] = [
+    `- 最终渲染模板仍然是 ${template}，所以输出必须兼容统一 layout schema。`,
+    `- ${getDirectorStrengthInstruction(style.strength)}`,
+  ];
+
+  if (style.source === "template" || style.source === "mixed") {
+    lines.push(
+      `- 模板风格参考：${TEMPLATE_STYLE_BRIEFS[template] || "延续当前模板的色彩、构图和镜头气质，但不要被旧页面结构束缚。"} `,
+    );
+  }
+
+  if (style.source === "free") {
+    lines.push(
+      "- 本次不强行模仿任何模板，请根据内容自行决定镜头语言，但仍要保持成片统一、克制、专业。",
+    );
+  }
+
+  if (style.source === "image" || style.source === "mixed") {
+    const imageNames =
+      referenceImages.map((image) => image.name).join(" / ") ||
+      style.referenceImageNames?.join(" / ") ||
+      "参考图";
+    lines.push(
+      `- 已附带 ${referenceImages.length || style.referenceImageNames?.length || 0} 张参考图片：${imageNames}。请提取配色、材质、排版密度和整体气质，不要照抄图片里的具体主体或文案。`,
+    );
+  }
+
+  if (style.goal?.trim()) {
+    lines.push(`- 额外导演目标：${style.goal.trim()}`);
+  }
+
+  lines.push(
+    "- 页面文案要像镜头文案，不要像模板说明；屏幕文字和 narration 要互相配合，而不是简单重复。",
+  );
+
+  return lines.join("\n");
+}
+
+function readImageFileAsDataUrl(file: File): Promise<DirectorReferenceImage> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = typeof reader.result === "string" ? reader.result : "";
+      if (!result) {
+        reject(new Error(`无法读取参考图片：${file.name}`));
+        return;
+      }
+
+      resolve({
+        id: `${file.name}-${file.lastModified}-${file.size}`,
+        name: file.name,
+        mimeType: file.type || "image/*",
+        dataUrl: result,
+        size: file.size,
+      });
+    };
+    reader.onerror = () => {
+      reject(new Error(`无法读取参考图片：${file.name}`));
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
 function getPrompt(
   template: string,
   timeline: NarrationTimeline,
   strict: boolean,
+  generationMode: GenerationMode,
+  directorStyle?: PersistedDirectorStyle,
+  referenceImages: DirectorReferenceImage[] = [],
 ): string {
   const plan = getPagePlan(timeline.duration, template);
   const legacyPrompt =
@@ -2085,9 +2401,12 @@ function getPrompt(
   void legacyDirectorBrief;
   void MACSHOW_PROMPT;
 
-  let prompt = isStructuredTemplate(template)
-    ? SHARED_STRUCTURED_PROMPT
-    : SIMPLE_PROMPT;
+  let prompt =
+    generationMode === "director"
+      ? SHARED_STRUCTURED_PROMPT
+      : isStructuredTemplate(template)
+        ? SHARED_STRUCTURED_PROMPT
+        : SIMPLE_PROMPT;
   prompt = replaceToken(prompt, "{template_name}", template);
   prompt = replaceToken(
     prompt,
@@ -2103,6 +2422,15 @@ function getPrompt(
     formatSegmentsForPrompt(timeline.segments),
   );
   prompt = replaceToken(prompt, "{director_brief}", legacyDirectorBrief);
+
+  if (generationMode === "director") {
+    prompt = `${prompt}
+
+导演模式补充输入：
+${buildDirectorStyleBrief(template, directorStyle, referenceImages)}
+
+如果本次附带了参考图片，请把它们当作“风格参考”，而不是必须复刻的画面脚本。`;
+  }
 
   if (!strict) {
     return prompt;
@@ -2299,6 +2627,18 @@ function normalizeSlides(
         item.data && typeof item.data === "object"
           ? (item.data as Record<string, unknown>)
           : undefined,
+      media: Array.isArray(item.media)
+        ? item.media.filter(
+            (asset): asset is SlideMediaAsset =>
+              Boolean(asset) && typeof asset === "object",
+          )
+        : undefined,
+      motionPreset:
+        typeof item.motionPreset === "string" ? item.motionPreset : undefined,
+      motion:
+        item.motion && typeof item.motion === "object"
+          ? (item.motion as SlideMotionConfig)
+          : undefined,
       badge: typeof item.badge === "string" ? item.badge : undefined,
       items: Array.isArray(item.items)
         ? item.items.filter(
@@ -2320,6 +2660,9 @@ function normalizeSlides(
       layout: slide.layout,
       type: slide.type as ContentSlide["type"],
       data: slide.data,
+      media: slide.media,
+      motionPreset: slide.motionPreset,
+      motion: slide.motion,
       segmentIds: slide.segmentIds,
       audioStart: slide.audioStart,
       audioEnd: slide.audioEnd,
@@ -2341,6 +2684,13 @@ function normalizeSlides(
     layout: typeof slide.layout === "string" ? slide.layout : undefined,
     type: typeof slide.type === "string" ? slide.type : undefined,
     data: slide.data,
+    media: Array.isArray(slide.media) ? slide.media : undefined,
+    motionPreset:
+      typeof slide.motionPreset === "string" ? slide.motionPreset : undefined,
+    motion:
+      slide.motion && typeof slide.motion === "object"
+        ? (slide.motion as SlideMotionConfig)
+        : undefined,
     elementTimings: slide.elementTimings,
     segmentIds: Array.isArray(slide.segmentIds)
       ? slide.segmentIds.filter(
@@ -2818,6 +3168,9 @@ async function generateSlidesWithAi(
   rawText: string,
   template: string,
   timeline: NarrationTimeline,
+  generationMode: GenerationMode,
+  directorStyle?: PersistedDirectorStyle,
+  referenceImages: DirectorReferenceImage[] = [],
 ): Promise<Slide[]> {
   const settings = loadSettings();
   if (!settings.aiApiKey) {
@@ -2835,10 +3188,25 @@ async function generateSlidesWithAi(
         apiUrl: settings.aiUrl,
         accessKey: settings.aiApiKey,
         model: settings.aiModel,
-        prompt: getPrompt(template, timeline, strict).replace(
+        prompt: getPrompt(
+          template,
+          timeline,
+          strict,
+          generationMode,
+          directorStyle,
+          referenceImages,
+        ).replace(
           "{input_text}",
           rawText,
         ),
+        referenceImages:
+          generationMode === "director"
+            ? referenceImages.map((image) => ({
+                name: image.name,
+                mimeType: image.mimeType,
+                dataUrl: image.dataUrl,
+              }))
+            : [],
       }),
       timeoutMs,
       strict ? "AI 分页规划请求（严格重试）" : "AI 分页规划请求",
@@ -2865,15 +3233,16 @@ async function generateSlidesWithAi(
     const coveredIds = slides.flatMap((slide) => slide.segmentIds || []);
     const expectedIds = timeline.segments.map((segment) => segment.id);
     const legacyTemplateChecks =
-      (template === "TechShow" && shouldRetryTechShowSlides(slides)) ||
-      (template === "GlassShow" && shouldRetryGlassShowSlides(slides)) ||
-      ((template === "LiquidShow" || template === "LiquidBriefShow") &&
-        shouldRetryLiquidShowSlides(slides)) ||
-      ((template === "MacShow" ||
-        template === "StudioShow" ||
-        template === "EditorialShow" ||
-        template === "InsightShow") &&
-        shouldRetryMacShowSlides(slides));
+      generationMode === "standard" &&
+      ((template === "TechShow" && shouldRetryTechShowSlides(slides)) ||
+        (template === "GlassShow" && shouldRetryGlassShowSlides(slides)) ||
+        ((template === "LiquidShow" || template === "LiquidBriefShow") &&
+          shouldRetryLiquidShowSlides(slides)) ||
+        ((template === "MacShow" ||
+          template === "StudioShow" ||
+          template === "EditorialShow" ||
+          template === "InsightShow") &&
+          shouldRetryMacShowSlides(slides)));
 
     const layouts = slides
       .map((slide) => ("layout" in slide ? slide.layout : slide.type))
@@ -2894,7 +3263,8 @@ async function generateSlidesWithAi(
       coveredIds.length !== expectedIds.length ||
       coveredIds.some((id, index) => id !== expectedIds[index]) ||
       legacyTemplateChecks ||
-      (isStructuredTemplate(template) && !hasStructuredSlide) ||
+      ((isStructuredTemplate(template) || generationMode === "director") &&
+        !hasStructuredSlide) ||
       varietyTooLow
     );
   };
@@ -2956,6 +3326,9 @@ async function saveSlidesToProject(project: Project) {
         type: slide.type,
         layout: slide.layout,
         data: slide.data,
+        media: slide.media,
+        motionPreset: slide.motionPreset,
+        motion: slide.motion,
         elementTimings: slide.elementTimings,
         narration: slide.narration || "",
         segmentIds: slide.segmentIds || [],
@@ -2992,6 +3365,9 @@ async function saveSlidesToProject(project: Project) {
       layout: slide.layout,
       type: slide.type,
       data: slide.data,
+      media: slide.media,
+      motionPreset: slide.motionPreset,
+      motion: slide.motion,
       elementTimings: slide.elementTimings,
       segmentIds: slide.segmentIds || [],
       audioStart: slide.audioStart,
@@ -3007,6 +3383,8 @@ async function saveSlidesToProject(project: Project) {
     rawText: project.rawText,
     slides,
     contentPath: project.contentPath,
+    generationMode: project.generationMode,
+    directorStyle: project.directorStyle,
     soundtrackPath: hasCompleteTiming
       ? project.contentPath
           .replace(/content\.json$/i, "audio/narration.mp3")
@@ -3185,6 +3563,32 @@ function HomePage(props: {
         homeDraft?.template || props.project?.template || DEFAULT_TEMPLATE,
       ),
     );
+  const [generationMode, setGenerationMode] = React.useState<GenerationMode>(
+    () =>
+      normalizeGenerationMode(
+        homeDraft?.generationMode || props.project?.generationMode,
+      ),
+  );
+  const [directorStyleSource, setDirectorStyleSource] =
+    React.useState<DirectorStyleSource>(() =>
+      normalizeDirectorStyleSource(
+        homeDraft?.directorStyleSource ||
+          props.project?.directorStyle?.source,
+      ),
+    );
+  const [directorStyleStrength, setDirectorStyleStrength] =
+    React.useState<DirectorStyleStrength>(() =>
+      normalizeDirectorStyleStrength(
+        homeDraft?.directorStyleStrength ||
+          props.project?.directorStyle?.strength,
+      ),
+    );
+  const [directorGoal, setDirectorGoal] = React.useState(
+    () => homeDraft?.directorGoal || props.project?.directorStyle?.goal || "",
+  );
+  const [referenceImages, setReferenceImages] = React.useState<
+    DirectorReferenceImage[]
+  >([]);
   const [loading, setLoading] = React.useState(false);
   const [status, setStatus] = React.useState("");
   const [error, setError] = React.useState("");
@@ -3243,8 +3647,22 @@ function HomePage(props: {
       editedText,
       template,
       selectedRewriteStyleId,
+      generationMode,
+      directorStyleSource,
+      directorStyleStrength,
+      directorGoal,
     });
-  }, [douyinLink, originalText, editedText, template, selectedRewriteStyleId]);
+  }, [
+    directorGoal,
+    directorStyleSource,
+    directorStyleStrength,
+    douyinLink,
+    editedText,
+    generationMode,
+    originalText,
+    selectedRewriteStyleId,
+    template,
+  ]);
 
   // 从设置获取火山引擎配置
   const getVolcengineConfig = () => {
@@ -3255,6 +3673,33 @@ function HomePage(props: {
       accessKey: settings.voiceApiKey || settings.volcengineAccessKey || "",
       appId: settings.volcengineAppId || "",
     };
+  };
+
+  const handleReferenceImageChange = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const files = Array.from(event.target.files || []);
+    if (files.length === 0) {
+      return;
+    }
+
+    try {
+      const nextImages = await Promise.all(
+        files.slice(0, 5).map((file) => readImageFileAsDataUrl(file)),
+      );
+      setReferenceImages((current) => [...current, ...nextImages].slice(0, 5));
+      setError("");
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : String(cause));
+    } finally {
+      event.target.value = "";
+    }
+  };
+
+  const handleRemoveReferenceImage = (imageId: string) => {
+    setReferenceImages((current) =>
+      current.filter((image) => image.id !== imageId),
+    );
   };
 
   // 从抖音链接提取文案
@@ -3352,6 +3797,15 @@ function HomePage(props: {
       return;
     }
 
+    if (
+      generationMode === "director" &&
+      (directorStyleSource === "image" || directorStyleSource === "mixed") &&
+      referenceImages.length === 0
+    ) {
+      setError("导演模式在参考图片或混合参考下，至少需要上传一张参考图片");
+      return;
+    }
+
     setLoading(true);
     setError("");
 
@@ -3372,7 +3826,21 @@ function HomePage(props: {
       }, 5000);
       let slides: Slide[];
       try {
-        slides = await generateSlidesWithAi(editedText, template, timeline);
+        slides = await generateSlidesWithAi(
+          editedText,
+          template,
+          timeline,
+          generationMode,
+          generationMode === "director"
+            ? {
+                source: directorStyleSource,
+                strength: directorStyleStrength,
+                goal: directorGoal.trim(),
+                referenceImageNames: referenceImages.map((image) => image.name),
+              }
+            : undefined,
+          referenceImages,
+        );
       } finally {
         window.clearInterval(planningTimer);
       }
@@ -3383,6 +3851,16 @@ function HomePage(props: {
         slides,
         template,
         contentPath,
+        generationMode,
+        directorStyle:
+          generationMode === "director"
+            ? {
+                source: directorStyleSource,
+                strength: directorStyleStrength,
+                goal: directorGoal.trim(),
+                referenceImageNames: referenceImages.map((image) => image.name),
+              }
+            : undefined,
       };
 
       setStatus("正在保存项目...");
@@ -3412,7 +3890,8 @@ function HomePage(props: {
       }}
     >
       {/* 抖音链接提取区域 */}
-      <div style={{ ...PANEL_STYLE, width: "100%", padding: 14 }}>
+      {generationMode === "director" ? (
+        <div style={{ ...PANEL_STYLE, width: "100%", padding: 14 }}>
         <div
           style={{ display: "flex", gap: 12, alignItems: "center" }}
         >
@@ -3451,7 +3930,8 @@ function HomePage(props: {
             </span>
           </div>
         )}
-      </div>
+        </div>
+      ) : null}
 
       {/* 文案编辑区域 */}
       <div
@@ -3615,6 +4095,189 @@ function HomePage(props: {
       </div>
 
       {/* 底部固定操作栏 */}
+      {generationMode === "director" ? (
+        <div style={{ ...PANEL_STYLE, width: "100%", padding: 14 }}>
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+            gap: 12,
+            alignItems: "end",
+          }}
+        >
+          <div style={{ ...FIELD_GROUP_STYLE, display: "none" }}>
+            <label style={FIELD_LABEL_STYLE}>生成模式</label>
+            <select
+              value={generationMode}
+              onChange={(event) =>
+                setGenerationMode(
+                  event.target.value === "director" ? "director" : "standard",
+                )
+              }
+              style={COMPACT_SELECT_STYLE}
+            >
+              {GENERATION_MODE_OPTIONS.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div style={FIELD_GROUP_STYLE}>
+            <label style={FIELD_LABEL_STYLE}>风格来源</label>
+            <select
+              value={directorStyleSource}
+              onChange={(event) =>
+                setDirectorStyleSource(
+                  normalizeDirectorStyleSource(event.target.value),
+                )
+              }
+              style={COMPACT_SELECT_STYLE}
+            >
+              {DIRECTOR_STYLE_SOURCE_OPTIONS.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div style={FIELD_GROUP_STYLE}>
+            <label style={FIELD_LABEL_STYLE}>参考强度</label>
+            <select
+              value={directorStyleStrength}
+              onChange={(event) =>
+                setDirectorStyleStrength(
+                  normalizeDirectorStyleStrength(event.target.value),
+                )
+              }
+              style={COMPACT_SELECT_STYLE}
+            >
+              {DIRECTOR_STYLE_STRENGTH_OPTIONS.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div style={FIELD_GROUP_STYLE}>
+            <label style={FIELD_LABEL_STYLE}>导演目标</label>
+            <input
+              type="text"
+              value={directorGoal}
+              onChange={(event) => setDirectorGoal(event.target.value)}
+              placeholder="如：更像发布会、节奏更抓人"
+              style={SOFT_INPUT_STYLE}
+            />
+          </div>
+        </div>
+
+          <div
+            style={{
+              marginTop: 12,
+              display: "grid",
+              gridTemplateColumns: "minmax(0, 1fr) minmax(0, 1fr)",
+              gap: 12,
+              alignItems: "start",
+            }}
+          >
+            <div
+              style={{
+                ...FIELD_GROUP_STYLE,
+                padding: 12,
+                borderRadius: 8,
+                background: "rgba(249,251,255,0.9)",
+                border: "1px solid #e5eaf4",
+              }}
+            >
+              <label style={FIELD_LABEL_STYLE}>参考图片</label>
+              <input
+                type="file"
+                accept="image/*"
+                multiple
+                onChange={handleReferenceImageChange}
+                disabled={
+                  directorStyleSource !== "image" &&
+                  directorStyleSource !== "mixed"
+                }
+              />
+              <span style={{ color: "#6b7280", fontSize: 12, lineHeight: 1.5 }}>
+                最多 5 张。参考图片只用于抽取风格气质。
+              </span>
+              {referenceImages.length > 0 ? (
+                <div
+                  style={{
+                    display: "flex",
+                    flexWrap: "wrap",
+                    gap: 8,
+                    marginTop: 8,
+                  }}
+                >
+                  {referenceImages.map((image) => (
+                    <span
+                      key={image.id}
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: 6,
+                        padding: "6px 10px",
+                        borderRadius: 999,
+                        background: "#eef4ff",
+                        color: "#3159a7",
+                        fontSize: 12,
+                      }}
+                    >
+                      {image.name}
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveReferenceImage(image.id)}
+                        style={{
+                          border: "none",
+                          background: "transparent",
+                          color: "#3159a7",
+                          cursor: "pointer",
+                          padding: 0,
+                          fontSize: 12,
+                        }}
+                      >
+                        删除
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              ) : null}
+            </div>
+
+            <div
+              style={{
+                ...FIELD_GROUP_STYLE,
+                padding: 12,
+                borderRadius: 8,
+                background: "rgba(249,251,255,0.9)",
+                border: "1px solid #e5eaf4",
+              }}
+            >
+              <label style={FIELD_LABEL_STYLE}>本次导演说明</label>
+              <div
+                style={{
+                  color: "#5f6b82",
+                  fontSize: 12,
+                  lineHeight: 1.6,
+                }}
+              >
+                当前渲染模板仍是 <strong>{template}</strong>。
+                {directorStyleSource === "template" ||
+                directorStyleSource === "mixed"
+                  ? ` AI 会参考它的视觉气质：${TEMPLATE_STYLE_BRIEFS[template] || "延续当前模板风格。"}`
+                  : " AI 不会强依赖当前模板结构，会优先按内容自行导演。"}
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
       <div
         style={{
           marginTop: "auto",
@@ -3697,6 +4360,35 @@ function HomePage(props: {
               }}
             >
               {filteredTemplateOptions.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+            <label
+              style={{
+                fontWeight: 600,
+                color: "#1d2129",
+                whiteSpace: "nowrap",
+                flexShrink: 0,
+              }}
+            >
+              鐢熸垚妯″紡
+            </label>
+            <select
+              value={generationMode}
+              onChange={(event) =>
+                setGenerationMode(
+                  event.target.value === "director" ? "director" : "standard",
+                )
+              }
+              style={{
+                ...COMPACT_SELECT_STYLE,
+                width: 148,
+                flexShrink: 0,
+              }}
+            >
+              {GENERATION_MODE_OPTIONS.map((option) => (
                 <option key={option.value} value={option.value}>
                   {option.label}
                 </option>
@@ -3838,6 +4530,17 @@ function EditorPage(props: {
     );
   };
 
+  const updateSlideMotion = (
+    index: number,
+    patch: {
+      preset?: string;
+      intensity?: SlideMotionIntensity;
+      disabled?: boolean;
+    },
+  ) => {
+    updateSlide(index, (current) => applySlideMotionPatch(current, patch));
+  };
+
   const saveCurrentProject = async () => {
     await saveSlidesToProject(project);
   };
@@ -3908,6 +4611,9 @@ function EditorPage(props: {
       setPreviewData({
         template: preview.template || project.template,
         slides: preview.slides || [],
+        generationMode:
+          preview.generationMode || project.generationMode || "standard",
+        directorStyle: preview.directorStyle || project.directorStyle,
         soundtrackUrl:
           preview.soundtrackDataUrl ||
           (preview.soundtrackFile
@@ -3970,6 +4676,12 @@ function EditorPage(props: {
   const complexEditorPoints = isComplexSlide(slide)
     ? getComplexSlideEditorPoints(slide)
     : [];
+  const motionPresetValue = getSlideMotionPresetValue(slide);
+  const motionIntensityValue = getSlideMotionIntensityValue(slide);
+  const motionDisabled = isSlideMotionDisabled(slide);
+  const motionPresetOptions = getMotionPresetOptionsForLayout(
+    getSlideLayout(slide),
+  );
 
   return (
     <div style={{ ...PAGE_FRAME_STYLE, maxWidth: 1140 }}>
@@ -4504,6 +5216,103 @@ function EditorPage(props: {
                   </div>
                 </>
               )}
+              <div style={{ ...FIELD_GROUP_STYLE, marginTop: SPACING.md }}>
+                <label
+                  style={{
+                    display: "block",
+                    marginBottom: 8,
+                    fontWeight: 600,
+                  }}
+                >
+                  动画设置
+                </label>
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "minmax(0, 1fr) 132px",
+                    gap: SPACING.sm,
+                  }}
+                >
+                  <select
+                    value={motionPresetValue}
+                    onChange={(event) => {
+                      updateSlideMotion(safeIndex, {
+                        preset: event.target.value,
+                      });
+                    }}
+                    onBlur={() => {
+                      void saveCurrentProject();
+                    }}
+                    disabled={motionDisabled}
+                    style={SOFT_INPUT_STYLE}
+                  >
+                    <option value="">自动轮换（推荐）</option>
+                    {motionPresetOptions.map((preset) => (
+                      <option key={preset} value={preset}>
+                        {MOTION_PRESET_LABELS[preset]}
+                      </option>
+                    ))}
+                  </select>
+                  <select
+                    value={motionIntensityValue}
+                    onChange={(event) => {
+                      updateSlideMotion(safeIndex, {
+                        intensity: event.target.value as SlideMotionIntensity,
+                      });
+                    }}
+                    onBlur={() => {
+                      void saveCurrentProject();
+                    }}
+                    disabled={motionDisabled}
+                    style={SOFT_INPUT_STYLE}
+                  >
+                    {(
+                      Object.entries(MOTION_INTENSITY_LABELS) as Array<
+                        [SlideMotionIntensity, string]
+                      >
+                    ).map(([value, label]) => (
+                      <option key={value} value={value}>
+                        {label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <label
+                  style={{
+                    marginTop: 12,
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 8,
+                    color: "#4e5969",
+                    fontSize: 13,
+                    cursor: "pointer",
+                  }}
+                >
+                  <input
+                    type="checkbox"
+                    checked={motionDisabled}
+                    onChange={(event) => {
+                      updateSlideMotion(safeIndex, {
+                        disabled: event.target.checked,
+                      });
+                    }}
+                    onBlur={() => {
+                      void saveCurrentProject();
+                    }}
+                  />
+                  关闭本页动画
+                </label>
+                <p
+                  style={{
+                    margin: "10px 0 0",
+                    fontSize: 12,
+                    color: "#86909c",
+                    lineHeight: 1.6,
+                  }}
+                >
+                  同一类页面可以切换不同动画；留空时会按页面类型自动轮换。
+                </p>
+              </div>
               {renderProgress ? (
                 <p
                   style={{

@@ -1,7 +1,8 @@
 import React from 'react';
-import { AbsoluteFill, interpolate } from 'remotion';
+import { AbsoluteFill, interpolate, useVideoConfig } from 'remotion';
 import { getSlideMotionTiming } from '../templates/animationTiming';
 import { getElementProgress } from '../templates/runtimeTiming';
+import { getSafeAreaInsets } from './safeArea';
 import type { SharedLayoutProps } from './types';
 
 interface StepData {
@@ -18,6 +19,8 @@ export const StepsLayout: React.FC<SharedLayoutProps> = ({
   totalSlides,
   durationInFrames,
 }) => {
+  const { width, height } = useVideoConfig();
+  const safeArea = getSafeAreaInsets(width, height);
   const stepItems: StepData[] =
     ((slide.data?.steps as StepData[] | undefined) || []).length > 0
       ? ((slide.data?.steps as StepData[] | undefined) || [])
@@ -41,7 +44,7 @@ export const StepsLayout: React.FC<SharedLayoutProps> = ({
         background: theme.palette.background,
         color: theme.palette.text,
         fontFamily: theme.typography.fontFamily,
-        padding: '64px 58px',
+        padding: `${safeArea.top}px ${safeArea.right}px ${safeArea.bottom}px ${safeArea.left}px`,
       }}
     >
       <div
@@ -56,8 +59,8 @@ export const StepsLayout: React.FC<SharedLayoutProps> = ({
       <div
         style={{
           position: 'absolute',
-          top: 40,
-          right: 48,
+          top: safeArea.headerTop,
+          right: safeArea.headerSide,
           fontSize: 22,
           fontWeight: 800,
           color: theme.palette.muted,

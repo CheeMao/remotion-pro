@@ -6,6 +6,7 @@ import {
   useVideoConfig,
 } from "remotion";
 import { getSlideMotionTiming } from "../templates/animationTiming";
+import { getSafeAreaInsets } from "../layouts/safeArea";
 
 // 流体渐变配色
 const colors = {
@@ -181,6 +182,8 @@ export const RichSlide: React.FC<{
   durationInFrames: number;
 }> = ({ type, data = {}, index, totalSlides, durationInFrames }) => {
   const frame = useCurrentFrame();
+  const { width, height } = useVideoConfig();
+  const safeArea = getSafeAreaInsets(width, height);
   const itemCount = Array.isArray(data.items)
     ? (data.items as unknown[]).length
     : Array.isArray(data.stats)
@@ -650,6 +653,7 @@ export const RichSlide: React.FC<{
         alignItems: "center",
         fontFamily: "system-ui, -apple-system, 'PingFang SC', sans-serif",
         overflow: "hidden",
+        padding: `${safeArea.top}px ${safeArea.right}px ${safeArea.bottom}px ${safeArea.left}px`,
       }}
     >
       {/* 流体渐变背景 */}
@@ -694,7 +698,7 @@ export const RichSlide: React.FC<{
       <div
         style={{
           position: "absolute",
-          bottom: 40,
+          bottom: Math.max(28, safeArea.bottom - 18),
           left: "50%",
           transform: "translateX(-50%)",
           display: "flex",
@@ -718,9 +722,9 @@ export const RichSlide: React.FC<{
       <div
         style={{
           opacity: exitOpacity,
-          width: "90%",
+          width: "100%",
           maxWidth: 920,
-          minHeight: 1280,
+          minHeight: Math.min(1280, Math.max(1080, height - safeArea.top - safeArea.bottom)),
           padding: "34px 34px 40px",
           borderRadius: 32,
           background: "linear-gradient(180deg, rgba(10, 10, 20, 0.48), rgba(18, 20, 38, 0.32))",

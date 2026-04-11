@@ -1,7 +1,8 @@
 import React from 'react';
-import { AbsoluteFill, interpolate } from 'remotion';
+import { AbsoluteFill, interpolate, useVideoConfig } from 'remotion';
 import { getSlideMotionTiming } from '../templates/animationTiming';
 import { getElementProgress } from '../templates/runtimeTiming';
+import { getSafeAreaInsets } from './safeArea';
 import type { SharedLayoutProps } from './types';
 
 export const CtaLayout: React.FC<SharedLayoutProps> = ({
@@ -13,6 +14,8 @@ export const CtaLayout: React.FC<SharedLayoutProps> = ({
   totalSlides,
   durationInFrames,
 }) => {
+  const { width, height } = useVideoConfig();
+  const safeArea = getSafeAreaInsets(width, height);
   const timing = getSlideMotionTiming(durationInFrames, 1);
   const titleProgress = getElementProgress({
     frame,
@@ -45,7 +48,7 @@ export const CtaLayout: React.FC<SharedLayoutProps> = ({
         background: theme.palette.background,
         color: theme.palette.text,
         fontFamily: theme.typography.fontFamily,
-        padding: '74px 72px',
+        padding: `${safeArea.top}px ${safeArea.right}px ${safeArea.bottom}px ${safeArea.left}px`,
         justifyContent: 'center',
         alignItems: 'center',
       }}
@@ -53,8 +56,8 @@ export const CtaLayout: React.FC<SharedLayoutProps> = ({
       <div
         style={{
           position: 'absolute',
-          top: 38,
-          right: 44,
+          top: safeArea.headerTop,
+          right: safeArea.headerSide,
           color: theme.palette.muted,
           fontSize: 22,
           fontWeight: 800,

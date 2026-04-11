@@ -158,6 +158,29 @@ const resolveToolPath = (toolName) => {
   }
 };
 
+const resolveRequiredToolPath = (toolName, envVarName) => {
+  const configuredPath = process.env[envVarName];
+  if (configuredPath) {
+    const absolutePath = path.resolve(configuredPath);
+    if (!fs.existsSync(absolutePath)) {
+      throw new Error(
+        `${envVarName} points to a missing file: ${absolutePath}`
+      );
+    }
+
+    return absolutePath;
+  }
+
+  const discoveredPath = resolveToolPath(toolName);
+  if (discoveredPath) {
+    return discoveredPath;
+  }
+
+  throw new Error(
+    `Required binary ${toolName} was not found on PATH. Install ${toolName} or set ${envVarName} before running the Tauri build.`
+  );
+};
+
 const prepareSidecarBinary = () => {
   const targetTriple = detectRustTargetTriple();
   const extension = process.platform === "win32" ? ".exe" : "";
@@ -202,19 +225,13 @@ const copyRuntimeFiles = () => {
   const ffmpegDir = path.join(runtimeDir, "ffmpeg");
   fs.mkdirSync(ffmpegDir, { recursive: true });
 
-  const ffmpegPath = resolveToolPath(ffmpegExecutable);
-  if (ffmpegPath) {
-    fs.copyFileSync(ffmpegPath, path.join(ffmpegDir, path.basename(ffmpegPath)));
-    log(`Copied ffmpeg binary from ${ffmpegPath}`);
-  } else {
-    log("ffmpeg binary was not found on PATH. Packaged audio generation may fail.");
-  }
+  const ffmpegPath = resolveRequiredToolPath(ffmpegExecutable, "FFMPEG_PATH");
+  fs.copyFileSync(ffmpegPath, path.join(ffmpegDir, ffmpegExecutable));
+  log(`Copied ffmpeg binary from ${ffmpegPath}`);
 
-  const ffprobePath = resolveToolPath(ffprobeExecutable);
-  if (ffprobePath) {
-    fs.copyFileSync(ffprobePath, path.join(ffmpegDir, path.basename(ffprobePath)));
-    log(`Copied ffprobe binary from ${ffprobePath}`);
-  }
+  const ffprobePath = resolveRequiredToolPath(ffprobeExecutable, "FFPROBE_PATH");
+  fs.copyFileSync(ffprobePath, path.join(ffmpegDir, ffprobeExecutable));
+  log(`Copied ffprobe binary from ${ffprobePath}`);
 
   // Copy Python TTS scripts
   const srcScriptsDir = path.join(projectRoot, 'scripts');

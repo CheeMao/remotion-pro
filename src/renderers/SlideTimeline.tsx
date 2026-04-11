@@ -11,6 +11,7 @@ interface SlideTimelineProps {
   soundtrackPath?: string;
   template?: string;
   themeId?: string;
+  preferSharedLayout?: boolean;
   background?: string;
   subtitlesEnabled?: boolean;
   renderFallback?: (
@@ -52,12 +53,22 @@ const SceneFrame: React.FC<{
   durationInFrames: number;
   template?: string;
   themeId?: string;
+  preferSharedLayout?: boolean;
   renderFallback?: (
     slide: AudioSlideData,
     index: number,
     durationInFrames: number
   ) => React.ReactNode;
-}> = ({ slide, index, totalSlides, durationInFrames, template, themeId, renderFallback }) => {
+}> = ({
+  slide,
+  index,
+  totalSlides,
+  durationInFrames,
+  template,
+  themeId,
+  preferSharedLayout,
+  renderFallback,
+}) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
@@ -66,6 +77,7 @@ const SceneFrame: React.FC<{
       slide={slide}
       template={template}
       themeId={themeId}
+      preferSharedLayout={preferSharedLayout}
       frame={frame}
       fps={fps}
       index={index}
@@ -82,6 +94,7 @@ export const SlideTimeline: React.FC<SlideTimelineProps> = ({
   soundtrackPath,
   template,
   themeId,
+  preferSharedLayout = false,
   background = '#050816',
   subtitlesEnabled = true,
   renderFallback,
@@ -116,6 +129,7 @@ export const SlideTimeline: React.FC<SlideTimelineProps> = ({
               durationInFrames={duration}
               template={template}
               themeId={themeId}
+              preferSharedLayout={preferSharedLayout}
               renderFallback={renderFallback}
             />
           </Sequence>

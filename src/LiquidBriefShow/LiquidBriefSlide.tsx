@@ -1,6 +1,7 @@
 import {AbsoluteFill,interpolate,spring,useCurrentFrame,useVideoConfig} from 'remotion';
 import React from 'react';
 import {getSlideMotionTiming} from '../templates/animationTiming';
+import {getSafeAreaInsets} from '../layouts/safeArea';
 
 type SlideType='cover'|'cards'|'steps'|'compare'|'stats'|'quote'|'timeline'|'chart'|'highlight'|'cta'|'list';
 
@@ -66,7 +67,8 @@ export const LiquidBriefSlide:React.FC<Props>=({
   durationInFrames,
 })=>{
   const frame=useCurrentFrame();
-  const {fps}=useVideoConfig();
+  const {fps,width,height}=useVideoConfig();
+  const safeArea=getSafeAreaInsets(width,height);
   const count=
     type==='cover'?items.length:
     type==='cards'&&Array.isArray(data?.cards)?(data.cards as unknown[]).length:
@@ -555,7 +557,7 @@ export const LiquidBriefSlide:React.FC<Props>=({
         }}
       />
       <div style={{position:'absolute',inset:0,backdropFilter:'blur(18px)',WebkitBackdropFilter:'blur(18px)'}} />
-      <AbsoluteFill style={{opacity:exit,alignItems:'center',justifyContent:'center',padding:'42px 44px 56px'}}>
+      <AbsoluteFill style={{opacity:exit,alignItems:'center',justifyContent:'center',padding:`${safeArea.top}px ${safeArea.right}px ${safeArea.bottom}px ${safeArea.left}px`}}>
         <div
           style={{
             ...glassBase,

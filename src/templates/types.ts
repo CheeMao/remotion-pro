@@ -6,6 +6,40 @@ export interface TimelineFields {
   audioPath?: string;
 }
 
+export type SlideMediaKind = 'image' | 'video' | 'illustration' | 'screenshot';
+
+export type SlideMediaRole =
+  | 'hero'
+  | 'background'
+  | 'support'
+  | 'compare-left'
+  | 'compare-right';
+
+export interface SlideMediaAsset {
+  kind?: SlideMediaKind;
+  role?: SlideMediaRole;
+  sourceType?: 'official' | 'screenshot' | 'ai-generated' | 'local' | 'remote';
+  url?: string;
+  remoteUrl?: string;
+  localPath?: string;
+  path?: string;
+  query?: string;
+  alt?: string;
+  credit?: string;
+  focalPoint?: {
+    x: number;
+    y: number;
+  };
+}
+
+export type SlideMotionIntensity = 'soft' | 'medium' | 'strong';
+
+export interface SlideMotionConfig {
+  preset?: string;
+  intensity?: SlideMotionIntensity;
+  disabled?: boolean;
+}
+
 /**
  * 元素级时间戳定义
  * 用于精准控制每个动画元素的出现时间
@@ -40,6 +74,9 @@ export interface EnhancedSlideData extends TimelineFields {
   narration?: string;
   type?: string;
   data?: Record<string, unknown>;
+  media?: SlideMediaAsset[];
+  motionPreset?: string;
+  motion?: SlideMotionConfig;
   /** 元素级时间戳配置 */
   elementTimings?: ElementTiming[];
   /** 语速配置（字/秒） */
@@ -55,6 +92,9 @@ export interface AudioSlideData extends TimelineFields {
   segmentIds?: string[];
   type?: string;
   data?: Record<string, unknown>;
+  media?: SlideMediaAsset[];
+  motionPreset?: string;
+  motion?: SlideMotionConfig;
   elementTimings?: ElementTiming[];
 }
 
@@ -76,6 +116,10 @@ export interface ContentMeta {
   voice_id?: string;
   fullNarration?: string;
   full_narration?: string;
+  generationMode?: 'standard' | 'director';
+  generation_mode?: 'standard' | 'director';
+  directorStyle?: Record<string, unknown>;
+  director_style?: Record<string, unknown>;
   soundtrackPath?: string;
   soundtrack_path?: string;
   soundtrackDuration?: number;
@@ -90,6 +134,9 @@ export interface ContentSlide extends TimelineFields {
   segmentIds?: string[];
   layout?: string;
   elementTimings?: ElementTiming[];
+  media?: SlideMediaAsset[];
+  motionPreset?: string;
+  motion?: SlideMotionConfig;
   type?:
     | 'default'
     | 'steps'

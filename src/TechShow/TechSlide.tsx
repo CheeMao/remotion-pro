@@ -6,6 +6,7 @@ import {
   useVideoConfig,
 } from "remotion";
 import { getSlideMotionTiming } from "../templates/animationTiming";
+import { getSafeAreaInsets } from "../layouts/safeArea";
 
 // 使用系统等宽/科技风字体，避免从 Google CDN 加载
 const fontFamily = "'Courier New', 'Consolas', monospace";
@@ -345,7 +346,8 @@ export const TechSlide: React.FC<{
   durationInFrames: number;
 }> = ({ type, data = {}, index, totalSlides, durationInFrames }) => {
   const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
+  const { fps, width, height } = useVideoConfig();
+  const safeArea = getSafeAreaInsets(width, height);
   const itemCount = Array.isArray(data.items)
     ? (data.items as unknown[]).length
     : Array.isArray(data.stats)
@@ -368,8 +370,8 @@ export const TechSlide: React.FC<{
     <div
       style={{
         position: "absolute",
-        top: 34,
-        right: 34,
+        top: safeArea.headerTop,
+        right: safeArea.headerSide,
         fontFamily: "monospace",
         fontSize: 16,
         color: "rgba(255,255,255,0.28)",
@@ -1001,6 +1003,7 @@ export const TechSlide: React.FC<{
         alignItems: "center",
         fontFamily: `"${fontFamily}", "PingFang SC", "Microsoft YaHei", sans-serif`,
         overflow: "hidden",
+        padding: `${safeArea.top}px ${safeArea.right}px ${safeArea.bottom}px ${safeArea.left}px`,
       }}
     >
       {/* 网格背景 */}
@@ -1030,9 +1033,9 @@ export const TechSlide: React.FC<{
         <div
           style={{
             opacity: exitOpacity,
-            width: "90%",
+            width: "100%",
             maxWidth: 920,
-            minHeight: 1260,
+            minHeight: Math.min(1260, Math.max(1080, height - safeArea.top - safeArea.bottom)),
             padding: "32px 34px 38px",
             borderRadius: 32,
             background: "linear-gradient(180deg, rgba(4,8,20,0.76), rgba(4,10,18,0.62))",
@@ -1054,7 +1057,7 @@ export const TechSlide: React.FC<{
             </div>
           </div>
 
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: 1130 }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: Math.max(880, height - safeArea.top - safeArea.bottom - 120) }}>
             {renderContent()}
           </div>
         </div>

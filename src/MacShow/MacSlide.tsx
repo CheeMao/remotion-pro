@@ -6,6 +6,7 @@ import {
   useCurrentFrame,
   useVideoConfig,
 } from "remotion";
+import { getSafeAreaInsets } from "../layouts/safeArea";
 
 type SlideType =
   | "hero"
@@ -737,7 +738,8 @@ export const MacSlide: React.FC<Props> = ({
   const c = theme.colors;
   const accents = theme.accents;
   const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
+  const { fps, width, height } = useVideoConfig();
+  const safeArea = getSafeAreaInsets(width, height);
   const slideDuration = Math.max(1, durationInFrames);
   const clampTiming = {
     extrapolateLeft: "clamp" as const,
@@ -1432,7 +1434,13 @@ export const MacSlide: React.FC<Props> = ({
   return (
     <AbsoluteFill style={{ fontFamily: theme.rootFont, color: c.text }}>
       <Background frame={frame} theme={theme} />
-      <AbsoluteFill style={{ alignItems: "center", justifyContent: "center", padding: 42 }}>
+      <AbsoluteFill
+        style={{
+          alignItems: "center",
+          justifyContent: "center",
+          padding: `${safeArea.top}px ${safeArea.right}px ${safeArea.bottom}px ${safeArea.left}px`,
+        }}
+      >
         <WindowFrame frame={frame} index={index} totalSlides={totalSlides} theme={theme}>
           {renderBody()}
         </WindowFrame>

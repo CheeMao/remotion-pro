@@ -8,6 +8,7 @@ import {
 import { getSlideMotionTiming } from "../templates/animationTiming";
 import { getElementProgress } from "../templates/runtimeTiming";
 import type { HighlightWord, StepItem, TimelineItem, ChartData, ElementTiming } from "../templates/types";
+import { getSafeAreaInsets } from "../layouts/safeArea";
 
 const colors = {
   bg: "#0f172a",
@@ -344,7 +345,8 @@ export const KnowledgeSlide: React.FC<{
   durationInFrames,
 }) => {
   const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
+  const { fps, width, height } = useVideoConfig();
+  const safeArea = getSafeAreaInsets(width, height);
   const timing = getSlideMotionTiming(durationInFrames, points?.length ?? 0);
 
   const resolveProgress = (id: string, fallbackStart: number) =>
@@ -392,8 +394,8 @@ export const KnowledgeSlide: React.FC<{
       <div
         style={{
           position: "absolute",
-          top: 40,
-          right: 40,
+          top: safeArea.headerTop,
+          right: safeArea.headerSide,
           display: "flex",
           gap: 10,
           alignItems: "center",
@@ -411,7 +413,7 @@ export const KnowledgeSlide: React.FC<{
         <span style={{ color: colors.muted }}>{String(totalSlides).padStart(2, "0")}</span>
       </div>
 
-      <div style={{ opacity: exitOpacity, padding: "46px", width: "100%", maxWidth: 920 }}>
+      <div style={{ opacity: exitOpacity, padding: `${safeArea.top}px ${safeArea.right}px ${safeArea.bottom}px ${safeArea.left}px`, width: "100%", maxWidth: 920 }}>
         {title ? (
           <h1
             style={{

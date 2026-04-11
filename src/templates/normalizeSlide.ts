@@ -22,6 +22,10 @@ const DATA_FIELDS = [
   'bars',
   'cover',
   'cards',
+  'media',
+  'image',
+  'backgroundImage',
+  'coverImage',
 ];
 
 /**
