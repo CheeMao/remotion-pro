@@ -10,6 +10,11 @@ import {
   EmbeddedPreview,
   PreviewProjectData,
 } from "./remotion-preview/EmbeddedPreview";
+import { useRenderStore, type CliProgress } from "./stores/render";
+import {
+  SUBTITLE_FONTS,
+  DEFAULT_SUBTITLE_FONT,
+} from "@remotion-root/fonts/subtitleFonts";
 import { prepareSlidesForRender } from "@remotion-root/templates/autoLayout";
 import { parseJsonWithRepair } from "@remotion-root/utils/json-repair";
 import {
@@ -101,6 +106,7 @@ type SettingsData = {
   rewriteStyles: RewriteStyle[];
   defaultRewriteStyleId: string;
   outputDir?: string;
+  subtitleFont?: string;
 };
 
 const DEFAULT_VOLCENGINE_RESOURCE_ID = "seed-icl-2.0";
@@ -687,6 +693,20 @@ const LEGACY_DEFAULT_REWRITE_STYLES: RewriteStyle[] = [
 {{text}}`,
   },
 ];
+
+const matchesLegacyRewriteStyleIds = (styles: RewriteStyle[]) =>
+  styles.length === LEGACY_DEFAULT_REWRITE_STYLES.length &&
+  styles.every((style, index) => style.id === LEGACY_DEFAULT_REWRITE_STYLES[index].id);
+
+const isExactLegacyRewriteStyleSet = (styles: RewriteStyle[]) =>
+  matchesLegacyRewriteStyleIds(styles) &&
+  styles.every((style, index) => {
+    const legacyStyle = LEGACY_DEFAULT_REWRITE_STYLES[index];
+    return (
+      style.name === legacyStyle.name &&
+      style.prompt.trim() === legacyStyle.prompt.trim()
+    );
+  });
 
 const DEFAULT_SETTINGS: SettingsData = {
   voiceId: "",
@@ -1912,15 +1932,7 @@ function loadSettings(): SettingsData {
         : [];
     const shouldUpgradeLegacyRewriteStyles =
       parsedRewriteStyles.length > 0 &&
-      parsedRewriteStyles.length === LEGACY_DEFAULT_REWRITE_STYLES.length &&
-      parsedRewriteStyles.every((style, index) => {
-        const legacyStyle = LEGACY_DEFAULT_REWRITE_STYLES[index];
-        return (
-          style.id === legacyStyle.id &&
-          style.name === legacyStyle.name &&
-          style.prompt.trim() === legacyStyle.prompt.trim()
-        );
-      });
+      isExactLegacyRewriteStyleSet(parsedRewriteStyles);
     const rewriteStyles =
       parsedRewriteStyles.length === 0 || shouldUpgradeLegacyRewriteStyles
         ? DEFAULT_REWRITE_STYLES
@@ -1941,6 +1953,7 @@ function loadSettings(): SettingsData {
       aiModel: parsed.aiModel || DEFAULT_SETTINGS.aiModel,
       rewriteStyles,
       defaultRewriteStyleId,
+      subtitleFont: parsed.subtitleFont || DEFAULT_SUBTITLE_FONT,
     };
 
     if (shouldUpgradeLegacyRewriteStyles) {
@@ -3396,6 +3409,7 @@ async function saveSlidesToProject(project: Project) {
           0,
         )
       : undefined,
+    subtitleFont: settings.subtitleFont || undefined,
   });
 }
 
@@ -3477,6 +3491,175 @@ const PRIMARY_BUTTON_STYLE: React.CSSProperties = {
   fontSize: 14,
   fontWeight: 600,
   boxShadow: "0 2px 6px rgba(53, 113, 231, 0.22)",
+};
+
+function formatDuration(ms: number): string {
+  const s = Math.max(0, Math.round(ms / 1000));
+  const m = Math.floor(s / 60);
+  const rem = s % 60;
+  return m > 0 ? `${m}分${rem}秒` : `${rem}秒`;
+}
+
+function describeProgress(p: CliProgress | null, stageLabel: string): {
+  text: string;
+  percent: number | null;
+  eta: string | null;
+} {
+  if (!p) {
+    return { text: stageLabel || "准备中...", percent: null, eta: null };
+  }
+  switch (p.phase) {
+    case "audio:progress": {
+      const total = p.totalSlides || 0;
+      const idx = p.slideIndex || 0;
+      const percent = total > 0 ? (idx / total) * 100 : null;
+      return {
+        text: `合成配音 ${idx}/${total}${p.mode === "segments" ? "（拼接）" : "（TTS）"}`,
+        percent,
+        eta: null,
+      };
+    }
+    case "browser:detecting":
+      return { text: "检测浏览器...", percent: null, eta: null };
+    case "browser:testing":
+      return { text: "测试浏览器启动...", percent: null, eta: null };
+    case "browser:downloading":
+      return {
+        text: "首次使用：正在下载内嵌浏览器（~150MB，耐心等候）...",
+        percent: null,
+        eta: null,
+      };
+    case "browser:ready":
+      return {
+        text:
+          p.source === "local"
+            ? "浏览器就绪（本地）"
+            : "浏览器就绪（内嵌）",
+        percent: null,
+        eta: null,
+      };
+    case "bundle:start":
+      return { text: "构建模板包...", percent: null, eta: null };
+    case "bundle:done":
+      return {
+        text: `构建完成 (${(p.durationMs / 1000).toFixed(1)}秒)`,
+        percent: null,
+        eta: null,
+      };
+    case "render:init":
+      return {
+        text: `准备渲染 (${p.slides} 张 · ${p.totalFrames} 帧)`,
+        percent: 0,
+        eta: null,
+      };
+    case "render:start":
+      return { text: "开始渲染视频...", percent: 0, eta: null };
+    case "render:progress": {
+      const percent = Math.max(0, Math.min(100, p.progress * 100));
+      // Only show ETA after we have a stable fraction
+      let eta: string | null = null;
+      if (p.progress > 0.03 && p.elapsedMs > 2000) {
+        const totalMs = p.elapsedMs / p.progress;
+        const remainingMs = Math.max(0, totalMs - p.elapsedMs);
+        eta = `剩余约 ${formatDuration(remainingMs)}`;
+      }
+      return {
+        text: `渲染中 ${p.renderedFrames}/${p.totalFrames} 帧（编码 ${p.encodedFrames}）`,
+        percent,
+        eta,
+      };
+    }
+    case "render:done":
+      return {
+        text: `渲染完成 (${(p.durationMs / 1000).toFixed(1)}秒)`,
+        percent: 100,
+        eta: null,
+      };
+    default:
+      return { text: stageLabel || "处理中...", percent: null, eta: null };
+  }
+}
+
+const RenderProgressFloating: React.FC = () => {
+  const rendering = useRenderStore((s) => s.rendering);
+  const previewing = useRenderStore((s) => s.previewing);
+  const stageLabel = useRenderStore((s) => s.stageLabel);
+  const cliProgress = useRenderStore((s) => s.cliProgress);
+
+  if (!rendering && !previewing) {
+    return null;
+  }
+
+  const { text, percent, eta } = describeProgress(cliProgress, stageLabel);
+  return (
+    <div
+      style={{
+        position: "fixed",
+        left: "50%",
+        bottom: 24,
+        transform: "translateX(-50%)",
+        zIndex: 2000,
+        width: 420,
+        maxWidth: "calc(100vw - 40px)",
+        padding: "12px 16px",
+        borderRadius: 12,
+        background: "rgba(255, 255, 255, 0.98)",
+        border: "1px solid rgba(141, 171, 255, 0.4)",
+        boxShadow: "0 8px 24px rgba(53, 113, 231, 0.18)",
+        pointerEvents: "none",
+      }}
+    >
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          fontSize: 12,
+          color: "#1d2129",
+          marginBottom: 6,
+          gap: 8,
+        }}
+      >
+        <span style={{ fontWeight: 600 }}>
+          {rendering ? "生成视频" : "预览"} · {text}
+        </span>
+        <span style={{ color: "#4e5969", fontSize: 11 }}>
+          {percent != null ? `${percent.toFixed(1)}%` : ""}
+          {eta ? ` · ${eta}` : ""}
+        </span>
+      </div>
+      <div
+        style={{
+          height: 6,
+          borderRadius: 3,
+          background: "rgba(148, 184, 255, 0.25)",
+          overflow: "hidden",
+          position: "relative",
+        }}
+      >
+        {percent != null ? (
+          <div
+            style={{
+              width: `${percent}%`,
+              height: "100%",
+              background: "linear-gradient(90deg, #1f67ff 0%, #3c8cff 100%)",
+              transition: "width 150ms ease-out",
+            }}
+          />
+        ) : (
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              background:
+                "linear-gradient(90deg, transparent 0%, rgba(31, 103, 255, 0.5) 50%, transparent 100%)",
+              animation: "indeterminateSlide 1.5s linear infinite",
+            }}
+          />
+        )}
+      </div>
+    </div>
+  );
 };
 
 const PAGE_FRAME_STYLE: React.CSSProperties = {
@@ -3890,11 +4073,8 @@ function HomePage(props: {
       }}
     >
       {/* 抖音链接提取区域 */}
-      {generationMode === "director" ? (
-        <div style={{ ...PANEL_STYLE, width: "100%", padding: 14 }}>
-        <div
-          style={{ display: "flex", gap: 12, alignItems: "center" }}
-        >
+      <div style={{ ...PANEL_STYLE, width: "100%", padding: 14 }}>
+        <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
           <input
             type="text"
             placeholder="https://v.douyin.com/xxxxx 或完整分享文本..."
@@ -3930,8 +4110,7 @@ function HomePage(props: {
             </span>
           </div>
         )}
-        </div>
-      ) : null}
+      </div>
 
       {/* 文案编辑区域 */}
       <div
@@ -4373,7 +4552,7 @@ function HomePage(props: {
                 flexShrink: 0,
               }}
             >
-              鐢熸垚妯″紡
+              生成模式
             </label>
             <select
               value={generationMode}
@@ -4467,8 +4646,12 @@ function EditorPage(props: {
     React.useState<PreviewProjectData | null>(null);
   const [previewLoading, setPreviewLoading] = React.useState(false);
   const [previewError, setPreviewError] = React.useState("");
-  const [rendering, setRendering] = React.useState(false);
-  const [renderProgress, setRenderProgress] = React.useState("");
+  const rendering = useRenderStore((s) => s.rendering);
+  const renderProgress = useRenderStore((s) => s.stageLabel);
+  const setRendering = useRenderStore((s) => s.setRendering);
+  const setPreviewing = useRenderStore((s) => s.setPreviewing);
+  const setRenderProgress = useRenderStore((s) => s.setStageLabel);
+  const setCliProgress = useRenderStore((s) => s.setCliProgress);
 
   const project = props.project;
 
@@ -4594,11 +4777,16 @@ function EditorPage(props: {
     setShowPreview(true);
     setPreviewData(null);
     setPreviewError("");
+    setPreviewing(true);
+    setRenderProgress("正在准备预览...");
+    setCliProgress(null);
 
     try {
       await saveCurrentProject();
+      setRenderProgress("正在同步音频...");
       await syncAudio(project);
 
+      setRenderProgress("正在加载预览...");
       const { convertFileSrc } = await import("@tauri-apps/api/core");
       const result = await invokeTauri<string>("load_preview_project", {
         contentPath: project.contentPath,
@@ -4619,6 +4807,7 @@ function EditorPage(props: {
           (preview.soundtrackFile
             ? convertFileSrc(preview.soundtrackFile)
             : undefined),
+        subtitleFont: loadSettings().subtitleFont,
       });
     } catch (cause) {
       const message = cause instanceof Error ? cause.message : String(cause);
@@ -4627,6 +4816,9 @@ function EditorPage(props: {
       setShowPreview(false);
     } finally {
       setPreviewLoading(false);
+      setPreviewing(false);
+      setCliProgress(null);
+      setRenderProgress("");
     }
   };
 
@@ -4642,6 +4834,7 @@ function EditorPage(props: {
   const handleRender = async () => {
     setRendering(true);
     setRenderProgress("正在保存项目...");
+    setCliProgress(null);
 
     try {
       await saveCurrentProject();
@@ -4661,6 +4854,8 @@ function EditorPage(props: {
       alert(cause instanceof Error ? cause.message : String(cause));
     } finally {
       setRendering(false);
+      setCliProgress(null);
+      setRenderProgress("");
     }
   };
 
@@ -5475,7 +5670,7 @@ function SettingsPage(props: SettingsPageProps) {
 
   return (
     <div style={PAGE_FRAME_STYLE}>
-      <div style={{ width: "100%", maxWidth: 760, margin: "0 auto" }}>
+      <div style={{ width: "100%", maxWidth: 620, margin: "0 auto" }}>
         <h2
           style={{
             marginTop: 0,
@@ -5542,104 +5737,137 @@ function SettingsPage(props: SettingsPageProps) {
             <>
               <h3 style={{ ...SECTION_TITLE_STYLE, marginTop: 0 }}>配音</h3>
 
-              <div style={FIELD_GROUP_STYLE}>
-                <label style={FIELD_LABEL_STYLE}>Access Key</label>
-                <input
-                  type="password"
-                  value={settings.voiceApiKey}
-                  onChange={(event) =>
-                    updateField("voiceApiKey", event.target.value)
-                  }
-                  style={SOFT_INPUT_STYLE}
-                />
-              </div>
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "1fr 1fr",
+                  gap: 10,
+                }}
+              >
+                <div style={{ ...FIELD_GROUP_STYLE, gridColumn: "1 / -1" }}>
+                  <label style={FIELD_LABEL_STYLE}>Access Key</label>
+                  <input
+                    type="password"
+                    value={settings.voiceApiKey}
+                    onChange={(event) =>
+                      updateField("voiceApiKey", event.target.value)
+                    }
+                    style={SOFT_INPUT_STYLE}
+                  />
+                </div>
 
-              <div style={{ ...FIELD_GROUP_STYLE, marginTop: SPACING.md }}>
-                <label style={FIELD_LABEL_STYLE}>App ID</label>
-                <input
-                  value={settings.volcengineAppId}
-                  onChange={(event) =>
-                    updateField("volcengineAppId", event.target.value)
-                  }
-                  style={SOFT_INPUT_STYLE}
-                />
-              </div>
+                <div style={FIELD_GROUP_STYLE}>
+                  <label style={FIELD_LABEL_STYLE}>App ID</label>
+                  <input
+                    value={settings.volcengineAppId}
+                    onChange={(event) =>
+                      updateField("volcengineAppId", event.target.value)
+                    }
+                    style={SOFT_INPUT_STYLE}
+                  />
+                </div>
 
-              <div style={{ ...FIELD_GROUP_STYLE, marginTop: SPACING.md }}>
-                <label style={FIELD_LABEL_STYLE}>语音 ID</label>
-                <input
-                  value={settings.voiceId}
-                  onChange={(event) =>
-                    updateField("voiceId", event.target.value)
-                  }
-                  style={SOFT_INPUT_STYLE}
-                />
-              </div>
+                <div style={FIELD_GROUP_STYLE}>
+                  <label style={FIELD_LABEL_STYLE}>语音 ID</label>
+                  <input
+                    value={settings.voiceId}
+                    onChange={(event) =>
+                      updateField("voiceId", event.target.value)
+                    }
+                    style={SOFT_INPUT_STYLE}
+                  />
+                </div>
 
-              <div style={{ ...FIELD_GROUP_STYLE, marginTop: SPACING.md }}>
-                <label style={FIELD_LABEL_STYLE}>语速</label>
-                <input
-                  type="number"
-                  min={0.5}
-                  max={2}
-                  step={0.1}
-                  value={settings.voiceSpeechRate}
-                  onChange={(event) =>
-                    updateField(
-                      "voiceSpeechRate",
-                      normalizeSpeechRate(event.target.value),
-                    )
-                  }
-                  style={SOFT_INPUT_STYLE}
-                />
-              </div>
+                <div style={FIELD_GROUP_STYLE}>
+                  <label style={FIELD_LABEL_STYLE}>语速</label>
+                  <input
+                    type="number"
+                    min={0.5}
+                    max={2}
+                    step={0.1}
+                    value={settings.voiceSpeechRate}
+                    onChange={(event) =>
+                      updateField(
+                        "voiceSpeechRate",
+                        normalizeSpeechRate(event.target.value),
+                      )
+                    }
+                    style={SOFT_INPUT_STYLE}
+                  />
+                </div>
 
-              <div style={{ ...FIELD_GROUP_STYLE, marginTop: SPACING.md }}>
-                <label style={FIELD_LABEL_STYLE}>视频保存路径</label>
-                <input
-                  value={settings.outputDir ?? ""}
-                  onChange={(event) =>
-                    updateField("outputDir", event.target.value)
-                  }
-                  placeholder="留空则默认输出到桌面 outs 文件夹"
-                  style={SOFT_INPUT_STYLE}
-                />
+                <div style={FIELD_GROUP_STYLE}>
+                  <label style={FIELD_LABEL_STYLE}>字幕字体</label>
+                  <select
+                    value={settings.subtitleFont || DEFAULT_SUBTITLE_FONT}
+                    onChange={(event) =>
+                      updateField("subtitleFont", event.target.value)
+                    }
+                    style={COMPACT_SELECT_STYLE}
+                  >
+                    {SUBTITLE_FONTS.map((font) => (
+                      <option key={font.id} value={font.id}>
+                        {font.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div style={{ ...FIELD_GROUP_STYLE, gridColumn: "1 / -1" }}>
+                  <label style={FIELD_LABEL_STYLE}>视频保存路径</label>
+                  <input
+                    value={settings.outputDir ?? ""}
+                    onChange={(event) =>
+                      updateField("outputDir", event.target.value)
+                    }
+                    placeholder="留空则默认输出到桌面 outs 文件夹"
+                    style={SOFT_INPUT_STYLE}
+                  />
+                </div>
               </div>
             </>
           ) : activeTab === "ai" ? (
             <>
               <h3 style={{ ...SECTION_TITLE_STYLE, marginTop: 0 }}>AI 生成</h3>
 
-              <div style={FIELD_GROUP_STYLE}>
-                <label style={FIELD_LABEL_STYLE}>API Base URL</label>
-                <input
-                  value={settings.aiUrl}
-                  onChange={(event) => updateField("aiUrl", event.target.value)}
-                  style={SOFT_INPUT_STYLE}
-                />
-              </div>
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "1fr 1fr",
+                  gap: 10,
+                }}
+              >
+                <div style={{ ...FIELD_GROUP_STYLE, gridColumn: "1 / -1" }}>
+                  <label style={FIELD_LABEL_STYLE}>API Base URL</label>
+                  <input
+                    value={settings.aiUrl}
+                    onChange={(event) => updateField("aiUrl", event.target.value)}
+                    style={SOFT_INPUT_STYLE}
+                  />
+                </div>
 
-              <div style={{ ...FIELD_GROUP_STYLE, marginTop: SPACING.md }}>
-                <label style={FIELD_LABEL_STYLE}>API Key</label>
-                <input
-                  type="password"
-                  value={settings.aiApiKey}
-                  onChange={(event) =>
-                    updateField("aiApiKey", event.target.value)
-                  }
-                  style={SOFT_INPUT_STYLE}
-                />
-              </div>
+                <div style={FIELD_GROUP_STYLE}>
+                  <label style={FIELD_LABEL_STYLE}>API Key</label>
+                  <input
+                    type="password"
+                    value={settings.aiApiKey}
+                    onChange={(event) =>
+                      updateField("aiApiKey", event.target.value)
+                    }
+                    style={SOFT_INPUT_STYLE}
+                  />
+                </div>
 
-              <div style={{ ...FIELD_GROUP_STYLE, marginTop: SPACING.md }}>
-                <label style={FIELD_LABEL_STYLE}>模型名</label>
-                <input
-                  value={settings.aiModel}
-                  onChange={(event) =>
-                    updateField("aiModel", event.target.value)
-                  }
-                  style={SOFT_INPUT_STYLE}
-                />
+                <div style={FIELD_GROUP_STYLE}>
+                  <label style={FIELD_LABEL_STYLE}>模型名</label>
+                  <input
+                    value={settings.aiModel}
+                    onChange={(event) =>
+                      updateField("aiModel", event.target.value)
+                    }
+                    style={SOFT_INPUT_STYLE}
+                  />
+                </div>
               </div>
             </>
           ) : activeTab === "rewrite" ? (
@@ -7503,6 +7731,30 @@ class ErrorBoundary extends React.Component<
 }
 
 export default function App() {
+  const setCliProgress = useRenderStore((s) => s.setCliProgress);
+
+  React.useEffect(() => {
+    let unlisten: (() => void) | null = null;
+    let cancelled = false;
+
+    (async () => {
+      const { listen } = await import("@tauri-apps/api/event");
+      const fn = await listen<CliProgress>("cli-progress", (event) => {
+        setCliProgress(event.payload);
+      });
+      if (cancelled) {
+        fn();
+      } else {
+        unlisten = fn;
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+      if (unlisten) unlisten();
+    };
+  }, [setCliProgress]);
+
   const [project, setProject] = React.useState<Project | null>(() =>
     loadProject(),
   );
@@ -8040,6 +8292,7 @@ export default function App() {
                 }
               />
             </Routes>
+            <RenderProgressFloating />
           </Layout>
         ) : (
           <AuthScreen

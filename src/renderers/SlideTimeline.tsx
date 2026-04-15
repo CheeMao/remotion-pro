@@ -14,6 +14,7 @@ interface SlideTimelineProps {
   preferSharedLayout?: boolean;
   background?: string;
   subtitlesEnabled?: boolean;
+  subtitleFont?: string;
   renderFallback?: (
     slide: AudioSlideData,
     index: number,
@@ -97,6 +98,7 @@ export const SlideTimeline: React.FC<SlideTimelineProps> = ({
   preferSharedLayout = false,
   background = '#050816',
   subtitlesEnabled = true,
+  subtitleFont,
   renderFallback,
 }) => {
   const { fps } = useVideoConfig();
@@ -110,6 +112,7 @@ export const SlideTimeline: React.FC<SlideTimelineProps> = ({
           slides={slides}
           themeId={themeId}
           template={template}
+          subtitleFont={subtitleFont}
         />
       ) : null}
       {slides.map((slide, index) => {

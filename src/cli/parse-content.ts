@@ -77,6 +77,8 @@ export function contentToVideoConfig(content: ContentFile): VideoConfig {
       content.meta.soundtrackPath || content.meta.soundtrack_path,
     soundtrackDuration:
       content.meta.soundtrackDuration || content.meta.soundtrack_duration,
+    subtitleFont:
+      content.meta.subtitleFont || content.meta.subtitle_font,
   };
 }
 

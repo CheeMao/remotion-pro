@@ -14,6 +14,7 @@ export interface PreviewProjectData {
   soundtrackUrl?: string;
   generationMode?: 'standard' | 'director';
   directorStyle?: Record<string, unknown>;
+  subtitleFont?: string;
 }
 
 const toAudioSlides = (slides: Array<Record<string, unknown>>): AudioSlideData[] => {
@@ -35,6 +36,9 @@ const toAudioSlides = (slides: Array<Record<string, unknown>>): AudioSlideData[]
         ? (slide.motion as AudioSlideData['motion'])
         : undefined,
     elementTimings: slide.elementTimings,
+    wordTimestamps: Array.isArray(slide.wordTimestamps)
+      ? (slide.wordTimestamps as AudioSlideData['wordTimestamps'])
+      : undefined,
     audioDuration: slide.audioDuration,
     durationInFrames: slide.durationInFrames,
     audioStart: slide.audioStart,
@@ -63,6 +67,7 @@ const SharedVideoComponent = SharedVideo as unknown as React.ComponentType<{
   soundtrackPath?: string;
   defaultSlideDuration?: number;
   preferSharedLayout?: boolean;
+  subtitleFont?: string;
 }>;
 
 const normalizeGenerationMode = (
@@ -76,6 +81,7 @@ const PreviewComposition: React.FC<PreviewProjectData> = ({
   slides,
   soundtrackUrl,
   generationMode,
+  subtitleFont,
 }) => {
   return React.createElement(SharedVideoComponent, {
     slides: toAudioSlides(slides),
@@ -83,6 +89,7 @@ const PreviewComposition: React.FC<PreviewProjectData> = ({
     soundtrackPath: soundtrackUrl,
     defaultSlideDuration: DEFAULT_SLIDE_DURATION,
     preferSharedLayout: normalizeGenerationMode(generationMode) === 'director',
+    subtitleFont,
   });
 };
 

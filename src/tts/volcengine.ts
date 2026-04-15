@@ -179,17 +179,39 @@ export class VolcEngineTTSClient {
       throw new Error('VOLCENGINE_APP_ID and VOLCENGINE_ACCESS_KEY are required');
     }
 
-    const response = await fetch(VOLCENGINE_TTS_URL, {
-      method: 'POST',
-      headers: {
-        'X-Api-App-Id': appId,
-        'X-Api-Access-Key': accessKey,
-        'X-Api-Resource-Id': resourceId,
-        'Content-Type': 'application/json',
-        Connection: 'keep-alive',
-      },
-      body: JSON.stringify(requestData),
-    });
+    const controller = new AbortController();
+    const timeoutMs = Number(process.env.VOLCENGINE_TTS_TIMEOUT_MS || 60_000);
+    const timeout = setTimeout(() => controller.abort(), timeoutMs);
+
+    const textPreview = requestData.req_params.text.slice(0, 30).replace(/\s+/g, ' ');
+    console.error(`[tts] synthesize start (${requestData.req_params.text.length} chars): ${textPreview}...`);
+    const t0 = Date.now();
+
+    let response: Response;
+    try {
+      response = await fetch(VOLCENGINE_TTS_URL, {
+        method: 'POST',
+        headers: {
+          'X-Api-App-Id': appId,
+          'X-Api-Access-Key': accessKey,
+          'X-Api-Resource-Id': resourceId,
+          'Content-Type': 'application/json',
+          Connection: 'keep-alive',
+        },
+        body: JSON.stringify(requestData),
+        signal: controller.signal,
+      });
+    } catch (error) {
+      clearTimeout(timeout);
+      if (error instanceof Error && error.name === 'AbortError') {
+        throw new Error(
+          `VolcEngine TTS timed out after ${timeoutMs}ms on text: "${textPreview}..."`
+        );
+      }
+      throw error;
+    }
+    clearTimeout(timeout);
+    console.error(`[tts] synthesize response received in ${Date.now() - t0}ms`);
 
     const responseText = await response.text();
     if (!response.ok) {

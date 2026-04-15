@@ -1,18 +1,21 @@
 import React from 'react';
 import { AbsoluteFill, interpolate, spring, useCurrentFrame, useVideoConfig } from 'remotion';
 import { getThemeDefinition, getThemeIdForTemplate } from '../themes/registry';
+import { resolveSubtitleFontFamily } from '../fonts/subtitleFonts';
 import { buildCaptionSegments } from './captions';
 
 interface SubtitleOverlayProps {
   slides: ReadonlyArray<object>;
   themeId?: string;
   template?: string;
+  subtitleFont?: string;
 }
 
 export const SubtitleOverlay: React.FC<SubtitleOverlayProps> = ({
   slides,
   themeId,
   template,
+  subtitleFont,
 }) => {
   const frame = useCurrentFrame();
   const { fps, width, height } = useVideoConfig();
@@ -33,6 +36,9 @@ export const SubtitleOverlay: React.FC<SubtitleOverlayProps> = ({
   );
   const resolvedThemeId = themeId || getThemeIdForTemplate(template);
   const theme = getThemeDefinition(resolvedThemeId);
+  const fontFamily = subtitleFont
+    ? resolveSubtitleFontFamily(subtitleFont)
+    : theme.typography.fontFamily;
   const isPortrait = height >= width;
   const safeBottomPadding = isPortrait ? Math.max(92, height * 0.058) : Math.max(54, height * 0.05);
   const horizontalPadding = isPortrait ? Math.max(36, width * 0.055) : Math.max(60, width * 0.1);
@@ -64,13 +70,14 @@ export const SubtitleOverlay: React.FC<SubtitleOverlayProps> = ({
         paddingLeft: horizontalPadding,
         paddingRight: horizontalPadding,
         paddingBottom: safeBottomPadding,
+        zIndex: 9999,
       }}
     >
       <div
         style={{
           maxWidth: isPortrait ? width * 0.92 : width * 0.78,
           color: '#ffffff',
-          fontFamily: theme.typography.fontFamily,
+          fontFamily,
           fontSize,
           fontWeight: 900,
           lineHeight: 1.24,
@@ -79,7 +86,7 @@ export const SubtitleOverlay: React.FC<SubtitleOverlayProps> = ({
           whiteSpace: 'pre-wrap',
           opacity,
           transform: `translateY(${translateY}px)`,
-          textShadow: '4px -4px 5px rgba(0, 0, 0, 0.8)',
+          textShadow: '4px 4px 15px rgba(0, 0, 0, 0.69)',
         }}
       >
         {activeCaption.text}

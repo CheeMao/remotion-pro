@@ -233,6 +233,30 @@ const copyRuntimeFiles = () => {
   fs.copyFileSync(ffprobePath, path.join(ffmpegDir, ffprobeExecutable));
   log(`Copied ffprobe binary from ${ffprobePath}`);
 
+  // Windows shared-build ffmpeg needs av*.dll / sw*.dll / postproc*.dll siblings.
+  // Copy every DLL sitting next to ffmpeg.exe so the packaged binary can resolve them.
+  if (process.platform === "win32") {
+    const ffmpegSrcDir = path.dirname(ffmpegPath);
+    const dllCandidates = fs
+      .readdirSync(ffmpegSrcDir)
+      .filter((name) => name.toLowerCase().endsWith(".dll"));
+    for (const dll of dllCandidates) {
+      fs.copyFileSync(
+        path.join(ffmpegSrcDir, dll),
+        path.join(ffmpegDir, dll)
+      );
+    }
+    if (dllCandidates.length > 0) {
+      log(
+        `Copied ${dllCandidates.length} ffmpeg sibling DLL(s): ${dllCandidates.join(", ")}`
+      );
+    } else {
+      log(
+        "No sibling DLLs found next to ffmpeg.exe; assuming static build."
+      );
+    }
+  }
+
   // Copy Python TTS scripts
   const srcScriptsDir = path.join(projectRoot, 'scripts');
   const dstScriptsDir = path.join(runtimeDir, 'scripts');

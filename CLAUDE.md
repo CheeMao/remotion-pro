@@ -4,202 +4,193 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-A Remotion-based video generation system for creating short vertical videos (9:16 aspect ratio, 1080x1920) for TikTok/Douyin. Features multiple visual templates, TTS narration via VolcEngine (火山引擎), and a Tauri desktop app for the editor.
+Remotion-based vertical video generation system (1080x1920 @ 30fps) for short-form Chinese content. It combines:
+
+- A **layered rendering architecture** (not "one template = one fixed page") where any template renders any layout from a unified content schema
+- **VolcEngine (火山引擎) TTS** with word-level timestamps for element-synced animation
+- A **Tauri v2 desktop app** (`app/`) that drives the CLI and previews renders via `@remotion/player`
+- A packaged Remotion runtime (`src-tauri/resources/runtime`) and a sidecar build (`.sidecar-build/`) that mirror `src/` for the shipped desktop app
+
+## Read First
+
+Before changing architecture, templates, layouts, or content generation logic, read:
+
+- `docs/IMPLEMENTATION_LOGIC.md` — current pipeline source of truth
+- `docs/TEMPLATE_DEVELOPMENT_SPEC.md` — what makes a template "complete"
+- `AGENTS.md` — overlapping but more concise rules; active template list lives there
 
 ## Commands
 
 ```bash
-# Remotion Studio (preview)
+# Remotion Studio (preview, port 32123)
 npm run dev
 
-# Lint and type check
+# Lint + typecheck (eslint src && tsc)
 npm run lint
 
-# CLI: Full pipeline - generate audio + render video
-npm run generate -- <content.json> [--template SlideShow] [--voice voice-id] [-o out/video.mp4]
+# Remotion bundle only
+npm run build
 
-# CLI: Generate audio only from content file
-npm run generate:audio -- <content.json> [-v voice-id]
+# Direct Remotion render of a Composition
+npx remotion render <CompositionId> out/video.mp4
 
-# CLI: Generate single narration track from text file
+# CLI: full pipeline (audio + timeline + render)
+npm run generate -- <content.json> [-t GlassShow] [-v voice-id] [-r 1.0] [-o out/video.mp4] [--skip-audio]
+
+# CLI: TTS only — per-slide audio from content.json
+npm run generate:audio -- <content.json> [-v voice-id] [-r 1.0] [-o public/audio]
+
+# CLI: structure plain slides → layouts + default elementTimings (in place by default)
+npm run generate:structure -- <content.json> [-t GlassShow] [-o other.json]
+
+# CLI: single narration soundtrack from a text file
 npx tsx src/cli/index.ts narrate <text-file> [-v voice-id] [-o public/audio/narration.mp3]
 
-# CLI: Generate narration with segment timeline
+# CLI: segmented narration timeline from a text file
 npx tsx src/cli/index.ts narrate-timeline <text-file> [-v voice-id] [-o public/audio]
 
-# CLI: Sync timeline to existing narration audio
+# CLI: sync audioStart/audioEnd to an existing soundtrack
 npx tsx src/cli/index.ts timeline <content.json> -s public/audio/narration.mp3
 
-# CLI: Render video from existing content (skips audio gen)
-npx tsx src/cli/index.ts render <content.json> [-o out/video.mp4]
+# CLI: render only (expects content already has timing)
+npx tsx src/cli/index.ts render <content.json> [-t GlassShow] [-o out/video.mp4]
 
-# Tauri desktop app (requires separate npm install in app/)
-npm run tauri:dev
-npm run tauri:build
+# Tauri desktop app
+npm run dev:app                 # Vite dev server inside app/
+npm run build:app               # Build app/ only
+npm run tauri:dev               # Tauri dev (uses app/ front-end)
+npm run tauri:build             # Runs prepare:tauri-runtime then tauri build
+npm run prepare:tauri-runtime   # Copies src/ → src-tauri/resources/runtime before packaging
+
+# Dependency update helpers (wrap scripts/update-check.mjs and batch-update.mjs)
+npm run update:check            # dry-run
+npm run update:all
+npm run update:remotion | update:react | update:types | update:dev | update:utils | update:batch
 ```
+
+No test runner is configured — `npm run lint` (ESLint + `tsc`) is the only automated check.
 
 ## Architecture
 
-### Video Generation Pipeline
-
-1. **Content file** (`public/projects/{template}/content.json`) → defines slides, narration text, template
-2. **TTS** (VolcEngine OpenSpeech HTTP API) → generates narration soundtrack with timing
-3. **Timeline sync** → calculates frame durations from audio segments
-4. **Remotion render** → outputs MP4 via Puppeteer/Chromium
-
-### Key Directories
+### Rendering Pipeline
 
 ```
-src/
-├── Root.tsx                    # All video compositions (appears in Remotion Studio)
-├── cli/                        # Command-line tools for video generation
-│   ├── index.ts                # CLI entry point (Commander.js)
-│   ├── workflow.ts             # High-level workflow functions
-│   ├── generate-audio.ts       # TTS and timeline sync logic
-│   ├── render-video.ts         # Remotion rendering via Node APIs
-│   └── parse-content.ts        # Content file parsing helpers
-├── tts/                        # Text-to-speech service
-│   ├── index.ts                # TTSService class
-│   ├── volcengine.ts           # VolcEngine OpenSpeech client
-│   ├── voice-clone.ts          # Custom voice creation
-│   ├── audio-cache.ts          # File-based audio caching
-│   └── types.ts                # TTS type definitions
-├── templates/                  # Shared template types and DynamicSlideShow
-│   ├── types.ts                # ContentFile, ContentSlide interfaces
-│   ├── DynamicSlideShow/       # Dynamic template with audio-synced timing
-│   └── GeneratedTemplateRenderer.tsx  # Runtime template selector
-├── hooks/                      # useContentJson, useSlidesFromJson
-└── <Template>Show/             # Individual template directories (12 templates)
-
-app/                            # Tauri desktop app (React + Vite + Zustand)
-├── src/pages/                  # Home, Editor, Settings
-└── src/stores/                 # Zustand state management
-
-public/
-└── projects/                   # Template content files & audio
-    ├── SlideShow/content.json
-    └── {template}/audio/narration.mp3
-
-src-tauri/                      # Rust backend for Tauri app
+raw slides
+  → prepareSlidesForRender()        (src/templates/autoLayout.ts — normalizes layout/type/data/timings)
+  → SharedVideo                     (src/renderers/SharedVideo.tsx — top-level composition body)
+  → SlideTimeline                   (src/renderers/SlideTimeline.tsx — maps audio time → frames)
+  → SceneRenderer                   (src/renderers/SceneRenderer.tsx — per-slide dispatcher)
+  → templateSceneRegistry           (src/renderers/templateSceneRegistry.tsx — template-owned scenes)
+  → shared layouts (fallback)       (src/layouts/*Layout.tsx)
 ```
 
-### Available Templates
+Key invariants:
 
-| Template | Style | Entry File |
-|----------|-------|------------|
-| SlideShow | Cyberpunk tech | `src/SlideShow/index.tsx` |
-| GlassShow | Glassmorphism | `src/GlassShow/index.tsx` |
-| NeuShow | Neumorphism | `src/NeuShow/index.tsx` |
-| RichShow | Rich effects | `src/RichShow/index.tsx` |
-| TechShow | Tech effects | `src/TechShow/index.tsx` |
-| AIShow | AI theme | `src/AIShow/index.tsx` |
-| NeonShow | Neon glow | `src/NeonShow/index.tsx` |
-| LuxeShow | Luxury gold | `src/LuxeShow/index.tsx` |
-| LiquidShow | Liquid motion | `src/LiquidShow/index.tsx` |
-| LiquidBriefShow | Brief liquid | `src/LiquidBriefShow/index.tsx` |
-| FrostedShow | Frosted glass | `src/FrostedShow/index.tsx` |
-| KnowledgeShow | Knowledge layout | `src/KnowledgeShow/index.tsx` |
+- **Content schema is unified.** Every slide carries a `layout` (and optional `data`) from a single shared vocabulary. Templates are visual variants, not content protocols.
+- **Templates render first, shared layouts are a fallback.** `templateSceneRegistry` routes `(template, layout)` to a template-owned scene; if absent, `SceneRenderer` falls back to `src/layouts/*Layout.tsx`. A template that lacks a layout will visibly "drop out of style" on that slide.
+- **Themes are tokens, not identity.** `src/themes/registry.ts` is supporting data; a template is not defined by its theme alone.
+- **Director mode** (`meta.generationMode === 'director'`) sets `preferSharedLayout=true`, intentionally routing through shared layouts.
+
+### Entry Points
+
+- `src/Root.tsx` — registers all Remotion `Composition`s, including the `GeneratedVideo` composition which dynamically loads JSON (via props, query params `?template=…&contentPath=…`, or `public/projects/current-project.json`).
+- `src/index.ts` — `registerRoot(RemotionRoot)`.
+- `src/cli/index.ts` — Commander CLI; delegates to `src/cli/workflow.ts`.
+
+### Active Templates
+
+These are the templates expected to fully implement the layout set. Keep this list and `AGENTS.md` in sync:
+
+`GlassShow`, `LiquidShow`, `LiquidBriefShow`, `TechShow`, `RichShow`, `KnowledgeShow`, `MacShow`, `StudioShow`, `EditorialShow`.
+
+Additional compositions registered in `Root.tsx` (`InsightShow`, `CosmosShow`, `ProjectShow`, `StickShow`) are present but outside the "active templates must cover every layout" contract.
+
+**Dimensions are per-composition.** Most are 1080×1920; `MacShow`, `StudioShow`, `EditorialShow`, `InsightShow` render 1920×1080. `getTemplateDimensions(template)` in `src/templates/templateSpecs.ts` is authoritative — use it (never hardcode) when sizing the `GeneratedVideo` composition.
+
+### Required Layout Set
+
+Every active template must implement scenes for:
+
+`hero`, `default`, `steps`, `compare`, `stats`, `quote`, `list`, `chart`, `timeline`, `highlight`, `cta`.
+
+Missing any causes silent fallback to `src/layouts/*Layout.tsx` and visible style drift.
+
+### Template UI Rules
+
+Do **not** add filler: template-name badges, decorative placeholder sentences, "system"-flavored dummy labels, or any copy that doesn't carry user content. Page numbers, step counters, progress indicators, and meaningful structural labels are allowed.
 
 ### Content File Format
 
-```json
+Content lives at `public/projects/{template}/content.json`. Runtime selection reads `public/projects/current-project.json` (`{ template, contentPath }`).
+
+```jsonc
 {
   "meta": {
     "title": "Video title",
-    "template": "SlideShow",
+    "template": "GlassShow",
     "voiceId": "zh_female_shuangkuaisisi_moon_bigtts",
     "soundtrackPath": "audio/narration.mp3",
-    "soundtrackDuration": 45.2
+    "soundtrackDuration": 45.2,
+    "generationMode": "standard"         // or "director" to prefer shared layouts
   },
   "slides": [
     {
-      "title": "Slide title",
-      "subtitle": "Optional subtitle",
-      "points": ["Point 1", "Point 2"],
-      "narration": "Text to speak for this slide",
+      "title": "…", "subtitle": "…", "points": ["…"],
+      "narration": "Text spoken for this slide",
+      "layout": "stats",                 // one of the required layout set
+      "data": { /* layout-specific */ },
       "durationInFrames": 150,
-      "audioStart": 0.0,
-      "audioEnd": 5.0,
+      "audioStart": 0.0, "audioEnd": 5.0,
       "elementTimings": [
-        {
-          "id": "stat-0",
-          "type": "stat",
-          "cue": "100万用户",
-          "audioStart": 0.5,
-          "audioEnd": 2.0,
-          "entryDelay": 0,
-          "entryDuration": 0.4
-        }
-      ],
-      "type": "stats"
+        { "id": "stat-0", "type": "stat", "cue": "100万用户",
+          "audioStart": 0.5, "audioEnd": 2.0,
+          "entryDelay": 0, "entryDuration": 0.4 }
+      ]
     }
   ]
 }
 ```
 
-### Template System Architecture
+`prepareSlidesForRender` in `src/templates/autoLayout.ts` normalizes legacy `type` aliases (e.g. `cover → hero`, `cards → list`) and fills default `elementTimings`.
 
-- **Static templates** (SlideShow, GlassShow, etc.): Fixed duration, hardcoded content in their `index.tsx`
-- **DynamicSlideShow**: Content loaded from JSON, durations calculated from audio timing
-- **GeneratedVideo**: Special composition that loads content dynamically and renders any template via `GeneratedTemplateRenderer`
+### Audio Timeline Modes
 
-The `GeneratedVideo` composition uses query parameters (`?template=xxx&contentPath=xxx`) or props to determine what to render, enabling the CLI workflow to use a single composition for all templates.
+1. **Single soundtrack** — one narration file; each slide has `audioStart`/`audioEnd`. Produced by `narrate` or `narrate-timeline`; synced onto an existing file with `timeline`.
+2. **Per-slide audio** — each slide renders with its own audio segment, concatenated at render.
 
-### TTS Integration
+### TTS (VolcEngine / 火山引擎)
 
-The project uses **VolcEngine (火山引擎) TTS** via HTTP API for text-to-speech with **word-level timestamps**:
+`src/tts/` wraps VolcEngine OpenSpeech HTTP with word-level timestamps and a file-based cache.
 
-```typescript
+```ts
 import { createTTSService } from './tts';
-
-const tts = createTTSService(); // Uses VOLCENGINE_APP_ID and VOLCENGINE_ACCESS_KEY env vars
-const result = await tts.synthesize("Hello world", "voice-id");
-// result.audioPath, result.duration, result.timestamps, result.fromCache
+const tts = createTTSService();                   // uses env vars below
+const r = await tts.synthesize('你好世界', 'voice-id');
+// r.audioPath, r.duration, r.timestamps, r.fromCache
 ```
 
-Features:
-- **Word-level timestamps** for precise element animation synchronization
-- Audio caching with timestamp persistence
-- Speech rate control (0.5-2.0x)
-- Supports seed-tts-1.0 resource with multiple voices
+Environment variables (required for any TTS command):
 
-Environment variables:
-```bash
-VOLCENGINE_APP_ID=your_app_id
-VOLCENGINE_ACCESS_KEY=your_access_key
-VOLCENGINE_RESOURCE_ID=seed-tts-1.0
-```
+- `VOLCENGINE_APP_ID`
+- `VOLCENGINE_ACCESS_KEY`
+- `VOLCENGINE_RESOURCE_ID` (default `seed-tts-1.0`)
 
-### Audio Timeline System
+Caches live in `audio-cache/` + `audio-cache-map.json` at the repo root.
 
-The pipeline supports two modes:
+## Desktop App (`app/`)
 
-1. **Per-slide audio**: Each slide has its own audio file, concatenated during render
-2. **Single soundtrack**: One narration file with segment timing (`audioStart`/`audioEnd` per slide)
+Separate npm project — `cd app && npm install` on first setup. React 18 + TypeScript + Vite + Arco Design + Zustand + `@remotion/player`, driven by Tauri v2 (Rust in `src-tauri/`).
 
-Use `narrate-timeline` to generate segmented narration, or `timeline` to sync existing audio to slides.
+Packaging note: `npm run tauri:build` runs `scripts/prepare-tauri-runtime.js` first, which syncs `src/` into `src-tauri/resources/runtime/app/src/` and also maintains `.sidecar-build/src/`. When you see both a top-level `src/EditorialShow/EditorialSlide.tsx` and a `src-tauri/resources/runtime/app/src/EditorialShow/EditorialSlide.js` (or the same file under `.sidecar-build/`), the top-level TypeScript source is canonical — the JS copies are generated.
 
 ## Configuration
 
-- `remotion.config.ts` - Remotion configuration (video format: jpeg, overwrite: true)
-- `tsconfig.json` - TypeScript config (excludes remotion.config.ts due to module type)
-- `eslint.config.mjs` - Uses `@remotion/eslint-config-flat`
-- `VOLCENGINE_APP_ID` - 火山引擎App ID (用于TTS服务)
-- `VOLCENGINE_ACCESS_KEY` - 火山引擎Access Key (用于TTS服务)
-- `VOLCENGINE_RESOURCE_ID` - 火山引擎Resource ID (默认: seed-tts-1.0)
+- `remotion.config.ts` — Remotion config (jpeg image format, overwrite on).
+- `tsconfig.json` — excludes `remotion.config.ts` due to its module type. A separate `tsconfig.sidecar.json` covers the sidecar build.
+- `eslint.config.mjs` — `@remotion/eslint-config-flat`.
+- `pkg.config.json` — `@yao-pkg/pkg` config for the packaged sidecar.
 
-## Desktop App
+## Environment Notes
 
-The Tauri app in `app/` is a separate npm project:
-
-```bash
-cd app && npm install  # First time setup
-npm run dev            # Vite dev server (separate from Remotion Studio)
-```
-
-The app uses:
-- React 18 + TypeScript
-- Arco Design component library
-- Zustand for state management
-- `@remotion/player` for video preview
-- Tauri v2 for native APIs
+- Shell is bash-on-Windows (git-bash). Use Unix syntax (`/dev/null`, forward slashes) in scripts even though the OS is Windows 11.
+- Remotion Studio default port is **32123** (not the Remotion default), configured in `npm run dev`.

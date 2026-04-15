@@ -1,6 +1,7 @@
 import { bundle } from '@remotion/bundler';
 import { ensureBrowser, renderMedia, selectComposition } from '@remotion/renderer';
 import { existsSync, readFileSync } from 'fs';
+import { cpus } from 'os';
 import { extname, isAbsolute, join, resolve } from 'path';
 import { fileURLToPath } from 'url';
 import { VideoConfig } from '../templates/types';
@@ -115,42 +116,59 @@ const isHealthyLocalBrowserTest = (testResult: string): boolean => {
   return testResult.startsWith('still running after');
 };
 
+const emitProgress = (payload: Record<string, unknown>): void => {
+  process.stderr.write(`[progress] ${JSON.stringify(payload)}\n`);
+};
+
 export async function renderVideo(options: RenderVideoOptions): Promise<void> {
   const { config, outputPath, compositionId = 'GeneratedVideo' } = options;
   const totalFrames = calculateTotalFrames(config);
-  console.log(`Total frames: ${totalFrames} (${(totalFrames / config.fps).toFixed(2)}s)`);
+  console.error(`[render] start: ${config.slides.length} slides, ${totalFrames} frames (${(totalFrames / config.fps).toFixed(2)}s)`);
+  const inputPropsSize = JSON.stringify(config.slides).length;
+  console.error(`[render] inputProps slides serialized size: ${(inputPropsSize / 1024).toFixed(1)}KB`);
+  emitProgress({ phase: 'render:init', totalFrames, fps: config.fps, slides: config.slides.length });
 
+  emitProgress({ phase: 'browser:detecting' });
   const localBrowser = findLocalBrowserPath();
   let browserExecutable: string | null = null;
   const isWindowsDesktop = process.platform === 'win32';
 
   if (localBrowser) {
     console.log(`Using local browser: ${localBrowser}`);
+    emitProgress({ phase: 'browser:testing', executable: localBrowser });
     const testResult = await testBrowserLaunch(localBrowser);
     console.error(`[BrowserTest] ${localBrowser} -> ${testResult}`);
 
     if (isHealthyLocalBrowserTest(testResult)) {
       browserExecutable = localBrowser;
+      emitProgress({ phase: 'browser:ready', source: 'local', executable: localBrowser });
     } else {
       console.warn(
         'Local browser launch test failed. Falling back to the Remotion-managed browser.'
       );
+      emitProgress({ phase: 'browser:downloading' });
       await ensureBrowser();
+      emitProgress({ phase: 'browser:ready', source: 'remotion' });
     }
   } else {
     console.log('No local browser found, ensuring Remotion browser is downloaded...');
+    emitProgress({ phase: 'browser:downloading' });
     await ensureBrowser();
+    emitProgress({ phase: 'browser:ready', source: 'remotion' });
   }
 
   console.log('Bundling Remotion project...');
+  emitProgress({ phase: 'bundle:start' });
+  const bundleStart = Date.now();
   const bundled =
     process.env.REMOTION_BUNDLE_DIR && existsSync(process.env.REMOTION_BUNDLE_DIR)
       ? resolve(process.env.REMOTION_BUNDLE_DIR)
       : await bundle({
           entryPoint: join(process.cwd(), 'src', 'index.ts'),
         });
+  emitProgress({ phase: 'bundle:done', durationMs: Date.now() - bundleStart });
 
-  console.log('Selecting composition...');
+  console.error('[render] selecting composition...');
   const localSoundtrackPath = resolveLocalAssetPath(config.soundtrackPath);
   const soundtrackPath = localSoundtrackPath
     ? `data:${toMimeType(localSoundtrackPath)};base64,${readFileSync(localSoundtrackPath).toString(
@@ -162,19 +180,45 @@ export async function renderVideo(options: RenderVideoOptions): Promise<void> {
     slides: config.slides,
     defaultSlideDuration: config.defaultDurationPerSlide,
     soundtrackPath,
+    subtitleFont: config.subtitleFont,
   };
 
+  // GL backend for Chromium.
+  // Default: 'angle' on Windows = hardware (D3D). Much faster for WebGL animations.
+  // Override via REMOTION_GL env var if GPU drivers cause artifacts (try 'swangle' or 'swiftshader').
+  type RemotionGl =
+    | 'angle'
+    | 'angle-egl'
+    | 'egl'
+    | 'swangle'
+    | 'swiftshader'
+    | 'vulkan';
+  const allowedGl: RemotionGl[] = ['angle', 'angle-egl', 'egl', 'swangle', 'swiftshader', 'vulkan'];
+  const envGlRaw = (process.env.REMOTION_GL || '').trim() as RemotionGl;
+  const envGl = allowedGl.includes(envGlRaw) ? envGlRaw : undefined;
+  const defaultGl: RemotionGl = isWindowsDesktop ? 'angle' : 'egl';
+  const selectedGl = envGl || defaultGl;
   const chromiumOptions = browserExecutable
-    ? { gl: 'swangle' as const }
+    ? { gl: selectedGl }
     : undefined;
+  if (browserExecutable) {
+    console.error(`[render] chromium gl=${selectedGl} (set REMOTION_GL=swangle to force software)`);
+  }
   const chromeMode = browserExecutable
     ? ('chrome-for-testing' as const)
     : ('headless-shell' as const);
   const logLevel = browserExecutable ? 'verbose' as const : 'info' as const;
-  // Windows desktop exports are significantly more reliable with a conservative
-  // concurrency and a higher frame timeout.
-  const safeDesktopConcurrency = isWindowsDesktop ? 2 : null;
+  // Windows desktop exports: default concurrency = half of logical cores (min 2).
+  // Override via REMOTION_CONCURRENCY env var; set to "1" or "2" if render is unstable.
+  const envConcurrency = Number(process.env.REMOTION_CONCURRENCY);
+  const autoConcurrency = Math.max(2, Math.floor(cpus().length / 2));
+  const safeDesktopConcurrency = isWindowsDesktop
+    ? (Number.isFinite(envConcurrency) && envConcurrency > 0 ? envConcurrency : autoConcurrency)
+    : null;
   const safeDesktopTimeout = isWindowsDesktop ? 120_000 : undefined;
+  if (isWindowsDesktop) {
+    console.error(`[render] using concurrency=${safeDesktopConcurrency} (cpus=${cpus().length})`);
+  }
 
   const composition = await selectComposition({
     serveUrl: bundled,
@@ -187,7 +231,10 @@ export async function renderVideo(options: RenderVideoOptions): Promise<void> {
     timeoutInMilliseconds: safeDesktopTimeout,
   });
 
-  console.log('Rendering video...');
+  console.error('[render] rendering media...');
+  const renderStart = Date.now();
+  emitProgress({ phase: 'render:start', totalFrames, startedAt: renderStart });
+  let lastProgressEmit = 0;
   await renderMedia({
     composition,
     serveUrl: bundled,
@@ -200,7 +247,23 @@ export async function renderVideo(options: RenderVideoOptions): Promise<void> {
     logLevel,
     concurrency: safeDesktopConcurrency,
     timeoutInMilliseconds: safeDesktopTimeout,
+    onProgress: ({ renderedFrames, encodedFrames, progress }) => {
+      const now = Date.now();
+      // Throttle to ~5 updates per second to avoid log spam
+      if (now - lastProgressEmit < 200 && progress < 1) return;
+      lastProgressEmit = now;
+      emitProgress({
+        phase: 'render:progress',
+        renderedFrames,
+        encodedFrames,
+        totalFrames,
+        progress,
+        elapsedMs: now - renderStart,
+      });
+    },
   });
 
-  console.log(`Video rendered: ${outputPath}`);
+  const totalMs = Date.now() - renderStart;
+  emitProgress({ phase: 'render:done', durationMs: totalMs, outputPath });
+  console.error(`[render] done in ${(totalMs / 1000).toFixed(1)}s -> ${outputPath}`);
 }

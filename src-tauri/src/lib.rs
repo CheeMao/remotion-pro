@@ -8,7 +8,8 @@ use std::fs::OpenOptions;
 use std::io::Write;
 use std::net::{SocketAddr, TcpStream};
 use std::path::{Path, PathBuf};
-use std::process::Command;
+use std::io::{BufRead, BufReader};
+use std::process::{Command, Stdio};
 use std::sync::Mutex;
 use std::time::{Duration, Instant};
 use base64::Engine;
@@ -47,6 +48,12 @@ struct Meta {
     soundtrack_path: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     soundtrack_duration: Option<f64>,
+    #[serde(
+        rename = "subtitleFont",
+        alias = "subtitle_font",
+        skip_serializing_if = "Option::is_none"
+    )]
+    subtitle_font: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -1947,12 +1954,90 @@ fn get_storage_root(app: &tauri::AppHandle) -> Result<PathBuf, String> {
     get_project_dir()
 }
 
+fn run_command_streaming(
+    mut command: Command,
+    label: &str,
+    app: &tauri::AppHandle,
+) -> Result<std::process::Output, String> {
+    use tauri::Emitter;
+
+    command.stdout(Stdio::piped()).stderr(Stdio::piped());
+
+    eprintln!("[cli] spawning {} ...", label);
+    let mut child = command
+        .spawn()
+        .map_err(|e| format!("Failed to spawn {}: {}", label, e))?;
+
+    let stdout = child
+        .stdout
+        .take()
+        .ok_or_else(|| "Failed to capture stdout".to_string())?;
+    let stderr = child
+        .stderr
+        .take()
+        .ok_or_else(|| "Failed to capture stderr".to_string())?;
+
+    let app_stderr = app.clone();
+
+    let stdout_handle = std::thread::spawn(move || {
+        let reader = BufReader::new(stdout);
+        let mut collected = Vec::new();
+        for line in reader.lines().flatten() {
+            eprintln!("[cli:out] {}", line);
+            collected.extend_from_slice(line.as_bytes());
+            collected.push(b'\n');
+        }
+        collected
+    });
+
+    let stderr_handle = std::thread::spawn(move || {
+        let reader = BufReader::new(stderr);
+        let mut collected = Vec::new();
+        for line in reader.lines().flatten() {
+            if let Some(payload) = line.strip_prefix("[progress] ") {
+                if let Ok(value) = serde_json::from_str::<serde_json::Value>(payload) {
+                    let _ = app_stderr.emit("cli-progress", value);
+                }
+            } else {
+                eprintln!("[cli:err] {}", line);
+            }
+            collected.extend_from_slice(line.as_bytes());
+            collected.push(b'\n');
+        }
+        collected
+    });
+
+    let status = child
+        .wait()
+        .map_err(|e| format!("Failed waiting for {}: {}", label, e))?;
+
+    let stdout_bytes = stdout_handle
+        .join()
+        .map_err(|_| "stdout thread panicked".to_string())?;
+    let stderr_bytes = stderr_handle
+        .join()
+        .map_err(|_| "stderr thread panicked".to_string())?;
+
+    eprintln!(
+        "[cli] {} exited with {}",
+        label,
+        status.code().map(|c| c.to_string()).unwrap_or_else(|| "signal".to_string())
+    );
+
+    Ok(std::process::Output {
+        status,
+        stdout: stdout_bytes,
+        stderr: stderr_bytes,
+    })
+}
+
 fn run_cli_command(
     app: &tauri::AppHandle,
     working_dir: &Path,
     args: &[String],
     extra_envs: &[(String, String)],
 ) -> Result<std::process::Output, String> {
+    eprintln!("[cli] run_cli_command args: {:?}", args);
     if let Some(runtime) = detect_packaged_runtime(app) {
         let cli_script = runtime
             .runtime_root
@@ -2002,9 +2087,7 @@ fn run_cli_command(
             command.creation_flags(0x08000000);
         }
 
-        return command
-            .output()
-            .map_err(|e| format!("Failed to run packaged runtime command: {}", e));
+        return run_command_streaming(command, "packaged-runtime", app);
     }
 
     if !cfg!(debug_assertions) {
@@ -2036,10 +2119,9 @@ fn run_cli_command(
         command.arg(arg);
     }
 
-    command
-        .current_dir(working_dir)
-        .output()
-        .map_err(|e| format!("Failed to run development runtime command: {}", e))
+    command.current_dir(working_dir);
+
+    run_command_streaming(command, "dev-runtime", app)
 }
 
 fn looks_like_repo_root(path: &Path) -> bool {
@@ -2310,6 +2392,7 @@ async fn save_slides(
     director_style: Option<Value>,
     soundtrack_path: Option<String>,
     soundtrack_duration: Option<f64>,
+    subtitle_font: Option<String>,
     state: tauri::State<'_, AuthState>,
 ) -> Result<String, String> {
     let _session = require_valid_license(&state).await?;
@@ -2363,6 +2446,11 @@ async fn save_slides(
                 existing_meta
                     .as_ref()
                     .and_then(|meta| meta.soundtrack_duration)
+            }),
+            subtitle_font: subtitle_font.or_else(|| {
+                existing_meta
+                    .as_ref()
+                    .and_then(|meta| meta.subtitle_font.clone())
             }),
         },
         slides,

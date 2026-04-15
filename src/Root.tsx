@@ -25,6 +25,7 @@ interface LoadedJsonData {
   soundtrackPath?: string;
   generationMode?: "standard" | "director";
   directorStyle?: Record<string, unknown>;
+  subtitleFont?: string;
 }
 
 interface CurrentProjectReference {
@@ -40,6 +41,7 @@ interface GeneratedVideoProps {
   contentPath?: string;
   generationMode?: "standard" | "director";
   directorStyle?: Record<string, unknown>;
+  subtitleFont?: string;
 }
 
 const DEFAULT_TEMPLATE = "GlassShow";
@@ -135,6 +137,7 @@ const toAudioSlides = (content: ContentFile): AudioSlideData[] => {
     motionPreset: slide.motionPreset,
     motion: slide.motion,
     elementTimings: slide.elementTimings,
+    wordTimestamps: slide.wordTimestamps,
     audioDuration: slide.audioDuration,
     durationInFrames: slide.durationInFrames,
     audioStart: slide.audioStart,
@@ -156,6 +159,7 @@ const coerceToAudioSlides = (slides: ContentSlide[]): AudioSlideData[] => {
     motionPreset: slide.motionPreset,
     motion: slide.motion,
     elementTimings: slide.elementTimings,
+    wordTimestamps: slide.wordTimestamps,
     audioDuration: slide.audioDuration,
     durationInFrames: slide.durationInFrames,
     audioStart: slide.audioStart,
@@ -197,6 +201,8 @@ const loadSlidesFromJson = async (
       ),
       directorStyle:
         data.meta.directorStyle || data.meta.director_style || undefined,
+      subtitleFont:
+        data.meta.subtitleFont || data.meta.subtitle_font || undefined,
     };
   } catch {
     return {
@@ -245,6 +251,7 @@ const resolveGeneratedVideoData = async (
       soundtrackPath: props.soundtrackPath,
       generationMode: normalizeGenerationMode(props.generationMode),
       directorStyle: props.directorStyle,
+      subtitleFont: props.subtitleFont,
     };
   }
 
@@ -306,6 +313,7 @@ const DynamicLoader: React.FC<GeneratedVideoProps> = ({
       preferSharedLayout={shouldPreferSharedLayout(
         data.generationMode || generationMode,
       )}
+      subtitleFont={data.subtitleFont}
     />
   );
 };

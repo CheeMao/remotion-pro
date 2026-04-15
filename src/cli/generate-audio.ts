@@ -498,10 +498,25 @@ export async function generateAudio(
   const files: string[] = [];
   const slideTimestamps: Array<{ slideIndex: number; timestamps?: import('../tts/types').WordTimestamp[] }> = [];
 
+  const emitAudioProgress = (payload: Record<string, unknown>): void => {
+    process.stderr.write(`[progress] ${JSON.stringify({ phase: 'audio:progress', ...payload })}\n`);
+  };
+  emitAudioProgress({ step: 'start', totalSlides: content.slides.length });
+
   for (let index = 0; index < content.slides.length; index += 1) {
     const slide = content.slides[index];
     const outputFile = join(slidesDir, `slide-${String(index + 1).padStart(3, '0')}.mp3`);
     const segmentFiles = resolveSegmentAudioFiles(slide, outputDir);
+
+    console.error(
+      `[audio] slide ${index + 1}/${content.slides.length} (${segmentFiles.length > 0 ? 'using segments' : 'via TTS'})`
+    );
+    emitAudioProgress({
+      step: 'slide-start',
+      slideIndex: index + 1,
+      totalSlides: content.slides.length,
+      mode: segmentFiles.length > 0 ? 'segments' : 'tts',
+    });
 
     if (segmentFiles.length > 0) {
       concatenateAudioFiles(segmentFiles, outputFile);
@@ -512,6 +527,9 @@ export async function generateAudio(
       }
 
       const result = await tts.synthesize(text, resolvedVoiceId, speechRate);
+      console.error(
+        `[audio] slide ${index + 1} ${result.fromCache ? 'cache hit' : 'freshly synthesized'}, duration=${result.duration.toFixed(2)}s, timestamps=${result.timestamps?.length ?? 0}`
+      );
       writeFileSync(outputFile, readFileSync(result.audioPath));
 
       // 保存时间戳用于后续计算元素动画
@@ -542,7 +560,7 @@ export async function generateAudio(
     soundtrackDuration
   );
 
-  // 如果有时间戳，计算每个slide的元素级时间戳
+  // 如果有时间戳，计算每个slide的元素级时间戳并保留字级时间戳供字幕使用
   if (slideTimestamps.length > 0) {
     let currentTime = 0;
     const slidesWithTimings = updated.slides.map((slide, index) => {
@@ -560,6 +578,7 @@ export async function generateAudio(
         return {
           ...slide,
           elementTimings,
+          wordTimestamps: timestampData.timestamps,
         };
       }
       return slide;

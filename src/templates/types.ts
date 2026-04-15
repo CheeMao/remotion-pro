@@ -1,3 +1,5 @@
+import type { WordTimestamp } from '../tts/types';
+
 export interface TimelineFields {
   audioDuration?: number;
   durationInFrames?: number;
@@ -96,6 +98,8 @@ export interface AudioSlideData extends TimelineFields {
   motionPreset?: string;
   motion?: SlideMotionConfig;
   elementTimings?: ElementTiming[];
+  /** Slide-local word-level timestamps from TTS (seconds, 0-based per slide audio). */
+  wordTimestamps?: WordTimestamp[];
 }
 
 export interface VideoConfig {
@@ -107,6 +111,7 @@ export interface VideoConfig {
   defaultDurationPerSlide: number;
   soundtrackPath?: string;
   soundtrackDuration?: number;
+  subtitleFont?: string;
 }
 
 export interface ContentMeta {
@@ -124,6 +129,8 @@ export interface ContentMeta {
   soundtrack_path?: string;
   soundtrackDuration?: number;
   soundtrack_duration?: number;
+  subtitleFont?: string;
+  subtitle_font?: string;
 }
 
 export interface ContentSlide extends TimelineFields {
@@ -134,6 +141,8 @@ export interface ContentSlide extends TimelineFields {
   segmentIds?: string[];
   layout?: string;
   elementTimings?: ElementTiming[];
+  /** Slide-local word-level timestamps from TTS (seconds, 0-based per slide audio). */
+  wordTimestamps?: WordTimestamp[];
   media?: SlideMediaAsset[];
   motionPreset?: string;
   motion?: SlideMotionConfig;

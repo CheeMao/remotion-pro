@@ -1,3 +1,5 @@
+import type { WordTimestamp } from '../tts/types';
+
 export interface CaptionSourceSlide {
   id?: string;
   narration?: string;
@@ -6,6 +8,7 @@ export interface CaptionSourceSlide {
   audioDuration?: number;
   durationInFrames?: number;
   segmentIds?: string[];
+  wordTimestamps?: WordTimestamp[];
 }
 
 export interface CaptionSegment {
@@ -154,6 +157,18 @@ const resolveSlideDurationSeconds = (slide: CaptionSourceSlide): number => {
   return DEFAULT_DURATION_IN_FRAMES / DEFAULT_FPS;
 };
 
+const isWordTimestamp = (value: unknown): value is WordTimestamp => {
+  if (!value || typeof value !== 'object') {
+    return false;
+  }
+  const candidate = value as Partial<WordTimestamp>;
+  return (
+    typeof candidate.word === 'string' &&
+    typeof candidate.startTime === 'number' &&
+    typeof candidate.endTime === 'number'
+  );
+};
+
 const toCaptionSourceSlide = (value: object): CaptionSourceSlide => {
   const slide = value as Partial<CaptionSourceSlide>;
   return {
@@ -166,6 +181,9 @@ const toCaptionSourceSlide = (value: object): CaptionSourceSlide => {
       typeof slide.durationInFrames === 'number' ? slide.durationInFrames : undefined,
     segmentIds: Array.isArray(slide.segmentIds)
       ? slide.segmentIds.filter((item): item is string => typeof item === 'string')
+      : undefined,
+    wordTimestamps: Array.isArray(slide.wordTimestamps)
+      ? slide.wordTimestamps.filter(isWordTimestamp)
       : undefined,
   };
 };
@@ -187,6 +205,71 @@ const resolveSlideWindow = (
   return { start, end };
 };
 
+const PUNCTUATION_BREAK_PATTERN = /[，。！？；：、,.!?;:]/u;
+const SOFT_CHUNK_LIMIT = 18;
+const MIN_CAPTION_DURATION = 0.18;
+
+const buildSegmentsFromWordTimestamps = (
+  slide: CaptionSourceSlide,
+  slideIndex: number,
+  audioOffset: number,
+  windowEnd: number,
+  words: WordTimestamp[]
+): CaptionSegment[] => {
+  const segments: CaptionSegment[] = [];
+  const slideId = slide.id || `slide-${slideIndex}`;
+  let buffer: WordTimestamp[] = [];
+  let bufferUnits = 0;
+  let captionIndex = 0;
+
+  const flush = () => {
+    if (buffer.length === 0) {
+      return;
+    }
+
+    const text = normalizeCaptionText(buffer.map((word) => word.word).join(''));
+    if (!text) {
+      buffer = [];
+      bufferUnits = 0;
+      return;
+    }
+
+    const rawStart = audioOffset + buffer[0].startTime;
+    const rawEnd = audioOffset + buffer[buffer.length - 1].endTime;
+    const clampedStart = Math.max(audioOffset, Math.min(rawStart, windowEnd - MIN_CAPTION_DURATION));
+    const clampedEnd = Math.min(windowEnd, Math.max(rawEnd, clampedStart + MIN_CAPTION_DURATION));
+
+    segments.push({
+      id: `${slideId}-caption-${captionIndex}`,
+      text,
+      start: clampedStart,
+      end: clampedEnd,
+      slideIndex,
+      slideId: slide.id,
+    });
+    captionIndex += 1;
+    buffer = [];
+    bufferUnits = 0;
+  };
+
+  words.forEach((word) => {
+    if (!word || typeof word.word !== 'string' || word.word.length === 0) {
+      return;
+    }
+
+    buffer.push(word);
+    bufferUnits += countReadableUnits(word.word);
+    const breaksOnPunctuation = PUNCTUATION_BREAK_PATTERN.test(word.word);
+
+    if (breaksOnPunctuation || bufferUnits >= SOFT_CHUNK_LIMIT) {
+      flush();
+    }
+  });
+
+  flush();
+  return segments;
+};
+
 export const buildCaptionSegments = (
   slides: ReadonlyArray<object>
 ): CaptionSegment[] => {
@@ -198,6 +281,20 @@ export const buildCaptionSegments = (
     const narration = normalizeCaptionText(slide.narration);
     const { start, end } = resolveSlideWindow(slide, fallbackStart);
     fallbackStart = end;
+
+    if (slide.wordTimestamps && slide.wordTimestamps.length > 0) {
+      const wordSegments = buildSegmentsFromWordTimestamps(
+        slide,
+        slideIndex,
+        start,
+        end,
+        slide.wordTimestamps
+      );
+      if (wordSegments.length > 0) {
+        segments.push(...wordSegments);
+        return;
+      }
+    }
 
     if (!narration) {
       return;

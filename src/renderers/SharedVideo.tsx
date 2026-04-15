@@ -10,6 +10,7 @@ interface SharedVideoProps {
   defaultSlideDuration?: number;
   preferSharedLayout?: boolean;
   subtitlesEnabled?: boolean;
+  subtitleFont?: string;
 }
 
 export const SharedVideo: React.FC<SharedVideoProps> = ({
@@ -19,6 +20,7 @@ export const SharedVideo: React.FC<SharedVideoProps> = ({
   defaultSlideDuration = 150,
   preferSharedLayout = false,
   subtitlesEnabled = true,
+  subtitleFont,
 }) => {
   const themeId = getThemeIdForTemplate(template);
   const theme = getThemeDefinition(themeId);
@@ -33,6 +35,7 @@ export const SharedVideo: React.FC<SharedVideoProps> = ({
       preferSharedLayout={preferSharedLayout}
       background={theme.palette.background}
       subtitlesEnabled={subtitlesEnabled}
+      subtitleFont={subtitleFont}
     />
   );
 };

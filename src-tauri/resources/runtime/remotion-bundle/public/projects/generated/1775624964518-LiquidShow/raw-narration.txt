@@ -1,5 +1,0 @@
-你知道吗？只靠AI写代码，界面和安全能差一大截！今天我给你挑出8款真·实用的Claude技能，帮你设计更专业、规划更清晰、安全更靠谱。
-
-第一款，Anthropic官方出的Frontend Design，装了它，Claude写界面立马高级了——27万用户都在用，设计哲学全套注入，让你的产品质感直接翻倍。第二个，Superpowers，多Agent开发大杀器，Oobra打造，4万多star，能自动拆任务，还能并行处理，自检再自检，效率炸裂，你试试能不用它？第三个，Planning with Files，1.3万star，让Claude用文件做结构化规划，复杂任务先理清再动手，出错率立马降一半，告别乱糟糟。第四个，Agent Browser，基于Playwright，Anthropic官方发布，Claude直接操控浏览器，测试网页、抓数据、填表单样样行，不用你动手，省时又省力。第五个，Web Interface Guidelines，有2.2万star，帮你检查网页设计规范，从可访问性到响应式，一个都不落，设计上不了台面它不让你过。第六个，UIUX Pro Max，超全设计资源库，67种风格+96套调色板+57种字体配搭，Claude的设计百科，你想要的这都有，搭配界面嗖嗖好看。第七个，Security Audit，来自专业的Trail of Bits，自动查漏洞，写完代码跑一遍，发现安全隐患，提早修复，千万别拿安全开玩笑。最后一款，Software Architecture，内置Clean Architecture和SOLID原则，Claude写的代码，不光能跑，还架构扎实，质量感爆棚。
-
-这8个技能，就是我用过最靠谱的Claude Code升级法宝。你用过哪些好用的？评论区告诉我，咱们一起交流！记住，技术好不好，一看细节，二看流程，三看安全，别再让AI只“会写”，还得写得专业。
