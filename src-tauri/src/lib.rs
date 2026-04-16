@@ -2056,6 +2056,18 @@ fn run_cli_command(
         command.env("REMOTION_FORCE_FILE_URLS", "1");
         command.env("NODE_ENV", "production");
 
+        let bundled_chromium = runtime
+            .runtime_root
+            .join("chromium")
+            .join(if cfg!(target_os = "windows") {
+                "chrome-headless-shell.exe"
+            } else {
+                "chrome-headless-shell"
+            });
+        if bundled_chromium.exists() {
+            command.env("REMOTION_CHROMIUM_EXECUTABLE", bundled_chromium);
+        }
+
         let ffmpeg_binary = runtime.runtime_root.join("ffmpeg").join(if cfg!(target_os = "windows") {
             "ffmpeg.exe"
         } else {

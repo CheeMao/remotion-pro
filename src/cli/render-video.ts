@@ -129,32 +129,49 @@ export async function renderVideo(options: RenderVideoOptions): Promise<void> {
   emitProgress({ phase: 'render:init', totalFrames, fps: config.fps, slides: config.slides.length });
 
   emitProgress({ phase: 'browser:detecting' });
-  const localBrowser = findLocalBrowserPath();
   let browserExecutable: string | null = null;
   const isWindowsDesktop = process.platform === 'win32';
 
-  if (localBrowser) {
-    console.log(`Using local browser: ${localBrowser}`);
-    emitProgress({ phase: 'browser:testing', executable: localBrowser });
-    const testResult = await testBrowserLaunch(localBrowser);
-    console.error(`[BrowserTest] ${localBrowser} -> ${testResult}`);
+  // Packaged mode: Rust sets REMOTION_CHROMIUM_EXECUTABLE to the bundled
+  // chrome-headless-shell. Use it directly — no detection, no network.
+  const bundledChromium = process.env.REMOTION_CHROMIUM_EXECUTABLE;
+  if (bundledChromium && existsSync(bundledChromium)) {
+    console.error(`[render] using bundled chromium: ${bundledChromium}`);
+    browserExecutable = bundledChromium;
+    emitProgress({
+      phase: 'browser:ready',
+      source: 'bundled',
+      executable: bundledChromium,
+    });
+  } else {
+    const localBrowser = findLocalBrowserPath();
+    if (localBrowser) {
+      console.log(`Using local browser: ${localBrowser}`);
+      emitProgress({ phase: 'browser:testing', executable: localBrowser });
+      const testResult = await testBrowserLaunch(localBrowser);
+      console.error(`[BrowserTest] ${localBrowser} -> ${testResult}`);
 
-    if (isHealthyLocalBrowserTest(testResult)) {
-      browserExecutable = localBrowser;
-      emitProgress({ phase: 'browser:ready', source: 'local', executable: localBrowser });
+      if (isHealthyLocalBrowserTest(testResult)) {
+        browserExecutable = localBrowser;
+        emitProgress({
+          phase: 'browser:ready',
+          source: 'local',
+          executable: localBrowser,
+        });
+      } else {
+        console.warn(
+          'Local browser launch test failed. Falling back to the Remotion-managed browser.'
+        );
+        emitProgress({ phase: 'browser:downloading' });
+        await ensureBrowser();
+        emitProgress({ phase: 'browser:ready', source: 'remotion' });
+      }
     } else {
-      console.warn(
-        'Local browser launch test failed. Falling back to the Remotion-managed browser.'
-      );
+      console.log('No local browser found, ensuring Remotion browser is downloaded...');
       emitProgress({ phase: 'browser:downloading' });
       await ensureBrowser();
       emitProgress({ phase: 'browser:ready', source: 'remotion' });
     }
-  } else {
-    console.log('No local browser found, ensuring Remotion browser is downloaded...');
-    emitProgress({ phase: 'browser:downloading' });
-    await ensureBrowser();
-    emitProgress({ phase: 'browser:ready', source: 'remotion' });
   }
 
   console.log('Bundling Remotion project...');
@@ -204,9 +221,16 @@ export async function renderVideo(options: RenderVideoOptions): Promise<void> {
   if (browserExecutable) {
     console.error(`[render] chromium gl=${selectedGl} (set REMOTION_GL=swangle to force software)`);
   }
-  const chromeMode = browserExecutable
-    ? ('chrome-for-testing' as const)
-    : ('headless-shell' as const);
+  // Bundled chromium is chrome-headless-shell → 'headless-shell' mode.
+  // Local user Chrome/Edge is a full browser → 'chrome-for-testing' mode.
+  const usingBundledChromium = Boolean(
+    bundledChromium && browserExecutable === bundledChromium
+  );
+  const chromeMode = usingBundledChromium
+    ? ('headless-shell' as const)
+    : browserExecutable
+      ? ('chrome-for-testing' as const)
+      : ('headless-shell' as const);
   const logLevel = browserExecutable ? 'verbose' as const : 'info' as const;
   // Windows desktop exports: default concurrency = half of logical cores (min 2).
   // Override via REMOTION_CONCURRENCY env var; set to "1" or "2" if render is unstable.

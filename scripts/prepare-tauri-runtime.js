@@ -268,6 +268,74 @@ const copyRuntimeFiles = () => {
   log(`Copied ${pythonScripts.length} Python scripts to runtime/scripts/`);
 };
 
+const downloadChromium = async () => {
+  log("Ensuring bundled chrome-headless-shell is downloaded...");
+  const { ensureBrowser } = require("@remotion/renderer");
+  await ensureBrowser({ chromeMode: "headless-shell", logLevel: "info" });
+
+  const remotionCacheDir = path.join(
+    projectRoot,
+    "node_modules",
+    ".remotion",
+    "chrome-headless-shell"
+  );
+  if (!fs.existsSync(remotionCacheDir)) {
+    throw new Error(
+      `Remotion chrome-headless-shell cache not found at ${remotionCacheDir}`
+    );
+  }
+
+  const platformName =
+    process.platform === "win32"
+      ? "win64"
+      : process.platform === "darwin"
+        ? process.arch === "arm64"
+          ? "mac-arm64"
+          : "mac-x64"
+        : "linux64";
+
+  const platformDir = path.join(remotionCacheDir, platformName);
+  if (!fs.existsSync(platformDir)) {
+    throw new Error(
+      `Platform directory not found in cache: ${platformDir}. Cache contains: ${fs
+        .readdirSync(remotionCacheDir)
+        .join(", ")}`
+    );
+  }
+
+  const innerDirs = fs
+    .readdirSync(platformDir)
+    .filter((name) =>
+      fs.statSync(path.join(platformDir, name)).isDirectory()
+    );
+  if (innerDirs.length === 0) {
+    throw new Error(`No inner dir found under ${platformDir}`);
+  }
+
+  const sourceDir = path.join(platformDir, innerDirs[0]);
+  const chromiumDestDir = path.join(runtimeDir, "chromium");
+  fs.mkdirSync(chromiumDestDir, { recursive: true });
+
+  log(`Flattening chrome-headless-shell from ${sourceDir} → ${chromiumDestDir}`);
+  copyRecursive(sourceDir, chromiumDestDir);
+
+  const exeName =
+    process.platform === "win32"
+      ? "chrome-headless-shell.exe"
+      : "chrome-headless-shell";
+  const exePath = path.join(chromiumDestDir, exeName);
+  if (!fs.existsSync(exePath)) {
+    throw new Error(
+      `Bundled chrome-headless-shell binary not found after copy: ${exePath}`
+    );
+  }
+
+  const size = fs.statSync(exePath).size;
+  log(
+    `Bundled chrome-headless-shell: ${exePath} (${(size / 1024 / 1024).toFixed(1)}MB)`
+  );
+};
+
 async function main() {
   log("Preparing packaged runtime...");
   ensureCleanDir(buildDir);
@@ -278,6 +346,7 @@ async function main() {
   installRuntimeNodeModules();
   await buildRemotionBundle();
   copyRuntimeFiles();
+  await downloadChromium();
   prepareSidecarBinary();
   fs.rmSync(runtimeInstallDir, { recursive: true, force: true });
 

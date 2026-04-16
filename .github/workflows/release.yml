@@ -5,6 +5,11 @@ on:
     tags:
       - 'v*'
   workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag (e.g. v0.2.1). Required when running manually.'
+        required: true
+        default: 'v0.2.1'
 
 jobs:
   build:
@@ -12,12 +17,17 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - platform: 'macos-latest'
-            args: '--target universal-apple-darwin'
-          - platform: 'windows-latest'
-            args: ''
+          # Windows x64 → NSIS installer
+          - platform: windows-latest
+            rust-target: x86_64-pc-windows-msvc
+            tauri-args: '--bundles nsis'
+          # macOS Apple Silicon → DMG
+          - platform: macos-latest
+            rust-target: aarch64-apple-darwin
+            tauri-args: '--target aarch64-apple-darwin --bundles dmg'
 
     runs-on: ${{ matrix.platform }}
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -30,27 +40,91 @@ jobs:
       - name: Install Rust stable
         uses: dtolnay/rust-toolchain@stable
         with:
-          targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
+          targets: ${{ matrix.rust-target }}
 
       - name: Rust cache
         uses: swatinem/rust-cache@v2
         with:
           workspaces: './src-tauri -> target'
 
-      - name: Install frontend dependencies
-        run: npm install
+      # ---------- ffmpeg (platform-specific static binaries) ----------
+
+      - name: Download static ffmpeg (Windows)
+        if: matrix.platform == 'windows-latest'
+        shell: pwsh
+        run: |
+          $ffmpegUrl = 'https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip'
+          $zipPath = Join-Path $env:RUNNER_TEMP 'ffmpeg.zip'
+          Invoke-WebRequest -Uri $ffmpegUrl -OutFile $zipPath
+          Expand-Archive -Path $zipPath -DestinationPath $env:RUNNER_TEMP -Force
+          $binDir = (Get-ChildItem -Path $env:RUNNER_TEMP -Directory -Filter 'ffmpeg-*' | Select-Object -First 1).FullName + '\bin'
+          Write-Output "ffmpeg bin dir: $binDir"
+          "FFMPEG_PATH=$binDir\ffmpeg.exe"   | Out-File -FilePath $env:GITHUB_ENV -Append
+          "FFPROBE_PATH=$binDir\ffprobe.exe" | Out-File -FilePath $env:GITHUB_ENV -Append
+          $binDir | Out-File -FilePath $env:GITHUB_PATH -Append
+
+      - name: Download static ffmpeg (macOS)
+        if: matrix.platform == 'macos-latest'
+        shell: bash
+        run: |
+          # evermeet.cx provides statically-linked, self-contained ffmpeg/ffprobe
+          # binaries for macOS (universal) — perfect for bundling in a Mac .app
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/ffmpeg-static"
+          cd "$RUNNER_TEMP/ffmpeg-static"
+          curl -L -o ffmpeg.zip  'https://evermeet.cx/ffmpeg/getrelease/zip'
+          curl -L -o ffprobe.zip 'https://evermeet.cx/ffmpeg/getrelease/ffprobe/zip'
+          unzip -o ffmpeg.zip
+          unzip -o ffprobe.zip
+          chmod +x ffmpeg ffprobe
+          echo "FFMPEG_PATH=$RUNNER_TEMP/ffmpeg-static/ffmpeg"   >> "$GITHUB_ENV"
+          echo "FFPROBE_PATH=$RUNNER_TEMP/ffmpeg-static/ffprobe" >> "$GITHUB_ENV"
+          echo "$RUNNER_TEMP/ffmpeg-static" >> "$GITHUB_PATH"
+
+      # ---------- JS deps ----------
+
+      - name: Install root dependencies
+        run: npm ci
+        # If no lockfile available, fall back to npm install
+        continue-on-error: false
 
       - name: Install app dependencies
-        run: cd app && npm install
+        working-directory: app
+        run: npm ci
+        continue-on-error: false
 
-      - name: Build Tauri app
+      # ---------- Prepare Tauri runtime (compiles sidecar TS, installs runtime
+      # node_modules, builds Remotion bundle, copies ffmpeg + DLLs, downloads
+      # chrome-headless-shell, prepares Node sidecar binary) ----------
+
+      - name: Prepare Tauri runtime
+        run: npm run prepare:tauri-runtime
+
+      # ---------- Tauri build + GitHub Release publish ----------
+
+      - name: Build Tauri app and publish release
         uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tagName: ${{ github.ref_name }}
-          releaseName: 'AI Video Maker ${{ github.ref_name }}'
-          releaseBody: 'See the assets to download and install this version.'
+          tagName: ${{ github.event.inputs.tag || github.ref_name }}
+          releaseName: '轻剪 ${{ github.event.inputs.tag || github.ref_name }}'
+          releaseBody: |
+            ## 轻剪 ${{ github.event.inputs.tag || github.ref_name }}
+
+            自动构建的安装包。下载对应平台：
+
+            - **Windows**: `轻剪_X.Y.Z_x64-setup.exe` — 双击安装
+            - **macOS (Apple Silicon)**: `轻剪_X.Y.Z_aarch64.dmg` — 打开后把 App 拖进 Applications 文件夹
+
+            ### macOS 首次运行
+
+            因为未做 Apple 开发者签名，首次打开需要绕过 Gatekeeper：
+
+            1. 在 Applications 里找到"轻剪"
+            2. 按住 `Control` + 点击图标 → 选"打开"
+            3. 弹窗里再点"打开"
+            4. 之后可以直接双击使用
           releaseDraft: true
           prerelease: false
-          args: ${{ matrix.args }}
+          args: ${{ matrix.tauri-args }}
