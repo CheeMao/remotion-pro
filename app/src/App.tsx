@@ -281,6 +281,7 @@ const STORAGE_KEYS = {
   homeDraft: "videomaker-home-draft",
   authToken: "videomaker-auth-token",
   authPreferences: "videomaker-auth-preferences",
+  dismissedUpdateVersion: "videomaker-dismissed-update-version",
 } as const;
 
 const SPACING = {
@@ -308,7 +309,9 @@ type NavItem = {
   icon: React.ReactNode;
 };
 
-function DockIcon(props: { children: React.ReactNode }) {
+function DockIcon(props: { children: React.ReactElement }) {
+  // Inject width/height onto the SVG: Chromium infers size from viewBox, but
+  // WebKit (macOS WKWebView) collapses unsized SVGs to 0x0 in flex containers.
   return (
     <span
       aria-hidden="true"
@@ -320,7 +323,7 @@ function DockIcon(props: { children: React.ReactNode }) {
         justifyContent: "center",
       }}
     >
-      {props.children}
+      {React.cloneElement(props.children, { width: 22, height: 22 })}
     </span>
   );
 }
@@ -7779,9 +7782,17 @@ export default function App() {
   );
   const [updateBusy, setUpdateBusy] = React.useState(false);
   const [updateError, setUpdateError] = React.useState("");
-  const [dismissedUpdateVersion, setDismissedUpdateVersion] = React.useState<
+  const [dismissedUpdateVersion, setDismissedUpdateVersionState] = React.useState<
     string | null
-  >(null);
+  >(() => localStorage.getItem(STORAGE_KEYS.dismissedUpdateVersion));
+  const setDismissedUpdateVersion = React.useCallback((version: string | null) => {
+    setDismissedUpdateVersionState(version);
+    if (version) {
+      localStorage.setItem(STORAGE_KEYS.dismissedUpdateVersion, version);
+    } else {
+      localStorage.removeItem(STORAGE_KEYS.dismissedUpdateVersion);
+    }
+  }, []);
 
   React.useEffect(() => {
     saveProject(project);

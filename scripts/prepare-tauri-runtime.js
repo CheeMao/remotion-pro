@@ -2,8 +2,12 @@
 
 const fs = require("fs");
 const path = require("path");
-const { execFileSync } = require("child_process");
+const os = require("os");
+const https = require("https");
+const { execFileSync, execSync } = require("child_process");
 const { bundle } = require("@remotion/bundler");
+
+const OFFICIAL_NODE_VERSION = "v22.11.0";
 
 const projectRoot = path.resolve(__dirname, "..");
 const buildDir = path.join(projectRoot, ".sidecar-build");
@@ -181,14 +185,82 @@ const resolveRequiredToolPath = (toolName, envVarName) => {
   );
 };
 
-const prepareSidecarBinary = () => {
+const isNodeSelfContained = (nodePath) => {
+  // Only macOS/Linux need this check. Windows node.exe is statically linked.
+  if (process.platform === "win32") return true;
+  try {
+    const tool = process.platform === "darwin" ? "otool" : "ldd";
+    const args = process.platform === "darwin" ? ["-L", nodePath] : [nodePath];
+    const output = execFileSync(tool, args, { encoding: "utf8" });
+    // Any @rpath/ dep or /opt/homebrew/ path means not self-contained for packaging
+    return !/@rpath\/|\/opt\/homebrew\//.test(output);
+  } catch {
+    return true;
+  }
+};
+
+const downloadFile = (url, destPath) =>
+  new Promise((resolve, reject) => {
+    const handle = (res) => {
+      if (res.statusCode === 301 || res.statusCode === 302) {
+        res.resume();
+        downloadFile(res.headers.location, destPath).then(resolve, reject);
+        return;
+      }
+      if (res.statusCode !== 200) {
+        reject(new Error(`Download failed: ${url} → HTTP ${res.statusCode}`));
+        return;
+      }
+      const out = fs.createWriteStream(destPath);
+      res.pipe(out);
+      out.on("finish", () => out.close(resolve));
+      out.on("error", reject);
+    };
+    https.get(url, handle).on("error", reject);
+  });
+
+const downloadOfficialNode = async () => {
+  const arch = process.arch === "x64" ? "x64" : "arm64";
+  const platformName = process.platform === "darwin" ? "darwin" : "linux";
+  const basename = `node-${OFFICIAL_NODE_VERSION}-${platformName}-${arch}`;
+  const cacheDir = path.join(os.homedir(), ".cache", "tauri-runtime-node");
+  const extractedNode = path.join(cacheDir, basename, "bin", "node");
+
+  if (fs.existsSync(extractedNode)) {
+    log(`Using cached official Node at ${extractedNode}`);
+    return extractedNode;
+  }
+
+  fs.mkdirSync(cacheDir, { recursive: true });
+  const tarballUrl = `https://nodejs.org/dist/${OFFICIAL_NODE_VERSION}/${basename}.tar.gz`;
+  const tarballPath = path.join(cacheDir, `${basename}.tar.gz`);
+  log(`Downloading official Node from ${tarballUrl} ...`);
+  await downloadFile(tarballUrl, tarballPath);
+  log(`Extracting to ${cacheDir} ...`);
+  execSync(`tar -xzf "${tarballPath}" -C "${cacheDir}"`);
+  fs.rmSync(tarballPath, { force: true });
+  if (!fs.existsSync(extractedNode)) {
+    throw new Error(`Official Node binary not found after extraction: ${extractedNode}`);
+  }
+  return extractedNode;
+};
+
+const prepareSidecarBinary = async () => {
   const targetTriple = detectRustTargetTriple();
   const extension = process.platform === "win32" ? ".exe" : "";
   const outputPath = path.join(binariesDir, `cli-${targetTriple}${extension}`);
 
+  let sourceNode = nodeExecutable;
+  if (!isNodeSelfContained(sourceNode)) {
+    log(`Local Node at ${sourceNode} is not self-contained; downloading official build.`);
+    sourceNode = await downloadOfficialNode();
+  }
+
   fs.mkdirSync(binariesDir, { recursive: true });
-  fs.copyFileSync(nodeExecutable, outputPath);
-  log(`Copied Node runtime to ${outputPath}`);
+  fs.rmSync(outputPath, { force: true });
+  fs.copyFileSync(sourceNode, outputPath);
+  fs.chmodSync(outputPath, 0o755);
+  log(`Copied Node runtime from ${sourceNode} to ${outputPath}`);
 };
 
 const compileSidecarSources = () => {
@@ -347,7 +419,7 @@ async function main() {
   await buildRemotionBundle();
   copyRuntimeFiles();
   await downloadChromium();
-  prepareSidecarBinary();
+  await prepareSidecarBinary();
   fs.rmSync(runtimeInstallDir, { recursive: true, force: true });
 
   log("Packaged runtime is ready.");

@@ -1,7 +1,9 @@
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'fs';
 import { execFileSync } from 'child_process';
 import { dirname, join, resolve } from 'path';
-import { parseFile } from 'music-metadata';
+// music-metadata v11+ is ESM-only. Use dynamic import() to load it from CJS output.
+const loadMusicMetadata = () =>
+  (Function('return import("music-metadata")')() as Promise<typeof import('music-metadata')>);
 import { createTTSService } from '../tts';
 import { ContentFile, ContentSlide } from '../templates/types';
 import { parseContentFile } from './parse-content';
@@ -130,6 +132,7 @@ const toRelativePublicPath = (filePath: string): string => {
 };
 
 const getAudioDuration = async (filePath: string): Promise<number> => {
+  const { parseFile } = await loadMusicMetadata();
   const metadata = await parseFile(filePath);
   const duration = metadata.format.duration;
   if (!duration) {

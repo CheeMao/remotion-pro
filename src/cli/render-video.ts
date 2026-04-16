@@ -130,7 +130,6 @@ export async function renderVideo(options: RenderVideoOptions): Promise<void> {
 
   emitProgress({ phase: 'browser:detecting' });
   let browserExecutable: string | null = null;
-  const isWindowsDesktop = process.platform === 'win32';
 
   // Packaged mode: Rust sets REMOTION_CHROMIUM_EXECUTABLE to the bundled
   // chrome-headless-shell. Use it directly — no detection, no network.
@@ -144,7 +143,11 @@ export async function renderVideo(options: RenderVideoOptions): Promise<void> {
       executable: bundledChromium,
     });
   } else {
-    const localBrowser = findLocalBrowserPath();
+    // On macOS, the user's installed Chrome/Edge often conflicts with an already-running instance
+    // (SIGTERM kills, "Trying to load the allocator multiple times" errors). Skip local browser
+    // detection and always use Remotion's managed chrome-headless-shell, which runs isolated.
+    const preferManagedBrowser = process.platform === 'darwin';
+    const localBrowser = preferManagedBrowser ? null : findLocalBrowserPath();
     if (localBrowser) {
       console.log(`Using local browser: ${localBrowser}`);
       emitProgress({ phase: 'browser:testing', executable: localBrowser });
@@ -167,7 +170,7 @@ export async function renderVideo(options: RenderVideoOptions): Promise<void> {
         emitProgress({ phase: 'browser:ready', source: 'remotion' });
       }
     } else {
-      console.log('No local browser found, ensuring Remotion browser is downloaded...');
+      console.log('Using Remotion-managed chrome-headless-shell...');
       emitProgress({ phase: 'browser:downloading' });
       await ensureBrowser();
       emitProgress({ phase: 'browser:ready', source: 'remotion' });
@@ -213,7 +216,8 @@ export async function renderVideo(options: RenderVideoOptions): Promise<void> {
   const allowedGl: RemotionGl[] = ['angle', 'angle-egl', 'egl', 'swangle', 'swiftshader', 'vulkan'];
   const envGlRaw = (process.env.REMOTION_GL || '').trim() as RemotionGl;
   const envGl = allowedGl.includes(envGlRaw) ? envGlRaw : undefined;
-  const defaultGl: RemotionGl = isWindowsDesktop ? 'angle' : 'egl';
+  // 'angle' uses hardware acceleration: D3D on Windows, Metal on macOS. Much faster for WebGL.
+  const defaultGl: RemotionGl = process.platform === 'linux' ? 'egl' : 'angle';
   const selectedGl = envGl || defaultGl;
   const chromiumOptions = browserExecutable
     ? { gl: selectedGl }
@@ -232,17 +236,14 @@ export async function renderVideo(options: RenderVideoOptions): Promise<void> {
       ? ('chrome-for-testing' as const)
       : ('headless-shell' as const);
   const logLevel = browserExecutable ? 'verbose' as const : 'info' as const;
-  // Windows desktop exports: default concurrency = half of logical cores (min 2).
-  // Override via REMOTION_CONCURRENCY env var; set to "1" or "2" if render is unstable.
+  // Desktop exports: default concurrency = all logical cores.
+  // Override via REMOTION_CONCURRENCY env var; set to a lower value if render is unstable.
   const envConcurrency = Number(process.env.REMOTION_CONCURRENCY);
-  const autoConcurrency = Math.max(2, Math.floor(cpus().length / 2));
-  const safeDesktopConcurrency = isWindowsDesktop
-    ? (Number.isFinite(envConcurrency) && envConcurrency > 0 ? envConcurrency : autoConcurrency)
-    : null;
-  const safeDesktopTimeout = isWindowsDesktop ? 120_000 : undefined;
-  if (isWindowsDesktop) {
-    console.error(`[render] using concurrency=${safeDesktopConcurrency} (cpus=${cpus().length})`);
-  }
+  const autoConcurrency = Math.max(2, cpus().length);
+  const safeDesktopConcurrency =
+    Number.isFinite(envConcurrency) && envConcurrency > 0 ? envConcurrency : autoConcurrency;
+  const safeDesktopTimeout = 120_000;
+  console.error(`[render] using concurrency=${safeDesktopConcurrency} (cpus=${cpus().length})`);
 
   const composition = await selectComposition({
     serveUrl: bundled,
@@ -259,6 +260,16 @@ export async function renderVideo(options: RenderVideoOptions): Promise<void> {
   const renderStart = Date.now();
   emitProgress({ phase: 'render:start', totalFrames, startedAt: renderStart });
   let lastProgressEmit = 0;
+  // macOS: swap libx264 for h264_videotoolbox (Apple Silicon hardware encoder).
+  const useVideoToolbox = process.platform === 'darwin' && process.env.REMOTION_DISABLE_VIDEOTOOLBOX !== '1';
+  const ffmpegOverride = useVideoToolbox
+    ? ({ args }: { args: string[] }) =>
+        args.map((a) => (a === 'libx264' ? 'h264_videotoolbox' : a))
+    : undefined;
+  if (useVideoToolbox) {
+    console.error('[render] using hardware encoder: h264_videotoolbox');
+  }
+
   await renderMedia({
     composition,
     serveUrl: bundled,
@@ -271,6 +282,7 @@ export async function renderVideo(options: RenderVideoOptions): Promise<void> {
     logLevel,
     concurrency: safeDesktopConcurrency,
     timeoutInMilliseconds: safeDesktopTimeout,
+    ffmpegOverride,
     onProgress: ({ renderedFrames, encodedFrames, progress }) => {
       const now = Date.now();
       // Throttle to ~5 updates per second to avoid log spam

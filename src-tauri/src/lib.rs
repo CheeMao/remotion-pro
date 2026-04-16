@@ -1163,12 +1163,19 @@ fn resolve_packaged_runtime_root_from_exe() -> Option<PathBuf> {
             && root.join("remotion-bundle").exists()
     };
 
-    [
+    let mut candidates = vec![
         exe_dir.join("resources").join("runtime"),
         exe_dir.join("runtime"),
-    ]
-    .into_iter()
-    .find(cli_check)
+    ];
+
+    // macOS .app bundle layout: exe sits at Contents/MacOS/, resources at Contents/Resources/
+    #[cfg(target_os = "macos")]
+    if let Some(contents_dir) = exe_dir.parent() {
+        candidates.push(contents_dir.join("Resources").join("resources").join("runtime"));
+        candidates.push(contents_dir.join("Resources").join("runtime"));
+    }
+
+    candidates.into_iter().find(cli_check)
 }
 
 fn resolve_packaged_runtime_binary(tool_name: &str) -> Option<PathBuf> {
@@ -1921,10 +1928,12 @@ fn detect_packaged_runtime(app: &tauri::AppHandle) -> Option<PackagedRuntime> {
             && root.join("remotion-bundle").exists()
     };
 
+    let resource_dir = app.path().resource_dir().ok()?;
     let runtime_root = [
         exe_dir.join("resources").join("runtime"), // NSIS default
         exe_dir.join("runtime"),                   // fallback / other layouts
-        app.path().resource_dir().ok()?.join("runtime"),
+        resource_dir.join("resources").join("runtime"), // macOS .app bundle layout
+        resource_dir.join("runtime"),
     ]
     .into_iter()
     .find(cli_check)?;

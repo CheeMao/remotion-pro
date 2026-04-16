@@ -9,7 +9,7 @@ Remotion-based vertical video generation system (1080x1920 @ 30fps) for short-fo
 - A **layered rendering architecture** (not "one template = one fixed page") where any template renders any layout from a unified content schema
 - **VolcEngine (火山引擎) TTS** with word-level timestamps for element-synced animation
 - A **Tauri v2 desktop app** (`app/`) that drives the CLI and previews renders via `@remotion/player`
-- A packaged Remotion runtime (`src-tauri/resources/runtime`) and a sidecar build (`.sidecar-build/`) that mirror `src/` for the shipped desktop app
+- A packaged Remotion runtime (`src-tauri/resources/runtime`) that mirrors `src/` for the shipped desktop app (generated at build time by `prepare:tauri-runtime`)
 
 ## Read First
 
@@ -101,7 +101,9 @@ Key invariants:
 
 These are the templates expected to fully implement the layout set. Keep this list and `AGENTS.md` in sync:
 
-`GlassShow`, `LiquidShow`, `LiquidBriefShow`, `TechShow`, `RichShow`, `KnowledgeShow`, `MacShow`, `StudioShow`, `EditorialShow`.
+`GlassShow`, `LiquidShow`, `LiquidBriefShow`, `TechShow`, `KnowledgeShow`, `MacShow`, `StudioShow`, `EditorialShow`.
+
+Note: `RichShow` exists as a directory under `src/` but is **not currently imported/registered** in `Root.tsx`. It should be treated as inactive until re-registered.
 
 Additional compositions registered in `Root.tsx` (`InsightShow`, `CosmosShow`, `ProjectShow`, `StickShow`) are present but outside the "active templates must cover every layout" contract.
 
@@ -177,11 +179,18 @@ Environment variables (required for any TTS command):
 
 Caches live in `audio-cache/` + `audio-cache-map.json` at the repo root.
 
+### Other Environment Variables
+
+See `.env.example` for the full list. Beyond TTS:
+
+- `NETVERIFY_BASE_URL`, `NETVERIFY_APP_ID` — authorization verification (desktop app uses built-in defaults if unset)
+- `QINIU_ACCESS_KEY`, `QINIU_SECRET_KEY`, `QINIU_BUCKET`, `QINIU_DOMAIN`, `QINIU_UPLOAD_URL` — Qiniu cloud storage for audio
+
 ## Desktop App (`app/`)
 
 Separate npm project — `cd app && npm install` on first setup. React 18 + TypeScript + Vite + Arco Design + Zustand + `@remotion/player`, driven by Tauri v2 (Rust in `src-tauri/`).
 
-Packaging note: `npm run tauri:build` runs `scripts/prepare-tauri-runtime.js` first, which syncs `src/` into `src-tauri/resources/runtime/app/src/` and also maintains `.sidecar-build/src/`. When you see both a top-level `src/EditorialShow/EditorialSlide.tsx` and a `src-tauri/resources/runtime/app/src/EditorialShow/EditorialSlide.js` (or the same file under `.sidecar-build/`), the top-level TypeScript source is canonical — the JS copies are generated.
+Packaging note: `npm run tauri:build` runs `scripts/prepare-tauri-runtime.js` first, which syncs `src/` into `src-tauri/resources/runtime/app/src/`. These runtime copies are generated at build time and do not exist in the repo by default. The top-level TypeScript source under `src/` is always canonical.
 
 ## Configuration
 
@@ -192,5 +201,4 @@ Packaging note: `npm run tauri:build` runs `scripts/prepare-tauri-runtime.js` fi
 
 ## Environment Notes
 
-- Shell is bash-on-Windows (git-bash). Use Unix syntax (`/dev/null`, forward slashes) in scripts even though the OS is Windows 11.
 - Remotion Studio default port is **32123** (not the Remotion default), configured in `npm run dev`.
