@@ -1,0 +1,89 @@
+{
+  "meta": {
+    "title": "轻剪：一段文案，一条视频",
+    "template": "GlassShow",
+    "voiceId": "zh_female_shuangkuaisisi_moon_bigtts"
+  },
+  "slides": [
+    {
+      "layout": "hero",
+      "type": "hero",
+      "title": "一段文案，一条视频",
+      "subtitle": "AI 分镜 · 自动配音 · 音画同步",
+      "data": {
+        "badge": "轻剪",
+        "cta": "开源免费"
+      },
+      "narration": "一段文案，一条视频。AI 分镜、自动配音、音画同步。"
+    },
+    {
+      "layout": "stats",
+      "type": "stats",
+      "title": "做一条视频要多久？",
+      "subtitle": "从文案到成片",
+      "data": {
+        "stats": [
+          {
+            "value": 3,
+            "suffix": "分钟",
+            "label": "文案到成片"
+          },
+          {
+            "value": 8,
+            "suffix": "套",
+            "label": "风格模板"
+          },
+          {
+            "value": 11,
+            "suffix": "种",
+            "label": "页面版式"
+          }
+        ]
+      },
+      "narration": "做一条视频要多久？从文案到成片，三分钟。八套风格模板，十一种页面版式。"
+    },
+    {
+      "layout": "compare",
+      "type": "compare",
+      "title": "手工剪辑 vs 轻剪",
+      "subtitle": "把重复劳动交给流水线",
+      "data": {
+        "left": {
+          "label": "手工剪辑",
+          "value": "2 小时",
+          "desc": "排版、配音、对齐、打关键帧"
+        },
+        "right": {
+          "label": "轻剪",
+          "value": "3 分钟",
+          "desc": "写好文案，一键生成"
+        },
+        "vsText": "VS"
+      },
+      "narration": "手工剪辑要两个小时，排版、配音、对齐、打关键帧；用轻剪，写好文案，一键生成。"
+    },
+    {
+      "layout": "steps",
+      "type": "steps",
+      "title": "三步出片",
+      "subtitle": "每一步都可以单独调整",
+      "data": {
+        "steps": [
+          {
+            "title": "粘贴文案",
+            "description": "AI 自动拆成分镜并匹配版式"
+          },
+          {
+            "title": "自动配音",
+            "description": "字级时间戳驱动元素入场"
+          },
+          {
+            "title": "一键渲染",
+            "description": "随时切换模板重新出片"
+          }
+        ]
+      },
+      "narration": "只需要三步：粘贴文案，自动配音，一键渲染。"
+    }
+  ]
+}
