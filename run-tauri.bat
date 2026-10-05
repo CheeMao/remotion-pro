@@ -1,4 +1,4 @@
 @echo off
-set PATH=C:\Users\Cheemao\.cargo\bin;%PATH%
-cd /d F:\My Apps\AI-remotion
+set PATH=%USERPROFILE%\.cargo\bin;%PATH%
+cd /d "%~dp0"
 npm run tauri:dev

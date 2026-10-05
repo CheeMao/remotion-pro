@@ -147,9 +147,9 @@ src/<TemplateName>/
 新增模板时，必须同时完成以下步骤：
 
 1. 新建模板目录与主 slide 组件
-2. 在 [src/Root.tsx](/F:/My%20Apps/AI-remotion/src/Root.tsx) 注册 composition
-3. 在 [src/themes/registry.ts](/F:/My%20Apps/AI-remotion/src/themes/registry.ts) 注册 template -> theme 映射
-4. 在 [src/renderers/templateSceneRegistry.tsx](/F:/My%20Apps/AI-remotion/src/renderers/templateSceneRegistry.tsx) 注册模板 scene
+2. 在 [src/Root.tsx](../src/Root.tsx) 注册 composition
+3. 在 [src/themes/registry.ts](../src/themes/registry.ts) 注册 template -> theme 映射
+4. 在 [src/renderers/templateSceneRegistry.tsx](../src/renderers/templateSceneRegistry.tsx) 注册模板 scene
 5. 保证模板支持完整 layout 集
 6. 补模板说明文档
 
@@ -159,7 +159,7 @@ src/<TemplateName>/
 
 文件：
 
-- [src/renderers/templateSceneRegistry.tsx](/F:/My%20Apps/AI-remotion/src/renderers/templateSceneRegistry.tsx)
+- [src/renderers/templateSceneRegistry.tsx](../src/renderers/templateSceneRegistry.tsx)
 
 这个文件是模板层的关键适配器。
 

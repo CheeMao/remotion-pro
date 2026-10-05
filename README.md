@@ -178,7 +178,7 @@ flowchart LR
 - 🤖 接入任意 **OpenAI 兼容接口**（DeepSeek、通义、Kimi、OpenAI……），AI 一键生成分镜
 - ✏️ 在编辑器中逐页修改，通过 `@remotion/player` **实时预览**
 - 🎙️ 一键配音、一键渲染，**内置 Chromium**，无需另装环境
-- 🔄 应用内自动更新
+- 🔓 完全本地运行，无需注册登录，只需配置自己的 API Key
 
 ```bash
 cd app && npm install && cd ..
@@ -224,7 +224,6 @@ npx tsx src/cli/index.ts render <content.json> [-t 模板] [-o out/video.mp4]
 | `VOLCENGINE_APP_ID` / `VOLCENGINE_ACCESS_KEY` | 火山引擎语音合成凭证（必填） |
 | `VOLCENGINE_RESOURCE_ID` | 默认 `seed-tts-1.0` |
 | `QINIU_*` | 可选，七牛云音频存储 |
-| `NETVERIFY_*` | 可选，桌面端授权验证 |
 
 完整列表见 [`.env.example`](.env.example)。
 

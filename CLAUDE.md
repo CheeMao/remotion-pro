@@ -183,7 +183,6 @@ Caches live in `audio-cache/` + `audio-cache-map.json` at the repo root.
 
 See `.env.example` for the full list. Beyond TTS:
 
-- `NETVERIFY_BASE_URL`, `NETVERIFY_APP_ID` — authorization verification (desktop app uses built-in defaults if unset)
 - `QINIU_ACCESS_KEY`, `QINIU_SECRET_KEY`, `QINIU_BUCKET`, `QINIU_DOMAIN`, `QINIU_UPLOAD_URL` — Qiniu cloud storage for audio
 
 ## Desktop App (`app/`)

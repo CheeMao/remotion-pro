@@ -50,3 +50,8 @@ public/projects/current-project.json
 # Claude Code session data
 .claude/worktrees/
 .claude/settings.local.json
+
+# Python / tool caches
+__pycache__/
+*.pyc
+.playwright-cli/
