@@ -55,7 +55,7 @@
 
 入口文件：
 
-- [src/templates/autoLayout.ts](/F:/My%20Apps/AI-remotion/src/templates/autoLayout.ts)
+- [src/templates/autoLayout.ts](../src/templates/autoLayout.ts)
 
 职责：
 
@@ -87,7 +87,7 @@
 
 共享 layout 集合位于：
 
-- [src/layouts](/F:/My%20Apps/AI-remotion/src/layouts)
+- [src/layouts](../src/layouts)
 
 当前统一支持的布局类型：
 
@@ -109,7 +109,7 @@
 
 入口文件：
 
-- [src/renderers/templateSceneRegistry.tsx](/F:/My%20Apps/AI-remotion/src/renderers/templateSceneRegistry.tsx)
+- [src/renderers/templateSceneRegistry.tsx](../src/renderers/templateSceneRegistry.tsx)
 
 职责：
 
@@ -133,7 +133,7 @@
 
 入口文件：
 
-- [src/themes/registry.ts](/F:/My%20Apps/AI-remotion/src/themes/registry.ts)
+- [src/themes/registry.ts](../src/themes/registry.ts)
 
 职责：
 
@@ -152,9 +152,9 @@ theme 只负责基础视觉参数，不负责完整模板风格。
 
 核心文件：
 
-- [src/renderers/SharedVideo.tsx](/F:/My%20Apps/AI-remotion/src/renderers/SharedVideo.tsx)
-- [src/renderers/SlideTimeline.tsx](/F:/My%20Apps/AI-remotion/src/renderers/SlideTimeline.tsx)
-- [src/renderers/SceneRenderer.tsx](/F:/My%20Apps/AI-remotion/src/renderers/SceneRenderer.tsx)
+- [src/renderers/SharedVideo.tsx](../src/renderers/SharedVideo.tsx)
+- [src/renderers/SlideTimeline.tsx](../src/renderers/SlideTimeline.tsx)
+- [src/renderers/SceneRenderer.tsx](../src/renderers/SceneRenderer.tsx)
 
 职责：
 
@@ -168,7 +168,7 @@ theme 只负责基础视觉参数，不负责完整模板风格。
 
 主入口：
 
-- [src/Root.tsx](/F:/My%20Apps/AI-remotion/src/Root.tsx)
+- [src/Root.tsx](../src/Root.tsx)
 
 当前 `GeneratedVideo` 的主路径是：
 
@@ -269,7 +269,7 @@ AI 最终应该优先产出：
 
 音频拼接与播放由：
 
-- [src/renderers/SlideTimeline.tsx](/F:/My%20Apps/AI-remotion/src/renderers/SlideTimeline.tsx)
+- [src/renderers/SlideTimeline.tsx](../src/renderers/SlideTimeline.tsx)
 
 负责。
 

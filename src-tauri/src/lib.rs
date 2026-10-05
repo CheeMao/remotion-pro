@@ -1,6 +1,3 @@
-use aes::cipher::{block_padding::Pkcs7, BlockDecryptMut, KeyIvInit};
-use aes::Aes256;
-use serde::de::DeserializeOwned;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::fs;
@@ -10,18 +7,12 @@ use std::net::{SocketAddr, TcpStream};
 use std::path::{Path, PathBuf};
 use std::io::{BufRead, BufReader};
 use std::process::{Command, Stdio};
-use std::sync::Mutex;
 use std::time::{Duration, Instant};
 use base64::Engine;
-use cbc::Decryptor;
 use hmac::{Hmac, Mac};
 use regex::Regex;
 use reqwest::multipart::{Form, Part};
-use rsa::pkcs1::DecodeRsaPrivateKey;
-use rsa::pkcs8::DecodePrivateKey;
-use rsa::{Oaep, RsaPrivateKey};
 use sha1::Sha1;
-use sha2::{Digest, Sha256};
 use tauri::Manager;
 
 #[cfg(target_os = "windows")]
@@ -113,202 +104,6 @@ struct TranscriptionResult {
     duration: f64,
 }
 
-const NETVERIFY_DEFAULT_BASE_URL: &str = "http://yz.ledougc.com/api";
-const NETVERIFY_DEFAULT_APP_ID: i64 = 1;
-const NETVERIFY_DEFAULT_RSA_PRIVATE_KEY: &str = r#"-----BEGIN PRIVATE KEY-----
-MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQCZKG7Hzm+dxl3h
-VRFM0T85SdrEbGIj1AcKhOFY5tWQVAOngXSvBcKwty+27YnHChT5JUJTCfVieVmS
-rQCxigTzSI9jPMxaDsBYO75RBBjdHRm4udemXgBHYjNQ64yyyjy/EyYbsZsdt7ov
-aBisY87bjgX05fuDKZmJDW+iDPikM1FeH46O6+7V3HgnGS1wAORtmDkwbgvf397B
-wcbjwcVtuN2fai3BfoIHdzvDUVjlOPS9Ri1ZMdWXm+g7v608zjzMaEpEvQrAOv50
-W70wQoon7y9PUiU9o285/ZyJDHnTebaEkMVpdP1yUQo0JkNjxXuS1Nw75Wiz/Rnq
-YpXbhugVAgMBAAECggEAQY2bQNz8TBDz7La+1Vy4TVptjuX+6WveaaOvWiBO51v2
-RnMz0JfMGVwGyaqI7o7DpFHMvgMEqtXav1tZ8SNsc/6qFKUYqDEpJXrIvh9dTwKe
-GEE+6n/Qab0/zpJLIdlKv9O/21mc1U7mm1TYPqznhHSY2xW2nZCoHQ+JqNgZchm1
-ZmQvA1vv3AxXZQJhBrO3vQcKdeKTUvUci6anYzMwFQENWh2imZh7LMtSjL2s7VN1
-OiT6gArVg1J1SUxElytotv9EwB7CqZPy3pHytzWxQYbt+JAhpWB+lXFb7w7Y/FA5
-FYXV8C2LKMIWKBjbvUtA0WDILzM0Y4HuksQ2pSkJ3wKBgQDH6CmCYPIRkQcrWlpN
-LPBco6qGmBfaCjSivL3ap6AwxmE9h78xL2cCyxnngfn6E+62NW5oSholcjfJWhF/
-VpS6fJbQjFiNy9uR7ht4ppcrbQmobpS3iXeEnThQAJVPrWq5vHWi0bWFlIZuSwGS
-oFIDby5DOSsPGn4MkNYO0z6EgwKBgQDEIivAswe9MJId1jK0D+Ur5JIKlVVy7tS5
-GC756YEw2HyZA24kvQfewmBpI/Kas0wS2KC6Je2kas6GONPugNzBAtB/JskLc3hy
-8KqfyDROsDw6R7Uk+Iy/dXM8SxxXyKOLFTAy/1GqXCc+I87DK4dPHpWvmBZFL7yX
-OHC4W2wthwKBgQCDd680y0TnQJWScU1Jy/AXPJt9ALFO97899xp0niC/cveoW4nl
-cuMv9xoGInifelRXCDSf6XvgfIkrpkwzjmEpc55LcMEcH6E7C3iNlCF+sarUVkT/
-nyw2zp6mHnwTdlzl4YcLmRbjzpXKGxHhuAW3tHqcQxCKUkXrRaVBArPuuQKBgEAZ
-1ujc2jun4yljNyEITOMCigRxeALfMaDo2XmOKk33gwlTSK0zJp5UMsRKHmEXFlbW
-e/k6qidhTOwrKIC7lupx7AiSeYSHkacnJuyftxC8ooJ9qyNRJFbyoN3kwneiOGkd
-XKpeLaebBKxXcZzx3gAqw8smzqiACIf3x0dJgdqDAoGBAICU2Ddk2lkNOIL1L1X6
-ZxDKcHV/OCNCuQwRuN782Vb0+UR3hz9XgUoG+qwPYDYrbJOrqrPeGy+qq4U1+GwG
-MmT1AK2KztMFXkHrpzYBZAd7rEmzF/L1upS3oXwgfmRMxv/55XjF529Ww9S1ALKT
-dJIr1CZ7+2oj45JaXSAxiBpf
------END PRIVATE KEY-----"#;
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-struct AuthContext {
-    hwid: String,
-    device_name: String,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-struct AuthSession {
-    token: String,
-    username: String,
-    hwid: String,
-    device_name: String,
-    is_valid: bool,
-    expire_time: Option<String>,
-    valid_message: String,
-    heart_interval: u64,
-    heartbeat_timeout: u64,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-struct LicenseStatus {
-    username: String,
-    is_valid: bool,
-    is_active: bool,
-    expire_time: Option<String>,
-    expire_timestamp: Option<i64>,
-    remaining_seconds: i64,
-    valid_message: String,
-    hwid: String,
-    device_name: String,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-struct HeartbeatStatus {
-    username: String,
-    is_valid: bool,
-    is_active: bool,
-    expire_time: Option<String>,
-    valid_message: String,
-    hwid: String,
-    device_name: String,
-    interval: u64,
-    heartbeat_timeout: u64,
-    max_devices: i64,
-    bound_devices: i64,
-    commands: Vec<String>,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-struct RegisterResult {
-    id: i64,
-    username: String,
-    app_id: i64,
-    created_at: Option<String>,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-struct TrialResult {
-    success: bool,
-    message: Option<String>,
-    added_seconds: Option<i64>,
-    expire_time: Option<String>,
-    max_devices: Option<i64>,
-    is_trial: Option<bool>,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-struct RechargeResult {
-    success: bool,
-    message: Option<String>,
-    added_seconds: Option<i64>,
-    new_expire_time: Option<String>,
-    card_type: Option<String>,
-}
-
-#[derive(Debug, Deserialize)]
-struct NetVerifyEnvelope<T> {
-    code: i64,
-    msg: Option<String>,
-    data: Option<T>,
-}
-
-#[derive(Debug, Deserialize)]
-struct NetVerifyEncryptedEnvelope {
-    #[serde(rename = "encrypted")]
-    _encrypted: bool,
-    algorithm: Option<String>,
-    data: String,
-    key: String,
-    signature: Option<String>,
-}
-
-#[derive(Debug, Deserialize)]
-struct NetVerifyLoginUser {
-    username: Option<String>,
-}
-
-#[derive(Debug, Deserialize)]
-struct NetVerifyLoginData {
-    access_token: String,
-    user: Option<NetVerifyLoginUser>,
-    heart_interval: Option<u64>,
-    heartbeat_timeout: Option<u64>,
-    is_valid: Option<bool>,
-    expire_time: Option<String>,
-    valid_message: Option<String>,
-}
-
-#[derive(Debug, Deserialize)]
-struct NetVerifyExpireData {
-    username: Option<String>,
-    is_valid: Option<bool>,
-    is_active: Option<bool>,
-    expire_time: Option<String>,
-    expire_timestamp: Option<i64>,
-    remaining_seconds: Option<i64>,
-    valid_message: Option<String>,
-}
-
-#[derive(Debug, Deserialize)]
-struct NetVerifyHeartbeatData {
-    is_active: Option<bool>,
-    expire_time: Option<String>,
-    username: Option<String>,
-    max_devices: Option<i64>,
-    bound_devices: Option<i64>,
-    interval: Option<u64>,
-    heartbeat_timeout: Option<u64>,
-    commands: Option<Vec<String>>,
-}
-
-#[derive(Debug, Deserialize)]
-struct NetVerifyAppInfoData {
-    version: Option<String>,
-    download_url: Option<String>,
-    force_update: Option<bool>,
-    heart_interval: Option<u64>,
-    heartbeat_timeout_multiplier: Option<u64>,
-    trial_enabled: Option<bool>,
-    is_active: Option<bool>,
-}
-
-#[derive(Debug, Clone, Serialize)]
-#[serde(rename_all = "camelCase")]
-struct AppInfoSummary {
-    current_version: String,
-    latest_version: Option<String>,
-    download_url: Option<String>,
-    force_update: bool,
-    has_update: bool,
-    heart_interval: Option<u64>,
-    heartbeat_timeout_multiplier: Option<u64>,
-    trial_enabled: bool,
-    is_active: bool,
-}
-
-#[derive(Default)]
-struct AuthState {
-    session: Mutex<Option<AuthSession>>,
-}
-
 #[derive(Debug, Clone)]
 struct QiniuConfig {
     access_key: String,
@@ -341,424 +136,6 @@ fn append_debug_log(message: &str) {
     {
         let _ = writeln!(file, "{}", message);
     }
-}
-
-fn netverify_base_url() -> String {
-    std::env::var("NETVERIFY_BASE_URL")
-        .unwrap_or_else(|_| NETVERIFY_DEFAULT_BASE_URL.to_string())
-        .trim()
-        .trim_end_matches('/')
-        .to_string()
-}
-
-fn netverify_app_id() -> i64 {
-    std::env::var("NETVERIFY_APP_ID")
-        .ok()
-        .and_then(|value| value.parse::<i64>().ok())
-        .unwrap_or(NETVERIFY_DEFAULT_APP_ID)
-}
-
-fn netverify_private_key_pem() -> Result<String, String> {
-    if let Ok(path) = std::env::var("NETVERIFY_RSA_PRIVATE_KEY_PATH")
-        .or_else(|_| std::env::var("NETVERIFY_PRIVATE_KEY_PATH"))
-    {
-        let trimmed = path.trim();
-        if !trimmed.is_empty() {
-            return fs::read_to_string(trimmed)
-                .map_err(|e| format!("Failed to read NetVerify private key from {}: {}", trimmed, e));
-        }
-    }
-
-    if let Ok(pem) = std::env::var("NETVERIFY_RSA_PRIVATE_KEY")
-        .or_else(|_| std::env::var("NETVERIFY_PRIVATE_KEY"))
-    {
-        let normalized = pem.trim().replace("\\n", "\n");
-        if !normalized.is_empty() {
-            return Ok(normalized);
-        }
-    }
-
-    Ok(NETVERIFY_DEFAULT_RSA_PRIVATE_KEY.to_string())
-}
-
-fn load_netverify_private_key() -> Result<RsaPrivateKey, String> {
-    let pem = netverify_private_key_pem()?;
-    RsaPrivateKey::from_pkcs8_pem(&pem)
-        .or_else(|_| RsaPrivateKey::from_pkcs1_pem(&pem))
-        .map_err(|e| format!("Failed to load NetVerify RSA private key: {}", e))
-}
-
-fn hex_encode(bytes: &[u8]) -> String {
-    let mut output = String::with_capacity(bytes.len() * 2);
-    for byte in bytes {
-        output.push_str(&format!("{:02x}", byte));
-    }
-    output
-}
-
-fn decrypt_netverify_response_body(text: &str) -> Result<String, String> {
-    let value: Value =
-        serde_json::from_str(text).map_err(|e| format!("Failed to parse NetVerify JSON body: {}", e))?;
-
-    if !value
-        .get("encrypted")
-        .and_then(Value::as_bool)
-        .unwrap_or(false)
-    {
-        return Ok(text.to_string());
-    }
-
-    let encrypted: NetVerifyEncryptedEnvelope = serde_json::from_value(value)
-        .map_err(|e| format!("Failed to parse encrypted NetVerify envelope: {}", e))?;
-
-    if encrypted.algorithm.as_deref() != Some("AES-256-CBC") {
-        return Err(
-            encrypted
-                .algorithm
-                .map(|value| format!("Unsupported NetVerify encryption algorithm: {}", value))
-                .unwrap_or_else(|| "NetVerify encrypted response missing algorithm".to_string()),
-        );
-    }
-
-    let private_key = load_netverify_private_key()?;
-    let encrypted_key = base64::engine::general_purpose::STANDARD
-        .decode(encrypted.key.as_bytes())
-        .map_err(|e| format!("Failed to decode NetVerify encrypted key: {}", e))?;
-    let key_material = private_key
-        .decrypt(Oaep::new::<Sha256>(), &encrypted_key)
-        .map_err(|e| format!("Failed to decrypt NetVerify AES key: {}", e))?;
-
-    if key_material.len() < 48 {
-        return Err(format!(
-            "NetVerify AES key payload is too short: expected at least 48 bytes, got {}",
-            key_material.len()
-        ));
-    }
-
-    let aes_key = &key_material[..32];
-    let iv = &key_material[32..48];
-
-    if let Some(signature) = encrypted.signature.as_deref() {
-        let mut mac =
-            Hmac::<Sha256>::new_from_slice(aes_key).map_err(|e| format!("Failed to build NetVerify HMAC: {}", e))?;
-        mac.update(encrypted.data.as_bytes());
-        let expected_signature = hex_encode(&mac.finalize().into_bytes());
-        if !expected_signature.eq_ignore_ascii_case(signature.trim()) {
-            return Err("NetVerify response signature verification failed".to_string());
-        }
-    }
-
-    let ciphertext = base64::engine::general_purpose::STANDARD
-        .decode(encrypted.data.as_bytes())
-        .map_err(|e| format!("Failed to decode NetVerify encrypted data: {}", e))?;
-    let mut buffer = ciphertext.clone();
-    let decrypted = Decryptor::<Aes256>::new_from_slices(aes_key, iv)
-        .map_err(|e| format!("Failed to initialize NetVerify AES decryptor: {}", e))?
-        .decrypt_padded_mut::<Pkcs7>(&mut buffer)
-        .map_err(|e| format!("Failed to decrypt NetVerify payload: {}", e))?;
-
-    String::from_utf8(decrypted.to_vec())
-        .map_err(|e| format!("Failed to decode decrypted NetVerify payload as UTF-8: {}", e))
-}
-
-fn current_device_name() -> String {
-    std::env::var("COMPUTERNAME")
-        .or_else(|_| std::env::var("HOSTNAME"))
-        .ok()
-        .map(|value| value.trim().to_string())
-        .filter(|value| !value.is_empty())
-        .unwrap_or_else(|| "Unknown Device".to_string())
-}
-
-fn read_windows_machine_guid() -> Option<String> {
-    #[cfg(target_os = "windows")]
-    {
-        let output = silent_command("reg")
-            .args(["query", r"HKLM\SOFTWARE\Microsoft\Cryptography", "/v", "MachineGuid"])
-            .output()
-            .ok()?;
-
-        if !output.status.success() {
-            return None;
-        }
-
-        let stdout = String::from_utf8_lossy(&output.stdout);
-        for line in stdout.lines() {
-            if line.contains("MachineGuid") {
-                let parts: Vec<&str> = line.split_whitespace().collect();
-                if let Some(value) = parts.last() {
-                    let trimmed = value.trim();
-                    if !trimmed.is_empty() {
-                        return Some(trimmed.to_string());
-                    }
-                }
-            }
-        }
-    }
-
-    None
-}
-
-fn read_mac_decimal() -> Option<String> {
-    #[cfg(target_os = "windows")]
-    {
-        let output = silent_command("getmac")
-            .args(["/fo", "csv", "/nh"])
-            .output()
-            .ok()?;
-
-        if !output.status.success() {
-            return None;
-        }
-
-        let stdout = String::from_utf8_lossy(&output.stdout);
-        for line in stdout.lines() {
-            let first = line
-                .split(',')
-                .next()
-                .map(|value| value.trim_matches('"').trim())
-                .unwrap_or("");
-
-            if first.is_empty() || first.eq_ignore_ascii_case("N/A") {
-                continue;
-            }
-
-            let hex = first.replace('-', "").replace(':', "");
-            if hex.len() == 12 {
-                if let Ok(value) = u64::from_str_radix(&hex, 16) {
-                    return Some(value.to_string());
-                }
-            }
-        }
-    }
-
-    None
-}
-
-fn get_stable_hwid() -> String {
-    let hardware_id = read_windows_machine_guid().unwrap_or_else(|| "UNKNOWN".to_string());
-    let mac = read_mac_decimal().unwrap_or_else(|| current_device_name());
-    let final_raw = format!("{}|{}", hardware_id, mac);
-    let digest = Sha256::digest(final_raw.as_bytes());
-    let mut hex = String::with_capacity(digest.len() * 2);
-    for byte in digest {
-        hex.push_str(&format!("{:02x}", byte));
-    }
-    hex.chars().take(32).collect()
-}
-
-async fn send_netverify_request<T: DeserializeOwned>(
-    method: reqwest::Method,
-    endpoint: &str,
-    token: Option<&str>,
-    body: Option<serde_json::Value>,
-) -> Result<T, String> {
-    let client = reqwest::Client::builder()
-        .timeout(Duration::from_secs(30))
-        .build()
-        .map_err(|e| format!("Failed to create NetVerify client: {}", e))?;
-
-    let url = format!("{}{}", netverify_base_url(), endpoint);
-    let mut request = client
-        .request(method, &url)
-        .header("Accept", "application/json")
-        .header("Content-Type", "application/json");
-
-    if let Some(token) = token {
-        request = request.bearer_auth(token);
-    }
-
-    if let Some(body) = body {
-        request = request.json(&body);
-    }
-
-    let response = request
-        .send()
-        .await
-        .map_err(|e| format!("NetVerify request failed: {}", e))?;
-    let status = response.status();
-    let text = response
-        .text()
-        .await
-        .map_err(|e| format!("Failed to read NetVerify response: {}", e))?;
-    let normalized_text = decrypt_netverify_response_body(&text).map_err(|e| {
-        if status.is_success() {
-            format!("Failed to decrypt NetVerify response: {}. Body: {}", e, text)
-        } else {
-            format!("NetVerify returned HTTP {}: {}", status.as_u16(), text)
-        }
-    })?;
-
-    let envelope: NetVerifyEnvelope<T> = serde_json::from_str(&normalized_text).map_err(|e| {
-        if status.is_success() {
-            format!(
-                "Failed to parse NetVerify response: {}. Body: {}",
-                e, normalized_text
-            )
-        } else {
-            format!("NetVerify returned HTTP {}: {}", status.as_u16(), normalized_text)
-        }
-    })?;
-
-    if envelope.code != 20000 {
-        return Err(
-            envelope
-                .msg
-                .unwrap_or_else(|| format!("NetVerify error {}", envelope.code)),
-        );
-    }
-
-    envelope
-        .data
-        .ok_or_else(|| "NetVerify response missing data field".to_string())
-}
-
-fn update_auth_session(state: &tauri::State<'_, AuthState>, session: Option<AuthSession>) -> Result<(), String> {
-    let mut guard = state
-        .session
-        .lock()
-        .map_err(|_| "Failed to access auth session".to_string())?;
-    *guard = session;
-    Ok(())
-}
-
-fn read_auth_session(state: &tauri::State<'_, AuthState>) -> Result<AuthSession, String> {
-    state
-        .session
-        .lock()
-        .map_err(|_| "Failed to access auth session".to_string())?
-        .clone()
-        .ok_or_else(|| "请先登录后再使用此功能".to_string())
-}
-
-fn build_auth_context() -> AuthContext {
-    AuthContext {
-        hwid: get_stable_hwid(),
-        device_name: current_device_name(),
-    }
-}
-
-fn build_auth_session(context: &AuthContext, data: NetVerifyLoginData) -> AuthSession {
-    AuthSession {
-        token: data.access_token,
-        username: data
-            .user
-            .and_then(|user| user.username)
-            .filter(|value| !value.trim().is_empty())
-            .unwrap_or_else(|| "未知用户".to_string()),
-        hwid: context.hwid.clone(),
-        device_name: context.device_name.clone(),
-        is_valid: data.is_valid.unwrap_or(false),
-        expire_time: data.expire_time,
-        valid_message: data.valid_message.unwrap_or_default(),
-        heart_interval: data.heart_interval.unwrap_or(60),
-        heartbeat_timeout: data.heartbeat_timeout.unwrap_or(180),
-    }
-}
-
-fn build_license_status(context: &AuthContext, data: NetVerifyExpireData) -> LicenseStatus {
-    LicenseStatus {
-        username: data.username.unwrap_or_else(|| "未知用户".to_string()),
-        is_valid: data.is_valid.unwrap_or(false),
-        is_active: data.is_active.unwrap_or(false),
-        expire_time: data.expire_time,
-        expire_timestamp: data.expire_timestamp,
-        remaining_seconds: data.remaining_seconds.unwrap_or(0),
-        valid_message: data.valid_message.unwrap_or_default(),
-        hwid: context.hwid.clone(),
-        device_name: context.device_name.clone(),
-    }
-}
-
-fn build_heartbeat_status(context: &AuthContext, data: NetVerifyHeartbeatData) -> HeartbeatStatus {
-    let is_active = data.is_active.unwrap_or(false);
-    let commands = data.commands.unwrap_or_default();
-    HeartbeatStatus {
-        username: data.username.unwrap_or_else(|| "未知用户".to_string()),
-        is_valid: is_active && !commands.iter().any(|cmd| cmd == "force_logout"),
-        is_active,
-        expire_time: data.expire_time,
-        valid_message: if is_active {
-            String::new()
-        } else {
-            "账号已失效".to_string()
-        },
-        hwid: context.hwid.clone(),
-        device_name: context.device_name.clone(),
-        interval: data.interval.unwrap_or(60),
-        heartbeat_timeout: data.heartbeat_timeout.unwrap_or(180),
-        max_devices: data.max_devices.unwrap_or(0),
-        bound_devices: data.bound_devices.unwrap_or(0),
-        commands,
-    }
-}
-
-fn parse_version_segments(version: &str) -> Vec<u64> {
-    version
-        .trim()
-        .trim_start_matches(['v', 'V'])
-        .split('.')
-        .map(|segment| {
-            let digits: String = segment
-                .chars()
-                .take_while(|ch| ch.is_ascii_digit())
-                .collect();
-            digits.parse::<u64>().unwrap_or(0)
-        })
-        .collect()
-}
-
-fn is_remote_version_newer(current_version: &str, latest_version: &str) -> bool {
-    let current_segments = parse_version_segments(current_version);
-    let latest_segments = parse_version_segments(latest_version);
-    let max_len = current_segments.len().max(latest_segments.len());
-
-    for index in 0..max_len {
-        let current = *current_segments.get(index).unwrap_or(&0);
-        let latest = *latest_segments.get(index).unwrap_or(&0);
-
-        if latest > current {
-            return true;
-        }
-
-        if latest < current {
-            return false;
-        }
-    }
-
-    false
-}
-
-async fn fetch_license_status_from_token(token: &str, context: &AuthContext) -> Result<LicenseStatus, String> {
-    let data: NetVerifyExpireData =
-        send_netverify_request(reqwest::Method::GET, "/client/expire-time", Some(token), None).await?;
-    Ok(build_license_status(context, data))
-}
-
-async fn require_valid_license(state: &tauri::State<'_, AuthState>) -> Result<AuthSession, String> {
-    let session = read_auth_session(state)?;
-    let context = AuthContext {
-        hwid: session.hwid.clone(),
-        device_name: session.device_name.clone(),
-    };
-    let status = fetch_license_status_from_token(&session.token, &context).await?;
-
-    let mut next_session = session.clone();
-    next_session.username = status.username.clone();
-    next_session.expire_time = status.expire_time.clone();
-    next_session.is_valid = status.is_valid;
-    next_session.valid_message = status.valid_message.clone();
-    update_auth_session(state, Some(next_session.clone()))?;
-
-    if !status.is_valid {
-        return Err(if status.valid_message.trim().is_empty() {
-            "当前授权无效，请先续费或重新登录".to_string()
-        } else {
-            status.valid_message
-        });
-    }
-
-    Ok(next_session)
 }
 
 fn extract_douyin_content_id(url: &str) -> Option<(String, String)> {
@@ -813,202 +190,6 @@ impl Default for AppSettings {
 #[tauri::command]
 fn get_app_settings() -> AppSettings {
     AppSettings::default()
-}
-
-#[tauri::command]
-async fn auth_get_context() -> Result<AuthContext, String> {
-    Ok(build_auth_context())
-}
-
-#[tauri::command]
-async fn auth_get_app_info() -> Result<AppInfoSummary, String> {
-    let data: NetVerifyAppInfoData = send_netverify_request(
-        reqwest::Method::GET,
-        &format!("/apps/{}", netverify_app_id()),
-        None,
-        None,
-    )
-    .await?;
-
-    let current_version = env!("CARGO_PKG_VERSION").to_string();
-    let latest_version = data
-        .version
-        .map(|value| value.trim().to_string())
-        .filter(|value| !value.is_empty());
-    let has_update = latest_version
-        .as_deref()
-        .map(|latest| is_remote_version_newer(&current_version, latest))
-        .unwrap_or(false);
-
-    Ok(AppInfoSummary {
-        current_version,
-        latest_version,
-        download_url: data
-            .download_url
-            .map(|value| value.trim().to_string())
-            .filter(|value| !value.is_empty()),
-        force_update: has_update && data.force_update.unwrap_or(false),
-        has_update,
-        heart_interval: data.heart_interval,
-        heartbeat_timeout_multiplier: data.heartbeat_timeout_multiplier,
-        trial_enabled: data.trial_enabled.unwrap_or(false),
-        is_active: data.is_active.unwrap_or(true),
-    })
-}
-
-#[tauri::command(rename_all = "camelCase")]
-async fn auth_register(username: String, password: String) -> Result<RegisterResult, String> {
-    let context = build_auth_context();
-    send_netverify_request(
-        reqwest::Method::POST,
-        "/client/register",
-        None,
-        Some(serde_json::json!({
-            "username": username,
-            "password": password,
-            "app_id": netverify_app_id(),
-            "hwid": context.hwid,
-            "device_name": context.device_name,
-        })),
-    )
-    .await
-}
-
-#[tauri::command(rename_all = "camelCase")]
-async fn auth_login(
-    username: String,
-    password: String,
-    state: tauri::State<'_, AuthState>,
-) -> Result<AuthSession, String> {
-    let context = build_auth_context();
-    let data: NetVerifyLoginData = send_netverify_request(
-        reqwest::Method::POST,
-        "/client/login",
-        None,
-        Some(serde_json::json!({
-            "username": username,
-            "password": password,
-            "app_id": netverify_app_id(),
-            "hwid": context.hwid,
-            "device_name": context.device_name,
-        })),
-    )
-    .await?;
-
-    let session = build_auth_session(&context, data);
-    update_auth_session(&state, Some(session.clone()))?;
-    Ok(session)
-}
-
-#[tauri::command(rename_all = "camelCase")]
-async fn auth_restore_session(
-    token: String,
-    state: tauri::State<'_, AuthState>,
-) -> Result<AuthSession, String> {
-    if token.trim().is_empty() {
-        return Err("缺少登录 token".to_string());
-    }
-
-    let context = build_auth_context();
-    let status = fetch_license_status_from_token(&token, &context).await?;
-    let session = AuthSession {
-        token,
-        username: status.username.clone(),
-        hwid: context.hwid.clone(),
-        device_name: context.device_name.clone(),
-        is_valid: status.is_valid,
-        expire_time: status.expire_time.clone(),
-        valid_message: status.valid_message.clone(),
-        heart_interval: 60,
-        heartbeat_timeout: 180,
-    };
-    update_auth_session(&state, Some(session.clone()))?;
-    Ok(session)
-}
-
-#[tauri::command]
-async fn auth_get_status(state: tauri::State<'_, AuthState>) -> Result<LicenseStatus, String> {
-    let session = read_auth_session(&state)?;
-    let context = AuthContext {
-        hwid: session.hwid.clone(),
-        device_name: session.device_name.clone(),
-    };
-    let status = fetch_license_status_from_token(&session.token, &context).await?;
-
-    let mut next_session = session.clone();
-    next_session.username = status.username.clone();
-    next_session.expire_time = status.expire_time.clone();
-    next_session.is_valid = status.is_valid;
-    next_session.valid_message = status.valid_message.clone();
-    update_auth_session(&state, Some(next_session))?;
-
-    Ok(status)
-}
-
-#[tauri::command]
-async fn auth_trial() -> Result<TrialResult, String> {
-    let context = build_auth_context();
-    send_netverify_request(
-        reqwest::Method::POST,
-        "/cards/trial",
-        None,
-        Some(serde_json::json!({
-            "app_id": netverify_app_id(),
-            "hwid": context.hwid,
-        })),
-    )
-    .await
-}
-
-#[tauri::command(rename_all = "camelCase")]
-async fn auth_recharge(code: String, state: tauri::State<'_, AuthState>) -> Result<RechargeResult, String> {
-    let session = read_auth_session(&state)?;
-    send_netverify_request(
-        reqwest::Method::POST,
-        "/cards/redeem",
-        Some(&session.token),
-        Some(serde_json::json!({
-            "code": code,
-            "hwid": session.hwid,
-        })),
-    )
-    .await
-}
-
-#[tauri::command]
-async fn auth_heartbeat(state: tauri::State<'_, AuthState>) -> Result<HeartbeatStatus, String> {
-    let session = read_auth_session(&state)?;
-    let context = AuthContext {
-        hwid: session.hwid.clone(),
-        device_name: session.device_name.clone(),
-    };
-    let data: NetVerifyHeartbeatData = send_netverify_request(
-        reqwest::Method::PUT,
-        "/client/heartbeat",
-        Some(&session.token),
-        Some(serde_json::json!({
-            "hwid": session.hwid,
-            "device_name": session.device_name,
-        })),
-    )
-    .await?;
-
-    let heartbeat = build_heartbeat_status(&context, data);
-    let mut next_session = session.clone();
-    next_session.username = heartbeat.username.clone();
-    next_session.expire_time = heartbeat.expire_time.clone();
-    next_session.is_valid = heartbeat.is_valid;
-    next_session.valid_message = heartbeat.valid_message.clone();
-    next_session.heart_interval = heartbeat.interval;
-    next_session.heartbeat_timeout = heartbeat.heartbeat_timeout;
-    update_auth_session(&state, Some(next_session))?;
-
-    Ok(heartbeat)
-}
-
-#[tauri::command]
-async fn auth_logout(state: tauri::State<'_, AuthState>) -> Result<(), String> {
-    update_auth_session(&state, None)
 }
 
 #[tauri::command(rename_all = "camelCase")]
@@ -1085,15 +266,15 @@ fn find_first_douyin_item(value: &Value) -> Option<Value> {
 
 fn load_qiniu_config() -> Result<Option<QiniuConfig>, String> {
     let access_key = std::env::var("QINIU_ACCESS_KEY")
-        .unwrap_or_else(|_| option_env!("COMPILED_QINIU_ACCESS_KEY").unwrap_or_default().to_string());
+        .unwrap_or_default();
     let secret_key = std::env::var("QINIU_SECRET_KEY")
-        .unwrap_or_else(|_| option_env!("COMPILED_QINIU_SECRET_KEY").unwrap_or_default().to_string());
+        .unwrap_or_default();
     let bucket = std::env::var("QINIU_BUCKET")
-        .unwrap_or_else(|_| option_env!("COMPILED_QINIU_BUCKET").unwrap_or_default().to_string());
+        .unwrap_or_default();
     let domain = std::env::var("QINIU_DOMAIN")
-        .unwrap_or_else(|_| option_env!("COMPILED_QINIU_DOMAIN").unwrap_or_default().to_string());
+        .unwrap_or_default();
     let upload_url = std::env::var("QINIU_UPLOAD_URL")
-        .unwrap_or_else(|_| option_env!("COMPILED_QINIU_UPLOAD_URL").unwrap_or_else(|| "https://up.qiniup.com").to_string());
+        .unwrap_or_else(|_| "https://up.qiniup.com".to_string());
 
     if [access_key.as_str(), secret_key.as_str(), bucket.as_str(), domain.as_str()]
         .iter()
@@ -1446,9 +627,7 @@ async fn prepare_douyin_transcription_url(video_url: &str) -> Result<Option<Stri
 #[tauri::command]
 async fn parse_douyin_url(
     share_text: String,
-    state: tauri::State<'_, AuthState>,
 ) -> Result<DouyinParseResult, String> {
-    let _session = require_valid_license(&state).await?;
     // Step 1: 娴犲孩鏋冮張顑胯厬閹绘劕褰嘦RL
     let url_pattern = Regex::new(r"http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+")
         .map_err(|e| format!("Regex error: {}", e))?;
@@ -1611,9 +790,7 @@ async fn transcribe_douyin_video(
     video_url: String,
     access_key: String,
     app_id: Option<String>,
-    state: tauri::State<'_, AuthState>,
 ) -> Result<TranscriptionResult, String> {
-    let _session = require_valid_license(&state).await?;
     if access_key.is_empty() {
         return Err("请先配置火山引擎 Access Key（在设置页面）".to_string());
     }
@@ -2241,9 +1418,7 @@ async fn generate_slides(
     model: String,
     prompt: String,
     reference_images: Option<Vec<AiReferenceImage>>,
-    state: tauri::State<'_, AuthState>,
 ) -> Result<String, String> {
-    let _session = require_valid_license(&state).await?;
     let started_at = Instant::now();
 
     if access_key.is_empty() {
@@ -2414,9 +1589,7 @@ async fn save_slides(
     soundtrack_path: Option<String>,
     soundtrack_duration: Option<f64>,
     subtitle_font: Option<String>,
-    state: tauri::State<'_, AuthState>,
 ) -> Result<String, String> {
-    let _session = require_valid_license(&state).await?;
     let project_dir = get_storage_root(&app)?;
     let content_file = resolve_project_path(&project_dir, &content_path);
     let content_dir = content_file
@@ -2507,17 +1680,14 @@ async fn save_slides(
 }
 
 #[tauri::command]
-async fn check_remotion_running(state: tauri::State<'_, AuthState>) -> Result<bool, String> {
-    let _session = require_valid_license(&state).await?;
+async fn check_remotion_running() -> Result<bool, String> {
     Ok(find_remotion_port().await?.is_some())
 }
 
 #[tauri::command(rename_all = "camelCase")]
 async fn start_remotion(
     app: tauri::AppHandle,
-    state: tauri::State<'_, AuthState>,
 ) -> Result<String, String> {
-    let _session = require_valid_license(&state).await?;
     if detect_packaged_runtime(&app).is_some() {
         return Err(
             "Packaged build does not ship Remotion Studio. Use the built-in preview instead."
@@ -2543,9 +1713,7 @@ async fn start_remotion(
 #[tauri::command(rename_all = "camelCase")]
 async fn ensure_remotion_running(
     app: tauri::AppHandle,
-    state: tauri::State<'_, AuthState>,
 ) -> Result<RemotionStartupResult, String> {
-    let _session = require_valid_license(&state).await?;
     if detect_packaged_runtime(&app).is_some() {
         return Err(
             "Packaged build does not ship Remotion Studio. Use the built-in preview instead."
@@ -2585,9 +1753,7 @@ async fn generate_audio(
     resource_id: String,
     speech_rate: Option<f64>,
     content_path: String,
-    state: tauri::State<'_, AuthState>,
 ) -> Result<String, String> {
-    let _session = require_valid_license(&state).await?;
     let project_dir = get_storage_root(&app)?;
     let (content_file, _, audio_file, _, _) =
         derive_project_paths(&project_dir, &content_path)?;
@@ -2663,9 +1829,7 @@ async fn generate_narration(
     resource_id: String,
     speech_rate: Option<f64>,
     content_path: String,
-    state: tauri::State<'_, AuthState>,
 ) -> Result<String, String> {
-    let _session = require_valid_license(&state).await?;
     if raw_text.trim().is_empty() {
         return Err("Narration text is empty.".to_string());
     }
@@ -2750,9 +1914,7 @@ async fn generate_storyboard_timeline(
     resource_id: String,
     speech_rate: Option<f64>,
     content_path: String,
-    state: tauri::State<'_, AuthState>,
 ) -> Result<String, String> {
-    let _session = require_valid_license(&state).await?;
     if raw_text.trim().is_empty() {
         return Err("Narration text is empty.".to_string());
     }
@@ -2830,9 +1992,7 @@ async fn sync_timeline(
     app: tauri::AppHandle,
     voice_id: String,
     content_path: String,
-    state: tauri::State<'_, AuthState>,
 ) -> Result<String, String> {
-    let _session = require_valid_license(&state).await?;
     let project_dir = get_storage_root(&app)?;
     let (content_file, _, soundtrack_file, soundtrack_repo_relative, soundtrack_static_path) =
         derive_project_paths(&project_dir, &content_path)?;
@@ -2888,9 +2048,7 @@ async fn sync_timeline(
 async fn load_preview_project(
     app: tauri::AppHandle,
     content_path: String,
-    state: tauri::State<'_, AuthState>,
 ) -> Result<String, String> {
-    let _session = require_valid_license(&state).await?;
     let project_dir = get_storage_root(&app)?;
     let (content_file, _, soundtrack_file, _, _) =
         derive_project_paths(&project_dir, &content_path)?;
@@ -2937,9 +2095,7 @@ async fn render_video(
     template: String,
     content_path: String,
     output_dir: Option<String>,
-    state: tauri::State<'_, AuthState>,
 ) -> Result<String, String> {
-    let _session = require_valid_license(&state).await?;
     let project_dir = get_storage_root(&app)?;
     let timestamp = chrono::Local::now().format("%Y%m%d_%H%M%S");
 
@@ -3028,18 +2184,7 @@ fn resize_window(
 pub fn run() {
     load_runtime_env();
     tauri::Builder::default()
-        .manage(AuthState::default())
         .invoke_handler(tauri::generate_handler![
-            auth_get_context,
-            auth_get_app_info,
-            auth_register,
-            auth_login,
-            auth_restore_session,
-            auth_get_status,
-            auth_trial,
-            auth_recharge,
-            auth_heartbeat,
-            auth_logout,
             open_external_url,
             generate_slides,
             save_slides,

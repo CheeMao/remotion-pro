@@ -1,3 +1,3 @@
 $env:PATH = [Environment]::GetEnvironmentVariable('PATH', 'User') + ';' + [Environment]::GetEnvironmentVariable('PATH', 'Machine')
-Set-Location 'F:/My Apps/AI-remotion'
+Set-Location $PSScriptRoot
 npm run tauri:build
